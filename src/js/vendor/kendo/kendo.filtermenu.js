@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.filtermenu',[ "kendo.datepicker", "kendo.numerictextbox", "kendo.dropdownlist", "kendo.binder" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "filtermenu",
     name: "Filtering Menu",
     category: "framework",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     advanced: true
 };
 
-/* jshint eqnull: true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -640,9 +640,9 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (that._bind(expression)) {
-                that.link.addClass("k-state-active");
+                that.link.addClass("k-active");
             } else {
-                that.link.removeClass("k-state-active");
+                that.link.removeClass("k-active");
             }
         },
 
@@ -950,8 +950,20 @@ var __meta__ = { // jshint ignore:line
         },
 
         _keydown: function(e) {
+            var target = $(e.target),
+                instance;
+
             if (e.keyCode == kendo.keys.ESC) {
-                this.popup.close();
+                instance = kendo.widgetInstance(target.find("select"));
+
+                if (target.hasClass("k-picker") &&
+                    instance &&
+                    instance.popup.visible()) {
+                        e.stopPropagation();
+                        return;
+                }
+
+                target.closest(".k-popup").getKendoPopup().close();
             }
         },
 
@@ -1456,7 +1468,7 @@ var __meta__ = { // jshint ignore:line
             var filters = this.getFilterArray();
 
             if (this._link) {
-                this._link.toggleClass("k-state-active", filters.length !== 0);
+                this._link.toggleClass("k-active", filters.length !== 0);
             }
 
             if (this.form) {

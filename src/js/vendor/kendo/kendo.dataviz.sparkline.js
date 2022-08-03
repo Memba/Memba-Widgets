@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -19,6 +19,7 @@
 })(function() {
 
 (function() {
+/* eslint-disable space-before-blocks, space-before-function-paren */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -305,7 +306,7 @@ kendo.deepExtend(kendo.dataviz, {
 
 })();
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define) {
     define('dataviz/sparkline/sparkline',[
         "./kendo-sparkline"
@@ -437,7 +438,7 @@ dataviz.SparklineTooltip = SparklineTooltip;
     define('kendo.dataviz.sparkline',[ "./dataviz/sparkline/kendo-sparkline", "./dataviz/sparkline/sparkline" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "dataviz.sparkline",
     name: "Sparkline",
     category: "dataviz",

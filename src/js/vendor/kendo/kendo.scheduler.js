@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.scheduler',[ "kendo.dropdownlist", "kendo.editable", "kendo.multiselect", "kendo.window", "kendo.datetimepicker", "kendo.scheduler.recurrence", "kendo.scheduler.view", "kendo.scheduler.dayview", "kendo.scheduler.agendaview", "kendo.scheduler.monthview", "kendo.scheduler.timelineview", "kendo.scheduler.yearview", "kendo.dialog", "kendo.pane", "kendo.pdf", "kendo.switch" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "scheduler",
     name: "Scheduler",
     category: "web",
@@ -59,7 +59,7 @@ var __meta__ = { // jshint ignore:line
     }]
 };
 
-/*jshint eqnull: true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         date = kendo.date,
@@ -98,7 +98,6 @@ var __meta__ = { // jshint ignore:line
         DISABLED = "disabled",
         OPTION = "option",
         FOCUSEDSTATE = "k-focus",
-        EXPANDEDSTATE = "k-state-expanded",
         VIEWSSELECTOR = ".k-scheduler-views",
         INVERSECOLORCLASS = "k-event-inverse",
         valueStartEndBoundRegex = /(?:value:start|value:end)(?:,|$)/,
@@ -269,6 +268,15 @@ var __meta__ = { // jshint ignore:line
         },
         MOBILEISALLDAYEDITOR = function(container, options) {
             $('<input type="checkbox" data-role="switch"' + kendo.attr("bind") + '="value:' + options.field + '" />').appendTo(container);
+        },
+        ISALLDAYEDITOR = function(container, options) {
+            $('<input type="checkbox" data-role="checkbox"' + kendo.attr("bind") + '="value:' + options.field + '" data-label="' + options.title + '" />')
+                .attr({
+                    id: options.field,
+                    name: options.field,
+                    title: options.title ? options.title : options.field
+                })
+                .appendTo(container);
         },
         MOBILETIMEZONEPOPUP = function(container, options) {
             var text = timezoneButtonText(options.model, options.messages.noTimezone);
@@ -1146,7 +1154,7 @@ var __meta__ = { // jshint ignore:line
                             var element = $(el);
 
                             if (element.find("[data-disabled]").length > 0) {
-                                element.addClass("k-state-disabled");
+                                element.addClass("k-disabled");
                             }
                         });
                     }
@@ -1228,7 +1236,7 @@ var __meta__ = { // jshint ignore:line
                             var element = $(el);
 
                             if (element.find("[data-disabled]").length > 0) {
-                                element.addClass("k-state-disabled");
+                                element.addClass("k-disabled");
                             }
                         });
                     }
@@ -1310,7 +1318,8 @@ var __meta__ = { // jshint ignore:line
             recurrence: RECURRENCEEDITOR,
             description: descriptionEditor,
             multipleResources: multiSelectResourceEditor,
-            resources: dropDownResourceEditor
+            resources: dropDownResourceEditor,
+            isAllDay: ISALLDAYEDITOR
         }
     };
 
@@ -1412,21 +1421,26 @@ var __meta__ = { // jshint ignore:line
             var paramName = settings.paramName;
             var html = "";
 
+            html += '<div class="k-form">';
+
             for (var idx = 0, length = fields.length; idx < length; idx++) {
                 var field = fields[idx];
 
                 if (field.field === "startTimezone") {
                     html += '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">';
-                    html += '<div class="k-edit-form-container">';
-                    html += '<div class="k-edit-label"></div>';
-                    html += '<div class="k-edit-field"><label class="k-check"><input class="k-timezone-toggle k-checkbox k-checkbox-md k-rounded-md" type="checkbox"/>' + messages.editor.separateTimezones + '</label></div>';
+                    html += '<div class="k-form">';
+                    html += '<div class="k-form-field"><div class="k-form-field-wrap">' + kendo.html.renderCheckBox($('<input class="k-timezone-toggle"/>'), { label: messages.editor.separateTimezones }) + '</div></div>';
                 }
 
-                html += '<div class="k-edit-label"><label for="' + field.field + '" id="' + field.field + '_label">' + (field.title || field.field || "") + '</label></div>';
+                if (model.fields[field.field] && model.fields[field.field].type === "boolean") {
+                    html += '<div class="k-form-field">';
+                } else {
+                    html += '<div class="k-form-field"><label class="k-label k-form-label" for="' + field.field + '" id="' + field.field + '_label">' + (field.title || field.field || "") + '</label>';
+                }
 
                 if ((!model.editable || model.editable(field.field))) {
                     editableFields.push(field);
-                    html += '<div ' + kendo.attr("container-for") + '="' + field.field + '" class="k-edit-field"></div>';
+                    html += '<div ' + kendo.attr("container-for") + '="' + field.field + '" class="k-form-field-wrap"></div>';
                 } else {
                     var tmpl = "#:";
 
@@ -1441,13 +1455,17 @@ var __meta__ = { // jshint ignore:line
 
                     tmpl = kendo.template(tmpl, settings);
 
-                    html += '<div class="k-edit-field">' + tmpl(model) + '</div>';
+                    html += '<div class="k-form-field-wrap">' + tmpl(model) + '</div>';
                 }
+
+                html += "</div>";
 
                 if (field.field === "endTimezone") {
                     html += this._createEndTimezoneButton();
                 }
             }
+
+            html += '</div>';
 
             return html;
         },
@@ -1483,7 +1501,7 @@ var __meta__ = { // jshint ignore:line
                 if ((!model.editable || model.editable(field.field))) {
                     html += '<li class="k-item k-listgroup-item">';
                     if (field.field === "timezone") {
-                        html += '<label class="k-label k-listgroup-form-row" data-bind="css: { k-state-disabled: isAllDay }">';
+                        html += '<label class="k-label k-listgroup-form-row" data-bind="css: { k-disabled: isAllDay }">';
                     } else {
                         html += '<label class="k-label k-listgroup-form-row">';
                     }
@@ -1859,7 +1877,6 @@ var __meta__ = { // jshint ignore:line
             var container = this.container = $(html)
                 .appendTo(that.element).eq(0)
                 .kendoWindow(extend({
-                    minWidth: 660,
                     modal: true,
                     resizable: false,
                     draggable: true,
@@ -1886,6 +1903,10 @@ var __meta__ = { // jshint ignore:line
                 if (editableFields[field].field !== "recurrenceRule") {
                     fieldName = editableFields[field].field;
                     container.find("[name='" + fieldName + "']").attr("aria-labelledby", fieldName + "_label");
+                }
+
+                if (editableFields[field].field === "isAllDay") {
+                    container.find("label[for='" + fieldName + "']").attr("id", fieldName + "_label");
                 }
             }
 
@@ -2021,7 +2042,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var container = that.container.find(".k-scheduler-timezones");
             var checkbox = container.find("input.k-timezone-toggle");
-            var endTimezoneRow = container.find(".k-edit-label").last().add(container.find(".k-edit-field").last());
+            var endTimezoneRow = container.find(".k-form-field").last();
             var saveButton = container.find(".k-scheduler-savetimezone");
             var cancelButton = container.find(".k-scheduler-canceltimezone");
             var timezonePopup = that._timezonePopup;
@@ -2466,12 +2487,8 @@ var __meta__ = { // jshint ignore:line
                 that._select();
             });
 
-            wrapper.on("focusout" + NS, function(e) {
+            wrapper.on("focusout" + NS, function() {
                 that._ctrlKey = that._shiftKey = false;
-
-                if (!$(e.relatedTarget).closest(VIEWSSELECTOR).length) {
-                    that.toolbar.find(VIEWSSELECTOR).removeClass(EXPANDEDSTATE);
-                }
             });
 
             wrapper.on("keydown" + NS, that._keydown.bind(that));
@@ -2590,21 +2607,21 @@ var __meta__ = { // jshint ignore:line
 
         _initialFocus: function() {
             var firstEvent = this._firstEvent(),
-                firstDateInYear;
+                view = this.view();
 
-            if (this.options.selectable) {
+            if (view.name === "year") {
+                if (!view._preventCalendarFocus) {
+                    view.calendar.element.find(".k-calendar-view").attr("tabindex", 0);
+                    view.calendar.focus();
+                } else {
+                    view._preventCalendarFocus = false;
+                }
+            } else if (this.options.selectable) {
                 if (firstEvent && firstEvent.length > 0) {
                     this._createSelection(firstEvent);
                     this._selection.eventElement = firstEvent[0];
                 } else {
-                    firstDateInYear = this.wrapper.find(".k-scheduler-body").find(".k-link:first");
-
-                    if (firstDateInYear.length > 0) {
-                        this._createSelection(firstDateInYear);
-                        firstDateInYear.focus();
-                    } else {
-                        this._selectFirstSlot();
-                    }
+                    this._selectFirstSlot();
                 }
             } else if (this.toolbar && this.toolbar.find("." + FOCUSEDSTATE).length === 0) {
                 this._focusToolbar();
@@ -2835,7 +2852,8 @@ var __meta__ = { // jshint ignore:line
                 this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
 
                 if (this._selectedViewName === "year") {
-                    this._keydownYearView(e);
+                    this.view().calendar.element.find(".k-calendar-view").attr("tabindex", 0);
+                    this.view().calendar.focus();
                 } else if (document.activeElement !== this.element[0]) {
                     this.element.focus();
                 }
@@ -2936,9 +2954,14 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if (view.move(selection, key)) {
+            if (key === keys.F10) {
+                view.calendar.element.find(".k-calendar-view").removeAttr("tabindex");
+                this._focusToolbar();
+                e.preventDefault();
+            } else {
                 this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                this._select();
+                view.calendar.element.find(".k-calendar-view").attr("tabindex", 0);
+                view.calendar.focus();
             }
 
             if (selection) {
@@ -3037,14 +3060,14 @@ var __meta__ = { // jshint ignore:line
             if (toolbarIsFocused) {
                 this._keydownToolbar(e);
             } else {
-                if (key === keys.F10) {
-                    this._focusToolbar();
-                    e.preventDefault();
+                if (this._selectedViewName === "year") {
+                    this._keydownYearView(e);
                     return;
                 }
 
-                if (this._selectedViewName === "year") {
-                    this._keydownYearView(e);
+                if (key === keys.F10) {
+                    this._focusToolbar();
+                    e.preventDefault();
                     return;
                 }
 

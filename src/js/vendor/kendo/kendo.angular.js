@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.angular',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "angular",
     name: "AngularJS Directives",
     category: "framework",
@@ -27,7 +27,6 @@ var __meta__ = { // jshint ignore:line
         return;
     }
 
-    /*jshint eqnull:true,loopfunc:true,-W052,-W028  */
 
     var module = angular.module('kendo.directives', []),
         $injector = angular.injector(['ng']),
@@ -101,7 +100,7 @@ var __meta__ = { // jshint ignore:line
     };
 
     function createWidget(scope, element, attrs, widget, origAttr, controllers) {
-        /* jshint latedef: false */
+
         if (!(element instanceof jQuery)) {
             throw new Error("The Kendo UI directives require jQuery to be available before AngularJS. Please include jquery before angular in the document.");
         }
@@ -719,7 +718,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function setTemplate(key, value) {
-        this[key] = kendo.stringify(value); // jshint ignore:line
+        this[key] = kendo.stringify(value);
     }
 
     module.factory('directiveFactory', [ '$compile', function(compile) {

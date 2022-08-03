@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -20,8 +20,7 @@
 })(function() {
 
 (function($) {
-/* jshint curly:false */
-/* jshint -W058 */
+/* eslint-disable space-before-blocks, space-before-function-paren, curly */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var drawing = kendo.drawing;
@@ -292,15 +291,15 @@ var HashMap = function HashMap() {
     this._map = {};
 };
 
-HashMap.prototype.get = function get(name) {
+HashMap.prototype.get = function get (name) {
     return this._map[this._key(name)];
 };
 
-HashMap.prototype.set = function set(name, value) {
+HashMap.prototype.set = function set (name, value) {
     this._map[this._key(name)] = value;
 };
 
-HashMap.prototype._key = function _key(name) {
+HashMap.prototype._key = function _key (name) {
     return name instanceof Date ? name.getTime() : name;
 };
 
@@ -338,7 +337,7 @@ var InstanceObserver = Class.extend({
 
     callObserver: function(fnName) {
         var args = [], len = arguments.length - 1;
-        while ( len-- > 0 ) {args[ len ] = arguments[ len + 1 ];}
+        while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
 
         return this.observer[fnName].apply(this.observer, args);
     },
@@ -512,7 +511,7 @@ function parseMatrix(matrixString) {
         return Matrix.unit();
     }
 
-    var members = match[1].split(',').map(function(x) { return parseFloat(x); });
+    var members = match[1].split(',').map(function (x) { return parseFloat(x); });
     return new (Function.prototype.bind.apply( Matrix, [ null ].concat( members) ));
 }
 
@@ -567,7 +566,7 @@ var LegacySet = Class.extend({
     },
 
     values: function() {
-        return this._values.filter(function(item) { return item !== DELETED; });
+        return this._values.filter(function (item) { return item !== DELETED; });
     },
 
     has: function(value) {
@@ -642,7 +641,7 @@ if (Object.defineProperties) {
 }
 
 // TODO: Drop LegacySet when removing support for IE10
-var supportsSet = function() {
+var supportsSet = function () {
     var supported = false;
 
     if (typeof Set === 'function') {
@@ -1441,7 +1440,7 @@ var ChartElement = Class.extend({
             if (customVisual) {
                 highlight = this._highlight = customVisual(
                     $.extend(this.highlightVisualArgs(), {
-                        createVisual: function() { return this$1.createHighlight(highlightOptions); },
+                        createVisual: function () { return this$1.createHighlight(highlightOptions); },
                         sender: this.getSender(),
                         series: this.series,
                         dataItem: this.dataItem,
@@ -1518,7 +1517,7 @@ var BoxElement = ChartElement.extend({
         var borderWidth = options.border.width;
         var box;
 
-        var reflowPaddingBox = function() {
+        var reflowPaddingBox = function () {
             this$1.align(targetBox, X, options.align);
             this$1.align(targetBox, Y, options.vAlign);
             this$1.paddingBox = box.clone().unpad(margin).unpad(borderWidth);
@@ -1700,7 +1699,7 @@ var ShapeElement = BoxElement.extend({
                 category: pointData.category,
                 rect: this.paddingBox.toRect(),
                 options: this.visualOptions(),
-                createVisual: function() { return this$1.getElement(); }
+                createVisual: function () { return this$1.getElement(); }
             });
         } else {
             visual = this.getElement();
@@ -2332,7 +2331,7 @@ var TextBox = BoxElement.extend({
             rect: targetBox.toRect(),
             sender: this.getSender(),
             options: this.options,
-            createVisual: function() {
+            createVisual: function () {
                 this$1._boxReflow = true;
                 this$1.reflow(targetBox);
                 this$1._boxReflow = false;
@@ -2557,7 +2556,7 @@ var Note = BoxElement.extend({
             var label = options.label;
             var icon = options.icon;
             var box = new Box();
-            var childAlias = function() { return this$1; };
+            var childAlias = function () { return this$1; };
             var size = icon.size;
             var text = this.fields.text;
             var width, height;
@@ -2717,7 +2716,7 @@ var Note = BoxElement.extend({
                     position: options.position,
                     visible: options.visible
                 },
-                createVisual: function() {
+                createVisual: function () {
                     this$1.createVisual();
                     this$1.renderChildren();
                     var defaultVisual = this$1.visual;
@@ -2801,13 +2800,13 @@ setDefaultOptions(Note, {
 });
 
 var defaultImplementation = {
-    format: function(format, value) { return value; },
+    format: function (format, value) { return value; },
 
-    toString: function(value) { return value; },
+    toString: function (value) { return value; },
 
-    parseDate: function(value) { return new Date(value); },
+    parseDate: function (value) { return new Date(value); },
 
-    firstDay: function() { return 0; }
+    firstDay: function () { return 0; }
 };
 
 var current$1 = defaultImplementation;
@@ -2839,7 +2838,7 @@ var FormatService = Class.extend({
 
     auto: function(formatString) {
         var values = [], len = arguments.length - 1;
-        while ( len-- > 0 ) {values[ len ] = arguments[ len + 1 ];}
+        while ( len-- > 0 ) values[ len ] = arguments[ len + 1 ];
 
         var intl = this.intl;
 
@@ -3095,7 +3094,7 @@ var Axis = ChartElement.extend({
     },
 
     clearLabels: function() {
-        this.children = grep(this.children, function(child) { return !(child instanceof AxisLabel); });
+        this.children = grep(this.children, function (child) { return !(child instanceof AxisLabel); });
         this.labels = [];
     },
 
@@ -3103,7 +3102,7 @@ var Axis = ChartElement.extend({
         var this$1 = this;
 
         if (this.title) {
-            this.children = grep(this.children, function(child) { return child !== this$1.title; });
+            this.children = grep(this.children, function (child) { return child !== this$1.title; });
             this.title = undefined;
         }
     },
@@ -3328,7 +3327,7 @@ var Axis = ChartElement.extend({
             zIndex: -1
         });
 
-        var altAxis = grep(this.pane.axes, function(axis) { return axis.options.vertical !== this$1.options.vertical; })[0];
+        var altAxis = grep(this.pane.axes, function (axis) { return axis.options.vertical !== this$1.options.vertical; })[0];
 
         for (var idx = 0; idx < plotBands.length; idx++) {
             var item = plotBands[idx];
@@ -3701,7 +3700,7 @@ var Axis = ChartElement.extend({
 
         var text;
         var tmpl = getTemplate(options);
-        var defaultText = function() {
+        var defaultText = function () {
             if (!options.format) {
                 return value;
             }
@@ -4482,7 +4481,7 @@ var CategoryAxis = Axis.extend({
         }
 
         var axis = this.options.vertical ? Y : X;
-        var inRange = function(position) { return lineBox[axis + 1] <= position && position <= lineBox[axis + 2]; };
+        var inRange = function (position) { return lineBox[axis + 1] <= position && position <= lineBox[axis + 2]; };
 
         var end = positions.length - 1;
         var startIndex = 0;
@@ -5661,7 +5660,7 @@ var DateCategoryAxis = CategoryAxis.extend({
         var unitFormat = labelOptions.dateFormats[this.divisionRange.options.baseUnit];
         labelOptions.format = labelOptions.format || unitFormat;
 
-        var createLabel = function(index, date, text) {
+        var createLabel = function (index, date, text) {
             if (text) {
                 var label = new AxisLabel(date, text, index, null, labelOptions);
                 this$1.append(label);
@@ -5684,7 +5683,7 @@ var DateCategoryAxis = CategoryAxis.extend({
             return;
         }
 
-        var rotateLabel = function(label, tickPositions, index) {
+        var rotateLabel = function (label, tickPositions, index) {
             var width = Math.abs(tickPositions[index + 1] - tickPositions[index]) * 2;
             var angle = this$1.autoRotateLabelAngle(label.box, width);
             if (angle !== 0) {
@@ -6645,7 +6644,7 @@ var LogarithmicAxis = Axis.extend({
     getMajorTickPositions: function() {
         var ticks = [];
 
-        this.traverseMajorTicksPositions(function(position) {
+        this.traverseMajorTicksPositions(function (position) {
             ticks.push(position);
         }, { step: 1, skip: 0 });
 
@@ -6996,7 +6995,7 @@ var GridLinesMixin = {
         var options = altAxis.options;
         var altAxisVisible = options.visible && (options.line || {}).visible !== false;
 
-        return map(divs, function(d) {
+        return map(divs, function (d) {
             var alpha = this$1.intervalAngle(d);
 
             if (!altAxisVisible || alpha !== 90) {
@@ -7084,7 +7083,7 @@ var RadarCategoryAxis = CategoryAxis.extend({
     majorAngles: function() {
         var this$1 = this;
 
-        return map(this.majorIntervals(), function(interval) { return this$1.intervalAngle(interval); });
+        return map(this.majorIntervals(), function (interval) { return this$1.intervalAngle(interval); });
     },
 
     createLine: function() {
@@ -8039,7 +8038,7 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define) {
     define('dataviz/core/core',[
         "./kendo-core"
@@ -8147,7 +8146,7 @@ kendo.deepExtend(kendo.dataviz, {
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "dataviz.core",
     name: "Core",
     description: "The DataViz core functions",

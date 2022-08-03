@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -78,7 +78,8 @@
 
 
     // States
-    td.k-state-hover {
+    td.k-state-hover,
+    td.k-hover {
         .k-link {
             .fill(
                 @calendar-cell-hovered-text,
@@ -88,7 +89,8 @@
             .composite-background(@hover-gradient);
         }
     }
-    td.k-state-selected {
+    td.k-state-selected,
+    td.k-selected {
         .k-link {
             .fill(
                 @calendar-cell-selected-text,
@@ -98,7 +100,8 @@
             .composite-background(@selected-gradient);
         }
     }
-    td.k-state-focused {
+    td.k-state-focused,
+    td.k-focus {
         .k-link {
             box-shadow: @calendar-cell-focused-shadow;
         }

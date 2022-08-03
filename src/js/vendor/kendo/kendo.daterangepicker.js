@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.daterangepicker',[ "kendo.core", "kendo.multiviewcalendar", "kendo.datepicker"], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "daterangepicker",
     name: "DateRangePicker",
     category: "web",
@@ -35,7 +35,7 @@ var __meta__ = { // jshint ignore:line
         ID = "id",
         support = kendo.support,
         mobileOS = support.mobileOS,
-        SELECTED = "k-state-selected",
+        SELECTED = "k-selected",
         ARIA_EXPANDED = "aria-expanded",
         ARIA_DISABLED = "aria-disabled",
         ARIA_ACTIVEDESCENDANT = "aria-activedescendant",
@@ -142,7 +142,7 @@ var __meta__ = { // jshint ignore:line
                 return true;
             }
 
-            that._current = calendar._move(e, true);
+            that._current = calendar._move(e);
 
             handled = true;
         }

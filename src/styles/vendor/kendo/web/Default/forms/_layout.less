@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -163,9 +163,15 @@
     padding: 0;
 }
 
-.k-window > div.k-popup-edit-form
+.k-window > .k-popup-edit-form
 {
-    padding: 1em 0;
+    .k-edit-buttons {
+        display: flex;
+
+        .k-button {
+            margin-right: 0.6em;
+        }
+    }
 }
 
 .k-grid-edit-row .k-edit-form td
@@ -212,10 +218,7 @@
 {
     clear: both;
     text-align: right;
-    border-width: 1px 0 0;
-    border-style: solid;
     position: relative;
-    bottom: -1em;
-    padding: .6em;
+    padding-top: @window-inner-padding-y;
 }
 

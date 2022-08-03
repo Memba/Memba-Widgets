@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.scheduler.monthview',[ "kendo.scheduler.view" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "scheduler.monthview",
     name: "Scheduler Month View",
     category: "web",
@@ -1079,10 +1079,10 @@ var __meta__ = { // jshint ignore:line
                 });
 
                 if (eventHeight === "auto") {
-                    slots.forEach(function(slot, slotIndex) { // jshint ignore:line
+                    slots.forEach(function(slot, slotIndex) {
                         var slotHeight = slot.firstChildTop + slot.firstChildHeight + CELL_INNER_SPACING;
 
-                        slot.eventMeta.forEach(function(meta, eventIndex) { // jshint ignore:line
+                        slot.eventMeta.forEach(function(meta, eventIndex) {
                             meta.top = Math.max(meta.top, weekOffsetTop + slotHeight);
                             slotHeight = (meta.top - weekOffsetTop) + eventSpacing + meta.height;
                         });
@@ -1371,7 +1371,7 @@ var __meta__ = { // jshint ignore:line
             for (var idx = 0, length = Math.min(rows.length, eventCount); idx < length; idx++) {
                 var rowEvents = rows[idx].events;
                 var eventTop = (eventHeight === "auto")
-                    ? "" // jshint ignore:line
+                    ? ""
                     : (
                         startSlot.offsetTop +
                         startSlot.firstChildTop +
@@ -1404,7 +1404,7 @@ var __meta__ = { // jshint ignore:line
                         width: slot.clientWidth - 2,
                         left: slot.offsetLeft + 2,
                         top: (eventHeight === "auto")
-                            ? "" // jshint ignore:line
+                            ? ""
                             : (
                                 slot.offsetTop +
                                 slot.firstChildTop +

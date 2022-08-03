@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.pivot.configurator',[ "kendo.dom", "kendo.html.chip", "kendo.html.chiplist", "kendo.pivot.common" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "pivot.configurator",
     name: "PivotConfigurator",
     category: "web",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-/*jshint eqnull: true, laxbreak:true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -318,7 +318,7 @@ var __meta__ = { // jshint ignore:line
                 .kendoTreeView({
                     checkboxes: {
                         checkChildren: true,
-                        template: '#if ((item.hasChildren || item.aggregator) && item.uniqueName !== "[KPIs]" && item.uniqueName !== "[Measures]") {# <input type="checkbox" data-name="#:item.uniqueName#" #= item.checked ? "checked" : "" # class="k-checkbox k-checkbox-md k-rounded-md" id="#:item.uid#" tabindex="-1"> #}#'
+                        template: '#if ((item.hasChildren || item.aggregator || item.local) && item.uniqueName !== "[KPIs]" && item.uniqueName !== "[Measures]" && item.uniqueName !== "Measures") {# <input type="checkbox" data-name="#:item.uniqueName#" #= item.checked ? "checked" : "" # class="k-checkbox k-checkbox-md k-rounded-md" id="#:item.uid#" tabindex="-1"> #}#'
                     },
                     dataTextField: "caption",
                     autoBind: false,
@@ -335,7 +335,12 @@ var __meta__ = { // jshint ignore:line
                       };
                       var result = configuratorReducer(state, action);
 
-                      if (dataItem.defaultHierarchy && dataItem.items.length) {
+                      if (that.dataSource.cubeSchema && result.measureAxes && result.measureAxes.length &&
+                        result.measureAxes.length > state.measureAxes.length) {
+                          that.dataSource.cubeSchema.restoreMeasure(result.measureAxes, dataItem);
+                      }
+
+                      if (dataItem.defaultHierarchy && dataItem.items && dataItem.items.length) {
                           that._checkMembers([{ name: dataItem.defaultHierarchy }], dataItem.items);
                           dataItem.items.trigger("change");
                       }
@@ -368,6 +373,10 @@ var __meta__ = { // jshint ignore:line
                     model: {
                         id: "uniqueName",
                         hasChildren: function(item) {
+                            if (that.dataSource.cubeSchema && item.uniqueName !== "Measures") {
+                                item.local = true;
+                                return false;
+                            }
                             return !("hierarchyUniqueName" in item) && !("aggregator" in item);
                         }
                     }
@@ -385,43 +394,58 @@ var __meta__ = { // jshint ignore:line
                         var rows = that.rows._state();
                         var measures = that.measures._state();
                         var members = columns.concat(rows).concat(measures);
+                        var fields;
+                        var dsMeasures;
+                        var fetchOpts;
 
                         if ($.isEmptyObject(options.data)) {
-                            var fetchOpts = {
-                                connection: {
-                                    catalog: catalog,
-                                    cube: cube
-                                },
-                                restrictions: {
-                                    catalogName: catalog,
-                                    cubeName: cube
-                                },
-                                command: 'schemaDimensions'
-                            };
+                            if (that.dataSource.cubeSchema) {
+                                fields = that.dataSource.cubeSchema.dimensions();
+                                that._checkMembers(members, fields);
+                                options.success(fields);
+                            } else {
+                                fetchOpts = {
+                                    connection: {
+                                        catalog: catalog,
+                                        cube: cube
+                                    },
+                                    restrictions: {
+                                        catalogName: catalog,
+                                        cubeName: cube
+                                    },
+                                    command: 'schemaDimensions'
+                                };
 
-                            fetchDiscover(fetchOptions, fetchOpts)
-                                .then(function(newFields) {
-                                    that._checkMembers(members, newFields);
-                                    addKPI(newFields);
-                                    options.success(newFields);
-                                 });
+                                fetchDiscover(fetchOptions, fetchOpts)
+                                    .then(function(newFields) {
+                                        that._checkMembers(members, newFields);
+                                        addKPI(newFields);
+                                        options.success(newFields);
+                                     });
+                            }
                         } else {
                             //Hack to get the actual node as the HierarchicalDataSource does not support passing it
                             node = that.treeView.dataSource.get(options.data.uniqueName);
 
-                            if (node.uniqueName === "[KPIs]") {
-                                fetchDiscover(fetchOptions, that._getKPIOptions(catalog, cube))
-                                .then(function(newFields) {
-                                    options.success(normalizeKPIs(newFields));
-                                });
-                            } else if (node.type == "kpi") {
-                                options.success(buildKPImeasures(node));
+                            if (that.dataSource.cubeSchema) {
+                                dsMeasures = that.dataSource.measures();
+                                that._checkMembers(members, dsMeasures);
+                                options.success(dsMeasures);
                             } else {
-                                fetchDiscover(fetchOptions ,that._loadFieldsCommand(node, catalog, cube))
-                                .then(function(newFields) {
-                                    that._checkMembers(members, newFields);
-                                    options.success(newFields);
-                                });
+                                if (node.uniqueName === "[KPIs]") {
+                                    fetchDiscover(fetchOptions, that._getKPIOptions(catalog, cube))
+                                    .then(function(newFields) {
+                                        options.success(normalizeKPIs(newFields));
+                                    });
+                                } else if (node.type == "kpi") {
+                                    options.success(buildKPImeasures(node));
+                                } else {
+                                    fetchDiscover(fetchOptions ,that._loadFieldsCommand(node, catalog, cube))
+                                    .then(function(newFields) {
+                                        that._checkMembers(members, newFields);
+                                        options.success(newFields);
+                                    });
+                                }
                             }
                         }
                     }
@@ -832,7 +856,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _toggleHover: function(e) {
-            $(e.currentTarget).toggleClass("k-state-hover", e.type === "mouseenter");
+            $(e.currentTarget).toggleClass("k-hover", e.type === "mouseenter");
         },
 
         _resize: function() {

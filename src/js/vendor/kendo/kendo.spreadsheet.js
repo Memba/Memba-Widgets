@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -61,13 +61,14 @@
  * `kendo-drawing` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('util/text-metrics',[
         "kendo.core"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
+/* eslint-disable space-before-blocks, space-before-function-paren */
 
 window.kendo.util = window.kendo.util || {};
 
@@ -745,9 +746,6 @@ return window.kendo;
 })(function(){
 
 (function(kendo) {
-
-    /* jshint laxbreak:true */
-
     var $ = kendo.jQuery;
 
     var COMMAND_TYPES = {
@@ -975,7 +973,7 @@ return window.kendo;
             this._prevUnderline = range.underline();
             range.link(this._link);
             range.underline(true);
-            if (range.value() == null) { // jshint ignore:line
+            if (range.value() == null) {
                 this._hasSetValue = true;
                 range.value(this._link);
             }
@@ -2123,8 +2121,8 @@ return window.kendo;
 
 (function(kendo, window) {
 
-    /* jshint eqnull:true */
-    /* jshint latedef: nofunc */
+
+
 
     var $ = kendo.jQuery;
     var Widget = kendo.ui.Widget;
@@ -2220,7 +2218,7 @@ return window.kendo;
                 this.element.removeAttr("contenteditable");
             }
 
-            this.element.toggleClass("k-state-disabled", !enable);
+            this.element.toggleClass("k-disabled", !enable);
         },
 
         getPos: function() {
@@ -3131,7 +3129,7 @@ return window.kendo;
 
 (function(kendo) {
 
-    /* jshint laxbreak:true, eqnull:true */
+
 
     var RangeTreeNode = kendo.Class.extend({
         init: function Node(level, value, left, right) {
@@ -3142,7 +3140,7 @@ return window.kendo;
         }
     });
 
-    var NilNode = new (function NIL() { // jshint ignore:line
+    var NilNode = new (function NIL() { 
         this.left = this;
         this.right = this;
         this.level = 0;
@@ -4008,7 +4006,7 @@ return window.kendo;
 })(function(){
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /* jshint eqnull:true, laxbreak:true */
+
 
     "use strict";
 
@@ -6495,7 +6493,7 @@ return window.kendo;
                     // it's a Formula object which stringifies to the
                     // formula as text (without the starting `=`).
                     value = "=" + formula;
-                } else OUT: { // jshint ignore:line
+                } else OUT: { 
                     if (existingFormat && type == "date") {
                         // check if we could parse back the displayed value.
                         // https://github.com/telerik/kendo/issues/5335
@@ -6504,7 +6502,7 @@ return window.kendo;
                         var t2 = kendo.spreadsheet.formatting.text(x.value, existingFormat);
                         if (t1 == t2) {
                             value = t1;
-                            break OUT; // jshint ignore:line
+                            break OUT; 
                         }
                     }
                     if (type === "date") {
@@ -7106,7 +7104,7 @@ return window.kendo;
                                     // invalid Formula and display #ERROR, like G.S. does, so in
                                     // case of a parse error we'll just set the value as string.
                                     try {
-                                        if (cellState.value == null) { // jshint ignore:line
+                                        if (cellState.value == null) { 
                                             range._set("value", null);
                                         } else {
                                             range.input(cellState.value);
@@ -7164,7 +7162,7 @@ return window.kendo;
                             width = sheet.columnWidth(col);
                         }
                         var data = cell.value;
-                        if (cell.format && data != null) { // jshint ignore:line
+                        if (cell.format && data != null) { 
                             data = kendo.spreadsheet.formatting.format(data, cell.format);
                         }
                         var textHeight = kendo.spreadsheet.util.getTextHeight(
@@ -7320,9 +7318,9 @@ return window.kendo;
 
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /* jshint eqnull:true, newcap:false, laxbreak:true, shadow:true, validthis:true, -W054, loopfunc: true */
+
     /* global console */
-    /* jshint latedef: nofunc */
+
 
     var calc = {};
     var spreadsheet = kendo.spreadsheet;
@@ -7419,7 +7417,7 @@ return window.kendo;
             for (var pending = formulas.length, i = 0; i < formulas.length; ++i) {
                 fetch(formulas[i]);
             }
-            function fetch(formula) { // jshint ignore:line, because you are stupid.
+            function fetch(formula) { 
                 formula.exec(context.ss, function(){
                     if (!--pending) {
                         f.call(context);
@@ -9394,7 +9392,7 @@ return window.kendo;
 
 (function(kendo) {
 
-    /* jshint laxbreak:true, eqnull:true */
+
 
     var RangeRef = kendo.spreadsheet.RangeRef;
     var UnionRef = kendo.spreadsheet.UnionRef;
@@ -9733,6 +9731,8 @@ return window.kendo;
         triggerChange: function(reason) {
             if (!this._suspendChanges) {
                 this.trigger("change", reason);
+            } else if (reason && reason.isValue) {
+                this._valueChanged = true;
             }
             return this;
         },
@@ -11026,11 +11026,11 @@ return window.kendo;
                 return validation.clone(this._name(), row, col);
             }
 
-            if (validation.from != null) { // jshint ignore: line
+            if (validation.from != null) {
                 validation.from = (validation.from + "").replace(/^=/, "");
             }
 
-            if (validation.to != null) { // jshint ignore: line
+            if (validation.to != null) {
                 validation.to = (validation.to + "").replace(/^=/, "");
             }
 
@@ -11113,10 +11113,18 @@ return window.kendo;
             var suspended = this.suspendChanges();
 
             this.suspendChanges(true);
+            this._valueChanged = false;
 
             callback.call(this);
 
-            return this.suspendChanges(suspended).triggerChange(reason || { recalc: true });
+            if (!reason) {
+                reason = { recalc: true };
+            }
+            if (this._valueChanged) {
+                reason.isValue = true;
+            }
+
+            return this.suspendChanges(suspended).triggerChange(reason);
         },
 
         _sortBy: function(ref, columns) {
@@ -11447,7 +11455,7 @@ return window.kendo;
             sheetsBarNext: "k-tabstrip-next",
             sheetsBarPrev: "k-tabstrip-prev",
             sheetsBarKItem: "k-item k-tabstrip-item",
-            sheetsBarKActive: "k-state-active k-state-tab-on-top",
+            sheetsBarKActive: "k-active k-state-tab-on-top",
             sheetsBarKTextbox: "k-textbox",
             sheetsBarKLink: "k-link",
             sheetsBarKIcon: "k-icon",
@@ -11872,8 +11880,6 @@ return window.kendo;
 
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /* jshint eqnull:true, newcap:false, laxbreak:true, shadow:true, -W054 */
-    /* jshint latedef: false */
 
     var util = kendo.util;
     var spreadsheet = kendo.spreadsheet;
@@ -11981,7 +11987,7 @@ return window.kendo;
                     return new CellRef(getrow(m[4]), getcol(m[2]));
                 }
                 // no NameRef-s from this function
-                break OUT;      // jshint ignore:line
+                break OUT;
             }
             var stream = TokenStream(name, {});
             var a = [];
@@ -11994,14 +12000,14 @@ return window.kendo;
                     ref.topLeft.rel = 0;
                     ref.bottomRight.rel = 0;
                 } else {
-                    break OUT;  // jshint ignore:line
+                    break OUT;
                 }
                 a.push(ref);
                 if (stream.eof()) {
                     break;
                 }
                 if (!stream.is("op", SEPARATORS.ARG)) {
-                    break OUT;  // jshint ignore:line
+                    break OUT;
                 }
                 stream.next();
             }
@@ -12234,7 +12240,7 @@ return window.kendo;
 
     function makePrinter(exp) {
         return makeClosure("function(row, col, mod){return(" + print(exp.ast, exp, 0) + ")}");
-        function print(node, parent, prec) { // jshint ignore:line, because you are stupid.
+        function print(node, parent, prec) {
             switch (node.type) {
               case "num":
                 return "(kendo.spreadsheet.calc._separators.DEC == '.' ? "
@@ -13083,7 +13089,7 @@ return window.kendo;
             forward     : forward,
             pos         : location
         };
-        function location() { // jshint ignore:line, :-(
+        function location() {
             return pos;
         }
         function next() {
@@ -13515,8 +13521,8 @@ return window.kendo;
 
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /* jshint eqnull:true, laxbreak:true */
-    /* jshint latedef: nofunc */
+
+
 
     var $ = kendo.jQuery;
     var parseXML = kendo.util.parseXML;
@@ -13703,7 +13709,7 @@ return window.kendo;
     function loadSheets(items, workbook, progress) {
         var ready = (new $.Deferred()).resolve();
         for (var i = 0; i < items.length; i++) {
-            /*jshint -W083 */
+
             (function(entry, i) {
                 ready = ready.then(function() {
                     var sheet = workbook.insertSheet(entry.options);
@@ -14859,8 +14865,8 @@ return window.kendo;
 
 (function(kendo) {
 
-    // jshint latedef: nofunc
-    // jshint eqnull: true, laxbreak: true
+
+
 
     var $ = kendo.jQuery;
     var Formula = kendo.spreadsheet.calc.runtime.Formula;
@@ -15844,7 +15850,7 @@ return window.kendo;
     define('spreadsheet/formulacontext',[ 'kendo.core' ], f);
 })(function() {
 
-    /* jshint eqnull:true */
+
 
     var spreadsheet = kendo.spreadsheet;
     var CellRef = spreadsheet.CellRef;
@@ -17545,7 +17551,7 @@ return window.kendo;
             return el;
         }
 
-        var shouldDraw = (cell.value != null || (cell.validation != null && !cell.validation.value) || // jshint ignore:line
+        var shouldDraw = (cell.value != null || (cell.validation != null && !cell.validation.value) || 
                           cell.background || cell.merged || cell.comment);
         if (!cls && !shouldDraw) {
             return;
@@ -17616,7 +17622,7 @@ return window.kendo;
         if (!format && type == "number" && data != Math.floor(data)) {
             format = "0.##############";
         }
-        if (format && data != null) { // jshint ignore:line
+        if (format && data != null) { 
             data = kendo.spreadsheet.formatting.format(data, format);
             if (data.__dataType) {
                 type = data.__dataType;
@@ -17652,7 +17658,7 @@ return window.kendo;
             classNames.push(cls);
         }
         if (cell.enable === false) {
-            classNames.push("k-state-disabled");
+            classNames.push("k-disabled");
         }
         if (cell.merged) {
             classNames.push("k-spreadsheet-merged-cell");
@@ -17746,7 +17752,7 @@ return window.kendo;
         if (!format && type == "number" && data != Math.floor(data)) {
             format = "0.##############";
         }
-        if (format && data != null) { // jshint ignore:line
+        if (format && data != null) { 
             data = kendo.spreadsheet.formatting.format(data, format);
             if (data.__dataType) {
                 type = data.__dataType;
@@ -17770,7 +17776,7 @@ return window.kendo;
         var className = null;
 
         if (cell.enable === false) {
-            className = "k-state-disabled";
+            className = "k-disabled";
         }
 
         var td = table.addCell(row, data, style, className, cell.validation);
@@ -19403,7 +19409,7 @@ return window.kendo;
 
     "use strict";
 
-    // jshint eqnull:true
+    
 
     var $ = kendo.jQuery;
 
@@ -19603,7 +19609,7 @@ return window.kendo;
 
 (function(kendo) {
 
-    // jshint laxbreak: true
+    
 
     var CellRef = kendo.spreadsheet.CellRef;
     var RangeRef = kendo.spreadsheet.RangeRef;
@@ -20354,7 +20360,7 @@ return window.kendo;
 })(function(){
 (function(kendo) {
 
-    /*jshint evil: true */
+
     var Filter = kendo.spreadsheet.Filter = kendo.Class.extend({
         prepare: function() {
         },
@@ -20924,8 +20930,8 @@ return window.kendo;
 
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /* jshint eqnull:true, newcap:false, laxbreak:true, shadow:true, -W054 */
-    /* jshint latedef: nofunc */
+
+
 
     var util = kendo.util;
     var calc = kendo.spreadsheet.calc;
@@ -21918,8 +21924,8 @@ return window.kendo;
 
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /* jshint eqnull:true, newcap:false, laxbreak:true, validthis:true */
-    /* jshint latedef:false */
+
+
 
     var util = kendo.util;
     var spreadsheet = kendo.spreadsheet;
@@ -24419,8 +24425,8 @@ return window.kendo;
 
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /* jshint eqnull:true, newcap:false, laxbreak:true, validthis:true */
-    /* jshint latedef: nofunc */
+
+
 
     var spreadsheet = kendo.spreadsheet;
     var calc = spreadsheet.calc;
@@ -26542,7 +26548,7 @@ return window.kendo;
 
 (function(kendo) {
 
-    /* jshint eqnull:true */
+
 
     var $ = kendo.jQuery;
 
@@ -27844,9 +27850,9 @@ return window.kendo;
 
 (function(kendo) {
 
-    /* jshint eqnull:true */
-    /* jshint latedef: false */
-    /* jshint multistr: true */
+
+
+
 
     var $ = kendo.jQuery;
     var ObservableObject = kendo.data.ObservableObject;
@@ -29849,7 +29855,7 @@ return window.kendo;
 
 (function(kendo) {
 
-    /* jshint eqnull:true */
+
 
     var identity = function(o) { return o; };
 
@@ -30804,7 +30810,7 @@ return window.kendo;
                 this.element.append(wrapper);
 
                 if (details) {
-                    details = new Details(wrapper, { expanded: expanded, toggle: this._detailToggle.bind(this) }); // jshint ignore:line
+                    details = new Details(wrapper, { expanded: expanded, toggle: this._detailToggle.bind(this) }); 
                 }
 
                 kendo.bind(wrapper, this.viewModel);
@@ -31059,8 +31065,6 @@ return window.kendo;
     define('spreadsheet/autofill',[ "./runtime", "./range" ], f);
 })(function(){
     "use strict";
-
-    // jshint eqnull:true
 
     var spreadsheet = kendo.spreadsheet;
     var Range = spreadsheet.Range;
@@ -31507,8 +31511,8 @@ return window.kendo;
 
     var GUIDELINE_WIDTH = 0.8;
 
-    /* jshint eqnull:true, laxbreak:true, shadow:true, -W054 */
-    /* jshint latedef: nofunc */
+
+
 
     // This takes a list of row heights and the page height, and
     // produces a list of Y coordinates for each row, such that rows
@@ -31944,7 +31948,7 @@ return window.kendo;
                     });
                 }
 
-                var borders = Borders(); // jshint ignore: line
+                var borders = Borders(); 
                 cells.forEach(function(cell){
                     drawCell(cell, content, options);
                     borders.add(cell, sheet);
@@ -32557,7 +32561,7 @@ return window.kendo;
         "./spreadsheet/print"
     ], f);
 })(function() {
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "spreadsheet",
         name: "Spreadsheet",
         category: "web",
@@ -32665,8 +32669,8 @@ return window.kendo;
                     e.preventDefault();
                     return;
                 } else if (key === keys.F10 && this._view.tabstrip || (key === keys.TAB && !e.shiftKey && $(document.activeElement).is(redoTool))) {
-                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find("li.k-state-active").text().toLowerCase()].element.find(":not(.k-overflow-anchor):kendoFocusable").first().trigger("focus");
-                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find("li.k-state-active").text().toLowerCase()].element.find(".k-toolbar-first-visible").addClass("k-focus");
+                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find("li.k-active").text().toLowerCase()].element.find(":not(.k-overflow-anchor):kendoFocusable").first().trigger("focus");
+                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find("li.k-active").text().toLowerCase()].element.find(".k-toolbar-first-visible").addClass("k-focus");
                     e.preventDefault();
                     return;
                 } else if (e.ctrlKey && key === keys.B) {

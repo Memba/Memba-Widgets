@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.tabstrip',[ "kendo.data" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "tabstrip",
     name: "TabStrip",
     category: "web",
@@ -58,10 +58,10 @@ var __meta__ = { // jshint ignore:line
         MOUSEENTER = "mouseenter",
         MOUSELEAVE = "mouseleave",
         CONTENTLOAD = "contentLoad",
-        DISABLEDSTATE = "k-state-disabled",
-        ACTIVESTATE = "k-state-active",
-        FOCUSEDSTATE = "k-state-focused",
-        HOVERSTATE = "k-state-hover",
+        DISABLEDSTATE = "k-disabled",
+        ACTIVESTATE = "k-active",
+        FOCUSEDSTATE = "k-focus",
+        HOVERSTATE = "k-hover",
         TABONTOP = "k-tab-on-top",
         NAVIGATABLEITEMS = ".k-item:not(." + DISABLEDSTATE + ")",
         KEYBOARDNAVIGATABLEITEMS = ".k-item",
@@ -93,7 +93,7 @@ var __meta__ = { // jshint ignore:line
                     index = item.index;
 
                 if (item.enabled === false) {
-                    result.push("k-state-disabled");
+                    result.push("k-disabled");
                 }
 
                 if (index === 0) {
@@ -960,7 +960,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             that.tabGroup
-                .on(CLICK + NS, ".k-state-disabled .k-link", false)
+                .on(CLICK + NS, ".k-disabled .k-link", false)
                 .on(CLICK + NS, " > " + NAVIGATABLEITEMS, that._itemClick.bind(that));
         },
 

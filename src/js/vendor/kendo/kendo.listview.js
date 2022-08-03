@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.listview',[ "kendo.data", "kendo.editable", "kendo.selectable", "kendo.pager" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "listview",
     name: "ListView",
     category: "web",
@@ -48,8 +48,8 @@ var __meta__ = { // jshint ignore:line
         FOCUSSELECTOR = "> *:not(.k-loading-mask)",
         PROGRESS = "progress",
         ERROR = "error",
-        FOCUSED = "k-state-focused",
-        SELECTED = "k-state-selected",
+        FOCUSED = "k-focus",
+        SELECTED = "k-selected",
         KEDITITEM = "k-edit-item",
         PAGER_CLASS = "k-listview-pager",
         ITEM_CLASS = "k-listview-item",

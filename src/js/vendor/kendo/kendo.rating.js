@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.rating',[ "kendo.core", "kendo.dom" ], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "rating",
         name: "Rating",
         category: "web",
@@ -52,7 +52,7 @@
             PRECISION_HALF_VALUE = 0.5,
             LABELIDPART = "_label",
             KITEM = "k-rating-item",
-            FOCUSED = "k-state-focused",
+            FOCUSED = "k-focus",
             TABINDEX = "tabindex",
             DOT = ".",
             ROLE = "role",
@@ -76,9 +76,9 @@
         };
 
         var ratingItemStates = {
-            selected: "k-state-selected",
-            hovered: "k-state-hover",
-            hoveredPrecise: "k-state-hover-precise"
+            selected: "k-selected",
+            hovered: "k-hover",
+            hoveredPrecise: "k-hover-precise"
         };
 
         var ratingItemAttributes = {
@@ -95,9 +95,9 @@
             icon: "k-icon k-i-star-outline",
             iconSelected: "k-icon k-i-star",
             label: "k-rating-label",
-            disabled: "k-state-disabled",
+            disabled: "k-disabled",
             readonly: "k-state-readonly",
-            active: "k-state-active",
+            active: "k-active",
             hidden: "k-hidden"
         };
 

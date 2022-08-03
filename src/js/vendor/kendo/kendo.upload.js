@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.upload',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "upload",
     name: "Upload",
     category: "web",
@@ -42,7 +42,7 @@ var __meta__ = { // jshint ignore:line
         INVALIDFILEEXTENSION = "invalidFileExtension",
         PROGRESSHIDEDELAY = 1000,
         PROGRESSHIDEDURATION = 2000,
-        FOCUS_STATE = "k-state-focused",
+        FOCUS_STATE = "k-focus",
         TABINDEX = "tabindex";
 
     var headerStatusIcon = {
@@ -210,7 +210,7 @@ var __meta__ = { // jshint ignore:line
 
         toggle: function(enable) {
             enable = typeof (enable) === "undefined" ? enable : !enable;
-            this.wrapper.toggleClass("k-state-disabled", enable);
+            this.wrapper.toggleClass("k-disabled", enable);
             this.element.prop("disabled", enable);
         },
 
@@ -401,7 +401,7 @@ var __meta__ = { // jshint ignore:line
                 .attr("multiple", that._supportsMultiple() ? that.multiple : false)
                 .attr("autocomplete", "off")
                 .on("click" + NS, function(e) {
-                    if (wrapper.hasClass("k-state-disabled")) {
+                    if (wrapper.hasClass("k-disabled")) {
                         e.preventDefault();
                     }
                 })
@@ -588,7 +588,7 @@ var __meta__ = { // jshint ignore:line
 
             if (key === kendoKeys.DOWN || key === kendoKeys.UP || key === kendoKeys.LEFT || key === kendoKeys.RIGHT) {
                 that._arrowKeyNavigation(e, key, focusedItem);
-            } else if (focusedItem.length > 0 && focusedItem.hasClass("k-file") && commandKeys.indexOf(key) > -1 && !that.wrapper.hasClass("k-state-disabled")) {
+            } else if (focusedItem.length > 0 && focusedItem.hasClass("k-file") && commandKeys.indexOf(key) > -1 && !that.wrapper.hasClass("k-disabled")) {
                 if (key === kendoKeys.SPACEBAR) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -710,7 +710,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var files = assignGuidToFiles(getAllFileInfo(droppedFiles), that._isAsyncNonBatch());
 
-              if (droppedFiles.length > 0 && !that.wrapper.hasClass("k-state-disabled")) {
+              if (droppedFiles.length > 0 && !that.wrapper.hasClass("k-disabled")) {
                 if (!that.multiple && files.length > 1) {
                     files.splice(1, files.length - 1);
                 }
@@ -1033,7 +1033,7 @@ var __meta__ = { // jshint ignore:line
 
         _onFileAction: function(e) {
             var that = this;
-            if (!that.wrapper.hasClass("k-state-disabled")) {
+            if (!that.wrapper.hasClass("k-disabled")) {
                 var button = $(e.target).closest(".k-upload-action");
                 var icon = button.find(".k-icon");
                 var fileEntry = button.closest(".k-file");
@@ -1081,7 +1081,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var wrapper = that.wrapper;
 
-            if (!wrapper.hasClass("k-state-disabled")) {
+            if (!wrapper.hasClass("k-disabled")) {
                 this._module.onSaveSelected();
             }
 
@@ -1093,7 +1093,7 @@ var __meta__ = { // jshint ignore:line
             var wrapper = that.wrapper;
 
             var clearEventArgs = { };
-            if (!wrapper.hasClass("k-state-disabled") && !that.trigger(CLEAR, clearEventArgs)) {
+            if (!wrapper.hasClass("k-disabled") && !that.trigger(CLEAR, clearEventArgs)) {
                 that.clearAllFiles();
             }
 
@@ -1456,7 +1456,7 @@ var __meta__ = { // jshint ignore:line
 
             bindDragEventWrappers(dropZone, ns,
                 function() {
-                    if (!dropZone.closest('.k-upload').hasClass("k-state-disabled")) {
+                    if (!dropZone.closest('.k-upload').hasClass("k-disabled")) {
                         dropZone.addClass("k-dropzone-hovered");
                     }
                 },
@@ -1489,7 +1489,7 @@ var __meta__ = { // jshint ignore:line
 
             bindDragEventWrappers(dropZone, ns,
                 function(e) {
-                    if (!that.wrapper.hasClass("k-state-disabled")) {
+                    if (!that.wrapper.hasClass("k-disabled")) {
                         dropZone.removeClass("k-dropzone-hovered");
                         dropZone.addClass("k-dropzone-hovered");
                         $(e.target).addClass("k-dropzone-hovered");
@@ -1510,7 +1510,7 @@ var __meta__ = { // jshint ignore:line
 
             bindDragEventWrappers($(document), ns,
                 function() {
-                    if (!that.wrapper.hasClass("k-state-disabled")) {
+                    if (!that.wrapper.hasClass("k-disabled")) {
                         dropZone.addClass("k-dropzone-active");
                         dropZone.closest('.k-upload').removeClass('k-upload-empty');
                         dropZone.find('.k-dropzone-hint').removeClass('k-hidden');

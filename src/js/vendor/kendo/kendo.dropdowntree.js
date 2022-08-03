@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -150,6 +150,9 @@
 
             that.wrapper.attr("role", "tree");
             that.wrapper.find(">ul").attr("role", "none");
+
+            this._ariaItems(this.wrapper.find(">.k-group>.k-item"), 1);
+
             this.trigger(DATABOUND, { node: node ? parentNode : undefined });
             this.dropdowntree._treeViewDataBound({ node: node ? parentNode : undefined, sender: this });
             if (this.options.checkboxes.checkChildren) {
@@ -304,7 +307,7 @@ return window.kendo;
     define('kendo.dropdowntree',[ "./dropdowntree/treeview", "kendo.popup", "kendo.binder", "kendo.html.chip", "kendo.html.chiplist", "kendo.html.button", "kendo.html.input" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "dropdowntree",
     name: "DropDownTree",
     category: "web",
@@ -733,15 +736,19 @@ var __meta__ = { // jshint ignore:line
                     that._filtering = true;
                     that.dataSource.filter({});
                 } else if (!that.dataSource.data().length || !that.treeview.dataSource.data().length) {
-                    that.dataSource.fetch(function() {
-                        if (that.options.loadOnDemand) {
+                    if (!that.options.loadOnDemand) {
+                        that.treeview.one('loadCompleted', function() {
                             that._selection._setValue(value);
-                        } else {
-                            that.treeview.one('loadCompleted', function() {
-                                that._selection._setValue(value);
-                            });
+                        });
+
+                        if (!that.options.autoBind && that.options.valuePrimitive) {
+                            that.dataSource.fetch();
                         }
-                    });
+                    } else {
+                        that.dataSource.fetch(function() {
+                            that._selection._setValue(value);
+                        });
+                    }
 
                     return;
                 }

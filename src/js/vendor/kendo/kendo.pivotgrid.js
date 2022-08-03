@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.pivotgrid',[ "kendo.pivot.common", "kendo.dom", "kendo.data" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "pivotgrid",
     name: "PivotGrid",
     category: "web",
@@ -44,7 +44,7 @@ var __meta__ = { // jshint ignore:line
     }]
 };
 
-/*jshint eqnull: true, laxbreak:true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -64,6 +64,12 @@ var __meta__ = { // jshint ignore:line
         extend = $.extend,
         isFunction = kendo.isFunction,
         fetchData = common.fetchData,
+        createLocalDataState = common.createLocalDataState,
+        createDataTree = common.createDataTree,
+        sumAggregate = common.sumAggregate,
+        averageAggregate = common.averageAggregate,
+        minAggregate = common.minAggregate,
+        maxAggregate = common.maxAggregate,
         createDataState = common.createDataState,
         toColumns = common.toColumns,
         toRows = common.toRows,
@@ -117,7 +123,7 @@ var __meta__ = { // jshint ignore:line
             if (typeof d === "string") {
                 return { name: d };
             }
-            return { name: d.name, type: d.type };
+            return $.extend(true, d, { name: d.name, type: d.type });
         });
     }
 
@@ -295,6 +301,42 @@ var __meta__ = { // jshint ignore:line
 
         return scrollbar;
     }
+
+    function flattenSortDescriptors(descriptors) {
+        var result = [];
+        for (var i = 0; i < descriptors.length; i++) {
+            result.push({
+                dir: descriptors[i].dir,
+                field: descriptors[i].field.split(".").pop()
+            });
+        }
+        return result;
+    }
+
+    function createLocalMeasure(field, key, format) {
+        var formatFunc = function(value) { return kendo.format(this.format, value); };
+        var measureMap = {
+            "Sum": sumAggregate,
+            "Average": averageAggregate,
+            "Min": minAggregate,
+            "Max": maxAggregate,
+        };
+        var valueFunc = function(item) { return item[this.field]; };
+        var measure = {
+                value: valueFunc.bind({ field: field }),
+                aggregate: measureMap[key],
+                caption: key,
+                uniqueName: key,
+                type: 2,
+                name: [key]
+            };
+        if (format) {
+            measure.aggregate.format = formatFunc.bind({ format: format });
+        }
+
+        return measure;
+    }
+
 
     var functions = {
         sum: function(value, state) {
@@ -1140,6 +1182,23 @@ var __meta__ = { // jshint ignore:line
     var PivotDataSourceV2 = DataSource.extend({
         init: function(options) {
 
+            var cube = ((options || {}).schema || {}).cube;
+
+            var schema = {
+                axes: identity,
+                cubes: identity,
+                catalogs: identity,
+                measures: identity,
+                dimensions: identity,
+                hierarchies: identity,
+                levels: identity,
+                members: identity
+            };
+
+            if (cube) {
+                this.cubeSchema = $.extend(schema, this._cubeSchema(cube));
+            }
+
             DataSource.fn.init.call(this, extend(true, {}, {
                 //schema: schema
             }, options));
@@ -1153,7 +1212,7 @@ var __meta__ = { // jshint ignore:line
             this._columns = normalizeMembers(this.options.columns);
             this._rows = normalizeMembers(this.options.rows);
 
-            var measures = this.options.measures || [];
+            var measures = this.cubeSchema ? this.cubeSchema.measures() : this.options.measures || [];
 
             if (toString.call(measures) === "[object Object]") {
                 this._measuresAxis = measures.axis || "columns";
@@ -1202,34 +1261,190 @@ var __meta__ = { // jshint ignore:line
             return this._measuresAxis || "columns";
         },
 
-        fetch: function() {
-            if (this.options.type.toLowerCase() === "xmla" && (this._data === undefined || this._data.length === 0)) {
-                this._query();
+        fetch: function(callback) {
+            var that = this;
+            if (this._data === undefined || this._data.length === 0) {
+                var fn = function() {
+                    if (isFunction(callback)) {
+                        callback.call(that);
+                    }
+                };
+
+                return this._query().done(fn);
             }
+        },
+
+        _createSettings: function(axes) {
+            var settings = [];
+            var key;
+            var dimensions = this.cubeSchema.dimensionsSettings();
+            var displayValueFunc = function(item) { return item[this.key]; };
+            var sortValueFunc = function(value) { return value; };
+            for (var i = 0; i < axes.length; i++) {
+                key = axes[i].name[0];
+                settings.push({
+                    key: key,
+                    displayValue: displayValueFunc.bind({ key: key }),
+                    sortValue: sortValueFunc,
+                    caption: (dimensions[key] || {}).caption || key
+                });
+            }
+            return settings;
+        },
+
+        _cubeSchema: function(cube) {
+            return {
+                dimensionsSettings: function() {
+                    return cube.dimensions;
+                },
+                dimensions: function() {
+                    var result = [];
+                    var dimensions = cube.dimensions;
+
+                    for (var key in dimensions) {
+                        result.push({
+                            name: key,
+                            caption: dimensions[key].caption || key,
+                            uniqueName: key,
+                            defaultHierarchy: key,
+                            type: 1
+                        });
+                    }
+
+                    if (cube.measures) {
+                        result.push({
+                            name: MEASURES,
+                            caption: MEASURES,
+                            uniqueName: MEASURES,
+                            type: 2
+                        });
+                    }
+
+                    return result;
+                },
+                restoreMeasure: function(measures, measure) {
+                    for (var i = 0; i < measures.length; i++) {
+                        if (!measures[i].aggregate) {
+                            measures[i].aggregate = measure.aggregate;
+                            measures[i].value = measure.value;
+                            measures[i].caption = measure.caption;
+                            measures[i].uniqueName = measure.uniqueName;
+                            measures[i].type = 2;
+                        }
+                    }
+                },
+                measures: function() {
+                    var result = [];
+                    var measures = cube.measures;
+
+                    for (var key in measures) {
+                        result.push(createLocalMeasure(measures[key].field, key, measures[key].format));
+                    }
+
+                    return result;
+                },
+                memberType: function(name) {
+                    var getter = kendo.getter(normalizeName(name), true);
+                    var data = this.options.data || this._pristineData || [];
+                    if (!data.length) {
+                        return null;
+                    }
+
+                    return typeof getter(data[0]);
+                }.bind(this),
+                members: function(name) {
+                    var data = this.options.data || this._pristineData || [];
+                    var result = [];
+                    var distinct = {};
+                    var getter;
+                    var value;
+                    var idx = 0;
+
+                    if (name.indexOf("[(ALL)]") !== -1) {
+                        return [
+                            {
+                                caption: cube.dimensions[name.split(".")[0]].caption || name,
+                                levelUniqueName: name,
+                                name: name,
+                                childrenCardinality: 1,
+                                uniqueName: name
+                            }
+                        ];
+                    }
+
+                    getter = kendo.getter(normalizeName(name), true);
+
+                    for (; idx < data.length; idx++) {
+                        value = getter(data[idx]);
+                        if ((value || value === 0 || value === false) && !distinct[value]) {
+                            distinct[value] = true;
+
+                            result.push({
+                                caption: value + "",
+                                name: value + "",
+                                childrenCardinality: 0,
+                                uniqueName: value
+                            });
+                        }
+                    }
+
+                    return result;
+                }.bind(this)
+            };
         },
 
         read: function(data) {
             var that = this;
             var isPrevented = that.trigger(REQUESTSTART, { type: READ });
             var params = that._params(data);
+            var deferred = $.Deferred();
             if (!isPrevented) {
                 that.trigger(PROGRESS);
 
-                that.transport.read({
-                    data: params,
-                    success: function(newDataState) {
-                        that._saveState(newDataState);
-                        that.trigger(REQUESTEND, { response: newDataState, type: READ });
-                        that.trigger(CHANGE);
-                        if (that._preventRefresh) {
-                            that._preventRefresh = false;
-                        }
-                    },
-                    error: function(err) {
-                        that.trigger(ERROR, { error: err });
+                if (that.options.data) {
+
+                    var originalData = (this.reader.data(this.options.data) || []).slice(0);
+                    if (originalData && !this._pristineData) {
+                        this._pristineData = originalData;
                     }
-                });
+                    var columnSettings = that._createSettings(params.columnAxes);
+                    var rowSettings = that._createSettings(params.rowAxes);
+                    var measures = that.measures();
+                    var dataTree = createDataTree(that.options.data, rowSettings, columnSettings, measures, { dataField: "aggregate", columnsData: "columns" }, that.filter() || []);
+
+                    var stateArgs = {
+                        dataTree: dataTree,
+                        columnSettings: columnSettings,
+                        rowSettings: rowSettings,
+                        columnAxes: params.columnAxes,
+                        rowAxes: params.rowAxes,
+                        measures: measures.map(function(item) { return item; }).reverse(),
+                        fields: { dataField: "aggregate", columnsData: "columns" },
+                        sort: flattenSortDescriptors(params.sort || [])
+                    };
+
+                    that._saveState(createLocalDataState(stateArgs));
+                    that.trigger(CHANGE);
+                    deferred.resolve();
+                } else {
+                    that.transport.read({
+                        data: params,
+                        success: function(newDataState) {
+                            that._saveState(newDataState);
+                            that.trigger(REQUESTEND, { response: newDataState, type: READ });
+                            that.trigger(CHANGE);
+                            if (that._preventRefresh) {
+                                that._preventRefresh = false;
+                            }
+                            deferred.resolve();
+                        },
+                        error: function(err) {
+                            that.trigger(ERROR, { error: err });
+                        }
+                    });
+                }
             }
+            return deferred.promise();
         },
 
         _params: function(data) {
@@ -1237,12 +1452,15 @@ var __meta__ = { // jshint ignore:line
             var options = DataSource.fn._params.call(that, data);
 
             options = extend({
-                connection: that.options.transport.connection,
                 columnAxes: JSON.parse(JSON.stringify(that._columns)),
                 rowAxes: JSON.parse(JSON.stringify(that._rows)),
                 measuresAxis: that.measuresAxis(),
                 measureAxes: that._measures
             }, options);
+
+            if ((this.options.type || "").toLowerCase() === "xmla") {
+                options.connection = that.options.transport.connection;
+            }
 
             if (options.filter) {
                 options.filter = normalizeFilter(options.filter);
@@ -1381,7 +1599,7 @@ var __meta__ = { // jshint ignore:line
 
             that._columnTuples = state.columns;
             that._rowTuples = state.rows;
-            that._view = state.data;
+            that._view = that._data = state.data;
         },
 
         columns: function(val) {
@@ -1426,9 +1644,9 @@ var __meta__ = { // jshint ignore:line
                 measuresAxis: that.measuresAxis(),
                 filter: that.filter()
             }, options);
-            var state = this._mergeState(params);
+            this._mergeState(params);
 
-            return this.read(state);
+            return this.read();
         },
     });
 
@@ -4281,8 +4499,8 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
             var items = this.dataSource[this.options.setting]();
-            this._emptyState(!this._state().length);
             this._state(items, true);
+            this._emptyState(!this._state().length);
             if (items.length) {
                 this.element.html(this._targetsHTML(items));
             }

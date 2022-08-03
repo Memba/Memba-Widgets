@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.dialog',["kendo.core", "kendo.popup", "kendo.textbox"], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "dialog",
         name: "Dialog",
         category: "web", // suite
@@ -766,7 +766,8 @@
             },
 
             _closeAnimationEnd: function() {
-                var that = this;
+                var that = this,
+                    previousFocus = that._previousFocus;
 
                 that._closing = false;
                 that.wrapper.hide().css("opacity", "");
@@ -776,6 +777,12 @@
                     var lastModal = that._object(that._modals().last());
                     if (lastModal) {
                         lastModal.toFront();
+                    } else if (previousFocus) {
+                        that._previousFocus = null;
+
+                        setTimeout(function() {
+                            previousFocus.focus();
+                        });
                     }
                 }
             },
@@ -896,6 +903,10 @@
             },
 
             _focusDialog: function() {
+                var firstModal = this._object(this._modals().first());
+
+                this._previousFocus = firstModal && firstModal._previousFocus ? firstModal._previousFocus : document.activeElement;
+
                 if (this._defaultFocus) {
                     this._focus(this._defaultFocus);
                 }
@@ -1113,7 +1124,7 @@
 
         templates = {
             wrapper: template("<div class='k-widget k-window k-dialog' role='dialog'></div>"),
-            action: template("<button type='button' class='k-button k-button-md k-rounded-md k-button-solid # if (data.primary) { # k-button-solid-primary # } else { # k-button-solid-base # } #' role='button'></button>"),
+            action: template("<button type='button' class='k-button k-button-md k-rounded-md k-button-solid # if (data.primary) { # k-button-solid-primary # } else { # k-button-solid-base # } #'></button>"),
             titlebar: template(
                 "<div class='k-window-titlebar k-dialog-titlebar k-hstack'>" +
                     "<span class='k-window-title k-dialog-title'>#: title #</span>" +
@@ -1122,7 +1133,7 @@
             ),
             close: template("<a role='button' href='\\#' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-window-action k-dialog-action k-dialog-close' title='#: messages.close #' aria-label='#: messages.close #' tabindex='-1'>" +
                 "<span class='k-button-icon k-icon k-i-close'></span></a>"),
-            actionbar: template("<div class='k-dialog-buttongroup k-actions k-hstack k-justify-content-#: buttonLayout #' role='toolbar'></div>"),
+            actionbar: template("<div class='k-dialog-buttongroup k-actions k-hstack k-justify-content-#: buttonLayout #'></div>"),
             overlay: "<div class='k-overlay'></div>",
             alertWrapper: template("<div class='k-widget k-window k-dialog' role='alertdialog'></div>"),
             alert: "<div></div>",

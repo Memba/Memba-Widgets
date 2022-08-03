@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.timeline',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "timeline",
     name: "Timeline",
     category: "web",
@@ -1039,7 +1039,7 @@ var __meta__ = { // jshint ignore:line
                 that._removeCurrent();
                 that._scrollableWrap.attr("aria-activedescendant", id);
 
-                next.attr("id", id).addClass("k-state-focus");
+                next.attr("id", id).addClass("k-focus");
 
                 next.siblings().removeAttr("aria-describedby");
 
@@ -1053,7 +1053,7 @@ var __meta__ = { // jshint ignore:line
             _removeCurrent: function() {
                 if (this._currentBullet) {
                     this._currentBullet
-                        .removeClass("k-state-focus")
+                        .removeClass("k-focus")
                         .removeAttr("id")
                         .removeAttr("aria-describedby");
                 }

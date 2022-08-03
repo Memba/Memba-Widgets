@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -22,7 +22,7 @@
 })(function() {
 
 (function($) {
-/* jshint expr: true */
+/* eslint-disable space-before-blocks, space-before-function-paren, curly */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -790,7 +790,7 @@ var ErrorBarBase = ChartElement.extend({
                     color: options.color,
                     line: options.line
                 },
-                createVisual: function() {
+                createVisual: function () {
                     this$1.createDefaultVisual();
                     var defaultVisual = this$1.visual;
                     delete this$1.visual;
@@ -1257,7 +1257,7 @@ var CategoricalChart = ChartElement.extend({
         var categoryAxis = this.categoryAxis;
         var pointIx = 0;
 
-        this.traverseDataPoints(function(data, fields) {
+        this.traverseDataPoints(function (data, fields) {
             var categoryIx = fields.categoryIx;
             var currentSeries = fields.series;
 
@@ -1866,7 +1866,7 @@ var LineSegment = ChartElement.extend({
                 points: this.toGeometryPoints(this.linePoints),
                 series: this.series,
                 sender: this.getSender(),
-                createVisual: function() {
+                createVisual: function () {
                     this$1.segmentVisual();
 
                     return this$1.visual;
@@ -2328,7 +2328,7 @@ var AreaSegment = LineSegment.extend({
     },
 
     segmentsFromPoints: function(points) {
-        return points.map(function(point) { return new geometry.Segment(point); });
+        return points.map(function (point) { return new geometry.Segment(point); });
     },
 
     createStroke: function(style) {
@@ -2809,7 +2809,7 @@ var Bar = ChartElement.extend({
                     runningTotal: this.runningTotal,
                     total: this.total,
                     rect: box.toRect(),
-                    createVisual: function() {
+                    createVisual: function () {
                         var group = new Group();
                         this$1.createRect(group);
                         return group;
@@ -3024,7 +3024,7 @@ var ClusterLayout = ChartElement.extend({
         var slotSize = (vertical ? box.height() : box.width()) / slots;
         var position = box[axis + 1] + slotSize * (gap / 2);
 
-        this.forEach(children, function(child, idx) {
+        this.forEach(children, function (child, idx) {
             var childBox = (child.box || box).clone();
 
             childBox[axis + 1] = position;
@@ -4270,7 +4270,7 @@ var ScatterChart = ChartElement.extend({
         var limit = !this.options.clip;
         var pointIx = 0;
 
-        this.traverseDataPoints(function(value, fields) {
+        this.traverseDataPoints(function (value, fields) {
             var point = chartPoints[pointIx++];
             var seriesAxes = this$1.seriesAxes(fields.series);
             var slotX = seriesAxes.x.getSlot(value.x, value.x, limit);
@@ -6610,7 +6610,7 @@ var PlotAreaBase = ChartElement.extend({
 });
 
 function isSingleAxis(axis) {
-    return !axis.pane.axes.some(function(a) { return a.options.vertical === axis.options.vertical && a !== axis && a.options.visible !== false; }
+    return !axis.pane.axes.some(function (a) { return a.options.vertical === axis.options.vertical && a !== axis && a.options.visible !== false; }
     );
 }
 
@@ -6648,7 +6648,7 @@ function isTransparent(color) {
     return color === "" || color === null || color === "none" || color === "transparent" || !defined(color);
 }
 
-var allPaneAxes = function(panes) { return panes.reduce(function(acc, pane) { return acc.concat(pane.axes); }, []); };
+var allPaneAxes = function (panes) { return panes.reduce(function (acc, pane) { return acc.concat(pane.axes); }, []); };
 
 setDefaultOptions(PlotAreaBase, {
     series: [],
@@ -7218,11 +7218,11 @@ var RangeAreaSegment = AreaSegment.extend({
     },
 
     fromPoints: function() {
-        return this.linePoints.map(function(point) { return point.fromPoint; });
+        return this.linePoints.map(function (point) { return point.fromPoint; });
     },
 
     toPoints: function() {
-        return this.linePoints.map(function(point) { return point.toPoint; });
+        return this.linePoints.map(function (point) { return point.toPoint; });
     }
 });
 
@@ -7781,11 +7781,11 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         currentSeries.data = (currentSeries.data || []).slice(range.min, range.max + 1);
 
         if (outOfRangePoints) {
-            createOutOfRangePoints(currentSeries, range, dataLength, function(idx) { return ({
+            createOutOfRangePoints(currentSeries, range, dataLength, function (idx) { return ({
                 item: series.data[idx],
                 category: categoryAxis.categoryAt(idx, true),
                 categoryIx: idx - range.min
-            }); }, function(idx) { return defined(series.data[idx]); });
+            }); }, function (idx) { return defined(series.data[idx]); });
         }
 
         return currentSeries;
@@ -7847,7 +7847,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var dataItems = categoryAxis.options.dataItems || [];
 
         var range = categoryAxis.currentRangeIndices();
-        var categoryItem = function(idx) {
+        var categoryItem = function (idx) {
             var categoryIdx = idx - range.min;
             var point = srcPoints[idx];
             if (!point) {
@@ -7875,7 +7875,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         }
 
         if (inArray(result.type, OUT_OF_RANGE_SERIES)) {
-            createOutOfRangePoints(result, range, categoryAxis.totalCount(), categoryItem, function(idx) { return srcPoints[idx]; });
+            createOutOfRangePoints(result, range, categoryAxis.totalCount(), categoryItem, function (idx) { return srcPoints[idx]; });
         }
 
         categoryAxis.options.dataItems = dataItems;
@@ -8952,7 +8952,7 @@ var LegendItem = BoxElement.extend({
                     markers: this.markerOptions(),
                     labels: options.labels
                 },
-                createVisual: function() {
+                createVisual: function () {
                     this$1.createVisual();
                     this$1.renderChildren();
                     this$1.renderComplete();
@@ -9675,7 +9675,7 @@ var Selection = Class.extend({
                 clearTimeout(this._mwTimeout);
             }
 
-            this._mwTimeout = setTimeout(function() {
+            this._mwTimeout = setTimeout(function () {
                 this$1._end();
             }, MOUSEWHEEL_DELAY);
         }
@@ -10526,7 +10526,7 @@ var PieSegment = ChartElement.extend({
                     endAngle: startAngle + sector.angle,
                     options: options,
                     sender: this.getSender(),
-                    createVisual: function() {
+                    createVisual: function () {
                         var group = new Group();
                         this$1.createSegmentVisual(group);
 
@@ -10849,7 +10849,7 @@ var PieChart = ChartElement.extend({
                     currentSeries.color = fields.color || seriesColors[i % colorsCount];
                 }
 
-                callback(pointData.valueFields.value, new dataviz.Ring(null, 0, 0, currentAngle, angle), {
+                callback(value, new dataviz.Ring(null, 0, 0, currentAngle, angle), {
                     owner: this$1,
                     category: defined(fields.category) ? fields.category : "",
                     index: i,
@@ -11186,7 +11186,7 @@ var PieChart = ChartElement.extend({
     renderVisual: function() {
         ChartElement.fn.renderVisual.call(this);
 
-        if (dataviz.find(this.options.series, function(options) { return options.autoFit; })) {
+        if (dataviz.find(this.options.series, function (options) { return options.autoFit; })) {
             var targetBox = this.targetBox;
             var pieCenter = this.box.center();
             var bbox = this.visual.bbox();
@@ -11358,7 +11358,7 @@ var DonutChart = PieChart.extend({
 
         this.createLegendItem(value, segmentOptions, fields);
 
-        if (!value || fields.visible === false) {
+        if (fields.visible === false) {
             return;
         }
 
@@ -11932,7 +11932,7 @@ var RadarClusterLayout = ChartElement.extend({
         var slotAngle = sector.angle / slots;
         var angle = sector.startAngle + slotAngle * (gap / 2);
 
-        this.forEach(children, function(child) {
+        this.forEach(children, function (child) {
             var slotSector = sector.clone();
             slotSector.startAngle = angle;
             slotSector.angle = slotAngle;
@@ -12207,7 +12207,7 @@ var FunnelSegment = ChartElement.extend({
                 points: this.points,
                 options: options,
                 sender: this.getSender(),
-                createVisual: function() { return this$1.createPath(); }
+                createVisual: function () { return this$1.createPath(); }
             });
         } else {
             visual = this.createPath();
@@ -12571,13 +12571,13 @@ var FunnelPlotArea = PlotAreaBase.extend({
 });
 
 // Linear color scale from the given color to white minus minimum lightness offset.
-var colorScale = function(color, minLightnessOffset) {
+var colorScale = function (color, minLightnessOffset) {
     if (minLightnessOffset === void 0) { minLightnessOffset = 0.05; }
 
     var baseColor = kendo.parseColor(color);
     var offset = 1 - minLightnessOffset;
 
-    return function(value) {
+    return function (value) {
         var hsl = baseColor.toHSL();
         var range = 100 - hsl.l;
         var point = offset - value;
@@ -12976,7 +12976,7 @@ var HeatmapChart = ChartElement.extend({
         var limit = !this.options.clip;
         var pointIx = 0;
 
-        this.traverseDataPoints(function(value, fields) {
+        this.traverseDataPoints(function (value, fields) {
             var point = chartPoints[pointIx++];
             var ref = this$1.seriesAxes(fields.series);
             var xAxis = ref.xAxis;
@@ -13170,7 +13170,7 @@ var HeatmapPlotArea = PlotAreaBase.extend({
         var xAxisOptions = [].concat(options.xAxis);
         var xAxisName = series.xAxis;
         if (xAxisName) {
-            xAxis = xAxisOptions.find(function(axis) { return axis.name === xAxisName; });
+            xAxis = xAxisOptions.find(function (axis) { return axis.name === xAxisName; });
         } else {
             xAxis = xAxisOptions[0];
         }
@@ -13178,7 +13178,7 @@ var HeatmapPlotArea = PlotAreaBase.extend({
         var yAxisOptions = [].concat(options.yAxis);
         var yAxisName = series.yAxis;
         if (yAxisName) {
-            yAxis = yAxisOptions.find(function(axis) { return axis.name === yAxisName; });
+            yAxis = yAxisOptions.find(function (axis) { return axis.name === yAxisName; });
         } else {
             yAxis = yAxisOptions[0];
         }
@@ -13501,7 +13501,7 @@ var Chart = Class.extend({
         this._initSurface();
 
         this.bindCategories();
-        dataviz.FontLoader.preloadFonts(userOptions, function() {
+        dataviz.FontLoader.preloadFonts(userOptions, function () {
             this$1.fontLoaded = true;
             if (!this$1._destroyed) {
                 this$1.trigger('init');
@@ -13565,7 +13565,7 @@ var Chart = Class.extend({
             this._size = size;
             this._resize(size, force);
             this.trigger("resize", size);
-        } else if (hasSize && this._selections && dataviz.find(this._selections, function(s) { return !s.visible; })) {
+        } else if (hasSize && this._selections && dataviz.find(this._selections, function (s) { return !s.visible; })) {
             this._destroySelections();
             this._setupSelection();
         }
@@ -14274,7 +14274,7 @@ var Chart = Class.extend({
                     mousewheelZoom.zoom();
                 }
 
-                this._mwTimeout = setTimeout(function() {
+                this._mwTimeout = setTimeout(function () {
                     this$1.trigger(ZOOM_END, args);
                     this$1._zooming = false;
                     if (this$1.surface) {
@@ -14316,7 +14316,7 @@ var Chart = Class.extend({
                     clearTimeout(this._mwTimeout);
                 }
 
-                this._mwTimeout = setTimeout(function() {
+                this._mwTimeout = setTimeout(function () {
                     this$1._endNavigation(e, ZOOM_END);
                 }, MOUSEWHEEL_DELAY);
             }
@@ -14455,7 +14455,7 @@ var Chart = Class.extend({
 
         //part of fix for hover issue on windows touch
         this.handlingTap = true;
-        setTimeout(function() {
+        setTimeout(function () {
             this$1.handlingTap = false;
         }, 0);
     },
@@ -14555,7 +14555,7 @@ var Chart = Class.extend({
     _getInactivePoints: function(activePoint, chartInstance) {
         var allPoints = this._getAllPointsOfType(chartInstance, activePoint.constructor);
 
-        return allPoints.filter(function(point) { return point !== activePoint; });
+        return allPoints.filter(function (point) { return point !== activePoint; });
     },
 
     _getAllPointsOfType: function(container, type) {
@@ -14651,7 +14651,7 @@ var Chart = Class.extend({
 
     _hasInactiveOpacity: function() {
         var hasDefaultInactiveOpacity = this.options.seriesDefaults.highlight.inactiveOpacity !== undefined;
-        var hasInactiveOpacity = this.options.series.filter(function(s) { return s.highlight.inactiveOpacity !== undefined; } ).length > 0;
+        var hasInactiveOpacity = this.options.series.filter(function (s) { return s.highlight.inactiveOpacity !== undefined; } ).length > 0;
         return hasDefaultInactiveOpacity || hasInactiveOpacity;
     },
 
@@ -15421,7 +15421,7 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define) {
     define('dataviz/chart/chart',[
         "./kendo-chart",
@@ -16839,7 +16839,7 @@ return window.kendo;
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "dataviz.chart",
     name: "Chart",
     category: "dataviz",

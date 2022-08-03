@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -19,11 +19,13 @@
         "kendo.resizable",
         "kendo.treeview.draganddrop",
         "kendo.pager",
-        'kendo.filtercell'
+        'kendo.filtercell',
+        'kendo.textbox',
+        'kendo.form'
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "treelist",
     name: "TreeList",
     category: "web",
@@ -48,7 +50,7 @@ var __meta__ = { // jshint ignore:line
         id: "treelist-editing",
         name: "Editing",
         description: "Support for record editing",
-        depends: [ "editable", "window" ]
+        depends: [ "editable", "window", "textbox", "form" ]
     }, {
         id: "treelist-selection",
         name: "Selection",
@@ -168,7 +170,7 @@ var __meta__ = { // jshint ignore:line
     var CHECKBOXINPUT = "input[data-role='checkbox']." + CHECKBOX;
     var SELECTCOLUMNTMPL = '<input class="' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">';
     var SELECTCOLUMNHEADERTMPL = '<input class="' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">';
-    var SELECTED = "k-state-selected";
+    var SELECTED = "k-selected";
     var whitespaceRegExp = "[\\x20\\t\\r\\n\\f]";
     var filterRowRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-filter-row)" + "(" + whitespaceRegExp + "|$)");
 
@@ -189,11 +191,11 @@ var __meta__ = { // jshint ignore:line
         gridContentWrap: "k-grid-content",
         gridFilter: "k-grid-filter",
         footerTemplate: "k-footer-template",
-        focused: "k-state-focused",
+        focused: "k-focus",
         loading: "k-i-loading",
         refresh: "k-i-reload",
         retry: "k-request-retry",
-        selected: "k-state-selected",
+        selected: "k-selected",
         status: "k-status",
         link: "k-link",
         filterable: "k-filterable",
@@ -1989,6 +1991,10 @@ var __meta__ = { // jshint ignore:line
             this.createEditable();
         },
 
+        options: {
+            renderForm: false
+        },
+
         events: [],
 
         _initContainer: function() {
@@ -1998,13 +2004,24 @@ var __meta__ = { // jshint ignore:line
         createEditable: function() {
             var options = this.options;
 
-            this.editable = new ui.Editable(this.wrapper, {
-                fields: this.fields,
-                target: options.target,
-                clearContainer: options.clearContainer,
-                model: this.model,
-                change: options.change
-            });
+            if (options.renderForm) {
+                this.form = new ui.Form(this.wrapper.find(".k-treelist-form"), {
+                    items: this.fields,
+                    buttonsTemplate: "",
+                    formData: this.model,
+                    change: options.change
+                });
+
+                this.editable = this.form.editable;
+            } else {
+                this.editable = new ui.Editable(this.wrapper, {
+                    fields: this.fields,
+                    target: options.target,
+                    clearContainer: options.clearContainer,
+                    model: this.model,
+                    change: options.change
+                });
+            }
         },
 
         _isEditable: function(column) {
@@ -2022,7 +2039,9 @@ var __meta__ = { // jshint ignore:line
                     fields.push({
                         field: column.field,
                         format: column.format,
-                        editor: column.editor
+                        editor: column.editor,
+                        editorOptions: extend(true, { format: column.format }, column.editorOptions),
+                        label: column.title || column.field || ""
                     });
                 }
             }
@@ -2087,7 +2106,8 @@ var __meta__ = { // jshint ignore:line
                 this._appendTemplate(formContent);
                 this.fields = [];
             } else {
-                this._appendFields(formContent);
+                this.options.renderForm = true;
+                formContent.push(kendoHtmlElement('<div class="k-treelist-form"></div>'));
             }
             this._appendButtons(formContent);
 
@@ -2108,35 +2128,6 @@ var __meta__ = { // jshint ignore:line
             template = kendo.template(template)(this.model);
 
             form.push(kendoHtmlElement(template));
-        },
-
-        _appendFields: function(form) {
-            var idx, length, column;
-            var columns = this.options.columns;
-
-            for (idx = 0, length = columns.length; idx < length; idx++) {
-                column = columns[idx];
-
-                if (column.selectable) {
-                    continue;
-                }
-
-                if (column.command) {
-                    continue;
-                }
-
-                form.push(kendoHtmlElement('<div class="k-edit-label"><label for="' + column.field + '">' + (column.title || column.field || "") + '</label></div>'));
-
-                if (this._isEditable(column)) {
-                    form.push(kendoHtmlElement('<div ' + kendo.attr("container-for") + '="' + column.field +
-                                '" class="k-edit-field"></div>'));
-                } else {
-                    form.push(kendoDomElement("div", {
-                            "class": "k-edit-field"
-                        },
-                        [ this.options.fieldRenderer(column, this.model) ]));
-                }
-            }
         },
 
         _appendButtons: function(form) {
@@ -2182,6 +2173,10 @@ var __meta__ = { // jshint ignore:line
         },
 
         destroy: function() {
+            if (this.form) {
+                this.form.destroy();
+            }
+
             this.window.destroy();
             this.window = null;
             this._detachHandlers();
@@ -3260,7 +3255,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (this._current) {
-                this._current.removeClass("k-state-focused");
+                this._current.removeClass("k-focus");
             }
 
             if (isCurrentInHeader) {
@@ -3755,7 +3750,7 @@ var __meta__ = { // jshint ignore:line
 
                 // refresh the current element as the DOM element reference can be changed after render()
                 // moving this to closeCell() causes flickering when clicking on a cell and then on another
-                // as 'k-state-focused' is shown for the closing cell and then added to the newly edited cell
+                // as 'k-focused' is shown for the closing cell and then added to the newly edited cell
                 that._setCurrent(tbody.children().eq(rowIndex).children().eq(cellIndex));
             } else {
                 currentIndex = $(current).parent().index();
@@ -3789,7 +3784,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             focusable = current.find(":kendoFocusable").first();
-            if (focusable[0] && current.hasClass("k-state-focused")) {
+            if (focusable[0] && current.hasClass("k-focus")) {
                 focusable.trigger("focus");
 
                 return true;
@@ -3964,7 +3959,7 @@ var __meta__ = { // jshint ignore:line
                 } else {
                     that.editRow(that.current().parent());
                     that.current(that.editor.wrapper.children().eq(currentIndex));
-                    that.current().removeClass("k-state-focused");
+                    that.current().removeClass("k-focus");
                 }
             } else {
                 that.dataSource._restorePageSizeAfterAddChild();
@@ -4632,7 +4627,7 @@ var __meta__ = { // jshint ignore:line
             var level = that._renderedModelLevel(data[0], options);
             var uidAttr = kendo.attr("uid");
             var hasFooterTemplate;
-            var selected = this.select().removeClass("k-state-selected").map(function(_, row) {
+            var selected = this.select().removeClass("k-selected").map(function(_, row) {
                 return $(row).attr(uidAttr);
             });
             var viewChildrenMap;
@@ -4712,7 +4707,7 @@ var __meta__ = { // jshint ignore:line
             this.items().filter(function() {
                 return $.inArray($(this).attr(uidAttr), selected) >= 0;
             })
-            .addClass("k-state-selected");
+            .addClass("k-selected");
 
             this._syncLockedContentHeight();
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.columnmenu',[ "kendo.popup", "kendo.filtermenu", "kendo.menu", "kendo.expansionpanel" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "columnmenu",
     name: "Column Menu",
     category: "framework",
@@ -26,7 +26,7 @@ var __meta__ = { // jshint ignore:line
         map = $.map,
         inArray = $.inArray,
         Comparer = kendo.data.Comparer,
-        ACTIVE = "k-state-selected",
+        ACTIVE = "k-selected",
         ASC = "asc",
         DESC = "desc",
         CHANGE = "change",
@@ -482,9 +482,9 @@ var __meta__ = { // jshint ignore:line
                     that._updateStickyColumns();
                 }
 
-                if (view.element.find(".k-sort-asc.k-state-selected").length) {
+                if (view.element.find(".k-sort-asc.k-selected").length) {
                     view.state.initialSort = "asc";
-                } else if (view.element.find(".k-sort-desc.k-state-selected").length) {
+                } else if (view.element.find(".k-sort-desc.k-selected").length) {
                     view.state.initialSort = "desc";
                 }
             });
@@ -712,16 +712,41 @@ var __meta__ = { // jshint ignore:line
         },
 
         _open: function() {
-            var that = this;
+            var that = this,
+                instance, menuitem;
+
             $(".k-column-menu").not(that.wrapper).each(function() {
                 $(this).data(POPUP).close();
             });
             that.popup.element.on("keydown" + NS, function(e) {
+                var target = $(e.target);
+
                 if (that._isModernComponentType() && e.keyCode === kendo.keys.ENTER) {
-                    $(e.target).click();
+                    target.click();
                 }
                 if (e.keyCode == kendo.keys.ESC) {
-                    that.close();
+                    instance = kendo.widgetInstance(target.find("select"));
+
+                    if (target.hasClass("k-picker") &&
+                        instance &&
+                        instance.popup.visible()) {
+                            e.stopPropagation();
+                            return;
+                    }
+
+                    menuitem = target.closest(".k-popup").closest(".k-menu-item");
+
+                    if (menuitem.length > 0) {
+                        menuitem.addClass("k-focus");
+
+                        if (that.menu) {
+                            that.menu.element.trigger("focus");
+                        } else {
+                            that.popup.element.find('[tabindex=0]').eq(0).trigger("focus");
+                        }
+                    }
+
+                    target.closest(".k-popup").getKendoPopup().close();
                 }
             });
 
@@ -1208,15 +1233,15 @@ var __meta__ = { // jshint ignore:line
             }).length;
             var notLockable = column.lockable === false;
 
-            var lockItem = this.wrapper.find(".k-lock").removeClass("k-state-disabled");
-            var unlockItem = this.wrapper.find(".k-unlock").removeClass("k-state-disabled");
+            var lockItem = this.wrapper.find(".k-lock").removeClass("k-disabled");
+            var unlockItem = this.wrapper.find(".k-unlock").removeClass("k-disabled");
 
             if (locked || length == 1 || notLockable) {
-                lockItem.addClass("k-state-disabled");
+                lockItem.addClass("k-disabled");
             }
 
             if (!locked || length == 1 || notLockable) {
-                unlockItem.addClass("k-state-disabled");
+                unlockItem.addClass("k-disabled");
             }
 
             this._updateColumnsLockedState();
@@ -1240,15 +1265,15 @@ var __meta__ = { // jshint ignore:line
                 return !column.hidden && ((column.locked && locked) || (!column.locked && !locked));
             }).length;
 
-            var stickItem = this.wrapper.find(".k-stick").removeClass("k-state-disabled");
-            var unstickItem = this.wrapper.find(".k-unstick").removeClass("k-state-disabled");
+            var stickItem = this.wrapper.find(".k-stick").removeClass("k-disabled");
+            var unstickItem = this.wrapper.find(".k-unstick").removeClass("k-disabled");
 
             if (sticky || !stickable || (locked && length === 1)) {
-                stickItem.addClass("k-state-disabled");
+                stickItem.addClass("k-disabled");
             }
 
             if (!sticky || !stickable) {
-                unstickItem.addClass("k-state-disabled");
+                unstickItem.addClass("k-disabled");
             }
         },
 
@@ -1270,7 +1295,7 @@ var __meta__ = { // jshint ignore:line
                }
             }
 
-            that.link[that._filterExist(that.dataSource.filter()) ? "addClass" : "removeClass"]("k-state-active");
+            that.link[that._filterExist(that.dataSource.filter()) ? "addClass" : "removeClass"]("k-active");
         },
 
         _filterExist: function(filters) {
@@ -1515,7 +1540,7 @@ var __meta__ = { // jshint ignore:line
 
             that._createCheckBoxes();
 
-            that.element.on("click" + NS, "li.k-item:not(.k-separator):not(.k-state-disabled):not(:has(.k-switch))", "_click");
+            that.element.on("click" + NS, "li.k-item:not(.k-separator):not(.k-disabled):not(:has(.k-switch))", "_click");
         },
 
         events: [ SELECT ],
@@ -1574,7 +1599,7 @@ var __meta__ = { // jshint ignore:line
 
                 otherItemId = otherItem.prop("id");
 
-                if (dir === state.initialSort && !item.hasClass("k-state-selected")) {
+                if (dir === state.initialSort && !item.hasClass("k-selected")) {
                     state[id] = false;
                 }
 

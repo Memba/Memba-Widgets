@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -34,25 +34,17 @@ return window.kendo;
  * `kendo-drawing` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('pdf/core',[
         "./pako",
         "kendo.core",
         "kendo.color",
         "kendo.drawing"
     ], f);
-}) (function(){
+}) (function() {
 
-(function($){
-
-// WARNING: removing the following jshint declaration and turning
-// == into === to make JSHint happy will break functionality.
-/* jshint eqnull:true */
-/* jshint -W069 */
-/* jshint loopfunc:true */
-/* jshint newcap:false */
-/* jshint latedef: nofunc */
-/* jshint shadow: true */
+(function($) {
+/* eslint-disable space-before-blocks, space-before-function-paren */
 
 window.kendo.pdf = window.kendo.pdf || {};
 var support = kendo.support;
@@ -4674,7 +4666,7 @@ return window.kendo;
 
 }) (function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "pdf",
     name: "PDF export",
     description: "PDF Generation framework",

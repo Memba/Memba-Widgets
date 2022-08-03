@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -3401,7 +3401,7 @@ return window.kendo;
     ], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "dataviz.map",
         name: "Map",
         category: "dataviz",

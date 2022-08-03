@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -413,7 +413,7 @@ return window.kendo;
         card: "k-orgchart-card",
         cardMenu: "k-orgchart-card-menu",
         button: "k-orgchart-button",
-        focused: "k-state-focus",
+        focused: "k-focus",
         plusIcon: "k-i-plus",
         menuItem: "k-item",
         avatarPreview: "k-orgchart-avatar-preview",
@@ -1850,7 +1850,7 @@ return window.kendo;
     define('kendo.orgchart',[ "./orgchart/data", "./orgchart/view", "kendo.menu", "kendo.dialog", "kendo.form", "kendo.upload", "kendo.window" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "orgchart",
     name: "OrgChart",
     category: "web",
@@ -1913,7 +1913,7 @@ var __meta__ = { // jshint ignore:line
         card: "k-orgchart-card",
         cardMenu: "k-orgchart-card-menu",
         button: "k-orgchart-button",
-        focused: "k-state-focus",
+        focused: "k-focus",
         plusIcon: "k-i-plus",
         menuItem: "k-item",
         avatarPreview: "k-orgchart-avatar-preview",

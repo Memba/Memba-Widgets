@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,15 +7,15 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 (function(f, define) {
-    define('kendo.gantt.editors',["kendo.data", "kendo.popup", "kendo.window", "kendo.gantt.data", "kendo.grid", "kendo.datetimepicker", "kendo.numerictextbox"], f);
+    define('kendo.gantt.editors',["kendo.data", "kendo.popup", "kendo.window", "kendo.gantt.data", "kendo.grid", "kendo.datetimepicker", "kendo.numerictextbox", "kendo.textbox", "kendo.form"], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "gantt.editors",
     name: "GanttEditors",
     category: "web",
     description: "The Gantt component editors.",
-    depends: [ "data", "popup", "window", "gantt.data", "grid", "datetimepicker", "numerictextbox"],
+    depends: [ "data", "popup", "window", "gantt.data", "grid", "datetimepicker", "numerictextbox", "textbox", "form"],
     hidden: true
 };
 
@@ -69,7 +69,7 @@ var __meta__ = { // jshint ignore:line
         buttonSave: "k-gantt-update",
         focused: "k-focus",
         gridContent: "k-grid-content",
-        hovered: "k-state-hover",
+        hovered: "k-hover",
         item: "k-item k-menu-item",
         popupWrapper: "k-popup k-menu-popup",
         popupList: "k-menu-group k-menu-group-md k-reset",
@@ -116,7 +116,18 @@ var __meta__ = { // jshint ignore:line
     };
 
     var RESOURCESEDITOR = function(container, options) {
-        $('<a href="#" class="' + options.styles.button + ' ' + options.styles.buttonDefaults + '"><span class="k-button-text">' + options.messages.assignButton + '</span></a>').on("click", options.click).appendTo(container);
+        $('<div class="' + ganttStyles.popup.resourcesField + '" style="display:none"></div><a href="#" class="' + options.styles.button + ' ' + options.styles.buttonDefaults + '"><span class="k-button-text">' + options.messages.assignButton + '</span></a>').on("click", options.click).appendTo(container);
+    };
+
+    var READONLYEDITOR = function(container, options) {
+        var field = options.field;
+        var value = '';
+
+        if (options.model.get(field) !== null) {
+            value = options.model.get(field);
+        }
+
+        container.append("<span>" + value + "</span>");
     };
 
     var TaskDropDown = Observable.extend({
@@ -303,7 +314,8 @@ var __meta__ = { // jshint ignore:line
     var editors = {
         desktop: {
             dateRange: DATERANGEEDITOR,
-            resources: RESOURCESEDITOR
+            resources: RESOURCESEDITOR,
+            readonly: READONLYEDITOR
         }
     };
 
@@ -350,17 +362,30 @@ var __meta__ = { // jshint ignore:line
                 if (model.get(resources.field)) {
                     fields.push({ field: resources.field, title: messages.resources, messages: messages, editor: editors.resources, click: click, styles: ganttStyles.popup });
                 }
+
+
+                fields = fields.map(function(item) {
+                    if (!model.editable || model.editable(item.field)) {
+                        return item;
+                    } else {
+                        return extend(true, item, {
+                            editor: editors.readonly
+                        });
+                    }
+                });
+
             }
 
-            return fields;
+            return fields.map(function(item) {
+                return extend(true, item, {
+                    label: item.title
+                });
+            });
         },
 
-        _buildEditTemplate: function(model, fields, editableFields) {
-            var resources = this.options.resources;
+        _buildEditTemplate: function(model) {
             var template = this.options.editable.template;
             var settings = extend({}, kendo.Template, this.options.templateSettings);
-            var paramName = settings.paramName;
-            var popupStyles = ganttStyles.popup;
             var html = "";
 
             if (template) {
@@ -370,35 +395,8 @@ var __meta__ = { // jshint ignore:line
 
                 html += (kendo.template(template, settings))(model);
             } else {
-                for (var i = 0, length = fields.length; i < length; i++) {
-                    var field = fields[i];
-
-                    html += '<div class="' + popupStyles.editLabel + '"><label for="' + field.field + '">' + (field.title || field.field || "") + '</label></div>';
-
-                    if (field.field === resources.field) {
-                        html += '<div class="' + popupStyles.resourcesField + '" style="display:none"></div>';
-                    }
-
-                    if ((!model.editable || model.editable(field.field))) {
-                        editableFields.push(field);
-                        html += '<div ' + kendo.attr("container-for") + '="' + field.field + '" class="' + popupStyles.editField + '"></div>';
-                    } else {
-                        var tmpl = "#:";
-
-                        if (field.field) {
-                            field = kendo.expr(field.field, paramName);
-                            tmpl += field + "==null?'':" + field;
-                        } else {
-                            tmpl += "''";
-                        }
-
-                        tmpl += "#";
-
-                        tmpl = kendo.template(tmpl, settings);
-
-                        html += '<div class="' + popupStyles.editField + '">' + tmpl(model) + '</div>';
-                    }
-                }
+                this.renderForm = true;
+                html += '<div class="k-gantt-form"></div>';
             }
 
             return html;
@@ -416,7 +414,7 @@ var __meta__ = { // jshint ignore:line
 
             var destroy = function() {
                 if (that.editable) {
-                    that.editable.destroy();
+                    that.container.data("kendoWindow").destroy();
                     that.editable = null;
                     that.container = null;
                 }
@@ -427,9 +425,9 @@ var __meta__ = { // jshint ignore:line
                 }
             };
 
-            if (this.editable && this.container.is(":visible")) {
+            if (that.editable && that.container.is(":visible")) {
                 that.trigger("close", { window: that.container });
-                this.container.data("kendoWindow").bind("deactivate", destroy).close();
+                that.container.data("kendoWindow").bind("deactivate", destroy).close();
             } else {
                 destroy();
             }
@@ -493,14 +491,14 @@ var __meta__ = { // jshint ignore:line
             var options = {};
             var messages = this.options.messages;
             var popupStyles = ganttStyles.popup;
+            var editableWidget;
 
             var html = kendo.format('<div {0}="{1}" class="{2} {3}"><div class="{4}">',
                 kendo.attr("uid"), task.uid, popupStyles.form, popupStyles.editForm, popupStyles.formContainer);
 
             var fields = this.fields(editors.desktop, task, plannedEditors);
-            var editableFields = [];
 
-            html += this._buildEditTemplate(task, fields, editableFields);
+            html += this._buildEditTemplate(task);
 
             html += '<div class="' + popupStyles.buttonsContainer + '">';
             html += this.createButton({ name: "update", text: messages.save, className: ganttStyles.primary });
@@ -528,15 +526,27 @@ var __meta__ = { // jshint ignore:line
                     }
                 }, options));
 
-            var editableWidget = container
+            if (this.renderForm) {
+                this.form = container.find(".k-gantt-form").kendoForm({
+                    items: fields,
+                    formData: task,
+                    buttonsTemplate: "",
+                    validatable: {
+                        validateOnBlur: true
+                    }
+                }).data("kendoForm");
+
+                editableWidget = this.form.editable;
+            } else {
+                editableWidget = container
                 .kendoEditable({
-                    fields: editableFields,
                     model: task,
                     clearContainer: false,
                     validateOnBlur: true,
                     target: that.options.target
                 })
                 .data("kendoEditable");
+            }
 
             kendo.cycleForm(container);
 

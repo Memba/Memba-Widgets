@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.scheduler.agendaview',["kendo.scheduler.view"], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "scheduler.agendaview",
         name: "Scheduler Agenda View",
         category: "web",
@@ -339,7 +339,7 @@
             },
 
             clearSelection: function() {
-                this.element.find(".k-state-selected").attr("aria-selected", false);
+                this.element.find(".k-selected").attr("aria-selected", false);
 
                 kendo.ui.SchedulerView.fn.clearSelection.call(this);
             },
@@ -356,11 +356,11 @@
             },
 
             _mouseenter: function(e) {
-                $(e.currentTarget).addClass("k-state-hover");
+                $(e.currentTarget).addClass("k-hover");
             },
 
             _mouseleave: function(e) {
-                $(e.currentTarget).removeClass("k-state-hover");
+                $(e.currentTarget).removeClass("k-hover");
             },
 
             _remove: function(e) {
@@ -705,7 +705,7 @@
                     .find(".k-task")
                     .eq(selection.index)
                     .closest("tr")
-                    .addClass("k-state-selected")
+                    .addClass("k-selected")
                     .attr("aria-selected", true)[0];
 
                 this.current(row);

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.scheduler.yearview',[ "kendo.scheduler.view", "kendo.multiviewcalendar", "kendo.tooltip" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "scheduler.yearview",
     name: "Scheduler Year View",
     category: "web",
@@ -28,12 +28,15 @@ var __meta__ = { // jshint ignore:line
         firstDayOfYear = kendo.date.firstDayOfYear,
         firstDayOfMonth = kendo.date.firstDayOfMonth,
         lastDayOfMonth = kendo.date.lastDayOfMonth,
+        TABINDEX = "tabindex",
+        DAY = "day",
         NAVIGATE = "navigate",
         KEYDOWN = "keydown",
         ACTIVATE = "activate",
         SHOW = "show",
         HIDE = "hide",
         CLICK = "click",
+        FOCUS = "focus",
         DOT = ".",
         NS = ".kendoYearView";
 
@@ -43,7 +46,9 @@ var __meta__ = { // jshint ignore:line
         tooltip: "k-scheduler-tooltip",
         indicator: "k-day-indicator",
         event: "k-tooltip-event",
-        hidden: "k-hidden"
+        hidden: "k-hidden",
+        calendarView: "k-calendar-view",
+        scheduler: "k-scheduler"
     };
 
     var TOOLTIP_TEMPLATE = template(
@@ -141,32 +146,33 @@ var __meta__ = { // jshint ignore:line
         _initCalendar: function() {
             var that = this,
                 options = that.options,
-                calendarElement = $("<div/>");
+                calendarElement = $("<div/>"),
+                calendar, calEl;
 
             that.body.append(calendarElement);
 
-            that.calendar = new ui.MultiViewCalendar(calendarElement, {
+            that.calendar = calendar = new ui.MultiViewCalendar(calendarElement, {
                 views: options.months,
                 value: that.startDate(),
                 showViewHeader: true,
                 footer: false
             });
 
+            calEl = calendar.element;
+
             if (!options.selectable) {
                 that._disableCalendarSelection();
             }
 
-            that.calendar.value(null);
+            calendar.value(null);
 
-            that.calendar.header.toggleClass(YearViewStyles.hidden);
+            calendar.header.toggleClass(YearViewStyles.hidden);
 
-            that.calendar.element.on(CLICK + NS, "td[role='gridcell']", that._calendarCellClick.bind(that));
+            calEl.on(CLICK + NS, "td[role='gridcell']", that._calendarCellClick.bind(that));
+            calEl.on(KEYDOWN + NS, DOT + YearViewStyles.calendarView, that._calendarKeydown.bind(that));
+            calEl.find( DOT + YearViewStyles.calendarView).removeAttr(TABINDEX);
 
-            that.calendar.element.on(KEYDOWN + NS, "table.k-content", that._calendarKeydown.bind(that));
-
-            that.calendar.bind(NAVIGATE, that._calendarNavigate.bind(that));
-
-            that.calendar.element.find("table").attr("tabindex", "-1");
+            calendar.bind(NAVIGATE, that._calendarNavigate.bind(that));
         },
 
         _calendarCellClick: function(ev) {
@@ -188,6 +194,10 @@ var __meta__ = { // jshint ignore:line
                 ev.preventDefault();
 
                 that._displayTooltip(that.calendar.selectable.value().first());
+            } else if (keyCode === keys.TAB && ev.shiftKey) {
+                this._preventCalendarFocus = true;
+                this.calendar.element.find( DOT + YearViewStyles.calendarView).removeAttr(TABINDEX);
+                this.element.closest(DOT + YearViewStyles.scheduler).trigger(FOCUS);
             }
         },
 
@@ -214,11 +224,6 @@ var __meta__ = { // jshint ignore:line
 
             isPrevious = calendar._firstViewValue < that.startDate();
             focusDate = isPrevious ? that.lastDateInRange() : that.nextDate();
-
-            if (that.options.selectable) {
-                calendar.value(focusDate);
-            }
-
             calendar._focusCell(calendar._cellByDate(focusDate), true);
         },
 
@@ -231,7 +236,6 @@ var __meta__ = { // jshint ignore:line
 
             that.calendar.value(null);
             that.calendar.element.off(KEYDOWN, that.calendar._move);
-            that.calendar.element.find("table").attr("tabindex", "-1");
         },
 
         _initTooltip: function() {
@@ -309,7 +313,7 @@ var __meta__ = { // jshint ignore:line
 
             that._inverseTooltipEventsColor();
 
-            tooltip.popup.element.find(":kendoFocusable").first().trigger("focus");
+            tooltip.popup.element.find(":kendoFocusable").first().trigger(FOCUS);
         },
 
         _tooltipHide: function() {
@@ -317,7 +321,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            this.calendar._focusCell(this.calendar.selectable.value().first(), true);
+            this.calendar.focus();
         },
 
         _tooltipTitleClick: function() {
@@ -343,10 +347,10 @@ var __meta__ = { // jshint ignore:line
                 var lastFocusable = element.find(":kendoFocusable").last();
 
                 if (shiftKey && target.is(firstFocusable)) {
-                    lastFocusable.trigger("focus");
+                    lastFocusable.trigger(FOCUS);
                     ev.preventDefault();
                 } else if (target.is(lastFocusable)) {
-                    firstFocusable.trigger("focus");
+                    firstFocusable.trigger(FOCUS);
                     ev.preventDefault();
                 }
             }
@@ -354,11 +358,11 @@ var __meta__ = { // jshint ignore:line
 
         _navigateToDayView: function() {
             var dayViewEnabled = $.grep(this.options.views, function(view) {
-                return ($.isPlainObject(view) && view.type == "kendo.ui.DayView") || view === "day";
+                return ($.isPlainObject(view) && view.type == "kendo.ui.DayView") || view === DAY;
             }).length;
 
             if (dayViewEnabled) {
-                this.trigger(NAVIGATE, { view: "day", date: this.calendar.current() });
+                this.trigger(NAVIGATE, { view: DAY, date: this.calendar.current() });
             }
         },
 
@@ -370,7 +374,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (!that.options.selectable) {
-                target.removeClass("k-state-selected");
+                target.removeClass("k-selected");
             }
 
             setTimeout(function() {
@@ -493,31 +497,6 @@ var __meta__ = { // jshint ignore:line
             } else {
                 return this._current;
             }
-        },
-
-        move: function(selection, key) {
-            var handled = false,
-                selectable = this.options.selectable;
-
-            if (!selectable || !selection) {
-                return;
-            }
-
-            if (key === kendo.keys.DOWN || key === kendo.keys.UP ||
-                key === kendo.keys.LEFT || key === kendo.keys.RIGHT) {
-                    handled = true;
-                    this.calendar.focus();
-            }
-
-            if (key === kendo.keys.ENTER || key === kendo.keys.SPACEBAR) {
-                handled = true;
-            }
-
-            if (handled) {
-                selection.start = selection.end = this.calendar.value();
-            }
-
-            return handled;
         },
 
         render: function(events) {

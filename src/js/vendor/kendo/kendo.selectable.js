@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.selectable',[ "kendo.core", "kendo.userevents" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "selectable",
     name: "Selectable",
     category: "framework",
@@ -23,13 +23,13 @@ var __meta__ = { // jshint ignore:line
         Widget = kendo.ui.Widget,
         abs = Math.abs,
         ARIASELECTED = "aria-selected",
-        SELECTED = "k-state-selected",
-        ACTIVE = "k-state-selecting",
+        SELECTED = "k-selected",
+        ACTIVE = "k-selecting",
         SELECTABLE = "k-selectable",
         CHANGE = "change",
         NS = ".kendoSelectable",
         UNSELECT = "unselect",
-        UNSELECTING = "k-state-unselecting",
+        UNSELECTING = "k-unselecting",
         INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up,label.k-checkbox-label.k-no-text,.k-icon.k-i-collapse,.k-icon.k-i-expand,span.k-numeric-wrap,.k-focusable",
         msie = kendo.support.browser.msie,
         supportEventDelegation = false,

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.autocomplete',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "autocomplete",
     name: "AutoComplete",
     category: "web",
@@ -616,6 +616,16 @@ var __meta__ = { // jshint ignore:line
                     });
                 }
                 e.preventDefault();
+            } else if (key === keys.ESC ) {
+                if (visible) {
+                    e.preventDefault();
+                    that.close();
+                } else {
+                    that._clearValue();
+                }
+            } else if (e.altKey && key === keys.UP && visible) {
+                e.preventDefault();
+                that.close();
             } else if (key === keys.UP) {
                 if (visible) {
                     this._move(current ? "focusPrev" : "focusLast");
@@ -641,13 +651,6 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 this._blur();
-            } else if (key === keys.ESC) {
-                if (visible) {
-                    e.preventDefault();
-                } else {
-                    that._clearValue();
-                }
-                that.close();
             } else if (that.popup.visible() && (key === keys.PAGEDOWN || key === keys.PAGEUP)) {
                 e.preventDefault();
 

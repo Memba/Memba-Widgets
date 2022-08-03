@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.splitbutton',["kendo.html.button", "kendo.button.menu"], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "splitbutton",
     name: "SplitButton",
     category: "web",
@@ -123,7 +123,7 @@ var __meta__ = { // jshint ignore:line
 
         _getAppearanceClasses: function() {
             var that = this,
-                widgetName = that.__proto__.options.name, // jshint ignore:line
+                widgetName = that.__proto__.options.name,
                 roundedClass = kendo.cssProperties.getValidClass({
                     widget: widgetName,
                     propName: "rounded",
@@ -142,7 +142,9 @@ var __meta__ = { // jshint ignore:line
 
         _mainButton: function() {
             var that = this,
-                options = extend({}, that.options);
+                options = extend({}, that.options, {
+                    type: that.element.attr("type") || "button"
+                });
 
             delete options.click;
 
@@ -152,6 +154,7 @@ var __meta__ = { // jshint ignore:line
         _arrowButton: function() {
             var that = this,
                 options = extend({}, that.options, {
+                    type: "button",
                     icon: that.options.arrowIcon,
                 });
 

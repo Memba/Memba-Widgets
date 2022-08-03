@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.drawer',[ "kendo.userevents" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "drawer",
     name: "Drawer",
     category: "web",
@@ -25,7 +25,7 @@ var __meta__ = { // jshint ignore:line
         SHOW = "show",
         HIDE = "hide",
         NS = ".kendoDrawer",
-        FOCUSED = "k-state-focused",
+        FOCUSED = "k-focus",
         keys = kendo.keys,
         ITEMCLICK = "itemClick",
         TABINDEX = "tabIndex",
@@ -94,10 +94,11 @@ var __meta__ = { // jshint ignore:line
 
             var element = that.element;
             var options = that.options;
-            var contentElement = that.contentElement = element.children().first();
+            that.contentElement = element.children()
+                .wrapAll("<div class='k-drawer-content'></div>")
+                .parent();
             that.drawerElement = $(options.template);
 
-            contentElement.addClass("k-drawer-content");
             element.addClass("k-widget k-drawer");
         },
 
@@ -269,8 +270,8 @@ var __meta__ = { // jshint ignore:line
             separatorItems.addClass("k-drawer-item k-drawer-separator");
 
             if (this._selectedItemIndex >= 0) {
-                drawerItems.removeClass("k-state-selected");
-                drawerItems.eq(this._selectedItemIndex).addClass("k-state-selected");
+                drawerItems.removeClass("k-selected");
+                drawerItems.eq(this._selectedItemIndex).addClass("k-selected");
             }
 
             if (this.options.navigatable) {
@@ -510,7 +511,7 @@ var __meta__ = { // jshint ignore:line
             var selectedItemIndex;
 
             if (item) {
-                item.addClass("k-state-selected");
+                item.addClass("k-selected");
                 this.trigger("itemClick", { item: item, sender: this });
                 this._selectedItemIndex = item.index();
                 return;
@@ -519,7 +520,7 @@ var __meta__ = { // jshint ignore:line
             selectedItemIndex = this._selectedItemIndex;
 
             if (selectedItemIndex) {
-                this.drawerItemsWrapper.find("[data-role='drawer-item']").eq(selectedItemIndex).addClass("k-state-selected");
+                this.drawerItemsWrapper.find("[data-role='drawer-item']").eq(selectedItemIndex).addClass("k-selected");
             }
         },
 
@@ -537,7 +538,7 @@ var __meta__ = { // jshint ignore:line
             else if ($(e.event.target).hasClass(".k-drawer-item")) {
                 item = $(e.event.target);
             }
-            items = that.drawerItemsWrapper.find(".k-drawer-item").removeClass("k-state-selected");
+            items = that.drawerItemsWrapper.find(".k-drawer-item").removeClass("k-selected");
             that._selectItem(item);
 
             if (that.options.navigatable) {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.gantt',["kendo.data", "kendo.resizable", "kendo.switch", "kendo.gantt.data", "kendo.gantt.editors", "kendo.gantt.list", "kendo.gantt.timeline", "kendo.pdf"], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "gantt",
     name: "Gantt",
     category: "web",
@@ -97,10 +97,10 @@ var __meta__ = { // jshint ignore:line
         buttonToggle: "k-gantt-toggle",
         buttonDefaults: "k-button-md k-rounded-md k-button-solid",
         primary: "k-button-solid-primary",
-        hovered: "k-state-hover",
+        hovered: "k-hover",
         selected: "k-selected",
         focused: "k-focus",
-        focusedCell: "k-state-focused",
+        focusedCell: "k-focus",
         gridHeader: "k-grid-header",
         gridHeaderWrap: "k-grid-header-wrap",
         gridContent: "k-grid-content",
@@ -1011,7 +1011,10 @@ var __meta__ = { // jshint ignore:line
                     restoreFocus();
                 })
                 .bind("save", function(e) {
-                    var updatedValues = e.values;
+                    var updatedValues = e.values,
+                        key;
+
+                    that.previousTask = {};
                     that._preventRefresh = true;
 
                     if (that.updateDuration === null || that.updateDuration === undefined) {
@@ -1022,64 +1025,41 @@ var __meta__ = { // jshint ignore:line
                         that.updatePlannedDuration = e.model.plannedDuration();
                     }
 
-                    if (updatedValues.hasOwnProperty("end")) {
-                        that.previousEnd = e.model.get("end");
-                    }
-
                     if (updatedValues.hasOwnProperty("start")) {
-                        that.previousStart = e.model.get("start");
                         updatedValues.end = new Date(updatedValues.start.getTime() + that.updateDuration);
                     }
 
-                    if (updatedValues.hasOwnProperty("plannedEnd") && updatedValues.plannedEnd) {
-                        that.previousPlannedEnd = e.model.get("plannedEnd");
-                    }
-
                     if (updatedValues.hasOwnProperty("plannedStart") && updatedValues.plannedStart) {
-                        that.previousPlannedStart = e.model.get("plannedStart");
                         updatedValues.plannedEnd = new Date(updatedValues.plannedStart.getTime() + that.updatePlannedDuration);
                     }
 
-                    if (updatedValues.hasOwnProperty("percentComplete")) {
-                        that.previousPercentComplete = e.model.get("percentComplete");
+                    for (key in updatedValues) {
+                        if (updatedValues.hasOwnProperty(key)) {
+                            that.previousTask[key] = e.model.get(key);
+                        }
                     }
 
                     that.updatedValues = updatedValues;
                 })
                 .bind("itemChange", function(e) {
-                    var updateInfo = that.updatedValues;
-                    var task = e.data;
-                    var resourcesField = that.resources.field;
+                    var updateInfo = that.updatedValues,
+                        task = e.data,
+                        resourcesField = that.resources.field,
+                        previousTask = that.previousTask,
+                        key;
 
                     if (that._preventItemChange) {
                         that._preventItemChange = false;
                         return;
                     }
 
-                    if (that.previousStart) {
-                        task.set("start", that.previousStart);
-                        that.previousStart = null;
+                    for (key in previousTask) {
+                        if (previousTask.hasOwnProperty(key)) {
+                            task.set(key, previousTask[key]);
+                        }
                     }
 
-                    if (that.previousEnd) {
-                        task.set("end", that.previousEnd);
-                        that.previousEnd = null;
-                    }
-
-                    if (that.previousPlannedStart) {
-                        task.set("plannedStart", that.previousPlannedStart);
-                        that.previousPlannedStart = null;
-                    }
-
-                    if (that.previousPlannedEnd) {
-                        task.set("plannedEnd", that.previousPlannedEnd);
-                        that.previousPlannedEnd = null;
-                    }
-
-                    if (that.previousPercentComplete !== null && that.previousPercentComplete !== undefined) {
-                        task.set("percentComplete", that.previousPercentComplete);
-                        that.previousPercentComplete = null;
-                    }
+                    that.previousTask = {};
 
                     if (!that.trigger("save", { task: task, values: updateInfo })) {
                         if (updateInfo) {
@@ -1126,7 +1106,7 @@ var __meta__ = { // jshint ignore:line
 
                     that._cachedCurrent = {
                         rowIndex: row.index(),
-                        columnIndex: row.find(".k-state-focused").index()
+                        columnIndex: row.find(".k-focus").index()
                     };
 
                     restoreFocus();
@@ -1139,7 +1119,7 @@ var __meta__ = { // jshint ignore:line
 
                     that._cachedCurrent = {
                         rowIndex: row.index(),
-                        columnIndex: row.find(".k-state-focused").index()
+                        columnIndex: row.find(".k-focus").index()
                     };
 
                     restoreFocus();

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -289,7 +289,7 @@ window.kendo.pivotgrid.common = (function (exports) {
         return command.replace(/&/g, "&amp;");
     }
 
-    /*! *****************************************************************************
+    /******************************************************************************
     Copyright (c) Microsoft Corporation.
 
     Permission to use, copy, modify, and/or distribute this software for any
@@ -920,10 +920,10 @@ window.kendo.pivotgrid.common = (function (exports) {
     var toTree = function (tuples) {
         var root = { children: [] };
         var map = {};
-        var _loop_1 = function (tupleIndex) {
+        for (var tupleIndex = 0; tupleIndex < tuples.length; tupleIndex++) {
             var tuple = copy(tuples[tupleIndex]);
             var key = "";
-            var _loop_2 = function (memberIndex) {
+            var _loop_1 = function (memberIndex) {
                 var member = tuple.members[memberIndex];
                 var parent_1;
                 if (root.children && root.children.length === 0) {
@@ -936,9 +936,7 @@ window.kendo.pivotgrid.common = (function (exports) {
                     parent_1 = map[key + member.parentName];
                 }
                 else if (!map[key + member.parentName] && member.levelNum > 0 && !map[key + member.parentName + member.name]) {
-                    var parentKey = Object.keys(map)
-                        .find(function (e) { return e.indexOf(member.hierarchy) === 0
-                        && e.lastIndexOf(key + member.parentName) + (key + member.parentName).length === e.length; });
+                    var parentKey = Object.keys(map).find(function (e) { return member.parentName === map[e].name; });
                     if (parentKey) {
                         parent_1 = map[parentKey];
                     }
@@ -948,23 +946,21 @@ window.kendo.pivotgrid.common = (function (exports) {
                     member.normalizedPath = generateNormalizedPath(member, parent_1);
                     var intruderIndex = parent_1.children.findIndex(function (c) { return c.hierarchy !== parent_1.hierarchy; });
                     if (intruderIndex !== -1) {
-                        parent_1.children.splice(Math.max(intruderIndex, 0), 0, member);
+                        parent_1.children.splice(intruderIndex, 0, member);
                     }
                     else {
                         parent_1.children.push(member);
                     }
                 }
-                key += member.parentName += member.name;
+                member.parentName += member.name;
+                key += member.parentName;
                 if (!map[key]) {
                     map[key] = member;
                 }
             };
             for (var memberIndex = 0; memberIndex < tuple.members.length; memberIndex++) {
-                _loop_2(memberIndex);
+                _loop_1(memberIndex);
             }
-        };
-        for (var tupleIndex = 0; tupleIndex < tuples.length; tupleIndex++) {
-            _loop_1(tupleIndex);
         }
         return copy(withTotal(root));
     };
@@ -1116,6 +1112,57 @@ window.kendo.pivotgrid.common = (function (exports) {
      * @hidden
      */
     var compareAxes = function (a, b) { return String(a.name) === String(b.name); };
+    /**
+     * @hidden
+     */
+    var filterField = function (axes, out) {
+        var _loop_2 = function (i) {
+            var axis = axes[i];
+            var index = axis.name.findIndex(function (name) { return compareAxisWithField({ name: [name] }, out) || String(name).startsWith(out.uniqueName); });
+            if (index !== -1) {
+                if (index === axis.name.length - 1 || axis.name.length === 1) {
+                    axes.splice(i, 1);
+                }
+                else {
+                    axis.name.splice(index, 1);
+                    var duplicatedAxisIndex = axes.findIndex(function (ax) { return ax !== axis && String(ax.name) === String(axis.name); });
+                    if (duplicatedAxisIndex !== -1) {
+                        axes[duplicatedAxisIndex] = __assign(__assign(__assign({}, axes[duplicatedAxisIndex]), axis), ((axes[duplicatedAxisIndex].expand || axis.expand) ? { expand: true } : {}));
+                        axes.splice(i, 1);
+                    }
+                }
+            }
+        };
+        for (var i = axes.length - 1; i >= 0; i--) {
+            _loop_2(i);
+        }
+    };
+    /**
+     * @hidden
+     */
+    var insertAxis = function (axes, toInsert, state) {
+        var index = -1;
+        if (state.dropTarget && state.dropDirection) {
+            var offset = state.dropDirection
+                ? (state.dropDirection === 'before'
+                    ? 0
+                    : 1)
+                : 0;
+            index = axes.findIndex(function (c) { return compareAxes(c, state.dropTarget); }) + offset;
+        }
+        if (index !== -1) {
+            axes.forEach(function (axis) {
+                var _a;
+                if (axis.expand && axis.name.length > 1 && axis.name.length > index) {
+                    (_a = axis.name).splice.apply(_a, __spreadArrays([index, 0], toInsert.name));
+                }
+            });
+            axes.splice(index, 0, toInsert);
+        }
+        else {
+            axes.push(toInsert);
+        }
+    };
 
     /**
      * @hidden
@@ -1159,12 +1206,15 @@ window.kendo.pivotgrid.common = (function (exports) {
                     return state.map(function (s) { return s === existing_1 ? (__assign(__assign({}, existing_1), { expand: true })) : s; });
                 }
                 else {
-                    return __spreadArrays(state, [{ name: action.payload, expand: true }]);
+                    var nextState = state.slice();
+                    nextState.push({ name: action.payload, expand: true });
+                    return nextState;
                 }
             }
             case exports.HEADERS_ACTION.collapse: {
                 var filtered_1 = findPath(action.tree, function (node) { return !node.total && String(node.path) === String(action.payload); });
-                var newState = __spreadArrays(state).filter(function (h) { return !filtered_1.some(function (f) { return f === String(h.name); }); })
+                var newState = state.slice()
+                    .filter(function (h) { return !filtered_1.some(function (f) { return f === String(h.name); }); })
                     .map(function (h) { return (__assign(__assign({}, h), { expand: Boolean(h.expand) })); })
                     .map(function (h) { return (String(h.name) === String(action.payload))
                     ? action.payload.length > 1 ? undefined : { name: action.payload, expand: false }
@@ -1285,6 +1335,7 @@ window.kendo.pivotgrid.common = (function (exports) {
             }
             case exports.PIVOT_CONFIGURATOR_ACTION.removeColumnAxis: {
                 newColumns = __spreadArrays((state.columnAxes || []).filter(function (s) { return !compareAxisWithField(s, action.payload); }));
+                filterField(newColumns, action.payload);
                 break;
             }
             case exports.PIVOT_CONFIGURATOR_ACTION.removeColumnAxes: {
@@ -1303,6 +1354,7 @@ window.kendo.pivotgrid.common = (function (exports) {
             }
             case exports.PIVOT_CONFIGURATOR_ACTION.removeRowAxis: {
                 newRows = __spreadArrays((state.rowAxes || []).filter(function (s) { return !compareAxisWithField(s, action.payload); }));
+                filterField(newRows, action.payload);
                 break;
             }
             case exports.PIVOT_CONFIGURATOR_ACTION.removeRowAxes: {
@@ -1330,9 +1382,11 @@ window.kendo.pivotgrid.common = (function (exports) {
             case exports.PIVOT_CONFIGURATOR_ACTION.remove: {
                 if (state.columnAxes.some(function (s) { return compareAxes(s, action.payload); })) {
                     newColumns = __spreadArrays(state.columnAxes.filter(function (s) { return !compareAxes(s, action.payload); }));
+                    filterField(newColumns, { uniqueName: action.payload.name });
                 }
                 if (state.rowAxes.some(function (s) { return compareAxes(s, action.payload); })) {
                     newRows = __spreadArrays(state.rowAxes.filter(function (s) { return !compareAxes(s, action.payload); }));
+                    filterField(newRows, { uniqueName: action.payload.name });
                 }
                 if (state.measureAxes.some(function (s) { return compareAxes(s, action.payload); })) {
                     newMeasures = __spreadArrays(state.measureAxes.filter(function (s) { return !compareAxes(s, action.payload); }));
@@ -1360,10 +1414,12 @@ window.kendo.pivotgrid.common = (function (exports) {
                     if (currentColumn) {
                         current = currentColumn;
                         newColumns = __spreadArrays(state.columnAxes.filter(function (s) { return !compareAxes(s, action.payload); }));
+                        filterField(newColumns, { uniqueName: action.payload.name });
                     }
                     if (currentRow) {
                         current = currentRow;
                         newRows = __spreadArrays(state.rowAxes.filter(function (s) { return !compareAxes(s, action.payload); }));
+                        filterField(newRows, { uniqueName: action.payload.name });
                     }
                     if (currentMeasure) {
                         current = currentMeasure;
@@ -1372,59 +1428,17 @@ window.kendo.pivotgrid.common = (function (exports) {
                     switch (state.dropZone) {
                         case 'columnAxes': {
                             newColumns = newColumns || state.columnAxes.slice();
-                            var insertAtIndex = -1;
-                            if (state.dropTarget && state.dropDirection) {
-                                var offset = state.dropDirection
-                                    ? state.dropDirection === 'before'
-                                        ? 0
-                                        : 1
-                                    : 0;
-                                insertAtIndex = newColumns.findIndex(function (c) { return compareAxes(c, state.dropTarget); }) + offset;
-                            }
-                            if (insertAtIndex >= 0) {
-                                newColumns.splice(insertAtIndex, 0, current);
-                            }
-                            else {
-                                newColumns.push(current);
-                            }
+                            insertAxis(newColumns, current, state);
                             break;
                         }
                         case 'rowAxes': {
                             newRows = newRows || state.rowAxes.slice();
-                            var insertAtIndex = -1;
-                            if (state.dropTarget && state.dropDirection) {
-                                var offset = state.dropDirection
-                                    ? state.dropDirection === 'before'
-                                        ? 0
-                                        : 1
-                                    : 0;
-                                insertAtIndex = newRows.findIndex(function (c) { return compareAxes(c, state.dropTarget); }) + offset;
-                            }
-                            if (insertAtIndex >= 0) {
-                                newRows.splice(insertAtIndex, 0, current);
-                            }
-                            else {
-                                newRows.push(current);
-                            }
+                            insertAxis(newRows, current, state);
                             break;
                         }
                         case 'measureAxes': {
                             newMeasures = newMeasures || state.measureAxes.slice();
-                            var insertAtIndex = -1;
-                            if (state.dropTarget && state.dropDirection) {
-                                var offset = state.dropDirection
-                                    ? state.dropDirection === 'before'
-                                        ? 0
-                                        : 1
-                                    : 0;
-                                insertAtIndex = newMeasures.findIndex(function (c) { return compareAxes(c, state.dropTarget); }) + offset;
-                            }
-                            if (insertAtIndex >= 0) {
-                                newMeasures.splice(insertAtIndex, 0, current);
-                            }
-                            else {
-                                newMeasures.push(current);
-                            }
+                            insertAxis(newMeasures, current, state);
                             break;
                         }
                     }
@@ -1487,21 +1501,951 @@ window.kendo.pivotgrid.common = (function (exports) {
         };
     };
 
+    // tslint:disable:object-literal-sort-keys
+    /**
+     * Represents the aggregate object which calculates the total value. Applicable for local data binding.
+     */
+    var sumAggregate = {
+        init: function (data) {
+            if (('sum' in data) === false) {
+                data.sum = 0;
+            }
+        },
+        merge: function (src, dest) {
+            dest.sum += src.sum;
+        },
+        accumulate: function (acc, value) {
+            acc.sum += value;
+        },
+        result: function (data) { return data.sum; },
+        format: function (value) { return value.toFixed(2); }
+    };
+    /**
+     * Represents the aggregate object which calculates the minimum value. Applicable for local data binding.
+     */
+    var minAggregate = {
+        init: function (data) {
+            if (('min' in data) === false) {
+                data.min = Number.POSITIVE_INFINITY;
+            }
+        },
+        merge: function (src, dest) {
+            dest.min = Math.min(src.min, dest.min);
+        },
+        accumulate: function (acc, value) {
+            acc.min = Math.min(value, acc.min);
+        },
+        result: function (data) { return Number.isFinite(data.min) ? data.min : NaN; },
+        format: function (value) { return value.toFixed(2); }
+    };
+    /**
+     * Represents the aggregate object which calculates the maximum value. Applicable for local data binding.
+     */
+    var maxAggregate = {
+        init: function (data) {
+            if (('max' in data) === false) {
+                data.max = Number.NEGATIVE_INFINITY;
+            }
+        },
+        merge: function (src, dest) {
+            dest.max = Math.max(src.max, dest.max);
+        },
+        accumulate: function (acc, value) {
+            acc.max = Math.max(value, acc.max);
+        },
+        result: function (data) { return Number.isFinite(data.max) ? data.max : NaN; },
+        format: function (value) { return value.toFixed(2); }
+    };
+    /**
+     * Represents the aggregate object which calculates the average value. Applicable for local data binding.
+     */
+    var averageAggregate = {
+        init: function (data) {
+            if (('count' in data) === false) {
+                data.sumA = 0;
+                data.count = 0;
+            }
+        },
+        merge: function (src, dest) {
+            dest.sumA += src.sumA;
+            dest.count += src.count;
+        },
+        accumulate: function (acc, value) {
+            acc.sumA += value;
+            acc.count += 1;
+        },
+        result: function (data) { return data.sumA / data.count; },
+        format: function (value) { return value.toFixed(2); }
+    };
+
+    /**
+     * @hidden
+     */
+    var isPresent = function (value) { return value !== null && value !== undefined; };
+    /**
+     * @hidden
+     */
+    var isBlank = function (value) { return value === null || value === undefined; };
+    /**
+     * @hidden
+     */
+    var isArray = function (value) { return Array.isArray(value); };
+    /**
+     * @hidden
+     */
+    var isFunction = function (value) { return typeof value === 'function'; };
+    /**
+     * @hidden
+     */
+    var isString = function (value) { return typeof value === 'string'; };
+    /**
+     * @hidden
+     */
+    var isNullOrEmptyString = function (value) { return isBlank(value) || value.trim().length === 0; };
+    /**
+     * @hidden
+     */
+    var isNotNullOrEmptyString = function (value) { return !isNullOrEmptyString(value); };
+    /**
+     * @hidden
+     */
+    var isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
+    /**
+     * @hidden
+     */
+    var isDate = function (value) { return value && value.getTime; };
+
+    // tslint:enable:max-line-length
+    /**
+     * @hidden
+     * Type guard for `CompositeFilterDescriptor`.
+     */
+    var isCompositeFilterDescriptor = function (source) {
+        return isPresent(source.filters);
+    };
+
+    /**
+     * @hidden
+     */
+    var ifElse = function (predicate, right, left) { return function (value) { return predicate(value) ? right(value) : left(value); }; };
+    /**
+     * @hidden
+     * Performs the right-to-left function composition. Functions should have a unary.
+     */
+    var compose = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return function (data) { return args.reduceRight(function (acc, curr) { return curr(acc); }, data); };
+    };
+
+    /**
+     * @hidden
+     */
+    var toUTC = function (date) {
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
+    };
+    /**
+     * @hidden
+     */
+    var isDateValue = function (x) { return isDate(x.value); };
+
+    var getterCache = {};
+    var FIELD_REGEX = /\[(?:(\d+)|['"](.*?)['"])\]|((?:(?!\[.*?\]|\.).)+)/g;
+    // tslint:disable-next-line:no-string-literal
+    getterCache['undefined'] = function (obj) { return obj; };
+    /**
+     * @hidden
+     */
+    var getter = function (field, safe) {
+        var key = field + safe;
+        if (getterCache[key]) {
+            return getterCache[key];
+        }
+        var fields = [];
+        field.replace(FIELD_REGEX, function (_, index, indexAccessor, field) {
+            fields.push(isPresent(index) ? index : (indexAccessor || field));
+            return undefined;
+        });
+        getterCache[key] = function (obj) {
+            var result = obj;
+            for (var idx = 0; idx < fields.length; idx++) {
+                result = result[fields[idx]];
+                if (!isPresent(result) && safe) {
+                    return result;
+                }
+            }
+            return result;
+        };
+        return getterCache[key];
+    };
+
+    var pairwise = function (key) { return function (value) { return [key, value]; }; };
+    var empty = function () { return null; };
+    var isNotEmptyArray = function (value) { return isPresent(value) && isArray(value) && value.length > 0; };
+    var isNotEmpty = function (accessor) { return function (value) { return isNotEmptyArray(accessor(value)); }; };
+    var runOrEmpty = function (predicate, fn) { return ifElse(predicate, fn, empty); };
+    var calcPage = function (_a) {
+        var skip = _a.skip, take = _a.take;
+        return Math.floor((skip || 0) / take) + 1;
+    };
+    var formatDescriptors = function (accessor, formatter) { return function (state) { return (accessor(state).map(formatter).join("~")); }; };
+    var removeAfter = function (what) { return function (str) { return str.slice(0, str.indexOf(what)); }; };
+    var replace = function (patterns) {
+        return compose.apply(void 0, patterns.map(function (_a) {
+            var left = _a[0], right = _a[1];
+            return function (s) { return s.replace(new RegExp(left, "g"), right); };
+        }));
+    };
+    var sanitizeDateLiterals = replace([["\"", ""], [":", "-"]]);
+    var removeAfterDot = removeAfter(".");
+    var directionFormatter = function (_a) {
+        var field = _a.field, _b = _a.dir, dir = _b === void 0 ? "asc" : _b;
+        return field + "-" + dir;
+    };
+    var aggregateFormatter = function (_a) {
+        var field = _a.field, aggregate = _a.aggregate;
+        return field + "-" + aggregate;
+    };
+    var take = getter("take");
+    var aggregates = getter("aggregates");
+    getter("skip");
+    var group = getter("group");
+    var sort = getter("sort", true);
+    var formatSort = formatDescriptors(sort, directionFormatter);
+    var formatGroup = formatDescriptors(group, directionFormatter);
+    var formatAggregates = formatDescriptors(aggregates, aggregateFormatter);
+    var prefixDateValue = function (value) { return "datetime'" + value + "'"; };
+    var formatDateValue = compose(prefixDateValue, removeAfterDot, sanitizeDateLiterals, JSON.stringify, toUTC);
+    var formatDate = function (_a) {
+        var field = _a.field, value = _a.value, ignoreCase = _a.ignoreCase, operator = _a.operator;
+        return ({
+            value: formatDateValue(value),
+            field: field,
+            ignoreCase: ignoreCase,
+            operator: operator
+        });
+    };
+    var normalizeSort = function (state) { return Object.assign({}, state, {
+        sort: (sort(state) || []).filter(function (_a) {
+            var dir = _a.dir;
+            return isNotNullOrEmptyString(dir);
+        })
+    }); };
+    compose(pairwise('page'), calcPage);
+    compose(pairwise('pageSize'), take);
+    compose(pairwise('group'), formatGroup);
+    var transformSort = compose(pairwise('sort'), formatSort);
+    compose(pairwise('aggregate'), formatAggregates);
+    compose(runOrEmpty(isNotEmpty(sort), transformSort), normalizeSort);
+    var filterFormatter = function (_a) {
+        var field = _a.field, operator = _a.operator, value = _a.value;
+        return field + "~" + operator + "~" + value;
+    };
+    ifElse(isDateValue, compose(filterFormatter, formatDate), filterFormatter);
+
+    // tslint:enable:max-line-length
+    var set = function (field, target, value) {
+        target[field] = value;
+        return target;
+    };
+    var convert = function (mapper) { return function (values) { return Object.keys(values).reduce(mapper.bind(null, values), {}); }; };
+    var translateAggregate = convert(function (source, acc, field) { return set(field.toLowerCase(), acc, source[field]); });
+    var translateAggregates = convert(function (source, acc, field) { return set(field, acc, translateAggregate(source[field])); });
+    var valueOrDefault = function (value, defaultValue) { return isPresent(value) ? value : defaultValue; };
+    var normalizeGroup = function (group) { return ({
+        aggregates: group.Aggregates || group.aggregates,
+        field: group.Member || group.member || group.field,
+        hasSubgroups: group.HasSubgroups || group.hasSubgroups || false,
+        items: group.Items || group.items,
+        value: valueOrDefault(group.Key, valueOrDefault(group.key, group.value))
+    }); };
+    var translateGroup = compose(function (_a) {
+        var field = _a.field, hasSubgroups = _a.hasSubgroups, value = _a.value, aggregates = _a.aggregates, items = _a.items;
+        return ({
+            aggregates: translateAggregates(aggregates),
+            field: field,
+            items: hasSubgroups ? items.map(translateGroup) : items,
+            value: value
+        });
+    }, normalizeGroup);
+
+    var logic = {
+        "or": {
+            concat: function (acc, fn) { return function (a) { return acc(a) || fn(a); }; },
+            identity: function () { return false; }
+        },
+        "and": {
+            concat: function (acc, fn) { return function (a) { return acc(a) && fn(a); }; },
+            identity: function () { return true; }
+        }
+    };
+    var operatorsMap = {
+        contains: function (a, b) { return (a || "").indexOf(b) >= 0; },
+        doesnotcontain: function (a, b) { return (a || "").indexOf(b) === -1; },
+        doesnotendwith: function (a, b) { return (a || "").indexOf(b, (a || "").length - (b || "").length) < 0; },
+        doesnotstartwith: function (a, b) { return (a || "").lastIndexOf(b, 0) === -1; },
+        endswith: function (a, b) { return (a || "").indexOf(b, (a || "").length - (b || "").length) >= 0; },
+        eq: function (a, b) { return a === b; },
+        gt: function (a, b) { return a > b; },
+        gte: function (a, b) { return a >= b; },
+        isempty: function (a) { return a === ''; },
+        isnotempty: function (a) { return a !== ''; },
+        isnotnull: function (a) { return isPresent(a); },
+        isnull: function (a) { return isBlank(a); },
+        lt: function (a, b) { return a < b; },
+        lte: function (a, b) { return a <= b; },
+        neq: function (a, b) { return a != b; },
+        startswith: function (a, b) { return (a || "").lastIndexOf(b, 0) === 0; }
+    };
+    var dateRegExp = /^\/Date\((.*?)\)\/$/;
+    var convertValue = function (value, ignoreCase) {
+        if (value != null && isString(value)) {
+            var date = dateRegExp.exec(value);
+            if (date) {
+                return new Date(+date[1]).getTime();
+            }
+            else if (ignoreCase) {
+                return value.toLowerCase();
+            }
+        }
+        else if (value != null && isDate(value)) {
+            return value.getTime();
+        }
+        return value;
+    };
+    var typedGetter = function (prop, value, ignoreCase) {
+        if (!isPresent(value)) {
+            return prop;
+        }
+        var acc = prop;
+        if (isString(value)) {
+            var date = dateRegExp.exec(value);
+            if (date) {
+                value = new Date(+date[1]);
+            }
+            else {
+                acc = function (a) {
+                    var x = prop(a);
+                    if (typeof x === 'string' && ignoreCase) {
+                        return x.toLowerCase();
+                    }
+                    else {
+                        return isNumeric(x) ? x + "" : x;
+                    }
+                };
+            }
+        }
+        if (isDate(value)) {
+            return function (a) {
+                var x = acc(a);
+                return isDate(x) ? x.getTime() : x;
+            };
+        }
+        return acc;
+    };
+    var transformFilter = function (_a) {
+        var field = _a.field, ignoreCase = _a.ignoreCase, value = _a.value, operator = _a.operator;
+        field = !isPresent(field) ? function (a) { return a; } : field;
+        ignoreCase = isPresent(ignoreCase) ? ignoreCase : true;
+        var itemProp = typedGetter(isFunction(field) ? field : getter(field, true), value, ignoreCase);
+        value = convertValue(value, ignoreCase);
+        var op = isFunction(operator) ? operator : operatorsMap[operator];
+        return function (a) { return op(itemProp(a), value, ignoreCase); };
+    };
+    /**
+     * @hidden
+     */
+    var transformCompositeFilter = function (filter) {
+        var combiner = logic[filter.logic];
+        return filter.filters
+            .filter(isPresent)
+            .map(function (x) { return isCompositeFilterDescriptor(x) ? transformCompositeFilter(x) : transformFilter(x); })
+            .reduce(combiner.concat, combiner.identity);
+    };
+
+    // tslint:disable:max-line-length
+    /**
+     * Creates a [Predicate]({% slug api_kendo-data-query_predicate %}) function for the specified [CompositeFilterDescriptor]({% slug api_kendo-data-query_compositefilterdescriptor %}).
+     *
+     * @param {CompositeFilterDescriptor} descriptor - The descriptor for which the predicate is created.
+     * @returns {Predicate} - The created function instance.
+     *
+     * @example
+     * ```ts
+     * import { compileFilter } from '@progress/kendo-data-query';
+     *
+     * const data = [{ name: "Pork" }, { name: "Pepper" }, { name: "Beef" } ];
+     * const predicate = compileFilter({ logic: "and", filters: [{ field: "name", operator: "startswith", value: "P" }] });
+     * const result = data.filter(predicate);
+     *
+     * ```
+     */
+    // tslint:enable:max-line-length
+    var compileFilter = function (descriptor) {
+        if (!descriptor || descriptor.filters.length === 0) {
+            return function () { return true; };
+        }
+        return transformCompositeFilter(descriptor);
+    };
+
+    function forEachDesc(desc, callbackfn) {
+        if ('filters' in desc) {
+            desc.filters.map(function (child) { return forEachDesc(child, callbackfn); });
+        }
+        else {
+            callbackfn(desc);
+        }
+    }
+    var filterFields = function (filter, callback) {
+        var descriptors = Array.isArray(filter) ? filter : filter.filters;
+        descriptors.forEach(function (desc) { return forEachDesc(desc, callback); });
+    };
+    /** @hidden */
+    var initializeFiltering = function (rows, columns, filter) {
+        var compositeFilter = filter ?
+            (Array.isArray(filter) ? { logic: 'and', filters: filter } : filter) : undefined;
+        var predicate = compositeFilter ? compileFilter(compositeFilter) : function () { return true; };
+        var axes = rows.concat(columns);
+        var fieldValues = [];
+        filterFields(filter || [], function (desc) {
+            if ('field' in desc && desc.field) {
+                fieldValues.push(desc.field);
+            }
+        });
+        var result = { hasFilter: false, predicate: predicate, filteringAxes: [] };
+        if (fieldValues.some(function (f) { return typeof f === 'function'; })) {
+            result.filteringAxes = axes.slice();
+        }
+        else if (fieldValues.length > 0) {
+            var filteringFields_1 = Array.from(new Set(fieldValues).values());
+            var filteringAxes = axes.filter(function (a) { return filteringFields_1.indexOf(a.key) >= 0; });
+            result.filteringAxes = filteringAxes;
+        }
+        result.hasFilter = result.filteringAxes.length > 0;
+        return result;
+    };
+
+    /** @hidden */
+    var subNode = function (node, field, initialNode) {
+        var childNode = node.get(field);
+        if (!childNode) {
+            childNode = initialNode || new Map();
+            node.set(field, childNode);
+        }
+        return childNode;
+    };
+    var separator = '&';
+    /** @hidden */
+    var createKey = function (key, value) { return key + separator + value; };
+    /** @hidden */
+    var splitKeyValue = function (keyValue) {
+        var separatorIndex = keyValue.indexOf(separator);
+        if (separatorIndex !== -1) {
+            var key = keyValue.substring(0, separatorIndex);
+            var value = keyValue.substring(separatorIndex + 1);
+            return [key, value];
+        }
+        else {
+            return [keyValue, undefined];
+        }
+    };
+
+    var calculateColumnData = function (node, measures, dataField) {
+        node.forEach(function (childNode, k) {
+            if (k !== dataField) {
+                if (childNode.size > 0) {
+                    calculateColumnData(childNode, measures, dataField);
+                }
+                var childData_1 = childNode.get(dataField);
+                var parentData_1 = subNode(node, dataField, {});
+                measures.forEach(function (m) {
+                    m.aggregate.init(parentData_1);
+                    m.aggregate.merge(childData_1, parentData_1);
+                });
+            }
+        });
+    };
+    /** @hidden */
+    var mergeTrees = function (src, dest, measures, dataField) {
+        src.forEach(function (srcChild, k) {
+            var destChild;
+            if (k !== dataField) {
+                destChild = subNode(dest, k);
+                mergeTrees(srcChild, destChild, measures, dataField);
+            }
+            else {
+                destChild = subNode(dest, k, {});
+                measures.forEach(function (m) {
+                    m.aggregate.init(destChild);
+                    m.aggregate.merge(srcChild, destChild);
+                });
+            }
+        });
+    };
+    var calculateColumns = function (node, measures, columnsData, dataField) {
+        node.forEach(function (childNode, k) {
+            if (k !== columnsData) {
+                if (childNode.size > 0) {
+                    calculateColumns(childNode, measures, columnsData, dataField);
+                }
+                var srcColumns = subNode(childNode, columnsData);
+                var destColumns = subNode(node, columnsData);
+                mergeTrees(srcColumns, destColumns, measures, dataField);
+            }
+        });
+    };
+    /** @hidden */
+    var createDataTree = function (data, rows, columns, measures, fields, filter) {
+        var result = new Map();
+        var cache = new Map();
+        var axes = rows.concat(columns);
+        var leafNodes = new Set();
+        var dataField = fields.dataField, columnsData = fields.columnsData;
+        var _a = initializeFiltering(rows, columns, filter), hasFilter = _a.hasFilter, predicate = _a.predicate, filteringAxes = _a.filteringAxes;
+        var empty = '';
+        data.forEach(function (dataItem) {
+            if (hasFilter) {
+                var filteringDataItem_1 = {};
+                filteringAxes.forEach(function (axis) { filteringDataItem_1[axis.key] = axis.displayValue(dataItem); });
+                if (!predicate(filteringDataItem_1)) {
+                    return;
+                }
+            }
+            var values = axes.map(function (a) { return a.displayValue(dataItem); });
+            var dataKey = empty.concat.apply(empty, values);
+            var nodeData = cache.get(dataKey);
+            if (!nodeData) {
+                var node_1 = result;
+                var eachAxis = function (axis) {
+                    node_1 = subNode(node_1, createKey(axis.key, axis.displayValue(dataItem)));
+                };
+                rows.forEach(eachAxis);
+                node_1 = subNode(node_1, columnsData);
+                leafNodes.add(node_1);
+                columns.forEach(eachAxis);
+                nodeData = {};
+                node_1.set(dataField, nodeData);
+                cache.set(dataKey, nodeData);
+                measures.forEach(function (m) {
+                    m.aggregate.init(nodeData);
+                });
+            }
+            measures.forEach(function (m) {
+                m.aggregate.accumulate(nodeData, m.value(dataItem));
+            });
+        });
+        leafNodes.forEach(function (leaf) { return calculateColumnData(leaf, measures, dataField); });
+        calculateColumns(result, measures, columnsData, dataField);
+        return result;
+    };
+    /** @hidden */
+    var cloneDataTree = function (dataTree, dataField, measures) {
+        var result = new Map();
+        mergeTrees(dataTree, result, measures, dataField);
+        return result;
+    };
+
+    var createPath = function (name, axes, path) {
+        var _a = splitKeyValue(name), key = _a[0], value = _a[1];
+        var result = path.slice();
+        if (key && value) {
+            var axis = axes.find(function (a) { return a.key === key; });
+            var caption_1 = axis ? axis.caption : '';
+            return result.map(function (p) { return p === caption_1 ? name : p; });
+        }
+        return result;
+    };
+    var membersNode = function (tree, members, field, axisSettings, measures, dataField, cache) {
+        var cacheData = cache || new Map();
+        var path = axisSettings.map(function (a) { return a.caption; });
+        while (members.length > 1 && axisSettings.some(function (a) { return a.caption === members[members.length - 1].caption; })) {
+            members.pop();
+            path.pop();
+        }
+        var node = tree;
+        members.forEach(function (m, i) {
+            path = createPath(m.name, axisSettings, path);
+            if (node && !axisSettings.some(function (a) { return a.caption === m.name; })) {
+                if (!node.has(m.name) && !cacheData.has(path.slice(0, path.indexOf(m.name) + 1).join('-'))) {
+                    var currentLevel = Array.from(node).find(function (n) { return n[0] !== field; });
+                    var currentLevelNode = currentLevel && currentLevel[0];
+                    var levelField_1 = currentLevelNode && splitKeyValue(currentLevelNode)[0];
+                    var depth = levelField_1 ? i - axisSettings.findIndex(function (a) { return a.key === levelField_1; }) : 0;
+                    var _loop_1 = function (t) {
+                        var data = [];
+                        node.forEach(function (value, key) {
+                            if (key !== field) {
+                                data.push.apply(data, Array.from(value).filter(function (d) { return d[0] !== field; }));
+                            }
+                        });
+                        var next = new Map();
+                        data.forEach(function (item) {
+                            if (next.has(item[0])) {
+                                var dest = next.get(item[0]);
+                                var src = item[1];
+                                var newDest = new Map();
+                                mergeTrees(dest, newDest, measures, dataField);
+                                mergeTrees(src, newDest, measures, dataField);
+                                next.set(item[0], newDest);
+                            }
+                            else {
+                                next.set(item[0], new Map(item[1]));
+                            }
+                        });
+                        var currentPath = path.slice(0, path.indexOf(m.name));
+                        next.forEach(function (value, key) {
+                            cacheData.set(createPath(key, axisSettings, currentPath.concat([key])).join('-'), value);
+                        });
+                        next.set(field, node.get(field));
+                        node = next;
+                    };
+                    for (var t = 0; t < depth; t++) {
+                        _loop_1(t);
+                    }
+                }
+                node = node.get(m.name) || cacheData.get(path.slice(0, path.indexOf(m.name) + 1).join('-'));
+            }
+        });
+        return node;
+    };
+    /** @hidden */
+    var readData = function (dataTree, rowTuples, columnTuples, fields, columnSettings, rowSettings, measures) {
+        var data = [];
+        var dataField = fields.dataField, columnsData = fields.columnsData;
+        var rowsCache = new Map();
+        rowTuples.forEach(function (row) {
+            var rowNode = membersNode(dataTree, row.members.slice(), columnsData, rowSettings, measures, dataField, rowsCache);
+            var rowColumnsNode = rowNode && rowNode.get(columnsData);
+            columnTuples.forEach(function (col) {
+                var members = col.members.slice();
+                var measure = measures[0];
+                if (members[members.length - 1].levelName === "[Measures].[MeasuresLevel]") {
+                    var measuresMember_1 = members.pop();
+                    measure = measures.find(function (m) { return String(m.name) === measuresMember_1.caption; }) || measure;
+                }
+                var colNode = rowColumnsNode && membersNode(rowColumnsNode, members, dataField, columnSettings, measures, dataField);
+                var value = '', fmtValue = '', ordinal = 0;
+                if (colNode && measure) {
+                    var result = measure.aggregate.result(colNode.get(dataField));
+                    value = String(result);
+                    fmtValue = measure.aggregate.format(result);
+                }
+                data.push({
+                    columnTuple: col,
+                    data: { fmtValue: fmtValue, ordinal: ordinal, value: value },
+                    rowTuple: row
+                });
+            });
+        });
+        return data;
+    };
+
+    var getTopMembersTuple = function (parentFields, axesSettings) {
+        var allTuple = { members: [] };
+        parentFields.forEach(function (topField) {
+            var axis = axesSettings.find(function (a) { return a.key === topField; });
+            var caption = axis ? axis.caption : "";
+            var member = {
+                caption: caption,
+                children: [],
+                hasChildren: true,
+                parentName: "",
+                levelNum: 0,
+                levelName: caption,
+                hierarchy: topField,
+                name: caption
+            };
+            allTuple.members.push(member);
+        });
+        return allTuple;
+    };
+    var sortFunc = function (descriptor, axe) {
+        return function (a, b) {
+            var order = descriptor.dir;
+            var sortableA = axe.sortValue(splitKeyValue(a[0])[1]);
+            var sortableB = axe.sortValue(splitKeyValue(b[0])[1]);
+            if (sortableA < sortableB) {
+                return order === "asc" ? -1 : 1;
+            }
+            if (sortableA > sortableB) {
+                return order === "asc" ? 1 : -1;
+            }
+            return 0;
+        };
+    };
+    var mergeData = function (src, dest, exclude) {
+        src.forEach(function (srcChild, k) {
+            if (!exclude[k]) {
+                var destChild = subNode(dest, k);
+                mergeData(srcChild, destChild, exclude);
+            }
+        });
+    };
+    var childrenByKeys = function (dataTree, keys, exclude) {
+        var result = [];
+        var nodeData = function (node) { return Array.from(node).filter(function (n) { return !exclude[n[0]]; }); };
+        var element = new Map(dataTree);
+        var next;
+        var _loop_1 = function (i) {
+            next = element.get(keys[i]);
+            if (next) {
+                element = new Map(next);
+            }
+            else if (i < keys.length - 1 && Array.from(element).some(function (e) { return splitKeyValue(e[0])[0] === keys[i]; })) {
+                var curLevel_1 = [];
+                element.forEach(function (child, key) {
+                    if (!exclude[key]) {
+                        curLevel_1.push.apply(curLevel_1, nodeData(new Map(child)));
+                    }
+                });
+                element = new Map();
+                curLevel_1.forEach(function (item) {
+                    if (element.has(item[0])) {
+                        var dest = element.get(item[0]);
+                        var src = item[1];
+                        var newDest = new Map();
+                        mergeData(dest, newDest, exclude);
+                        mergeData(src, newDest, exclude);
+                        element.set(item[0], newDest);
+                    }
+                    else {
+                        element.set(item[0], new Map(item[1]));
+                    }
+                });
+            }
+            else if (i === 0 || i === keys.length - 1) {
+                if (Array.from(element).some(function (e) { return splitKeyValue(e[0])[0] === keys[i]; })) {
+                    result.push.apply(result, nodeData(element));
+                }
+            }
+        };
+        for (var i = 0; i < keys.length; i++) {
+            _loop_1(i);
+        }
+        return result;
+    };
+    /** @hidden */
+    var rootFields = function (definitions) {
+        var fields = new Set();
+        definitions.forEach(function (item) {
+            if (item.name.length === 1 && !splitKeyValue(item.name[0])[1]) {
+                fields.add(item.name[0]);
+            }
+        });
+        return fields;
+    };
+    /** @hidden */
+    var createTuples = function (axesSettings, definitions, dataTree, sortDescriptors, excludeFields) {
+        var parentFields = rootFields(definitions);
+        var flatMembers = [];
+        var topTuple = getTopMembersTuple(parentFields, axesSettings);
+        flatMembers.push(topTuple);
+        var _loop_2 = function (i) {
+            var currDef = definitions[i];
+            if (currDef.name.length === 1 && !currDef.expand && parentFields.has(currDef.name[0])) {
+                return "continue";
+            }
+            var keysToAdd = new Set(parentFields.keys());
+            var currDefMembers = [];
+            var keys = [];
+            var tuples = [];
+            var axe;
+            currDef.name.forEach(function (element, index) {
+                var _a;
+                var _b = splitKeyValue(element), field = _b[0], value = _b[1];
+                axe = axesSettings.find(function (a) { return a.key === field; });
+                if (value) {
+                    keysToAdd.delete(field);
+                    keys.push(element);
+                    var member = {
+                        children: [],
+                        caption: value,
+                        hierarchy: field,
+                        levelNum: 1,
+                        levelName: field + " " + field,
+                        name: element,
+                        parentName: axe ? axe.caption : ""
+                    };
+                    currDefMembers.push(member);
+                }
+                else if (currDef.expand && currDef.name.length - 1 === index) {
+                    keysToAdd.delete(element);
+                    keys.push(element);
+                    var children = childrenByKeys(dataTree, keys, excludeFields);
+                    var descriptor = sortDescriptors.find(function (desc) { return desc.field === field; });
+                    if (descriptor && descriptor.dir) {
+                        children.sort(sortFunc(descriptor, axe));
+                    }
+                    for (var c = 0; c < children.length; c++) {
+                        var leafValue = children[c][0];
+                        var leafTuple = { members: [] };
+                        tuples.push(leafTuple);
+                        var caption = splitKeyValue(leafValue)[1];
+                        axe = axesSettings.find(function (a) { return a.key === element; });
+                        var member = {
+                            caption: caption,
+                            children: [],
+                            levelName: element + " " + element,
+                            levelNum: 1,
+                            parentName: axe ? axe.caption : "",
+                            hierarchy: element,
+                            name: leafValue
+                        };
+                        (_a = leafTuple.members).push.apply(_a, currDefMembers);
+                        leafTuple.members.push(member);
+                    }
+                }
+                else if (currDef.expand) {
+                    axe = axesSettings.find(function (a) { return a.key === element; });
+                    var axisCaption = axe ? axe.caption : "";
+                    keysToAdd.delete(element);
+                    keys.push(element);
+                    var member = {
+                        children: [],
+                        caption: axisCaption,
+                        hierarchy: element,
+                        levelName: axisCaption,
+                        levelNum: 0,
+                        name: axisCaption,
+                        parentName: ""
+                    };
+                    currDefMembers.push(member);
+                }
+                keysToAdd.forEach(function (key) {
+                    tuples.forEach(function (tuple) {
+                        axe = axesSettings.find(function (a) { return a.key === key; });
+                        var curCaption = axe ? axe.caption : "";
+                        var member = {
+                            children: [],
+                            hasChildren: true,
+                            caption: curCaption,
+                            hierarchy: key,
+                            levelName: curCaption,
+                            levelNum: 0,
+                            name: curCaption,
+                            parentName: ""
+                        };
+                        tuple.members.push(member);
+                    });
+                });
+                flatMembers.push.apply(flatMembers, tuples);
+            });
+        };
+        for (var i = 0; i < definitions.length; i++) {
+            _loop_2(i);
+        }
+        return flatMembers;
+    };
+    var addMeasure = function (tuple, measure) {
+        var measureMember = {
+            caption: String(measure.name),
+            children: [],
+            hasChildren: false,
+            hierarchy: "[Measures]",
+            levelName: "[Measures].[MeasuresLevel]",
+            levelNum: 0,
+            name: "[Measures].[" + measure.name + "]",
+            parentName: ""
+        };
+        var tupleCopy = copy(tuple);
+        tupleCopy.members.push(measureMember);
+        return tupleCopy;
+    };
+    /** @hidden */
+    var addMultipleMeasures = function (tuples, measures) {
+        if (measures.length < 2) {
+            return tuples;
+        }
+        var result = tuples.slice();
+        for (var i = result.length - 1; i >= 0; i--) {
+            var tuple = result[i];
+            result[i] = addMeasure(result[i], measures[0]);
+            for (var m = 1; m < measures.length; m++) {
+                var tupleWithMeasure = addMeasure(tuple, measures[m]);
+                result.splice(i + 1, 0, tupleWithMeasure);
+            }
+        }
+        return result;
+    };
+    /** @hidden */
+    var createLocalDataState = function (args) {
+        var _a;
+        var dataTree = args.dataTree, rowSettings = args.rowSettings, columnSettings = args.columnSettings, rowAxes = args.rowAxes, columnAxes = args.columnAxes, measures = args.measures, sort = args.sort, fields = args.fields;
+        var exclude = (_a = {}, _a[fields.columnsData] = fields.columnsData, _a[fields.dataField] = fields.dataField, _a);
+        var columnTuples = addMultipleMeasures(createTuples(columnSettings, columnAxes, dataTree.get(fields.columnsData), sort, exclude), measures);
+        var rowTuples = createTuples(rowSettings, rowAxes, dataTree, sort, exclude);
+        var resultData = readData(dataTree, rowTuples, columnTuples, fields, columnSettings, rowSettings, measures);
+        return {
+            columns: columnTuples,
+            data: resultData,
+            rows: rowTuples
+        };
+    };
+
+    /** @hidden */
+    var createFlatSchemaDimensions = function (dimensions, measures) {
+        var result = Object.keys(dimensions).map(function (dim) { return ({
+            caption: dim,
+            defaultHierarchy: dim,
+            description: '',
+            name: dim,
+            uniqueName: dim,
+            hierarchyUniqueName: dim,
+            measure: true,
+            type: 1 // https://github.com/telerik/kendo-pivotgrid-common/blob/develop/src/models/responseDiscover.ts#L12-L14
+        }); });
+        if (measures.length) {
+            result.push({
+                caption: 'Measures',
+                children: measures.map(function (m) { return ({
+                    aggregator: '1',
+                    caption: String(m.name),
+                    defaultFormat: '',
+                    description: '',
+                    displayFolder: '',
+                    groupName: String(m.name),
+                    name: String(m.name),
+                    uniqueName: String(m.name)
+                }); }),
+                type: 2,
+                description: '',
+                name: 'Measures',
+                uniqueName: '[Measures]'
+            });
+        }
+        return result;
+    };
+
     exports.addKPI = addKPI;
+    exports.addMultipleMeasures = addMultipleMeasures;
+    exports.averageAggregate = averageAggregate;
     exports.buildKPIMeasures = buildKPIMeasures;
+    exports.cloneDataTree = cloneDataTree;
     exports.compareAxes = compareAxes;
     exports.configuratorReducer = configuratorReducer;
     exports.createAxisDescriptors = createAxisDescriptors;
     exports.createDataState = createDataState;
+    exports.createDataTree = createDataTree;
     exports.createDiscoverBody = createDiscoverBody;
+    exports.createFlatSchemaDimensions = createFlatSchemaDimensions;
+    exports.createLocalDataState = createLocalDataState;
     exports.createRequestBody = createRequestBody;
+    exports.createTuples = createTuples;
     exports.discoverCommands = discoverCommands;
     exports.fetchData = fetchData;
     exports.fetchDiscover = fetchDiscover;
     exports.headersReducer = headersReducer;
+    exports.maxAggregate = maxAggregate;
+    exports.mergeTrees = mergeTrees;
+    exports.minAggregate = minAggregate;
     exports.parseResponse = parseResponse;
+    exports.readData = readData;
+    exports.rootFields = rootFields;
     exports.setFilter = setFilter;
     exports.setSort = setSort;
+    exports.sumAggregate = sumAggregate;
     exports.toColumns = toColumns;
     exports.toData = toData;
     exports.toRows = toRows;
@@ -1519,7 +2463,7 @@ window.kendo.pivotgrid.common = (function (exports) {
 (function(f, define) {
     define('kendo.pivot.common',[ "./pivotgrid/common" ], f);
 })(function() {
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "pivot.common",
         name: "PivotCommon",
         category: "web",

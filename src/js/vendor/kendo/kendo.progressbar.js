@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.progressbar',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "progressbar",
     name: "ProgressBar",
     category: "web",
@@ -32,11 +32,11 @@ var __meta__ = { // jshint ignore:line
         KPROGRESSBARREVERSE = "k-progressbar-reverse",
         KPROGRESSBARINDETERMINATE = "k-progressbar-indeterminate",
         KPROGRESSBARCOMPLETE = "k-complete",
-        KPROGRESSWRAPPER = "k-state-selected",
+        KPROGRESSWRAPPER = "k-selected",
         KPROGRESSSTATUS = "k-progress-status",
         LABEL_POSITION_END = "k-progress-end",
-        KCOMPLETEDCHUNK = "k-state-selected",
-        STATEDISABLED = "k-state-disabled",
+        KCOMPLETEDCHUNK = "k-selected",
+        STATEDISABLED = "k-disabled",
         PROGRESSTYPE = {
             VALUE: "value",
             PERCENT: "percent",

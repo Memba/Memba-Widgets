@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.form',[ "kendo.editable" ], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "form",
         name: "Form",
         category: "web",
@@ -584,7 +584,11 @@
                     .on(CLEAR + NS, that._clear.bind(that))
                     .on(CLICK + NS, DOT + formStyles.clear, that._clear.bind(that));
 
-                that._model.bind(CHANGE, that._change.bind(that));
+                if (!that._changeHandler) {
+                    that._changeHandler = that._change.bind(that);
+                }
+
+                that._model.bind(CHANGE, that._changeHandler);
             },
 
             _validateField: function(ev) {
@@ -728,6 +732,11 @@
                 var that = this;
 
                 that.wrapper.off(NS);
+
+                if (that._model) {
+                    that._model.unbind(CHANGE, that._changeHandler);
+                    that._changeHandler = null;
+                }
 
                 Widget.fn.destroy.call(that.editable);
 

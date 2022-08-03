@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.panelbar',[ "kendo.data" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "panelbar",
     name: "PanelBar",
     category: "web",
@@ -53,18 +53,18 @@ var __meta__ = { // jshint ignore:line
         MOUSELEAVE = "mouseleave",
         CONTENTLOAD = "contentLoad",
         UNDEFINED = "undefined",
-        ACTIVECLASS = "k-state-active",
+        ACTIVECLASS = "k-active",
         GROUPS = "> .k-panel",
         CONTENTS = "> .k-content",
         STRING = "string",
-        FOCUSEDCLASS = "k-state-focused",
-        DISABLEDCLASS = "k-state-disabled",
-        SELECTEDCLASS = "k-state-selected",
+        FOCUSEDCLASS = "k-focus",
+        DISABLEDCLASS = "k-disabled",
+        SELECTEDCLASS = "k-selected",
         SELECTEDSELECTOR = "." + SELECTEDCLASS,
-        HIGHLIGHTCLASS = "k-state-highlight",
-        ACTIVEITEMSELECTOR = ITEM + ":not(.k-state-disabled)",
+        HIGHLIGHTCLASS = "k-highlight",
+        ACTIVEITEMSELECTOR = ITEM + ":not(.k-disabled)",
         clickableItems = "> " + ACTIVEITEMSELECTOR + " > " + LINKSELECTOR + ", .k-panel > " + ACTIVEITEMSELECTOR + " > " + LINKSELECTOR,
-        disabledItems = ITEM + ".k-state-disabled > .k-link",
+        disabledItems = ITEM + ".k-disabled > .k-link",
         selectableItems = "> li > " + SELECTEDSELECTOR + ", .k-panel > li > " + SELECTEDSELECTOR,
         ARIA_DISABLED = "aria-disabled",
         ARIA_EXPANDED = "aria-expanded",
@@ -1290,7 +1290,7 @@ var __meta__ = { // jshint ignore:line
             var target = $(e.currentTarget);
 
             if (!target.parents("li." + DISABLEDCLASS).length) {
-                target.toggleClass("k-state-hover", e.type == MOUSEENTER);
+                target.toggleClass("k-hover", e.type == MOUSEENTER);
             }
         },
 
@@ -1363,7 +1363,7 @@ var __meta__ = { // jshint ignore:line
 
             item
                 .filter("li[disabled]")
-                .addClass("k-state-disabled")
+                .addClass("k-disabled")
                 .attr(ARIA_DISABLED, true)
                 .prop("disabled", false);
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.treeview',[ "kendo.data", "kendo.treeview.draganddrop", "kendo.html.input" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "treeview",
     name: "TreeView",
     category: "web",
@@ -24,7 +24,7 @@ var __meta__ = { // jshint ignore:line
     }]
 };
 
-/*jshint eqnull: true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -53,6 +53,7 @@ var __meta__ = { // jshint ignore:line
         DATABOUND = "dataBound",
         ITEMSLOADED = "itemsLoaded",
         LOADCOMPLETED = "loadCompleted",
+        REQUESTEND = "requestEnd",
         CLICK = "click",
         KENDOKEYDOWN = "kendoKeydown",
         UNDEFINED = "undefined",
@@ -696,15 +697,28 @@ var __meta__ = { // jshint ignore:line
 
         _bindDataSource: function() {
             var that = this;
+
             that._refreshHandler = that.refresh.bind(that);
             that._errorHandler = that._error.bind(that);
             that._loadCompletedHandler = that._loadCompleted.bind(that);
+            that._requestEndHandler = that._dsRequestEnd.bind(that);
             that._loadedNodes = [];
 
             that.dataSource.bind(CHANGE, that._refreshHandler);
             that.dataSource.bind(ERROR, that._errorHandler);
 
             that.dataSource.bind(ITEMSLOADED, that._loadCompletedHandler);
+            that.dataSource.bind(REQUESTEND, that._requestEndHandler);
+        },
+
+        _dsRequestEnd: function(e) {
+            var that = this;
+
+            setTimeout(function() {
+                if (e.type === "read" && !that._loadCompletedFired) {
+                    that._attemptLoadCompleted();
+                }
+            });
         },
 
         _loadCompleted: function(e) {
@@ -719,15 +733,18 @@ var __meta__ = { // jshint ignore:line
 
         _attemptLoadCompleted: function() { // If there are no items to be loaded ensure event is triggered on dataBound
             var that = this,
-                items = that.dataSource.view();
+                items = that.dataSource.view(),
+                current, i;
 
             if (that.options.loadOnDemand === false) {
-                for (var i = 0; i < items.length; i++) {
-                    if (items[i].hasChildren) {
+                for (i = 0; i < items.length; i++) {
+                    current = items[i];
+                    if (current.hasChildren && (!current.children || !current.children.data() || current.children.data().length === 0)) {
                         return;
                     }
                 }
 
+                that._loadCompletedFired = true;
                 that.trigger(LOADCOMPLETED, { nodes: [] });
             }
         },
@@ -739,6 +756,7 @@ var __meta__ = { // jshint ignore:line
                 dataSource.unbind(CHANGE, this._refreshHandler);
                 dataSource.unbind(ERROR, this._errorHandler);
                 dataSource.unbind(ITEMSLOADED, this._loadCompletedHandler);
+                dataSource.unbind(REQUESTEND, this._requestEndHandler);
             }
         },
 
@@ -1874,10 +1892,29 @@ var __meta__ = { // jshint ignore:line
 
             this.wrapper.find(">ul").attr("role", "none");
 
+            this._ariaItems(this.wrapper.find(">.k-group>.k-item"), 1);
+
             this.trigger(DATABOUND, { node: node ? parentNode : undefined });
             if (this.dataSource.filter() && this.options.checkboxes.checkChildren) {
                 this.updateIndeterminate(parentNode);
             }
+        },
+
+        _ariaItems: function(items, level) {
+            var that = this;
+
+            items.attr({
+                "aria-setsize": items.length,
+                "aria-level": level
+            });
+
+            items.each(function(i, item) {
+                var nested = $(item).find(">.k-group>.k-item");
+
+                if (nested.length > 0) {
+                    that._ariaItems(nested, level + 1);
+                }
+            });
         },
 
         _error: function(e) {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -333,7 +333,7 @@ return window.kendo;
         input: "k-input-inner",
         newColumn: "k-taskboard-column-new",
         editColumn: "k-taskboard-column-edit",
-        disabled: "k-state-disabled",
+        disabled: "k-disabled",
         dragPlaceholder: "k-taskboard-drag-placeholder",
         dragHint: "k-taskboard-drag-hint",
         ignoreDrag: "k-taskboard-drag-ignore",
@@ -756,7 +756,7 @@ return window.kendo;
         moveCursor: "k-cursor-move",
         categoryBorder: "k-taskboard-card-category",
         headerActions: "k-card-header-actions",
-        disabled: "k-state-disabled"
+        disabled: "k-disabled"
     };
 
     var TaskBoardCard = Observable.extend({
@@ -2081,7 +2081,7 @@ return window.kendo;
     ], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "taskboard",
         name: "TaskBoard",
         category: "web",
@@ -2097,8 +2097,8 @@ return window.kendo;
         columnsContainer: "k-taskboard-columns-container",
         card: "k-taskboard-card",
         column: "k-taskboard-column",
-        selected: "k-state-selected",
-        disabled: "k-state-disabled",
+        selected: "k-selected",
+        disabled: "k-disabled",
         ignoreDrag: "k-taskboard-drag-ignore"
     };
 

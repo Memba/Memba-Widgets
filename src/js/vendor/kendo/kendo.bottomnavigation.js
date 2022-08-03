@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.bottomnavigation',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "bottomnavigation",
     name: "BottomNavigation",
     category: "web",
@@ -49,11 +49,11 @@ var __meta__ = { // jshint ignore:line
             vertical: "k-bottom-nav-item-flow-vertical",
             horizontal: "k-bottom-nav-item-flow-horizontal"
         },
-        selected: "k-state-selected",
-        disabled: "k-state-disabled",
+        selected: "k-selected",
+        disabled: "k-disabled",
         border: "k-bottom-nav-border",
         shadow: "k-bottom-nav-shadow",
-        focus: "k-state-focused"
+        focus: "k-focus"
     };
 
     var templates = {

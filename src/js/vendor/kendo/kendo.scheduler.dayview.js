@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.scheduler.dayview',[ "kendo.scheduler.view" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "scheduler.dayview",
     name: "Scheduler Day View",
     category: "web",
@@ -2019,9 +2019,9 @@ var __meta__ = { // jshint ignore:line
         clearSelection: function() {
 
             this.content.add(this.datesHeader)
-                .find(".k-state-selected")
+                .find(".k-selected")
                 .removeAttr("id")
-                .removeClass("k-state-selected");
+                .removeClass("k-selected");
         },
 
         _updateDirection: function(selection, ranges, multiple, reverse, vertical) {

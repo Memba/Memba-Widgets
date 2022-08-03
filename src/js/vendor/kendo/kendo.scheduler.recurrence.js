@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.scheduler.recurrence',[ "kendo.dropdownlist", "kendo.datepicker", "kendo.numerictextbox", "kendo.buttongroup" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "scheduler.recurrence",
     name: "Recurrence",
     category: "web",
@@ -1592,59 +1592,71 @@ var __meta__ = { // jshint ignore:line
 
     var RECURRENCE_VIEW_TEMPLATE = kendo.template(
        '# if (frequency !== "never") { #' +
-           '<div class="k-edit-label"><label for="recur_interval">#:messages.repeatEvery#</label></div>' +
-           '<div class="k-edit-field"><input id="recur_interval" class="k-recur-interval" title="#:messages.repeatEvery# #:messages.interval#"/>#:messages.interval#</div>' +
-       '# } #' +
+            '<div class="k-form-field">' +
+                '<label id="recur_interval_label" class="k-label k-form-label" for="recur_interval">#:messages.repeatEvery#</label>' +
+                '<div class="k-form-field-wrap">' +
+                    '<input id="recur_interval" class="k-recur-interval" title="#:messages.repeatEvery# #:messages.interval#" aria-labelledby="recur_interval_label">#:messages.interval#' +
+                '</div>' +
+            '</div>' +
+        '# } #' +
        '# if (frequency === "weekly") { #' +
-           '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' +
-           '<div class="k-edit-field"><div class="k-button-group-stretched k-recur-weekday-buttons" title="#:messages.repeatOn#"></div></div>' +
-       '# } else if (frequency === "monthly") { #' +
-           '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' +
-           '<div class="k-edit-field">' +
-               '<ul class="k-reset">' +
-                   '<li>' +
-                       '<label class="k-radio-label"><input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="monthday" title="#:messages.repeatOn#" />#:messages.date#:</label>' +
-                       '<input class="k-recur-monthday" aria-label="#:messages.date#" title="#:messages.date#" />' +
-                   '</li>' +
-                   '<li>' +
-                        '<input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="weekday" aria-label="#:messages.repeatOn# #:messages.day#" title="#:messages.repeatOn# #:messages.day#" />' +
-                        '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" /><input class="k-recur-weekday" title="#:messages.day#" />' +
-                   '</li>' +
-               '</ul>' +
-           '</div>' +
+            '<div class="k-form-field">' +
+                '<label class="k-label k-form-label">#:messages.repeatOn#</label>' +
+                '<div class="k-form-field-wrap">' +
+                    '<div class="k-button-group-stretched k-recur-weekday-buttons" title="#:messages.repeatOn#"></div></div>' +
+                '</div>' +
+            '</div>' +
+        '# } else if (frequency === "monthly") { #' +
+            '<div class="k-form-field"><label class="k-label k-form-label">#:messages.repeatOn#</label></div>' +
+                '<div class="k-form-field-wrap">' +
+                    '<ul class="k-radio-list">' +
+                        '<li class="k-radio-item">' +
+                            '<label class="k-radio-label"><input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="monthday" title="#:messages.repeatOn#" />#:messages.date#:</label>' +
+                            '<input class="k-recur-monthday" aria-label="#:messages.date#" title="#:messages.date#" />' +
+                        '</li>' +
+                        '<li class="k-radio-item">' +
+                            '<input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="weekday" aria-label="#:messages.repeatOn# #:messages.day#" title="#:messages.repeatOn# #:messages.day#" />' +
+                            '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" style="width:8em;" />' +
+                            '<input class="k-recur-weekday" title="#:messages.day#" style="width:8em;" />' +
+                        '</li>' +
+                    '</ul>' +
+                '</div>' +
+            '</div>' +
        '# } else if (frequency === "yearly") { #' +
-           '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' +
-           '<div class="k-edit-field">' +
-               '<ul class="k-reset">' +
-                   '<li>' +
-                       '<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="monthday" title="#:messages.repeatOn# #:messages.month#" />' +
-                       '<input class="k-recur-month" aria-label="#:messages.month#" title="#:messages.month#" />' +
-                       '<input class="k-recur-monthday" aria-label="#:messages.date#" title="#:messages.date#" />' +
-                   '</li>' +
-                   '<li>' +
-                       '<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="weekday" title="#:messages.repeatOn# #:messages.day#" />' +
-                       '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" /><input class="k-recur-weekday" title="#:messages.day#"  />#:messages.of#<input class="k-recur-month" title="#:messages.of + messages.month#"/>' +
-                   '</li>' +
-               '</ul>' +
-           '</div>' +
+            '<div class="k-form-field"><label class="k-label k-form-label">#:messages.repeatOn#</label>' +
+                '<div class="k-form-field-wrap">' +
+                    '<ul class="k-radio-list">' +
+                        '<li class="k-radio-item">' +
+                            '<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="monthday" title="#:messages.repeatOn# #:messages.month#" />' +
+                            '<input class="k-recur-month" aria-label="#:messages.month#" title="#:messages.month#" style="width:8em;" />' +
+                            '<input class="k-recur-monthday" aria-label="#:messages.date#" title="#:messages.date#" />' +
+                        '</li>' +
+                        '<li class="k-radio-item">' +
+                            '<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="weekday" title="#:messages.repeatOn# #:messages.day#" />' +
+                            '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" style="width:8em;"/><input class="k-recur-weekday" title="#:messages.day#" style="width:8em;"/>#:messages.of#<input class="k-recur-month" title="#:messages.of + messages.month#" style="width:8em;"/>' +
+                        '</li>' +
+                    '</ul>' +
+                '</div>' +
+            '</div>' +
        '# } #' +
        '# if (frequency !== "never") { #' +
-           '<div class="k-edit-label"><label>#:end.label#</label></div>' +
-           '<div class="k-edit-field">' +
-               '<ul class="k-reset">' +
-                   '<li>' +
-                       '<label class="k-radio-label"><input class="k-recur-end-never k-radio k-radio-md" type="radio" name="end" value="never" title="#:end.label#" />#:end.never#</label>' +
-                   '</li>' +
-                   '<li>' +
-                       '<label class="k-radio-label"><input class="k-recur-end-count k-radio k-radio-md" type="radio" name="end" value="count" title="#:end.label#" />#:end.after#</label>' +
-                       '<input class="k-recur-count" aria-label="#:end.occurrence#" title="#:end.occurrence#" />#:end.occurrence#' +
-                   '</li>' +
-                   '<li>' +
-                       '<label class="k-radio-label"><input class="k-recur-end-until k-radio k-radio-md" type="radio" name="end" value="until" title="#:end.label#" />#:end.on#</label>' +
-                       '<input class="k-recur-until" title="#:end.on#" aria-label="#:end.on#" name="recur-until" />' +
-                   '</li>' +
-               '</ul>' +
-           '</div>' +
+            '<div class="k-form-field"><label class="k-label k-form-label">#:end.label#</label>' +
+                '<div class="k-form-field-wrap">' +
+                    '<ul class="k-radio-list">' +
+                        '<li class="k-radio-item">' +
+                            '<label class="k-radio-label"><input class="k-recur-end-never k-radio k-radio-md" type="radio" name="end" value="never" title="#:end.label#" />#:end.never#</label>' +
+                        '</li>' +
+                        '<li class="k-radio-item">' +
+                            '<label class="k-radio-label"><input class="k-recur-end-count k-radio k-radio-md" type="radio" name="end" value="count" title="#:end.label#" />#:end.after#</label>' +
+                            '<input class="k-recur-count" aria-label="#:end.occurrence#" title="#:end.occurrence#" />#:end.occurrence#' +
+                        '</li>' +
+                        '<li class="k-radio-item">' +
+                            '<label class="k-radio-label"><input class="k-recur-end-until k-radio k-radio-md" type="radio" name="end" value="until" title="#:end.label#" />#:end.on#</label>' +
+                            '<input class="k-recur-until" title="#:end.on#" aria-label="#:end.on#" name="recur-until" />' +
+                        '</li>' +
+                    '</ul>' +
+                '</div>' +
+            '</div>' +
        '# } #'
     );
 
@@ -1929,6 +1941,7 @@ var __meta__ = { // jshint ignore:line
 
             if (weekDayInput[0]) {
                 that._weekDayOffset = new DropDownList(that._container.find(".k-recur-weekday-offset"), {
+                    autoWidth: true,
                     change: change,
                     dataTextField: "text",
                     dataValueField: "value",
@@ -1948,6 +1961,7 @@ var __meta__ = { // jshint ignore:line
                 ];
 
                 that._weekDay = new DropDownList(weekDayInput, {
+                    autoWidth: true,
                     value: that.options.start.getDay(),
                     change: change,
                     dataTextField: "text",
@@ -2240,6 +2254,7 @@ var __meta__ = { // jshint ignore:line
 
             if (monthInputs[0]) {
                 options = {
+                    autoWidth: true,
                     change: function() {
                         rule.months = [Number(this.value())];
                         that.trigger("change");
@@ -2699,7 +2714,7 @@ var __meta__ = { // jshint ignore:line
                 that._navigateToView("end");
             });
 
-            that._endLabelField = endLabelField.toggleClass("k-state-disabled", !that._value.freq);
+            that._endLabelField = endLabelField.toggleClass("k-disabled", !that._value.freq);
             that._endButton = endEditField.find(".k-scheduler-recur-end").text(that._endText());
         },
 
@@ -2886,7 +2901,7 @@ var __meta__ = { // jshint ignore:line
             var rule = that._value;
 
             if (that._endLabelField) {
-                that._endLabelField.toggleClass("k-state-disabled", frequency === "never");
+                that._endLabelField.toggleClass("k-disabled", frequency === "never");
             }
 
             kendo.destroy(container);

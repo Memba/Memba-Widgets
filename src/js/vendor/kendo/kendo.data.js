@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.data',[ "kendo.core", "kendo.data.odata", "kendo.data.xml" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "data",
     name: "Data source",
     category: "framework",
@@ -34,7 +34,7 @@ var __meta__ = { // jshint ignore:line
     }]
 };
 
-/*jshint eqnull: true, loopfunc: true, evil: true */
+
 (function($, undefined) {
     var extend = $.extend,
         isPlainObject = $.isPlainObject,
@@ -494,13 +494,25 @@ var __meta__ = { // jshint ignore:line
         };
     }
 
+    function isPrimitiveType(value) {
+        return (typeof value === "object" && Object.getPrototypeOf(value) === Object.getPrototypeOf({}))
+                || Object.getPrototypeOf(value) === Object.getPrototypeOf(new Date())
+                || typeof value !== "object";
+      }
+
     function ownKeys(value, ignoreObjectKeys) {
         var props = [];
+        var protoKeys = [];
         var keys, filteredObjectKeys;
 
         value = value || {};
 
-        keys = Object.getOwnPropertyNames(value);
+        if (!isPrimitiveType(value)) {
+            protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(value));
+        }
+
+        keys = Object.getOwnPropertyNames(value).concat(protoKeys);
+
         filteredObjectKeys = objectKeys.filter(function(key) {
             return keys.indexOf(key) < 0;
         });

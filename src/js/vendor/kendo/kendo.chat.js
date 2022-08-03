@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -663,7 +663,7 @@ return window.kendo;
         cardActions: "k-card-actions",
         cardActionsVertical: "k-card-actions-vertical",
         cardAction: "k-card-action",
-        selected: "k-state-selected"
+        selected: "k-selected"
     };
 
     var ChatView = kendo.chat.ChatView = Widget.extend({
@@ -1090,7 +1090,7 @@ return window.kendo;
     define('kendo.chat',[ "./chat/messageBox", "./chat/toolbar", "./chat/view" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "chat",
     name: "Chat",
     category: "web",

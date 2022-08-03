@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -36,16 +36,15 @@ kendo.ooxml.createZip = function() {
  * `kendo-ooxml` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('ooxml/kendo-ooxml',[
         "kendo.core",
         "./utils"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
-/* jshint eqnull:true */
-/* jshint laxbreak:true */
+(function($) {
+/* eslint-disable space-before-blocks, space-before-function-paren */
 
 window.kendo.ooxml = window.kendo.ooxml || {};
 var ooxml = kendo.ooxml;
@@ -1442,7 +1441,7 @@ kendo.ooxml.Workbook = Workbook.extend({
     define('kendo.ooxml',[ "./ooxml/main" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "ooxml",
     name: "XLSX generation",
     category: "framework",

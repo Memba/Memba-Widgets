@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.core',['jquery'], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "core",
     name: "Core",
     category: "framework",
@@ -26,7 +26,7 @@ var packageMetadata = {
     licensingDocsUrl: 'https://www.telerik.com/kendo-ui/my-license/'
 };
 
-/*jshint eqnull: true, loopfunc: true, evil: true, boss: true, freeze: false*/
+
 (function($, window, undefined) {
     var kendo = window.kendo = window.kendo || { cultures: {} },
         extend = $.extend,
@@ -131,7 +131,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2022.2.621".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.2.802".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -3004,7 +3004,7 @@ function pad(number, digits, end) {
         },
 
         _applyCssClasses: function(element) {
-            var protoOptions = this.__proto__.options, // jshint ignore:line
+            var protoOptions = this.__proto__.options,
                 options = this.options,
                 el = element || this.wrapper || this.element,
                 classes = [],
@@ -3071,7 +3071,7 @@ function pad(number, digits, end) {
         },
 
         _clearCssClasses: function(newOptions, element) {
-            var protoOptions = this.__proto__.options, // jshint ignore:line
+            var protoOptions = this.__proto__.options,
                 currentOptions = this.options,
                 el = element || this.wrapper || this.element,
                 i, prop, widgetName;
@@ -5165,7 +5165,7 @@ function pad(number, digits, end) {
     };
 
     kendo.isElement = function(element) {
-        return element instanceof Element || element instanceof HTMLDocument; // jshint ignore:line
+        return element instanceof Element || element instanceof HTMLDocument;
     };
 
     // Kendo defaults
@@ -5236,7 +5236,7 @@ return window.kendo;
     define('kendo.fx',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "fx",
     name: "Effects",
     category: "framework",
@@ -6827,7 +6827,7 @@ return window.kendo;
     define('kendo.data.odata',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "data.odata",
     name: "OData",
     category: "framework",
@@ -7382,7 +7382,7 @@ return window.kendo;
     define('kendo.data.xml',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "data.xml",
     name: "XML",
     category: "framework",
@@ -7390,7 +7390,7 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-/*jshint  eqnull: true, boss: true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         isArray = Array.isArray,
@@ -7649,7 +7649,7 @@ return window.kendo;
     define('kendo.data',[ "kendo.core", "kendo.data.odata", "kendo.data.xml" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "data",
     name: "Data source",
     category: "framework",
@@ -7673,7 +7673,7 @@ var __meta__ = { // jshint ignore:line
     }]
 };
 
-/*jshint eqnull: true, loopfunc: true, evil: true */
+
 (function($, undefined) {
     var extend = $.extend,
         isPlainObject = $.isPlainObject,
@@ -8133,13 +8133,25 @@ var __meta__ = { // jshint ignore:line
         };
     }
 
+    function isPrimitiveType(value) {
+        return (typeof value === "object" && Object.getPrototypeOf(value) === Object.getPrototypeOf({}))
+                || Object.getPrototypeOf(value) === Object.getPrototypeOf(new Date())
+                || typeof value !== "object";
+      }
+
     function ownKeys(value, ignoreObjectKeys) {
         var props = [];
+        var protoKeys = [];
         var keys, filteredObjectKeys;
 
         value = value || {};
 
-        keys = Object.getOwnPropertyNames(value);
+        if (!isPrimitiveType(value)) {
+            protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(value));
+        }
+
+        keys = Object.getOwnPropertyNames(value).concat(protoKeys);
+
         filteredObjectKeys = objectKeys.filter(function(key) {
             return keys.indexOf(key) < 0;
         });
@@ -14301,7 +14313,7 @@ return window.kendo;
     define('kendo.data.signalr',[ "kendo.data" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "data.signalr",
     name: "SignalR",
     category: "framework",
@@ -14318,7 +14330,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function isNativePromise(promise) {
-        return promise && isFunction(promise.then) && isFunction(promise.catch); // jshint ignore:line
+        return promise && isFunction(promise.then) && isFunction(promise.catch);
     }
 
     var transport = kendo.data.RemoteTransport.extend({
@@ -14395,7 +14407,7 @@ var __meta__ = { // jshint ignore:line
                 promise.then(function() {
                     hub.invoke.apply(hub, args)
                               .then(options.success)
-                              .catch(options.error); // jshint ignore:line
+                              .catch(options.error);
                 });
             }
         },
@@ -14433,7 +14445,7 @@ return window.kendo;
     define('kendo.binder',[ "kendo.core", "kendo.data" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "binder",
     name: "MVVM",
     category: "framework",
@@ -14441,7 +14453,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core", "data" ]
 };
 
-/*jshint eqnull: true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         Observable = kendo.Observable,
@@ -16567,7 +16579,7 @@ return window.kendo;
     define('kendo.validator',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "validator",
     name: "Validator",
     category: "web",
@@ -16575,7 +16587,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core" ]
 };
 
-/* jshint eqnull: true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
@@ -17360,7 +17372,7 @@ return window.kendo;
     define('kendo.router',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "router",
     name: "Router",
     category: "framework",
@@ -17906,7 +17918,7 @@ return window.kendo;
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "view",
     name: "View",
     category: "framework",
@@ -18631,7 +18643,7 @@ return window.kendo;
     define('kendo.userevents',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "userevents",
     name: "User Events",
     category: "framework",
@@ -19290,7 +19302,7 @@ return window.kendo;
     define('kendo.draganddrop',[ "kendo.core", "kendo.userevents" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "draganddrop",
     name: "Drag & drop",
     category: "framework",
@@ -20421,7 +20433,7 @@ return window.kendo;
     define('kendo.popup',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "popup",
     name: "Pop-up",
     category: "framework",
@@ -20454,7 +20466,7 @@ var __meta__ = { // jshint ignore:line
         POSITION = "position",
         VISIBLE = "visible",
         EFFECTS = "effects",
-        ACTIVE = "k-state-active",
+        ACTIVE = "k-active",
         ACTIVEBORDER = "k-state-border",
         ACTIVEBORDERREGEXP = /k-state-border-(\w+)/,
         ACTIVECHILDREN = ".k-picker-wrap, .k-dropdown-wrap, .k-link",
@@ -21285,7 +21297,7 @@ return window.kendo;
     define('kendo.touch',[ "kendo.core", "kendo.userevents" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "touch",
     name: "Touch",
     category: "mobile",
@@ -21455,7 +21467,7 @@ return window.kendo;
     define('kendo.mobile.scroller',[ "kendo.fx", "kendo.draganddrop" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.scroller",
     name: "Scroller",
     category: "mobile",
@@ -22164,7 +22176,7 @@ return window.kendo;
     define('kendo.mobile.view',[ "kendo.core", "kendo.fx", "kendo.mobile.scroller", "kendo.view" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.view",
     name: "View",
     category: "mobile",
@@ -22882,7 +22894,7 @@ return window.kendo;
     define('kendo.mobile.loader',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.loader",
     name: "Loader",
     category: "mobile",
@@ -22981,7 +22993,7 @@ return window.kendo;
     define('kendo.mobile.pane',[ "kendo.mobile.view", "kendo.mobile.loader" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.pane",
     name: "Pane",
     category: "mobile",
@@ -23352,7 +23364,7 @@ return window.kendo;
     define('kendo.mobile.popover',[ "kendo.popup", "kendo.mobile.pane" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.popover",
     name: "PopOver",
     category: "mobile",
@@ -23629,7 +23641,7 @@ return window.kendo;
     define('kendo.mobile.shim',[ "kendo.popup" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.shim",
     name: "Shim",
     category: "mobile",
@@ -23762,7 +23774,7 @@ return window.kendo;
     define('kendo.mobile.modalview',[ "kendo.mobile.shim", "kendo.mobile.view" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.modalview",
     name: "ModalView",
     category: "mobile",
@@ -23894,7 +23906,7 @@ return window.kendo;
     define('kendo.mobile.drawer',[ "kendo.mobile.view", "kendo.userevents" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.drawer",
     name: "Drawer",
     category: "mobile",
@@ -24220,7 +24232,7 @@ return window.kendo;
     define('kendo.mobile.splitview',[ "kendo.mobile.pane" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.splitview",
     name: "SplitView",
     category: "mobile",
@@ -24370,7 +24382,7 @@ return window.kendo;
     define('kendo.mobile.application',[ "kendo.mobile.pane", "kendo.router" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.application",
     name: "Application",
     category: "mobile",
@@ -24875,7 +24887,7 @@ return window.kendo;
     define('kendo.mobile.actionsheet',[ "kendo.mobile.popover", "kendo.mobile.shim" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.actionsheet",
     name: "ActionSheet",
     category: "mobile",
@@ -25045,7 +25057,7 @@ return window.kendo;
     define('kendo.mobile.button',[ "kendo.userevents" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.button",
     name: "Button",
     category: "mobile",
@@ -25314,7 +25326,7 @@ return window.kendo;
     define('kendo.mobile.buttongroup',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.buttongroup",
     name: "ButtonGroup",
     category: "mobile",
@@ -25471,7 +25483,7 @@ return window.kendo;
     define('kendo.mobile.collapsible',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.collapsible",
     name: "Collapsible",
     category: "mobile",
@@ -25661,7 +25673,7 @@ return window.kendo;
     define('kendo.mobile.listview',[ "kendo.data", "kendo.userevents", "kendo.mobile.button" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.listview",
     name: "ListView",
     category: "mobile",
@@ -26987,7 +26999,7 @@ return window.kendo;
     define('kendo.mobile.navbar',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.navbar",
     name: "NavBar",
     category: "mobile",
@@ -27069,7 +27081,7 @@ return window.kendo;
     define('kendo.mobile.scrollview',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.scrollview",
     name: "ScrollView",
     category: "mobile",
@@ -27974,12 +27986,12 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-/* jshint multistr: true */
+
 (function(f, define) {
     define('kendo.mobile.switch',[ "kendo.fx", "kendo.userevents" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.switch",
     name: "Switch",
     category: "mobile",
@@ -28243,7 +28255,7 @@ return window.kendo;
     define('kendo.mobile.tabstrip',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "mobile.tabstrip",
     name: "TabStrip",
     category: "mobile",
@@ -28423,7 +28435,7 @@ return window.kendo;
     define('kendo.angular',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "angular",
     name: "AngularJS Directives",
     category: "framework",
@@ -28440,7 +28452,6 @@ var __meta__ = { // jshint ignore:line
         return;
     }
 
-    /*jshint eqnull:true,loopfunc:true,-W052,-W028  */
 
     var module = angular.module('kendo.directives', []),
         $injector = angular.injector(['ng']),
@@ -28514,7 +28525,7 @@ var __meta__ = { // jshint ignore:line
     };
 
     function createWidget(scope, element, attrs, widget, origAttr, controllers) {
-        /* jshint latedef: false */
+
         if (!(element instanceof jQuery)) {
             throw new Error("The Kendo UI directives require jQuery to be available before AngularJS. Please include jquery before angular in the document.");
         }
@@ -29132,7 +29143,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function setTemplate(key, value) {
-        this[key] = kendo.stringify(value); // jshint ignore:line
+        this[key] = kendo.stringify(value);
     }
 
     module.factory('directiveFactory', [ '$compile', function(compile) {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -36,8 +36,10 @@ kendo-scrollview.k-scrollview-wrap .k-scrollview,
 .k-widget.k-scrollview .k-scrollview-wrap {
     &:focus,
     &.k-state-focused,
+    &.k-focus,
     &:hover,
-    &.k-state-hovered {
+    &.k-state-hovered,
+    &.k-hover {
         outline: none;
 
         ~ .k-scrollview-elements .k-scrollview-pageable,
@@ -57,7 +59,8 @@ kendo-scrollview.k-scrollview-wrap .k-scrollview,
     -webkit-tap-highlight-color: @scrollview-arrow-tap-highlight-color;
 
     &:focus,
-    &.k-state-focused {
+    &.k-state-focused,
+    &.k-focus {
         color: @scrollview-navigation-color;
         opacity: @scrollview-navigation-hover-opacity;
 
@@ -68,7 +71,8 @@ kendo-scrollview.k-scrollview-wrap .k-scrollview,
     }
 
     &:hover,
-    &.k-state-hovered {
+    &.k-state-hovered,
+    &.k-hover {
         color: @scrollview-navigation-color;
         opacity: @scrollview-navigation-hover-opacity;
 
@@ -85,8 +89,10 @@ kendo-scrollview.k-scrollview-wrap .k-scrollview-pageable,
     &:focus-within,
     &:focus,
     &.k-state-focused,
+    &.k-focus,
     &:hover,
-    &.k-state-hovered {
+    &.k-state-hovered,
+    &.k-hover {
         opacity: @scrollview-navigation-hover-opacity;
         background-color: @scrollview-navigation-hover-span-bg;
     }
@@ -105,8 +111,10 @@ kendo-scrollview.k-scrollview-wrap .k-scrollview-pageable > .k-button,
 
     &:focus,
     &.k-state-focused,
+    &.k-focus,
     &:hover,
-    &.k-state-hovered {
+    &.k-state-hovered,
+    &.k-hover {
         box-shadow: @scrollview-pagebutton-shadow;
     }
 }

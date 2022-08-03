@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -97,7 +97,7 @@
                     viewItem = that.filemanager._view.widgetComponent.dataItem(target),
                     itemsToRemove;
 
-                if (target && target.is(".k-state-selected") && items && items.length) {
+                if (target && target.is(".k-selected") && items && items.length) {
                     itemsToRemove = items;
                 } else if (target && viewItem) {
                     itemsToRemove = viewItem;
@@ -486,7 +486,7 @@
             var that = this,
                 target = ev.currentTarget;
 
-            if (!target.is(".k-state-selected")) {
+            if (!target.is(".k-selected")) {
                 if (that.widgetComponent.selectable) {
                     that.widgetComponent.selectable.clear();
                 }
@@ -556,7 +556,7 @@
         init: function(element, options, explicitOptions) {
             var that = this,
                 dataSourceOptions = explicitOptions.dataSource,
-                messages = explicitOptions.messages; // jshint ignore:line
+                messages = explicitOptions.messages;
 
             options = extend({}, that.defaultOptions, options, {
                 messages: messages
@@ -641,7 +641,7 @@
 
         _keydownAction: function(ev) {
             var that = this,
-                target = $(ev.target).find(".k-state-focused");
+                target = $(ev.target).find(".k-focus");
 
             if (target.length && !target.is(".k-edit-item")) {
                 that.trigger(KEYDOWNACTION, { target: target, keyCode: ev.keyCode });
@@ -652,7 +652,7 @@
             var that = this,
                 node = $(ev.target).closest(".k-listview-item");
 
-            if (ev.which === 3 && !node.is(".k-state-selected")) {
+            if (ev.which === 3 && !node.is(".k-selected")) {
                 that.listView.selectable.clear();
                 that.listView.select(node);
             }
@@ -740,7 +740,7 @@
     var TreeView = Component.extend({
         init: function(element, options, explicitOptions) {
             var that = this,
-                messages = explicitOptions.messages; // jshint ignore:line
+                messages = explicitOptions.messages;
 
             options = extend({}, that.defaultOptions, options, {
                 messages: messages
@@ -1005,7 +1005,7 @@
 
             _keydownAction: function(ev) {
                 var that = this,
-                    target = $(ev.target).find(".k-state-focused").closest("tr");
+                    target = $(ev.target).find(".k-focus").closest("tr");
 
                 if (target.length && !target.is(".k-grid-edit-row")) {
                     that.trigger(KEYDOWNACTION, { target: target, keyCode: ev.keyCode });
@@ -1051,7 +1051,7 @@
                     that._tryCancel();
                 }
 
-                if (ev.which === 3 && !node.is(".k-state-selected")) {
+                if (ev.which === 3 && !node.is(".k-selected")) {
                     that.grid.selectable.clear();
                     that.grid.select(node);
                 }
@@ -1875,7 +1875,7 @@ return window.kendo;
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "filemanager",
     name: "FileManager",
     category: "web",
@@ -2479,7 +2479,7 @@ var __meta__ = { // jshint ignore:line
 
             that.treeView._shouldFocus = false;
 
-            if ((treeView.current() && treeView.current().find(".k-state-focused").length) ||
+            if ((treeView.current() && treeView.current().find(".k-focus").length) ||
                 activeElement.hasClass(fileManagerStyles.treeview)) {
                 that.treeView._shouldFocus = true;
                 view._focusElement = activeElement;

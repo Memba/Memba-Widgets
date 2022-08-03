@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.pivot.fieldmenu',[ "kendo.pivotgrid", "kendo.menu", "kendo.window", "kendo.treeview", "kendo.dropdownlist" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "pivot.fieldmenu",
     name: "PivotFieldMenu",
     category: "web",
@@ -19,7 +19,7 @@ var __meta__ = { // jshint ignore:line
     advanced: true
 };
 
-/*jshint eqnull: true*/
+
 (function($, undefined) {
     var kendo = window.kendo;
     var ui = kendo.ui;
@@ -191,43 +191,92 @@ var __meta__ = { // jshint ignore:line
                 },
                 transport: {
                     read: function(options) {
-                        var catalog = that.dataSource.transport.catalog();
-                        var cube = that.dataSource.transport.cube();
-                        var restrictions = {
-                            catalogName: catalog,
-                            cubeName: cube
-                        };
-                        var fetchOptions = {
-                            command: 'schemaMembers'
-                        };
-
                         var node = that.treeView.dataSource.get(options.data.uniqueName);
                         var name = options.data.uniqueName;
+                        var nodes = [];
+                        var filter;
+                        var skipCheck;
+                        var catalog;
+                        var cube;
+                        var restrictions;
+                        var fetchOptions;
 
-                        if (!name) {
-                            restrictions.levelUniqueName = that.currentMember + ".[(ALL)]";
+                        if (that.dataSource.cubeSchema) {
+                            if (!name) {
+                                nodes = that.dataSource.cubeSchema.members(that.currentMember + ".[(ALL)]");
+                            } else {
+                                nodes = that.dataSource.cubeSchema.members(that.currentMember);
+                            }
+
+                            filter = that.dataSource.filter();
+                            skipCheck = that._getFilterStorage(that.currentMember) && findFilters({ filter: filter, member: that.currentMember }).length == 1;
+
+                            if (skipCheck && !name) {
+                                nodes[0].checked = true;
+                            } else {
+                                checkNodesLocal(that.dataSource.filter(), that.currentMember, nodes);
+                            }
+                            options.success(nodes);
                         } else {
-                            restrictions.memberUniqueName = node.uniqueName.replace(/\&/g, "&amp;");
-                            restrictions.treeOp = 1;
+                            catalog = that.dataSource.transport.catalog();
+                            cube = that.dataSource.transport.cube();
+                            restrictions = {
+                                catalogName: catalog,
+                                cubeName: cube
+                            };
+                            fetchOptions = {
+                                command: 'schemaMembers'
+                            };
+
+                            if (!name) {
+                                restrictions.levelUniqueName = that.currentMember + ".[(ALL)]";
+                            } else {
+                                restrictions.memberUniqueName = node.uniqueName.replace(/\&/g, "&amp;");
+                                restrictions.treeOp = 1;
+                            }
+
+                            fetchOptions.connection = {
+                                catalog: catalog,
+                                cube: cube
+                            };
+
+                            fetchOptions.restrictions = restrictions;
+                            that.dataSource.discover(fetchOptions).then(
+                                function(data) {
+                                    if (!node || node.checked) {
+                                        checkNodes(that.dataSource.filter(), that.currentMember, data);
+                                    }
+
+                                    options.success(data);
+                                });
                         }
-
-                        fetchOptions.connection = {
-                            catalog: catalog,
-                            cube: cube
-                        };
-
-                        fetchOptions.restrictions = restrictions;
-                        that.dataSource.discover(fetchOptions).then(
-                            function(data) {
-                                if (!node || node.checked) {
-                                    checkNodes(that.dataSource.filter(), that.currentMember, data);
-                                }
-
-                                options.success(data);
-                            });
                     }
                 }
             });
+        },
+
+        _storeFilterForm: function(member) {
+            var that = this;
+
+            if (!that._filterStorage) {
+                that._filterStorage = {};
+            }
+
+            that._filterStorage[member] = {
+                value: that._filterValue.val(),
+                operator: that._filterOperator.value()
+            };
+        },
+
+        _getFilterStorage: function(member) {
+            if (!this._filterStorage || !this._filterStorage[member]) {
+                return null;
+            }
+            return this._filterStorage[member];
+        },
+
+        _clearFilterStorage: function(member) {
+            this._filterStorage[member] = null;
         },
 
         _click: function(e) {
@@ -264,8 +313,13 @@ var __meta__ = { // jshint ignore:line
             e.preventDefault();
             var view = this.treeView.dataSource.view();
             var filter = this.dataSource.filter();
-            var newExpression = includeExpression(view, filter, this.currentMember);
-            this._includesCache = {};
+            var newExpression;
+            if (this.dataSource.cubeSchema) {
+                newExpression = includeLocalExpression(view, filter, this.currentMember);
+            } else {
+                newExpression = includeExpression(view, filter, this.currentMember);
+            }
+             this._includesCache = {};
 
             if (newExpression) {
                 this.dataSource._preventRefresh = true;
@@ -312,6 +366,7 @@ var __meta__ = { // jshint ignore:line
         _filter: function(e) {
             var that = this;
             var value = convert(that._filterValue.val(), that.dataSource, that.currentMember);
+            var filter = that.dataSource.filter();
 
             e.preventDefault();
 
@@ -325,8 +380,13 @@ var __meta__ = { // jshint ignore:line
                 operator: that._filterOperator.value(),
                 value: value
             };
-            var filter = that._clearFilters(that.currentMember);
+            if (filter) {
+                removeFilterByValue(filter, that._getFilterStorage(that.currentMember));
+            } else {
+                filter = { logic: 'and', filters: [] };
+            }
 
+            that._storeFilterForm(that.currentMember);
             filter.filters.push(expression);
 
             that.dataSource._preventRefresh = true;
@@ -336,7 +396,8 @@ var __meta__ = { // jshint ignore:line
 
         _reset: function(e) {
             var that = this;
-            var filter = that._clearFilters(that.currentMember);
+            var filter = that.dataSource.filter();
+            removeFilters(filter, that.currentMember);
 
             e.preventDefault();
 
@@ -346,24 +407,9 @@ var __meta__ = { // jshint ignore:line
 
             that.dataSource._preventRefresh = true;
             that.dataSource.filter(filter);
+            that._clearFilterStorage(that.currentMember);
             that._setFilterForm(null);
             that.menu.close();
-        },
-
-        _clearFilters: function(member) {
-            var filter = this.dataSource.filter() || {};
-            var expressions;
-            var idx = 0;
-            var length;
-
-            filter.filters = filter.filters || [];
-            expressions = findFilters(filter, member);
-
-            for (length = expressions.length; idx < length; idx++) {
-                filter.filters.splice(filter.filters.indexOf(expressions[idx]), 1);
-            }
-
-            return filter;
         },
 
         _setFilterForm: function(expression) {
@@ -433,11 +479,19 @@ var __meta__ = { // jshint ignore:line
             }
 
             var that = this;
+            var schemaCube = that.dataSource.cubeSchema;
+            var filterBox;
             that.currentMember = $(e.event.target).prev().text();
             that.menu.popup._hovered = true;
 
             if (that.options.filterable) {
-                that._setFilterForm(findFilters(that.dataSource.filter(), that.currentMember)[0]);
+                that._setFilterForm(that._getFilterStorage(that.currentMember));
+                filterBox = that.wrapper.find(".k-columnmenu-item-wrapper").last();
+                if (schemaCube && schemaCube.memberType(that.currentMember).toLowerCase() !== "string") {
+                    filterBox.hide();
+                } else {
+                    filterBox.show();
+                }
                 if (that.currentMember !== that._oldCurrentmember) {
                     if (that._oldCurrentmember) {
                         that._collapseItems(that.menu.element.find(".k-item.k-expander"));
@@ -557,7 +611,7 @@ var __meta__ = { // jshint ignore:line
             var length;
 
             filter.filters = filter.filters || [];
-            expressions = findFilters(filter, member);
+            expressions = findFilters({ filter: filter, member: member });
 
             for (length = expressions.length; idx < length; idx++) {
                 filter.filters.splice(filter.filters.indexOf(expressions[idx]), 1);
@@ -660,9 +714,9 @@ var __meta__ = { // jshint ignore:line
             var view = this.treeView.dataSource.view();
             var rootChecked = view[0].checked;
             var filter = this.dataSource.filter();
-            var existingExpression = findFilters(filter, this.currentMember, "in")[0];
+            var existingExpression = findFilters({ filter: filter, member: this.currentMember, operator: "in" })[0];
 
-            checkedNodeIds(view, checkedNodes);
+            nodeIds(view, checkedNodes, true);
 
             if (existingExpression) {
                 if (rootChecked) {
@@ -770,7 +824,7 @@ var __meta__ = { // jshint ignore:line
             this.currentMember = $(e.event.target).closest("[" + attr + "]").attr(attr);
 
             if (this.options.filterable) {
-                this._setFilterForm(findFilters(this.dataSource.filter(), this.currentMember)[0]);
+                this._setFilterForm(findFilters({ filter: this.dataSource.filter(), member: this.currentMember })[0]);
             }
         },
 
@@ -849,22 +903,59 @@ var __meta__ = { // jshint ignore:line
         return result;
     }
 
-    function findFilters(filter, member, operator) {
-        if (!filter) {
-            return [];
+    function removeFilterByValue(filter, toRemove) {
+        if (!toRemove) {
+            return;
         }
 
         filter = filter.filters;
 
         var idx = 0;
+        var length = filter.length;
+
+        for (idx = length - 1; idx >= 0; idx--) {
+            if (filter[idx].value === toRemove.value && filter[idx].operator === toRemove.operator) {
+                filter.splice(idx, 1);
+            }
+        }
+    }
+
+    function removeFilters(filter, member, operator) {
+        if (!filter) {
+            return;
+        }
+
+        filter = filter.filters;
+
+        var idx = 0;
+        var length = filter.length;
+        var filterOperator;
+
+        for (idx = length - 1; idx >= 0; idx--) {
+            filterOperator = filter[idx].operator;
+
+            if ((operator ? filterOperator === operator : true) && filter[idx].field === member) {
+                filter.splice(idx, 1);
+            }
+        }
+    }
+
+    function findFilters(options) {
+        if (!options.filter) {
+            return [];
+        }
+
+        var filter = options.filter.filters;
+        var idx = 0;
         var result = [];
         var length = filter.length;
         var filterOperator;
+        var operatorInUse = options.isLocal ? "neq" : "in";
 
         for ( ; idx < length; idx++) {
             filterOperator = filter[idx].operator;
 
-            if (((!operator && filterOperator !== "in") || (filterOperator === operator)) && filter[idx].field === member) {
+            if (((!options.operator && filterOperator !== operatorInUse) || (filterOperator === options.operator)) && filter[idx].field === options.member) {
                 result.push(filter[idx]);
             }
         }
@@ -872,9 +963,30 @@ var __meta__ = { // jshint ignore:line
         return result;
     }
 
+    function checkNodesLocal(filter, member, nodes) {
+        var values, idx = 0, length = nodes.length;
+        var filters = findFilters({ filter: filter, member: member, operator: "neq" });
+
+        if (nodes[0].name.indexOf("[(ALL)]") >= 0) {
+            nodes[0].checked = !filters.length;
+            return;
+        }
+
+        if (!filters.length) {
+            for (; idx < length; idx++) {
+                nodes[idx].checked = true;
+            }
+        } else {
+            values = filters.map(function(ftr) { return ftr.value; });
+            for (; idx < length; idx++) {
+                nodes[idx].checked = $.inArray(nodes[idx].uniqueName, values) < 0;
+            }
+        }
+    }
+
     function checkNodes(filter, member, nodes) {
         var values, idx = 0, length = nodes.length;
-        filter = findFilters(filter, member, "in")[0];
+        filter = findFilters({ filter: filter, member: member, operator: "in" })[0];
 
         if (!filter) {
             for (; idx < length; idx++) {
@@ -888,27 +1000,49 @@ var __meta__ = { // jshint ignore:line
         }
     }
 
-    function checkedNodeIds(nodes, checkedNodes) {
+    function nodeIds(nodes, checkedNodes, checkState) {
         var idx, length = nodes.length;
 
         for (idx = 0; idx < length; idx++) {
-            if (nodes[idx].checked && nodes[idx].level() !== 0) {
+            if (nodes[idx].checked === checkState && nodes[idx].level() !== 0) {
                 checkedNodes.push(nodes[idx].uniqueName);
             }
 
             if (nodes[idx].hasChildren) {
-                checkedNodeIds(nodes[idx].children.view(), checkedNodes);
+                nodeIds(nodes[idx].children.view(), checkedNodes, checkState);
             }
         }
+    }
+
+    function includeLocalExpression(view, filter, currentMember) {
+        var nonCheckedNodes = [];
+        removeFilters(filter, currentMember, "neq");
+
+        if (!filter) {
+            filter = { logic: 'and', filters: [] };
+        }
+        nodeIds(view, nonCheckedNodes, false);
+
+        if (nonCheckedNodes.length) {
+            for (var idx = 0; idx < nonCheckedNodes.length; idx++) {
+                filter.filters.push({
+                    field: currentMember,
+                    operator: "neq",
+                    value: nonCheckedNodes[idx]
+                });
+            }
+        }
+
+        return filter ? filter : null;
     }
 
     function includeExpression(view, filter, currentMember) {
         var checkedNodes = [];
         var resultExpression;
         var rootChecked = view[0].checked;
-        var existingExpression = findFilters(filter, currentMember, "in")[0];
+        var existingExpression = findFilters({ filter: filter, member: currentMember, operator: "in" })[0];
 
-        checkedNodeIds(view, checkedNodes);
+        nodeIds(view, checkedNodes, true);
 
         if (existingExpression) {
             if (rootChecked) {
@@ -1005,7 +1139,7 @@ var __meta__ = { // jshint ignore:line
                             '<div class="k-animation-container k-animation-container-relative" style="display: block; ">' +
                                 '<div class="k-child-animation-container">' +
                                     '<div class="kendo-grid-filter-menu-container">' +
-                                        '<form class="k-filter-menu k-group k-reset k-state-border-up">' +
+                                        '<form class="k-filter-menu k-group k-reset">' +
                                             '<div class="k-filter-menu-container">' +
                                                     '<select class="k-dropdown k-picker k-dropdown-list" style="overflow:visible">' +
                                                         '#for(var op in messages.operators){#' +

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -55,7 +55,6 @@
 })(kendo);
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
-/*jshint scripturl: true */
 (function(f, define) {
     define('editor/main',[
         "../util/undoredostack",
@@ -488,6 +487,10 @@
             });
 
             that._initializeImmutables();
+
+            if (type == "textarea") {
+                that._ariaLabel(that.wrapper.find("iframe"));
+            }
 
             that.toolbar.resize();
 
@@ -1048,7 +1051,7 @@
                 },
                 "focusin": function() {
                     if (editor.body.hasAttribute("contenteditable")) {
-                        $(this).addClass("k-state-active");
+                        $(this).addClass("k-active");
                         editor.toolbar.show();
                         editor._togglePlaceholder(false);
                     }
@@ -1067,7 +1070,7 @@
                         }
 
                         if (active != body && !$.contains(body, active) && !toolbar.focused() && !toolbar.preventPopupHide) {
-                            $(body).removeClass("k-state-active");
+                            $(body).removeClass("k-active");
                             toolbar.hide();
                         }
 
@@ -3779,8 +3782,6 @@ kendo.cssProperties.registerValues("SelectBox", [{
 })(window.kendo.jQuery);
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
-
-/*jshint boss: true */
 
 (function(f, define) {
     define('editor/range',[ "./components" ], f);
@@ -7897,9 +7898,9 @@ var DomTextTraverser = Class.extend({
         }, o || {});
     },
 
-    edgeNode: function(node) {}, //jshint ignore: line
-    next: function(node) {}, //jshint ignore: line
-    subText: function(text, offset) {} //jshint ignore: line
+    edgeNode: function(node) {},
+    next: function(node) {},
+    subText: function(text, offset) {}
 
 });
 
@@ -10684,8 +10685,8 @@ var kendo = window.kendo,
     Command = Editor.Command,
 
     NS = "kendoEditor",
-    ACTIVESTATE = "k-state-active",
-    SELECTEDSTATE = "k-state-selected",
+    ACTIVESTATE = "k-active",
+    SELECTEDSTATE = "k-selected",
     SCOPE = "scope",
     ROW = "row",
     COL = "col",
@@ -10851,7 +10852,7 @@ var InsertTableTool = PopupTool.extend({
             popupTemplate:
                 "<div class='k-ct-popup'>" +
                     "<div>" +
-                        new Array(this.cols * this.rows + 1).join("<span class='k-ct-cell k-state-disabled'></span>") +
+                        new Array(this.cols * this.rows + 1).join("<span class='k-ct-cell k-disabled'></span>") +
                     "</div>" +
                     "<div class='k-status'></div>" +
                 "</div>"
@@ -10948,7 +10949,7 @@ var InsertTableTool = PopupTool.extend({
         var keys = kendo.keys;
         var key = e.keyCode;
         var cells = this._popup.element.find(".k-ct-cell");
-        var focus = Math.max(cells.filter(".k-state-selected").last().index(), 0);
+        var focus = Math.max(cells.filter(".k-selected").last().index(), 0);
         var selectedRows = Math.floor(focus / this.cols);
         var selectedColumns = focus % this.cols;
 
@@ -17528,7 +17529,7 @@ var dialogTemplate =
         '<div class="k-edit-form-container">' +
             '<div id="k-table-wizard-tabs" class="k-root-tabs">' +
                 '<ul>' +
-                    '<li class="k-state-active">#= messages.tableTab #</li>' +
+                    '<li class="k-active">#= messages.tableTab #</li>' +
                     '<li>#= messages.cellTab #</li>' +
                     '<li>#= messages.accessibilityTab #</li>' +
                 '</ul>' +
@@ -18159,7 +18160,7 @@ kendo.ui.editor.TableWizardDialog = TableWizardDialog;
     ], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "editor",
         name: "Editor",
         category: "web",

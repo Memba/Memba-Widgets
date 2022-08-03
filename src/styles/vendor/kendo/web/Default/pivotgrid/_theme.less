@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -52,10 +52,13 @@
 
 // Hover state
 .k-pivotgrid-row-headers tbody > .k-pivotgrid-row.k-state-hover,
+.k-pivotgrid-row-headers tbody > .k-pivotgrid-row.k-hover,
 .k-pivotgrid-row-headers tbody > .k-pivotgrid-row:hover,
 .k-pivotgrid-column-headers tbody > .k-pivotgrid-row.k-state-hover,
+.k-pivotgrid-column-headers tbody > .k-pivotgrid-row.k-hover,
 .k-pivotgrid-column-headers tbody > .k-pivotgrid-row:hover,
 .k-pivotgrid-values tbody > .k-pivotgrid-row.k-state-hover,
+.k-pivotgrid-values tbody > .k-pivotgrid-row.k-hover,
 .k-pivotgrid-values tbody > .k-pivotgrid-row:hover {
     .fill (
         @pivotgrid-hover-text,
@@ -66,6 +69,7 @@
 
 // Focus state
 .k-pivotgrid-cell.k-state-focus,
+.k-pivotgrid-cell.k-focus,
 .k-pivotgrid-cell:focus,
 .k-master-row > .k-pivotgrid-cell:focus,
 .k-grouping-row > .k-pivotgrid-cell:focus,
@@ -76,7 +80,9 @@
 
 // Selected state
 .k-pivotgrid-cell.k-state-selected,
-.k-pivotgrid-row.k-state-selected > .k-pivotgrid-cell {
+.k-pivotgrid-cell.k-selected,
+.k-pivotgrid-row.k-state-selected > .k-pivotgrid-cell,
+.k-pivotgrid-row.k-selected > .k-pivotgrid-cell {
     .fill (
         @pivotgrid-selected-text,
         @pivotgrid-selected-bg,

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.scheduler.view',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "scheduler.view",
     name: "Scheduler View",
     category: "web",
@@ -19,7 +19,7 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
     kendo.ui.scheduler = {};
-/* jshint eqnull: true */
+
 (function($) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -1737,7 +1737,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (result[0]) {
-                result.addClass("k-state-selected");
+                result.addClass("k-selected");
 
                 if (selection.eventElement) {
                     this.current(selection.eventElement);
@@ -2340,9 +2340,9 @@ var __meta__ = { // jshint ignore:line
 
         clearSelection: function() {
             this.content
-                .find(".k-state-selected")
+                .find(".k-selected")
                 .removeAttr("id")
-                .removeClass("k-state-selected");
+                .removeClass("k-selected");
         },
 
         destroy: function() {
@@ -2896,9 +2896,9 @@ var __meta__ = { // jshint ignore:line
         };
     }
 
-    var selectedStateRegExp = /\s*k-state-selected/;
+    var selectedStateRegExp = /\s*k-selected/;
     function addSelectedState(cell) {
-        cell.className = cell.className.replace(selectedStateRegExp, "") + " k-state-selected";
+        cell.className = cell.className.replace(selectedStateRegExp, "") + " k-selected";
     }
 
     $.extend(ui.SchedulerView, {

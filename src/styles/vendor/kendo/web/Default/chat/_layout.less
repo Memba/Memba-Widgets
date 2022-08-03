@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -178,7 +178,8 @@
 
 
     // Message states
-    .k-message.k-state-selected {
+    .k-message.k-state-selected,
+    .k-message.k-selected {
         margin-bottom: @chat-item-spacing-y;
         border: 0;
         color: inherit;
@@ -363,7 +364,8 @@
         margin-left: @card-deck-gap;
     }
 
-    &.k-state-selected {
+    &.k-state-selected,
+    &.k-selected {
         background: none;
     }
 }

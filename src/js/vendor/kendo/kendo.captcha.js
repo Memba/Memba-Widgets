@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.captcha',["kendo.core", "kendo.slider", "kendo.textbox", "kendo.skeletoncontainer"], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "captcha",
         name: "Captcha",
         category: "web",
@@ -46,7 +46,7 @@
             iconButton: "k-icon-button",
             resetIcon: "k-icon k-i-reload",
             audioIcon: "k-icon k-i-volume-up",
-            disabled: "k-state-disabled",
+            disabled: "k-disabled",
             inputWrapper: "k-captcha-input k-vstack",
             imageWrapper: "k-captcha-image-wrap k-hstack",
             captchaImage: "k-captcha-image",

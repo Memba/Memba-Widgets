@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -19,6 +19,7 @@
 })(function() {
 
 (function() {
+/* eslint-disable space-before-blocks, space-before-function-paren */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -162,7 +163,7 @@ var NavigatorHint = dataviz.Class.extend({
 
         this.clearHideTimeout();
 
-        this._hideTimeout = setTimeout(function() {
+        this._hideTimeout = setTimeout(function () {
             this$1._visible = false;
             this$1._hideAnimation = new FadeOutAnimation(this$1.element);
             this$1._hideAnimation.setup();
@@ -886,14 +887,14 @@ kendo.deepExtend(kendo.dataviz, {
 
 })();
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define) {
     define('dataviz/stock/stock-chart',[
         "./kendo-stock-chart"
     ], f);
 })(function() {
 
-(function($) { // jshint ignore:line
+(function($) {
 
     var kendo = window.kendo;
     var dataviz = kendo.dataviz;
@@ -1152,7 +1153,7 @@ kendo.deepExtend(kendo.dataviz, {
     define('kendo.dataviz.stock',[ "./dataviz/stock/kendo-stock-chart", "./dataviz/stock/stock-chart" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "dataviz.stockchart",
     name: "StockChart",
     category: "dataviz",

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.mediaplayer',["kendo.slider", "kendo.toolbar", "kendo.dropdownlist", "kendo.tooltip"], f);
 })(function() {
 
-    var __meta__ = { // jshint ignore:line
+    var __meta__ = {
         id: "mediaplayer",
         name: "MediaPlayer",
         category: "web",
@@ -627,7 +627,7 @@
                 this._onPlayerStateChangeHandler = this._onPlayerStateChange.bind(this);
                 window.onPlayerStateChange = this._onPlayerStateChange;
 
-                /*jshint unused:false */
+
                 var player = new window.YT.Player(this.wrapper.find(DOT + YTPLAYER)[0], {
                     height: this.wrapper.height(),
                     width: this.wrapper.width(),

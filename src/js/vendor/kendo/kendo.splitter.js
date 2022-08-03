@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.splitter',[ "kendo.resizable" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "splitter",
     name: "Splitter",
     category: "web",
@@ -39,7 +39,7 @@ var __meta__ = { // jshint ignore:line
         CLICK = "click",
         PANE = "pane",
         MOUSELEAVE = "mouseleave",
-        FOCUSED = "k-state-focused",
+        FOCUSED = "k-focus",
         KPANE = "k-" + PANE,
         PANECLASS = "." + KPANE,
         TABINDEX = "tabindex",
@@ -494,10 +494,10 @@ var __meta__ = { // jshint ignore:line
                     var element = $(this),
                         config = element.data(PANE) || {}, size;
 
-                    element.removeClass("k-state-collapsed");
+                    element.removeClass("k-collapsed");
                     if (config.collapsed) {
                         size = config.collapsedSize ? calculateSize(config.collapsedSize, totalSize) : 0;
-                        element.css("overflow", "hidden").addClass("k-state-collapsed");
+                        element.css("overflow", "hidden").addClass("k-collapsed");
                     } else if (isFluid(config.size)) {
                         freeSizedPanes = freeSizedPanes.add(this);
                         panesSizes.push(false);

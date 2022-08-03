@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -29,11 +29,13 @@
         "kendo.dialog",
         "kendo.pane",
         "kendo.switch",
-        "kendo.html.button"
+        "kendo.html.button",
+        "kendo.textbox",
+        "kendo.form"
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "grid",
     name: "Grid",
     category: "web",
@@ -43,7 +45,7 @@ var __meta__ = { // jshint ignore:line
         id: "grid-editing",
         name: "Editing",
         description: "Support for record editing",
-        depends: [ "editable", "window" ]
+        depends: [ "editable", "window", "textbox", "form" ]
     }, {
         id: "grid-filtering",
         name: "Filtering",
@@ -102,7 +104,7 @@ var __meta__ = { // jshint ignore:line
     } ]
 };
 
-/* jshint eqnull: true */
+
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -168,9 +170,9 @@ var __meta__ = { // jshint ignore:line
         LOAD_START = "loadStart",
         LOAD_END = "loadEnd",
 
-        FOCUSED = "k-state-focused",
+        FOCUSED = "k-focus",
         FOCUSABLE = ":kendoFocusable",
-        SELECTED = "k-state-selected",
+        SELECTED = "k-selected",
         CHECKBOX = "k-checkbox",
         CHECKBOXINPUT = "input[data-role='checkbox']." + CHECKBOX,
         NORECORDSCLASS = "k-grid-norecords",
@@ -227,8 +229,8 @@ var __meta__ = { // jshint ignore:line
         nonDataCellsRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-group-cell|k-hierarchy-cell)" + "(" + whitespaceRegExp + "|$)"),
         filterRowRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-filter-row)" + "(" + whitespaceRegExp + "|$)"),
         COMMANDBUTTONTMPL = '<button type="button" class="#=className#" #=attr#>#=text#</button>',
-        SELECTCOLUMNTMPL = '<input class="' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">',
-        SELECTCOLUMNHEADERTMPL = '<input class="' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">',
+        SELECTCOLUMNTMPL = '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">',
+        SELECTCOLUMNHEADERTMPL = '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">',
         DRAGHANDLECOLUMNTMPL = '<span class="k-icon k-i-reorder"></span>',
         SORTHEADERTMPL = '<span class="k-cell-inner"><span class="k-link"><span class="k-column-title">#=text#</span></span></span>',
         isRtl = false,
@@ -1446,6 +1448,18 @@ var __meta__ = { // jshint ignore:line
             }
         }
         return result;
+    }
+
+    function editField(column) {
+        return {
+            field: column.field,
+            title: column.title,
+            format: column.format,
+            editor: column.editor,
+            values: column.values,
+            editorOptions: extend(true, { format: column.format }, column.editorOptions),
+            label: column.title || column.field || ""
+        };
     }
 
     function leafDataCells(container) {
@@ -3075,7 +3089,7 @@ var __meta__ = { // jshint ignore:line
             that._draggableRowsInstance = that.tbody.kendoDraggable({
                 group: "row-draggable",
                 autoScroll: true,
-                filter: (selectable ? " > .k-state-selected" : " > " + ITEMROW) + (that._hasDragHandleColumn ? " > .k-drag-cell" : ""),
+                filter: (selectable ? " > .k-selected" : " > " + ITEMROW) + (that._hasDragHandleColumn ? " > .k-drag-cell" : ""),
                 hint: function(target) {
                     var hint = $('<div class="k-reorder-clue k-drag-clue"><span class="k-icon k-drag-status k-i-cancel"></span></div>');
 
@@ -3111,14 +3125,14 @@ var __meta__ = { // jshint ignore:line
                         target = $(ITEMROW, that.content).eq(targetIndex);
 
                     if (selectable) {
-                        result = !target.is(".k-state-selected");
+                        result = !target.is(".k-selected");
                     }
 
                     return result;
                 },
                 inSameContainer: function(e) {
                     if (selectable) {
-                        return !$(e.target).is(".k-state-selected");
+                        return !$(e.target).is(".k-selected");
                     }
 
                     return true;
@@ -3596,7 +3610,7 @@ var __meta__ = { // jshint ignore:line
                 container = container.closest("tr");
             }
 
-            var id = container.attr(kendo.attr("uid"));
+            var id = container.attr(kendo.attr("uid")) || container.find(".k-popup-edit-form").attr(kendo.attr("uid"));
 
             return this.dataSource.getByUid(id);
         },
@@ -3792,7 +3806,7 @@ var __meta__ = { // jshint ignore:line
                 }
                 that.editable = cell.addClass("k-edit-cell")
                     .kendoEditable({
-                        fields: { field: column.field, format: column.format, editor: column.editor, values: column.values },
+                        fields: editField(column),
                         model: model,
                         target: that,
                         change: function(e) {
@@ -3863,6 +3877,7 @@ var __meta__ = { // jshint ignore:line
                 if (that.editable) {
 
                     var container = that.editView ? that.editView.element : that._editContainer;
+                    var window = that._editContainer.data("kendoWindow");
 
                     if (container) {
                         container.off(CLICK + NS, ".k-grid-cancel", that._editCancelClickHandler);
@@ -3872,6 +3887,9 @@ var __meta__ = { // jshint ignore:line
                     that._detachModelChange();
                     that.editable.destroy();
                     that.editable = null;
+                    if (window) {
+                        window.destroy();
+                    }
                     that._editContainer = null;
                     that._destroyEditView();
                     that._editableIsClosing = null;
@@ -4142,12 +4160,27 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
+        _editFields: function(columns, model) {
+            var fields = [];
+            var column;
+
+            for (var idx = 0; idx < columns.length; idx++) {
+                column = columns[idx];
+                if (column.selectable || column.command) {
+                    continue;
+                }
+                if (isColumnEditable(column, model)) {
+                    fields.push(editField(column));
+                }
+            }
+            return fields;
+        },
+
         _createPopupEditor: function(model) {
             var that = this;
             var html = '<div ' + kendo.attr("uid") + '="' + model.uid + '" class="k-popup-edit-form"><' + (that._isMobile ? 'ul class="k-edit-form-container k-listgroup k-listgroup-flush">' : 'div class="k-edit-form-container">');
             var column;
             var command;
-            var fields = [];
             var idx;
             var length;
             var tmpl;
@@ -4164,6 +4197,8 @@ var __meta__ = { // jshint ignore:line
             var options = isPlainObject(editable) ? editable.window : {};
             var settings = extend({}, kendo.Template, that.options.templateSettings);
             var state;
+            var container;
+            var buttonsHTML;
 
             if (that.trigger(BEFOREEDIT, { model: model })) {
                 return;
@@ -4194,28 +4229,10 @@ var __meta__ = { // jshint ignore:line
                         continue;
                     }
                     if (!column.command) {
-                        if (!that._isMobile) {
-                            html += '<div class="k-edit-label"><label for="' + column.field + '">' + (column.title && (that.options.encodeTitles ? htmlEncode(column.title) : column.title) || column.field || "") + '</label></div>';
-
-                            if (isColumnEditable(column, model)) {
-                                fields.push({ field: column.field, title: column.title, format: column.format, editor: column.editor, values: column.values });
-                                html += '<div ' + kendo.attr("container-for") + '="' + column.field + '" class="k-edit-field"></div>';
-                            } else {
-                                state = { storage: {}, count: 0 };
-
-                                tmpl = kendo.template(that._cellTmpl(column, state), settings);
-
-                                if (state.count > 0) {
-                                    tmpl = tmpl.bind(state.storage);
-                                }
-
-                                html += '<div class="k-edit-field k-no-editor">' + tmpl(model) + '</div>';
-                            }
-                        } else {
+                        if (that._isMobile) {
                             html += '<li class="k-item k-listgroup-item">';
 
                             if (isColumnEditable(column, model)) {
-                                fields.push({ field: column.field, title: column.title, format: column.format, editor: column.editor, values: column.values });
                                 html += '<label class="k-label k-listgroup-form-row">';
                                 html += '<span class="k-item-title k-listgroup-form-field-label">' + (column.title && (that.options.encodeTitles ? htmlEncode(column.title, true) : column.title) || column.field || "") + '</span>';
                                 html += '<div class="k-listgroup-form-field-wrapper" id="' + column.field + '_' + editMenuGuid + '" ' + kendo.attr("container-for") + '="' + column.field + '"></div>';
@@ -4263,12 +4280,12 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            var container;
-
             if (!that._isMobile) {
-                html += '<div class="k-edit-buttons k-actions-end">';
-                html += that._createButton({ name: "update", text: updateText, attr: attr, iconClass: updateIconClass }) + that._createButton({ name: "canceledit", text: cancelText, attr: attr, iconClass: cancelIconClass });
-                html += '</div></div></div>';
+                buttonsHTML = '<div class="k-edit-buttons k-actions-end">';
+                buttonsHTML += that._createButton({ name: "update", text: updateText, attr: attr, iconClass: updateIconClass }) + that._createButton({ name: "canceledit", text: cancelText, attr: attr, iconClass: cancelIconClass });
+                buttonsHTML += '</div>';
+
+                html += template ? buttonsHTML + '</div>' : '</div>';
 
                 container = that._editContainer = $(html)
                 .appendTo(that.wrapper).eq(0)
@@ -4316,13 +4333,22 @@ var __meta__ = { // jshint ignore:line
                 container = that._editContainer = that.editView.element.find(".k-popup-edit-form");
             }
 
-            that.editable = that._editContainer
+            if (!template && !that._isMobile) {
+                that.editable = new ui.Form(that._editContainer.find(".k-edit-form-container"), {
+                    items: that._editFields(columns, model),
+                    buttonsTemplate: "",
+                    formData: model
+                }).editable;
+                that._editContainer.append(buttonsHTML);
+            } else {
+                that.editable = that._editContainer
                 .kendoEditable({
-                    fields: fields,
+                    fields: that._isMobile ? that._editFields(columns, model) : null,
                     model: model,
                     clearContainer: false,
                     target: that
                 }).data("kendoEditable");
+            }
 
             that._openPopUpEditor();
 
@@ -4367,7 +4393,7 @@ var __meta__ = { // jshint ignore:line
                 column = leafColumns(that.columns)[that._calculateColumnIndex(cell)];
 
                 if (!column.command && isColumnEditable(column, model)) {
-                    fields.push({ field: column.field, title: column.title, format: column.format, editor: column.editor, values: column.values });
+                    fields.push(editField(column));
                     cell.attr(kendo.attr("container-for"), column.field);
                     cell.empty();
                 } else if (column.command) {
@@ -4484,7 +4510,7 @@ var __meta__ = { // jshint ignore:line
                 related,
                 newRow,
                 nextRow,
-                isSelected = row.hasClass("k-state-selected"),
+                isSelected = row.hasClass("k-selected"),
                 isAlt = row.hasClass("k-alt");
 
             if (model) {
@@ -6519,7 +6545,12 @@ var __meta__ = { // jshint ignore:line
 
         _setCurrent: function(next, preventTrigger, preventScroll) {
             var current = this._current;
+
             next = $(next);
+
+            if (current && next && current.length && next.length && current.closest(".k-filter-row").length > 0 && next.closest(".k-filter-row").length === 0) {
+                this._filterFocusable().attr("tabindex", -1);
+            }
 
             if (next.length) {
                 if (!current || current[0] !== next[0]) {
@@ -6547,6 +6578,9 @@ var __meta__ = { // jshint ignore:line
             if (next && next.length) {
                 this._lastCellIndex = next.parent().children(DATA_CELL).index(next);
             }
+
+            this._updateSelctCheckbox(current, next);
+
             return this._current;
         },
 
@@ -6554,6 +6588,20 @@ var __meta__ = { // jshint ignore:line
             if (this._current) {
                 this._current.removeClass(FOCUSED);
                 this._current = null;
+            }
+        },
+
+        _updateSelctCheckbox: function(current, next) {
+            var nextCheckbox;
+
+            if (next && next.length) {
+                nextCheckbox = next.find(".k-select-checkbox");
+
+                if (nextCheckbox.length > 0) {
+                    nextCheckbox.focus();
+                } else if (current && current.find(".k-select-checkbox").length > 0) {
+                    focusTable(this.table, true);
+                }
             }
         },
 
@@ -6644,6 +6692,16 @@ var __meta__ = { // jshint ignore:line
                 .on("focus" + NS, that._tableFocus.bind(that))
                 .on("focusout" + NS, that._tableBlur.bind(that))
                 .on("keydown" + NS, that, that._tableKeyDown.bind(that));
+
+            that._filterFocusable().on("focus", that._filterFocus.bind(that));
+        },
+
+        _filterFocus: function(e) {
+            var header = e.target.closest("th");
+
+            this._filterFocusable().attr("tabindex", 0);
+            this._setCurrent(header);
+            $(header).removeClass(FOCUSED);
         },
 
         _openHeaderMenu: function(e) {
@@ -6747,7 +6805,7 @@ var __meta__ = { // jshint ignore:line
             var virtualScroll = this.virtualScroll || {};
             var requestInProgress = this.virtualScrollable && this.virtualScrollable.fetching();
             var target = $(e.target);
-            var canHandle = !e.isDefaultPrevented() && !target.is(":button,a,:input,a>.k-icon");
+            var canHandle = !e.isDefaultPrevented() && !target.is(":button,a,:input:not(.k-select-checkbox),a>.k-icon");
 
             // do not handle key down if request in progress
             // or there isn't current set
@@ -7096,11 +7154,26 @@ var __meta__ = { // jshint ignore:line
 
         _handleTabKey: function(current, currentTable, shiftKey, target) {
             var isInCell = this.options.editable && this._editMode() == "incell";
-            var cell;
+            var cell, filterFocusable;
 
-            if (!isInCell || current.is("th") ||
+            if (!isInCell ||
+                current.is("th") ||
                 (this.options.scrollable ? this._headertables.filter(currentTable).length : this.thead.filter(target).length)) {
-                return false;
+                    if (current.parent().hasClass("k-filter-row")) {
+                        filterFocusable = this._filterFocusable();
+
+                        if (!shiftKey && filterFocusable[filterFocusable.length - 1] === document.activeElement) {
+                            filterFocusable.first().trigger("focus");
+
+                            return true;
+                        } else if (shiftKey && filterFocusable[0] === document.activeElement) {
+                            filterFocusable.last().trigger("focus");
+
+                            return true;
+                        }
+                    }
+
+                    return false;
             }
 
             cell = $(activeElement()).closest(".k-edit-cell");
@@ -7135,6 +7208,14 @@ var __meta__ = { // jshint ignore:line
 
                     return true;
                 }
+
+                if (current.parent().hasClass("k-filter-row")) {
+                    this._filterFocusable().attr("tabindex", -1);
+                    focusTable(currentTable, true);
+
+                    return true;
+                }
+
                 return false;
             }
 
@@ -7214,9 +7295,9 @@ var __meta__ = { // jshint ignore:line
 
         _handleEnterKey: function(current, currentTable, target) {
             var editable = this.options.editable && this.options.editable.update !== false;
-            var container = target.closest("[role=gridcell]");
+            var container = target.closest("td");
             var hasDetails = this._hasDetails();
-            var link;
+            var link, filterFocusable;
 
             if (!target.is("table") && !$.contains(current[0], target[0])) {
                 current = container;
@@ -7225,8 +7306,15 @@ var __meta__ = { // jshint ignore:line
             if (current.is("th")) {
                 // sort the column, if possible
                 link = current.find(".k-link");
-                if (link.length) {
+
+                if (current.has($(activeElement())).length > 0) {
+                    return false;
+                } else if (link.length) {
                     link.click();
+                } else if (current.parent().hasClass("k-filter-row")) {
+                    filterFocusable = this._filterFocusable();
+                    filterFocusable.attr("tabindex", 0);
+                    current.find(":kendoFocusable").first().focus();
                 } else {
                     current.find(CHECKBOXINPUT).trigger("focus");
                 }
@@ -7238,7 +7326,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             var focusable = current.find(":kendoFocusable").first();
-            if (focusable[0] && !current.hasClass("k-edit-cell") && current.hasClass("k-state-focused")) {
+            if (focusable[0] && !current.hasClass("k-edit-cell") && current.hasClass("k-focus")) {
                 focusable.trigger("focus");
 
                 return true;
@@ -7460,6 +7548,10 @@ var __meta__ = { // jshint ignore:line
             }
 
             return table.find(up ? ">thead" : ">tbody");
+        },
+
+        _filterFocusable: function() {
+            return this.wrapper.find(".k-filter-row").find(".k-dropdownlist, .k-input .k-input-inner:visible, input[type='radio']:visible, input[type='checkbox']:visible");
         },
 
         _horizontalContainer: function(container, right) {
@@ -8362,7 +8454,7 @@ var __meta__ = { // jshint ignore:line
                 });
 
                 selectable = that.options.selectable;
-                if ((selectable || that._checkBoxSelection) && row.hasClass("k-state-selected")) {
+                if ((selectable || that._checkBoxSelection) && row.hasClass("k-selected")) {
                    that.select(tmp);
                 }
 
@@ -8373,8 +8465,8 @@ var __meta__ = { // jshint ignore:line
                     column = that.columns[idx];
 
                     cell = childCells.eq(idx);
-                    if (selectable && originalCells.eq(idx).hasClass("k-state-selected")) {
-                        cell.addClass("k-state-selected");
+                    if (selectable && originalCells.eq(idx).hasClass("k-selected")) {
+                        cell.addClass("k-selected");
                     }
                 }
 
@@ -8836,6 +8928,8 @@ var __meta__ = { // jshint ignore:line
                 }
                 th.data("column", col);
             }
+
+            this._filterFocusable().attr("tabindex", -1);
         },
 
         _sortable: function() {
@@ -9077,6 +9171,7 @@ var __meta__ = { // jshint ignore:line
             var fieldAttr = kendo.attr("field");
             var field;
             var dirtyCellTemplate = "";
+            var classAttribute;
 
             if (!rowTemplate) {
                 rowTemplate = "<tr";
@@ -9134,9 +9229,12 @@ var __meta__ = { // jshint ignore:line
 
                     if (column.command) {
                         column.attributes = column.attributes || {};
+                        classAttribute = column.attributes["class"];
 
-                        if (typeof column.attributes["class"] !== "undefined") {
-                            column.attributes["class"] += " k-command-cell";
+                        if (typeof classAttribute !== "undefined") {
+                            if (classAttribute.indexOf("k-command-cell") < 0) {
+                                column.attributes["class"] += " k-command-cell";
+                            }
                         } else {
                             column.attributes["class"] = "k-command-cell";
                         }
@@ -12127,17 +12225,17 @@ var __meta__ = { // jshint ignore:line
        return null;
    }
 
-   function focusTable(table, direct) {
-      if (direct === true) {
-         table = $(table);
-         var scrollLeft = kendo.scrollLeft(table.parent());
+    function focusTable(table, direct) {
+        if (direct === true) {
+            table = $(table);
+            var scrollLeft = kendo.scrollLeft(table.parent());
 
-         kendo.focusElement(table);
-         kendo.scrollLeft(table.parent(), scrollLeft);
-      } else {
-         $(table).one("focusin", function(e) { e.preventDefault(); }).trigger("focus");
-      }
-   }
+            kendo.focusElement(table);
+            kendo.scrollLeft(table.parent(), scrollLeft);
+        } else {
+            $(table).one("focusin", function(e) { e.preventDefault(); }).trigger("focus");
+        }
+    }
 
    function isColumnGroupable(grid, column) {
        return grid.options.groupable && (column.groupable || column.groupable === undefined);

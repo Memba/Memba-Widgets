@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.filebrowser',[ "kendo.listview", "kendo.dropdownlist", "kendo.upload", "kendo.breadcrumb" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "filebrowser",
     name: "FileBrowser",
     category: "web",
@@ -205,8 +205,8 @@ var __meta__ = { // jshint ignore:line
             that.element
                 .on(CLICK + NS, ".k-filebrowser-toolbar button:not(.k-disabled):has(.k-i-close)", that._deleteClick.bind(that))
                 .on(CLICK + NS, ".k-filebrowser-toolbar button:not(.k-disabled):has(.k-i-folder-add)", that._addClick.bind(that))
-                .on("keydown" + NS, ".k-listview-item.k-state-selected input", that._directoryKeyDown.bind(that))
-                .on("blur" + NS, ".k-listview-item.k-state-selected input", that._directoryBlur.bind(that));
+                .on("keydown" + NS, ".k-listview-item.k-selected input", that._directoryKeyDown.bind(that))
+                .on("blur" + NS, ".k-listview-item.k-selected input", that._directoryBlur.bind(that));
 
             that._dataSource();
 
@@ -765,7 +765,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _editTmpl: function() {
-            var html = '<div class="k-listview-item k-state-selected" ' + kendo.attr("uid") + '="#=uid#" ';
+            var html = '<div class="k-listview-item k-selected" ' + kendo.attr("uid") + '="#=uid#" ';
 
             html += kendo.attr("type") + '="${' + TYPEFIELD + '}">';
             html += '#if(' + TYPEFIELD + ' == "d") { #';

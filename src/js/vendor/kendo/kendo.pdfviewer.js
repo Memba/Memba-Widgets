@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -49,7 +49,7 @@ return window.kendo;
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "pdfjs-processor",
     name: "PDFJS-Processor",
     category: "framework",
@@ -118,14 +118,14 @@ var __meta__ = { // jshint ignore:line
                         total: pdf.numPages,
                         pages: pageSizes
                     });
-                }).catch(function(e) { // jshint ignore:line
+                }).catch(function(e) {
                     that.viewer._triggerError({
                         error: e.message,
                         message: messages.parseError
                     });
                 });
 
-            }).catch(function(e) { // jshint ignore:line
+            }).catch(function(e) {
                 var notFoundError = e.name.includes("Missing");
                 var alertMessage = notFoundError ? messages.notFound : messages.parseError;
                 that.viewer._triggerError({
@@ -204,7 +204,7 @@ return window.kendo;
     define('pdfviewer/processors/dpl-processor',["kendo.core"], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "dpl-processor",
     name: "DPL-Processor",
     category: "framework",
@@ -1126,7 +1126,9 @@ return window.kendo;
         Group = drawing.Group,
         Surface = drawing.Surface,
         RENDER = "render",
-        Class = kendo.Class;
+        Class = kendo.Class,
+
+        DEFAULT_DPR = 2;
 
     var geometryTypes = {
         Path: "path",
@@ -1326,9 +1328,9 @@ return window.kendo;
             that.canvas = canvas.get(0);
 
             Page.fn.init.call(that, options, viewer);
-
             that.canvas.width = that.width;
             that.canvas.height = that.height;
+
             that.element.append(canvas);
         },
         load: function(defaultScale, force) {
@@ -1361,14 +1363,18 @@ return window.kendo;
         },
         render: function(scale) {
             var that = this;
+            var dpr = window.devicePixelRatio >= DEFAULT_DPR ? window.devicePixelRatio : DEFAULT_DPR;
             var context = this.canvas.getContext('2d'),
                 viewport = this._page.getViewport({
                     scale: scale
                 });
 
+            this.canvas.width = viewport.width * dpr;
+            this.canvas.height = viewport.height * dpr;
+            context.scale(dpr, dpr);
+
             this._scale = scale;
-            this.canvas.width = viewport.width;
-            this.canvas.height = viewport.height;
+            this._dpr = dpr;
 
             if (this._renderTask)
             {
@@ -1391,7 +1397,7 @@ return window.kendo;
             return this._renderTask.promise.then(function() {
                 that._renderTask = null;
 
-            }).catch(function() {}); // jshint ignore:line
+            }).catch(function() {});
         },
         _renderTextLayer: function(viewport) {
             var that = this;
@@ -2275,7 +2281,7 @@ return window.kendo;
             Promise.all(renderTasks).then(function() {
                 updateViewer();
                 that._triggerZoomEnd(scale);
-            }).catch(function() { // jshint ignore:line
+            }).catch(function() {
                 updateViewer();
                 that._triggerZoomEnd(scale);
             });
@@ -2287,6 +2293,7 @@ return window.kendo;
                 viewerOptions = viewer.options,
                 pageContainer = viewer.pageContainer,
                 visibleCanvas = viewer._visiblePages && viewer._visiblePages[0].canvas,
+                calculatedDpr = (viewer._visiblePages && viewer._visiblePages[0]._dpr) || 2,
                 scale = options.scale,
                 scaleValue = scale,
                 preventZoom;
@@ -2306,11 +2313,11 @@ return window.kendo;
             } else if (scale === "fitToWidth") {
                 viewer._allowResize = true;
                 viewer._autoFit = "fitToWidth";
-                scaleValue = (pageContainer.width() / (visibleCanvas.width / viewer.zoomScale));
+                scaleValue = (pageContainer.width() / ((visibleCanvas.width / calculatedDpr) / viewer.zoomScale));
             } else if (scale === "fitToPage") {
                 viewer._allowResize = true;
                 viewer._autoFit = "fitToPage";
-                scaleValue = (pageContainer.height() / (visibleCanvas.height / viewer.zoomScale));
+                scaleValue = (pageContainer.height() / ((visibleCanvas.height / calculatedDpr) / viewer.zoomScale));
             }
 
             preventZoom = scale < viewerOptions.zoomMin || scale > viewerOptions.zoomMax;
@@ -2469,7 +2476,7 @@ return window.kendo;
     ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "pdfviewer",
     name: "PDFViewer",
     category: "web",

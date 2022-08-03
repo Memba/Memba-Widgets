@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.breadcrumb',[ "kendo.core" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "breadcrumb",
     name: "Breadcrumb",
     category: "web",
@@ -47,7 +47,7 @@ var __meta__ = { // jshint ignore:line
         rootItem: "k-breadcrumb-root-item",
         rootLink: "k-breadcrumb-root-link",
         overflowIcon: "k-breadcrumb-overflow-icon",
-        focused: "k-state-focused",
+        focused: "k-focus",
         hidden: "k-hidden",
         inputWrapper: "k-breadcrumb-input-container"
     };
@@ -67,7 +67,7 @@ var __meta__ = { // jshint ignore:line
                 that._tabindex();
             }
 
-            that.wrapper.on(CLICK + BREADCRUMB, "a:not(.k-state-disabled)", that._click.bind(that));
+            that.wrapper.on(CLICK + BREADCRUMB, "a:not(.k-disabled)", that._click.bind(that));
 
             if (options.value || options.bindToLocation || !options.items) {
                 that._value();
@@ -457,7 +457,7 @@ var __meta__ = { // jshint ignore:line
                                      '#if(type !== "rootitem"){# k-breadcrumb-link#}#' +
                                      '#if(showText && showIcon){# k-breadcrumb-icontext-link#}#' +
                                      '#if(showIcon && !showText){# k-breadcrumb-icon-link#}#' +
-                                     '#if(lastSegment && type !== "rootitem"){# k-state-disabled#}#"' +
+                                     '#if(lastSegment && type !== "rootitem"){# k-disabled#}#"' +
                                      '#if(lastSegment){# aria-current="page"#}#' +
                                      '#if(lastSegment && type !== "rootitem"){# aria-disabled="true" #}#' +
                                      'title="#:text || title#">' +

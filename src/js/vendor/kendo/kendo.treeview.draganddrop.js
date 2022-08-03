@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.treeview.draganddrop',[ "kendo.data", "kendo.draganddrop" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "treeview.draganddrop",
     name: "Hierarchical Drag & Drop",
     category: "framework",
@@ -23,7 +23,7 @@ var __meta__ = { // jshint ignore:line
     var ui = kendo.ui;
     var extend = $.extend;
     var VISIBILITY = "visibility";
-    var KSTATEHOVER = "k-state-hover";
+    var KSTATEHOVER = "k-hover";
     var INPUTSELECTOR = "input,a:not(.k-in),textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-icon.k-i-arrow-60-right,span.k-icon.k-i-arrow-45-down-right";
     var DROPHINTTEMPLATE = "<div class='k-drop-hint k-drop-hint-h'>" +
                                 "<div class='k-drop-hint-start'></div>" +

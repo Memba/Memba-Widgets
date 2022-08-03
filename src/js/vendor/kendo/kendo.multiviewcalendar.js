@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.multiviewcalendar',[ "kendo.core", "kendo.selectable", "kendo.calendar" ], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "multiviewcalendar",
     name: "MultiViewCalendar",
     category: "web",
@@ -40,23 +40,25 @@ var __meta__ = { // jshint ignore:line
         MIN = "min",
         MONTH = "month",
         DOT = ".",
+        EMPTY = " ",
         CENTURY = "century",
         DECADE = "decade",
         CHANGE = "change",
         NAVIGATE = "navigate",
         VALUE = "value",
-        FOCUSED = "k-state-focused",
-        SELECTED = "k-state-selected",
+        FOCUSED = "k-focus",
+        SELECTED = "k-selected",
         MID = "k-range-mid",
         SPLITEND = "k-range-split-end",
         SPLITSTART = "k-range-split-start",
         START = "k-range-start",
         END = "k-range-end",
-        HOVER = "k-state-hover",
-        DISABLED = "k-state-disabled",
+        HOVER = "k-hover",
+        DISABLED = "k-disabled",
         TODAY = "k-nav-today",
         OTHERMONTH = "k-other-month",
         OUTOFRANGE = "k-out-of-range",
+        CALENDAR_VIEW = "k-calendar-view",
         CELLSELECTOR = "td:has(.k-link):not(." + OUTOFRANGE + ")",
         CELLSELECTORVALID = "td:has(.k-link):not(." + DISABLED + "):not(." + OUTOFRANGE + ")",
         BLUR = "blur",
@@ -65,10 +67,28 @@ var __meta__ = { // jshint ignore:line
         MOUSELEAVE_NS = support.touch ? "touchend" + ns + " touchmove" + ns : "mouseleave" + ns,
         PREVARROW = "_prevArrow",
         NEXTARROW = "_nextArrow",
+        RANGE = "range",
+        SINGLE = "single",
+        MULTIPLE = "multiple",
+        TABINDEX = "tabindex",
+        TABLE = "table",
+        TBODY = "tbody",
+        THEAD = "thead",
+        TR = "tr",
+        TD = "td",
+        TH = "th",
+        ROLE = "role",
+        NONE = "none",
+        ROWGROUP = "rowgroup",
+        COLUMNHEADER = "columnheader",
+        ROWHEADER = "rowheader",
+        GRIDCELL = "gridcell",
         ARIA_SELECTED = "aria-selected",
-        INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
         ARIA_DISABLED = "aria-disabled",
         ARIA_LABEL = "aria-label",
+        ARIA_OWNS = "aria-owns",
+        ARIA_ACTIVEDESCENDANT = "aria-activedescendant",
+        INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
         DATE = Date,
         views = {
             month: 0,
@@ -90,7 +110,7 @@ var __meta__ = { // jshint ignore:line
                 allowSelection: true,
                 filter: that.options.filter,
                 tap: that._tap.bind(that),
-                touchAction: "none"
+                touchAction: NONE
             });
         },
 
@@ -129,7 +149,7 @@ var __meta__ = { // jshint ignore:line
             if (element === undefined) {
                 return this._start;
             }
-            element.addClass(START + " " + SELECTED);
+            element.addClass(START + " " + SELECTED).attr(ARIA_SELECTED, true);
             this._start = element;
         },
 
@@ -137,14 +157,14 @@ var __meta__ = { // jshint ignore:line
             if (element === undefined) {
                 return this._start;
             }
-            element.addClass(END + " " + SELECTED);
+            element.addClass(END + " " + SELECTED).attr(ARIA_SELECTED, true);
             this._end = element;
         },
 
         mid: function(elements) {
             var tables = this.element.find("table.k-month");
 
-            elements.addClass(MID);
+            elements.addClass(MID).attr(ARIA_SELECTED, true);
             tables.each(function() {
                 var that = $(this);
                 var lastCell = that.find(CELLSELECTORVALID).last();
@@ -161,7 +181,9 @@ var __meta__ = { // jshint ignore:line
         },
 
         clear: function(clearVariables) {
-            this.element.find(CELLSELECTOR).removeClass(END + " " + SELECTED + " " + START + " " + MID + " " + SPLITEND + " " + SPLITSTART);
+            this.element.find(CELLSELECTOR)
+                .removeClass(END + " " + SELECTED + " " + START + " " + MID + " " + SPLITEND + " " + SPLITSTART)
+                .removeAttr(ARIA_SELECTED);
 
             if (clearVariables) {
                 this._start = this._end = null;
@@ -233,7 +255,7 @@ var __meta__ = { // jshint ignore:line
                 endIdx = temp;
             }
             that.clear();
-            start.addClass(START + " " + SELECTED);
+            start.addClass(START + " " + SELECTED).attr(ARIA_SELECTED, true);
             that._start = start;
 
             items = items.filter(function(index) {
@@ -345,8 +367,9 @@ var __meta__ = { // jshint ignore:line
 
             id = element
                 .addClass("k-widget k-calendar k-calendar-range" + (options.weekNumber ? " k-week-number" : ""))
-                .on(KEYDOWN + ns, "table.k-content", that._move.bind(that))
-                .on(BLUR + ns, "table", that._blur.bind(that))
+                .on(KEYDOWN + ns, DOT + CALENDAR_VIEW, that._move.bind(that))
+                .on(FOCUS + ns, DOT + CALENDAR_VIEW, that._focus.bind(that))
+                .on(BLUR + ns, DOT + CALENDAR_VIEW, that._blur.bind(that))
                 .on(CLICK + ns, CELLSELECTORVALID, function(e) {
                     var link = e.currentTarget.firstChild;
 
@@ -362,9 +385,11 @@ var __meta__ = { // jshint ignore:line
                 })
                 .attr(ID);
 
-            if (id) {
-                that._cellID = id + "_cell_selected";
+            if (!id) {
+                id = kendo.guid();
             }
+
+            that._cellID = id + "_cell_selected";
 
             that._calendarWidth = that.element.width();
 
@@ -377,12 +402,12 @@ var __meta__ = { // jshint ignore:line
             that._selectDates = [];
             that.value(options.value);
 
-            if (options.selectable == "multiple") {
+            if (options.selectable == MULTIPLE) {
                 that._selectDates = options.selectDates.length ? options.selectDates : that._selectDates;
                 that._restoreSelection();
             }
 
-            if (options.selectable == "range") {
+            if (options.selectable == RANGE) {
                 that.selectRange(that._range);
             }
 
@@ -404,7 +429,7 @@ var __meta__ = { // jshint ignore:line
             weekNumber: false,
             views: 2,
             showViewHeader: false,
-            selectable: "single",
+            selectable: SINGLE,
             selectDates: [],
             start: MONTH,
             depth: MONTH,
@@ -489,19 +514,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         focus: function() {
-            var table;
-
-            if (this._cell) {
-                this._cell.closest("table").trigger("focus");
-            } else if (this._current && this._dateInViews(this._current)) {
-                this._cell = this._cellByDate(this._current);
-                this._cell.closest("table").trigger("focus");
-            } else {
-                table = this.element.find("table").first().trigger("focus");
-                this._cell = table.find(CELLSELECTORVALID).first();
-                this._current = toDateObject(this._cell.find("a"));
-            }
-            this._cell.addClass(FOCUSED);
+            this.tablesWrapper.trigger("focus");
         },
 
         min: function(value) {
@@ -584,6 +597,92 @@ var __meta__ = { // jshint ignore:line
             that._restoreSelection();
         },
 
+        _aria: function() {
+            var tables = this.tablesWrapper.find(TABLE),
+                rowGroups = tables.first().find(THEAD).add(tables.find(TBODY)),
+                viewName = this._currentView.name;
+
+            tables.removeAttr(TABINDEX);
+
+            tables.attr({
+                role: NONE
+            });
+
+            rowGroups.attr({
+                role: ROWGROUP
+            });
+
+            if (viewName === MONTH) {
+                this._ariaMonth();
+            }
+        },
+
+        _ariaMonth: function() {
+            var tables = this.tablesWrapper.find(TABLE),
+                rowGroups = tables.first().find(THEAD).add(tables.find(TBODY)),
+                rows = rowGroups.find(TR),
+                noHeaderRows = tables.not(":eq(0)").find(THEAD + EMPTY + TR),
+                noHeaderCells = noHeaderRows.find(TH),
+                columnHeaderCells = tables.first().find(THEAD + EMPTY + TH),
+                rowHeaderCells = tables.find(TBODY + EMPTY + TH),
+                outOfRange = tables.find(DOT + OUTOFRANGE),
+                ariaDataCells = function(i, row) {
+                    var $row = $(row),
+                        numberOfEmpty = $row.find(DOT + OUTOFRANGE).length,
+                        owned = [],
+                        prev, cells;
+
+                    if (i === 1) {
+                        $row.children()
+                            .filter(DOT + OUTOFRANGE)
+                            .attr({
+                                "aria-hidden": "false",
+                                role: GRIDCELL
+                            });
+                    } else if (numberOfEmpty === 7) {
+                        $row.removeAttr(ROLE);
+                        $row.find(TH).removeAttr(ROLE);
+                    } else if (numberOfEmpty > 0 && numberOfEmpty < 7 && $row.children().not(TH).first().hasClass(OUTOFRANGE)) {
+                        $row.find(TH).removeAttr(ROLE);
+                        prev = rows.eq(i - 1);
+
+                        if (!prev.attr(ROLE) || prev.attr(ROLE) === NONE) {
+                            prev = rows.eq(i - 2);
+                        }
+
+                        cells = $row.children().not(TH);
+
+                        cells.each(function(j, cell) {
+                            var $cell = $(cell),
+                                id;
+
+                            if (!$cell.hasClass(OUTOFRANGE)) {
+                                id = "owned_" + i + "_" + j;
+                                $cell.attr(ID, id);
+                                owned.push(id);
+                            }
+                        });
+
+                        $row.removeAttr(ROLE);
+                        prev.attr(ARIA_OWNS, owned.join(" "));
+                    }
+                };
+
+            columnHeaderCells.attr({
+                role: COLUMNHEADER
+            });
+
+            rowHeaderCells.attr({
+                role: ROWHEADER
+            });
+
+            outOfRange.removeAttr(ROLE);
+            noHeaderRows.removeAttr(ROLE);
+            noHeaderCells.removeAttr(ARIA_LABEL).removeAttr(ROLE);
+
+            rows.each(ariaDataCells);
+        },
+
         _updateHeader: function() {
             var that = this;
             var view = that._currentView;
@@ -598,7 +697,6 @@ var __meta__ = { // jshint ignore:line
             var disabled;
             var prevDisabled;
             var nextDisabled;
-
 
             if (view.name === DECADE || view.name === CENTURY) {
                 lastDate = shiftDate(value, view.name, options.views - 1);
@@ -625,8 +723,8 @@ var __meta__ = { // jshint ignore:line
             } else {
                 if (!that._navContainer) {
                     that._navContainer = $('<span class="k-calendar-nav k-hstack">' +
-                    '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' +
-                    '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' +
+                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' +
+                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' +
                     '</span>').appendTo(that.header);
                     that[PREVARROW] = that._navContainer.find(".k-prev-view");
                     that[NEXTARROW] = that._navContainer.find(".k-next-view");
@@ -654,7 +752,7 @@ var __meta__ = { // jshint ignore:line
 
             cell.addClass(HOVER);
 
-            if (that.rangeSelectable && that._currentView.name === "month") {
+            if (that.rangeSelectable && that._currentView.name === MONTH) {
                 range = that.selectRange();
                 if (range.start && !range.end) {
                     if (that._dateInViews(that.selectRange().start)) {
@@ -673,7 +771,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _move: function(e, preventFocus) {
+        _move: function(e) {
             var that = this;
             var options = that.options;
             var key = e.keyCode;
@@ -681,7 +779,7 @@ var __meta__ = { // jshint ignore:line
             var min = options.min;
             var max = options.max;
             var focusedCell = that.element.find(DOT + FOCUSED);
-            var table = focusedCell.closest("table");
+            var table = focusedCell.closest(TABLE);
             var currentValue = new DATE(+(that._current || toDateObject(focusedCell.find("a"))));
             var isRtl = kendo.support.isRtl(that.wrapper);
             var navigate = false;
@@ -699,12 +797,10 @@ var __meta__ = { // jshint ignore:line
             } else if (key == keys.DOWN) {
                 value = index === 0 ? 7 : 4;
                 prevent = true;
-            }
-            else if (key == keys.SPACEBAR) {
+            } else if (key == keys.SPACEBAR) {
                 value = 0;
                 prevent = true;
-            }
-            else if (key == keys.HOME) {
+            } else if (key == keys.HOME) {
                 prevent = true;
                 cell = table.find(CELLSELECTORVALID).eq(0);
                 if (cell.hasClass(FOCUSED)) {
@@ -713,8 +809,8 @@ var __meta__ = { // jshint ignore:line
                         that._focusCell(table.find(CELLSELECTORVALID).eq(0));
                     } else {
                         navigate = that[PREVARROW] && !that[PREVARROW].hasClass(DISABLED);
-                        that._navigate(PREVARROW, -1, preventFocus);
-                        that._focusCell(that.element.find("table").first().find(CELLSELECTORVALID).first());
+                        that._navigate(PREVARROW, -1);
+                        that._focusCell(that.element.find(TABLE).first().find(CELLSELECTORVALID).first());
                     }
                 } else {
                     that._focusCell(cell);
@@ -728,49 +824,52 @@ var __meta__ = { // jshint ignore:line
                         that._focusCell(table.find(CELLSELECTORVALID).last());
                     } else {
                         navigate = that[NEXTARROW] && !that[NEXTARROW].hasClass(DISABLED);
-                        that._navigate(NEXTARROW, 1, preventFocus);
-                        that._focusCell(that.element.find("table").last().find(CELLSELECTORVALID).last());
+                        that._navigate(NEXTARROW, 1);
+                        that._focusCell(that.element.find(TABLE).last().find(CELLSELECTORVALID).last());
                     }
                 } else {
                     that._focusCell(cell);
                 }
+            } else if (key === 84) {
+                that._todayClick(e);
+                prevent = true;
             }
 
             if (e.ctrlKey || e.metaKey) {
                 if (key == keys.RIGHT && !isRtl || key == keys.LEFT && isRtl) {
                     navigate = that[NEXTARROW] && !that[NEXTARROW].hasClass(DISABLED);
-                    that._navigate(NEXTARROW, 1, preventFocus);
+                    that._navigate(NEXTARROW, 1);
                     prevent = true;
                 } else if (key == keys.LEFT && !isRtl || key == keys.RIGHT && isRtl) {
                     navigate = that[PREVARROW] && !that[PREVARROW].hasClass(DISABLED);
-                    that._navigate(PREVARROW, -1, preventFocus);
+                    that._navigate(PREVARROW, -1);
                     prevent = true;
                 } else if (key == keys.UP) {
                     navigate = !that._title.hasClass(DISABLED);
                     that.navigateUp();
-                    that._focusCell(that._cellByDate(that._current), !preventFocus);
+                    that._focusCell(that._cellByDate(that._current));
                     prevent = true;
                 } else if (key == keys.DOWN) {
-                    if (that._currentView.name === "month") {
+                    if (that._currentView.name === MONTH) {
                         that.value(currentValue);
                     } else {
                         that.navigateDown(currentValue);
-                        that._focusCell(that._cellByDate(that._current), !preventFocus);
+                        that._focusCell(that._cellByDate(that._current));
                         navigate = true;
                     }
                     prevent = true;
                 } else if ((key == keys.ENTER || key == keys.SPACEBAR)) {
-                    if (options.selectable === "multiple") {
+                    if (options.selectable === MULTIPLE) {
                         that._toggleSelection(e);
                     }
                 }
-            } else if (e.shiftKey && options.selectable !== "single") {
+            } else if (e.shiftKey && options.selectable !== SINGLE) {
                 if (value !== undefined || method) {
                     if (!method) {
                         that._currentView.setDate(currentValue, value);
                     }
 
-                    if (that._currentView.name !== "month") {
+                    if (that._currentView.name !== MONTH) {
                         return;
                     }
 
@@ -784,10 +883,10 @@ var __meta__ = { // jshint ignore:line
                         if (!that._dateInViews(currentValue)) {
                             if (value > 0) {
                                 navigate = that[NEXTARROW] && !that[NEXTARROW].hasClass(DISABLED);
-                                that._navigate(NEXTARROW, 1, preventFocus);
+                                that._navigate(NEXTARROW, 1);
                             } else {
                                 navigate = that[PREVARROW] && !that[PREVARROW].hasClass(DISABLED);
-                                that._navigate(PREVARROW, -1, preventFocus);
+                                that._navigate(PREVARROW, -1);
                             }
                         }
                         cell = that._cellByDate(currentValue);
@@ -826,7 +925,7 @@ var __meta__ = { // jshint ignore:line
                 }
             } else {
                 if (key == keys.ENTER || key == keys.SPACEBAR) {
-                    if (that._currentView.name === "month") {
+                    if (that._currentView.name === MONTH) {
                         if (that.selectable) {
                             that.selectable._lastActive = that._cellByDate(currentValue);
                         }
@@ -835,7 +934,7 @@ var __meta__ = { // jshint ignore:line
                             that.rangeSelectable.change();
                         }
                     } else {
-                        that._click($(that._cell[0].firstChild), preventFocus);
+                        that._click($(that._cell[0].firstChild));
                     }
                     prevent = true;
                 } else if (key == keys.PAGEUP || key == keys.PAGEDOWN) {
@@ -846,11 +945,11 @@ var __meta__ = { // jshint ignore:line
                         if (key == keys.PAGEUP) {
                             navigate = that[PREVARROW] && !that[PREVARROW].hasClass(DISABLED);
                             that.navigateToPast();
-                            table = that.element.find("table").first();
+                            table = that.element.find(TABLE).first();
                         } else {
                             navigate = that[NEXTARROW] && !that[NEXTARROW].hasClass(DISABLED);
                             that.navigateToFuture();
-                            table = that.element.find("table").last();
+                            table = that.element.find(TABLE).last();
                         }
                     }
                     cell = table.find(CELLSELECTORVALID).eq(cellIndex);
@@ -875,15 +974,15 @@ var __meta__ = { // jshint ignore:line
                         if (!that._dateInViews(currentValue)) {
                             if (value > 0) {
                                 navigate = that[NEXTARROW] && !that[NEXTARROW].hasClass(DISABLED);
-                                that._navigate(NEXTARROW, 1, preventFocus);
+                                that._navigate(NEXTARROW, 1);
                             } else {
                                 navigate = that[PREVARROW] && !that[PREVARROW].hasClass(DISABLED);
-                                that._navigate(NEXTARROW, -1, preventFocus);
+                                that._navigate(NEXTARROW, -1);
                             }
                         }
                         cell = that._cellByDate(currentValue);
                         that._current = currentValue;
-                        that._focusCell(cell, !preventFocus);
+                        that._focusCell(cell);
                     }
                 }
             }
@@ -909,7 +1008,7 @@ var __meta__ = { // jshint ignore:line
                 selectedDates[kendo.calendar.views[0].toDateString(value)] = value;
             });
             that.selectable.clear();
-            cells = that.element.find("table")
+            cells = that.element.find(TABLE)
                 .find(CELLSELECTOR)
                 .filter(function(index, element) {
                     return selectedDates[$(element.firstChild).attr(kendo.attr(VALUE))];
@@ -992,7 +1091,7 @@ var __meta__ = { // jshint ignore:line
             if (value instanceof Date) {
                 value = this._currentView.toDateString(value);
             }
-            return this.element.find("table").find("td:not(." + OTHERMONTH + ")")
+            return this.element.find(TABLE).find("td:not(." + OTHERMONTH + ")")
             .filter(function() {
                 return $(this.firstChild).attr(kendo.attr(VALUE)) === value;
             });
@@ -1012,7 +1111,7 @@ var __meta__ = { // jshint ignore:line
                 that.rangeSelectable = null;
             }
 
-            if (selectable.toLowerCase() === "range") {
+            if (selectable.toLowerCase() === RANGE) {
                 that.rangeSelectable = new RangeSelectable(that.wrapper, {
                     calendar: that,
                     filter: "table.k-month " + CELLSELECTORVALID,
@@ -1169,13 +1268,13 @@ var __meta__ = { // jshint ignore:line
                 that._views.push(that._table);
             }
 
-            // that.wrapper.width(visibleViews * that._calendarWidth);
-
             that._currentView = currentView;
 
             that.tablesWrapper.attr("class", "k-calendar-view k-calendar-" + currentView.name + "view k-hstack k-align-items-start k-justify-content-center");
 
             that._updateHeader();
+
+            that._aria();
         },
 
         _rangeSelection: function(e) {
@@ -1207,14 +1306,14 @@ var __meta__ = { // jshint ignore:line
             var selectElements = e.sender.value();
             var domEvent = e.event;
             var currentTarget = $(domEvent && domEvent.currentTarget);
-            var isCell = currentTarget.is("td");
+            var isCell = currentTarget.is(TD);
             var currentValue;
 
-            if (that.options.selectable === "single") {
+            if (that.options.selectable === SINGLE) {
                 that._validateValue(selectElements[0] ? toDateObject(selectElements.first().find("a")) : e.sender._lastActive ? toDateObject(e.sender._lastActive.find("a")) : that.value());
             }
 
-            if (that.options.selectable == "multiple") {
+            if (that.options.selectable == MULTIPLE) {
 
                 if (isCell) {
                     currentValue = toDateObject(currentTarget.find("a"));
@@ -1272,13 +1371,13 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var element = e.element;
 
-            if (that.options.selectable === "single" && !mobileOS && element.hasClass(FOCUSED)) {
+            if (that.options.selectable === SINGLE && !mobileOS && element.hasClass(FOCUSED)) {
                 e.preventDefault();
             }
         },
 
         _visibleRange: function() {
-            var tables = this.element.find(".k-calendar-view table");
+            var tables = this.element.find(DOT + CALENDAR_VIEW + EMPTY + TABLE);
             var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR).first().find("a"));
             var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR).last().find("a"));
             return { start: firstDateInView, end: lastDateInView };
@@ -1286,7 +1385,7 @@ var __meta__ = { // jshint ignore:line
 
         _dateInViews: function(date) {
             var that = this;
-            var tables = that.element.find(".k-calendar-view table");
+            var tables = that.element.find(DOT + CALENDAR_VIEW + EMPTY + TABLE);
             var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR).first().find("a"));
             var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR).last().find("a"));
 
@@ -1326,21 +1425,22 @@ var __meta__ = { // jshint ignore:line
 
             if (!header.length) {
                 header = $('<div class="k-calendar-header k-hstack">' +
-                    '<a href="#" role="button" class="k-calendar-title k-title k-button k-button-md k-rounded-md k-button-flat k-button-flat-base" aria-live="assertive" aria-atomic="true"></a>' +
+                    '<a id="calendar-title" tabindex="-1" href="#" role="button" class="k-calendar-title k-title k-button k-button-md k-rounded-md k-button-flat k-button-flat-base" aria-live="polite"></a>' +
                     '<span class="k-spacer"></span>' +
                     '<span class="k-calendar-nav k-hstack">' +
-                        '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' +
-                        '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' +
+                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' +
+                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' +
                     '</span>' +
                 '</div>').prependTo(element);
             }
 
             that.header = header;
 
-            header.on(MOUSEENTER + ns + " " + MOUSELEAVE_NS + " " + FOCUS + ns + " " + BLUR + ns, ".k-button", mousetoggle).on("click", function() { return false; })
-                .on(CLICK + ns, ".k-button.k-calendar-title", function() { that.navigateUp(); that._focusCell(that._cellByDate(that._current), true); that.trigger(NAVIGATE); })
-                .on(CLICK + ns, ".k-button.k-prev-view", function(e) { e.preventDefault(); that.navigateToPast(); that.trigger(NAVIGATE); })
-                .on(CLICK + ns, ".k-button.k-next-view", function(e) { e.preventDefault(); that.navigateToFuture(); that.trigger(NAVIGATE); });
+            header.on(MOUSEENTER + ns + " " + MOUSELEAVE_NS + " " + FOCUS + ns + " " + BLUR + ns, ".k-button", mousetoggle)
+                .on(CLICK, function() { return false; })
+                .on(CLICK + ns, ".k-button.k-calendar-title", that._calendarTitleClick.bind(that))
+                .on(CLICK + ns, ".k-button.k-prev-view", that._prevViewClick.bind(that))
+                .on(CLICK + ns, ".k-button.k-next-view", that._nextViewClick.bind(that));
 
             buttons = header.find(".k-button");
 
@@ -1350,8 +1450,28 @@ var __meta__ = { // jshint ignore:line
             that[NEXTARROW] = buttons.filter(".k-next-view");
         },
 
+        _calendarTitleClick: function() {
+            this.navigateUp();
+            this.focus();
+            this.trigger(NAVIGATE);
+        },
+
+        _prevViewClick: function(e) {
+            e.preventDefault();
+            this.navigateToPast();
+            this.focus();
+            this.trigger(NAVIGATE);
+        },
+
+        _nextViewClick: function(e) {
+            e.preventDefault();
+            this.navigateToFuture();
+            this.focus();
+            this.trigger(NAVIGATE);
+        },
+
         _wrapper: function() {
-            this.tablesWrapper = $('<div class="k-calendar-view" />').insertAfter(this.element[0].firstChild);
+            this.tablesWrapper = $('<div tabindex="0" role="grid" class="k-calendar-view" aria-labelledby="calendar-title" />').insertAfter(this.element[0].firstChild);
         },
 
         _templates: function() {
@@ -1365,7 +1485,7 @@ var __meta__ = { // jshint ignore:line
             that.month = {
                 content: template('<td class="#=data.cssClass#" role="gridcell"><a tabindex="-1" class="k-link#=data.linkClass#" href="#=data.url#" ' + kendo.attr(VALUE) + '="#=data.dateString#" title="#=data.title#">' + (content || "#=data.value#") + '</a></td>', { useWithBlock: !!content }),
                 empty: template('<td role="gridcell"' + (empty ? '>' : ' class="k-calendar-td k-out-of-range">') + (empty || "<a class='k-link'></a>") + "</td>", { useWithBlock: !!empty }),
-                weekNumber: template('<td class="k-calenar-td k-alt">' + (weekNumber || "#= data.weekNumber #") + "</td>", { useWithBlock: !!weekNumber })
+                weekNumber: template('<th class="k-calenar-td k-alt">' + (weekNumber || "#= data.weekNumber #") + "</th>", { useWithBlock: !!weekNumber })
             };
         },
 
@@ -1384,7 +1504,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (!footer[0]) {
-                footer = $('<div class="k-footer"><a href="#" class="k-link k-nav-today"></a></div>').appendTo(element);
+                footer = $('<div class="k-footer"><a tabindex="-1" href="#" class="k-link k-nav-today"></a></div>').appendTo(element);
             }
 
             that._today = footer.show()
@@ -1395,7 +1515,7 @@ var __meta__ = { // jshint ignore:line
             that._toggle();
         },
 
-        _navigate: function(arrow, modifier, preventFocus) {
+        _navigate: function(arrow, modifier) {
             var that = this;
             var index = that._index + 1;
             var currentValue = new DATE(+that._current);
@@ -1404,7 +1524,7 @@ var __meta__ = { // jshint ignore:line
 
             arrow = that[arrow];
 
-            offset = that._cellByDate(currentValue).closest("table").index();
+            offset = that._cellByDate(currentValue).closest(TABLE).index();
 
             if (modifier > 0) {
                 offset = 1 - offset;
@@ -1422,7 +1542,7 @@ var __meta__ = { // jshint ignore:line
                 that.navigate(currentValue);
 
                 if (that._dateInViews(originaValue)) {
-                    that._focusCell(that._cellByDate(originaValue), !preventFocus);
+                    that._focusCell(that._cellByDate(originaValue));
                     that._current = originaValue;
                 } else {
                     if (index > 3) {
@@ -1430,7 +1550,7 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         calendar.views[index].setDate(originaValue, modifier);
                     }
-                    that._focusCell(that._cellByDate(originaValue), !preventFocus);
+                    that._focusCell(that._cellByDate(originaValue));
                     that._current = originaValue;
                 }
             }
@@ -1439,7 +1559,7 @@ var __meta__ = { // jshint ignore:line
         _toggle: function(toggle) {
             var that = this;
             var options = that.options;
-            var isTodayDisabled = options.selectable !== "range" && that.options.disableDates(getToday());
+            var isTodayDisabled = options.selectable !== RANGE && that.options.disableDates(getToday());
             var link = that._today;
 
             if (toggle === undefined) {
@@ -1452,7 +1572,7 @@ var __meta__ = { // jshint ignore:line
                 if (toggle && !isTodayDisabled) {
                     link.addClass(TODAY)
                     .removeClass(DISABLED)
-                    .on(CLICK + ns, that._todayClick.bind(that));
+                    .on(CLICK + ns, function(e) { that._todayClick(e); that.focus(); });
                 } else {
                     link.removeClass(TODAY)
                     .addClass(DISABLED)
@@ -1463,7 +1583,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _click: function(link, preventFocus) {
+        _click: function(link) {
             var that = this;
             var options = that.options;
             var currentValue = new Date(+that._current);
@@ -1476,11 +1596,13 @@ var __meta__ = { // jshint ignore:line
 
             if (that._currentView.name !== options.depth) {
                 that.navigateDown(calendar.restrictValue(currentValue, options.min, options.max));
-                that._focusCell(that._cellByDate(that._current), !preventFocus);
+                that._focusCell(that._cellByDate(that._current));
                 that.trigger(NAVIGATE);
             } else {
-                that._focusCell(link.closest("td"), !preventFocus);
+                that._focusCell(link.closest(TD));
             }
+
+            that.focus();
         },
 
         _blur: function() {
@@ -1491,45 +1613,46 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _focus: function(e) {
-            var that = this;
-            var table = $(e.currentTarget);
-            var cell = that._cell;
+        _focus: function() {
+            var cell = this._cell;
 
-            if (!cell || !$.contains(table[0], cell[0])) {
-                cell = table.find(CELLSELECTORVALID).first();
+            if (!cell || !$.contains(this.tablesWrapper[0], cell[0])) {
+                if (this._current && this._dateInViews(this._current)) {
+                    cell = this._cellByDate(this._current);
+                } else {
+                    cell = this.tablesWrapper.find(CELLSELECTORVALID).first();
+                }
             }
 
-            that._focusCell(cell);
+            this._focusCell(cell);
         },
 
-        _focusCell: function(cell, focusTable) {
+        _focusCell: function(cell) {
             var that = this;
             var cellId = that._cellID;
-            var table = cell.closest("table");
 
             if (that._cell && that._cell.length) {
-                that._cell[0].removeAttribute(ARIA_SELECTED);
                 that._cell[0].removeAttribute(ARIA_LABEL);
                 that._cell.removeClass(FOCUSED);
-                that._cell[0].removeAttribute(ID);
-                that._cell.closest("table")[0].removeAttribute("aria-activedescendant");
+                that.tablesWrapper.removeAttr(ARIA_ACTIVEDESCENDANT);
+
+                if (that._cell.attr(ID) === cellId) {
+                    that._cell[0].removeAttribute(ID);
+                }
             }
 
             that._cell = cell;
 
-            if (focusTable) {
-                table.trigger("focus");
-            }
-
-            if (cellId) {
+            if (cell.attr(ID)) {
+                that.tablesWrapper.attr(ARIA_ACTIVEDESCENDANT, cell.attr(ID));
+            } else if (cellId) {
                 cell.attr(ID, cellId);
-                table.attr("aria-activedescendant", cellId);
+                that.tablesWrapper.attr(ARIA_ACTIVEDESCENDANT, cellId);
             }
 
-            cell.attr(ARIA_SELECTED, true).addClass(FOCUSED);
+            cell.addClass(FOCUSED);
 
-            if (cell.length && that._currentView.name == "month") {
+            if (cell.length && that._currentView.name == MONTH) {
                 that._current = toDateObject(cell.find("a"));
             }
         },
@@ -1548,22 +1671,22 @@ var __meta__ = { // jshint ignore:line
 
             that._value = today;
 
-            if (that.options.selectable === "multiple") {
+            if (that.options.selectable === MULTIPLE) {
                 that._selectDates = [today];
             }
 
-            if (that.options.selectable === "range") {
+            if (that.options.selectable === RANGE) {
                 that.rangeSelectable.clear(true);
                 that._range = { start: today, end: null };
             }
 
-            if (that._currentView.name != "month" || !that._dateInViews(today)) {
+            if (that._currentView.name != MONTH || !that._dateInViews(today)) {
                 navigate = true;
             }
 
             that.navigate(today, that.options.depth);
 
-            if (that.options.selectable === "single") {
+            if (that.options.selectable === SINGLE) {
                 that.selectable._lastActive = null;
             }
 
@@ -1608,7 +1731,7 @@ var __meta__ = { // jshint ignore:line
 
             that._focusCell(cell);
 
-            if (valueType === "month") {
+            if (valueType === MONTH) {
                 text = kendo.toString(current, "MMMM");
             } else if (valueType === "date") {
                 text = kendo.toString(current, "D");
@@ -1616,15 +1739,15 @@ var __meta__ = { // jshint ignore:line
                 text = cell.text();
             }
 
-            cell.attr("aria-label", ariaTemplate({ current: current, valueType: valueType, text: text }));
-            return cell.attr("id");
+            cell.attr(ARIA_LABEL, ariaTemplate({ current: current, valueType: valueType, text: text }));
+            return cell.attr(ID);
         },
 
         clearSelection: function() {
             var that = this;
 
             if (that.selectable) {
-                that.element.find(DOT + SELECTED).removeClass(SELECTED);
+                that.element.find(DOT + SELECTED).removeClass(SELECTED).removeAttr(ARIA_SELECTED);
             }
 
             if (that.rangeSelectable) {
@@ -1643,7 +1766,7 @@ var __meta__ = { // jshint ignore:line
 
             that._preventChange = true;
 
-            if (selectable === "range") {
+            if (selectable === RANGE) {
                 range = that.selectRange();
 
                 if (!range || !range.start) {
@@ -1654,11 +1777,11 @@ var __meta__ = { // jshint ignore:line
                 that.selectRange(range);
             }
 
-            if (selectable === "single" && that.value()) {
+            if (selectable === SINGLE && that.value()) {
                 that.selectable.value(that._cellByDate(that.value()));
             }
 
-            if (selectable === "multiple") {
+            if (selectable === MULTIPLE) {
                 that._visualizeSelectedDatesInView();
             }
 
@@ -1766,7 +1889,7 @@ var __meta__ = { // jshint ignore:line
     kendo.ui.plugin(MultiViewCalendar);
 
     function mousetoggle(e) {
-        var disabled = $(this).hasClass("k-state-disabled");
+        var disabled = $(this).hasClass("k-disabled");
 
         if (!disabled) {
             $(this).toggleClass(HOVER, MOUSEENTER.indexOf(e.type) > -1 || e.type == FOCUS);
@@ -1797,7 +1920,7 @@ var __meta__ = { // jshint ignore:line
 
     function shiftDate(value, dimension, numberOfViews) {
         var current;
-        if (dimension === "month") {
+        if (dimension === MONTH) {
             current = new DATE(value.getFullYear(), value.getMonth() + numberOfViews, value.getDate());
             current.setFullYear(value.getFullYear());
             if (Math.abs(current.getMonth() - value.getMonth()) > numberOfViews || numberOfViews > 10) {

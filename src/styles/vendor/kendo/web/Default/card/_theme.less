@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -21,7 +21,8 @@
     }
 
     &:focus,
-    &.k-state-focus {
+    &.k-state-focus,
+    &.k-focus {
         .fill(
             @card-focus-text,
             @card-focus-bg,
@@ -91,7 +92,8 @@
 }
 
 .k-card:focus .k-card-callout,
-.k-card.k-state-focus .k-card-callout {
+.k-card.k-state-focus .k-card-callout,
+.k-card.k-focus .k-card-callout {
     .fill(
         @card-focus-text,
         @card-focus-bg,

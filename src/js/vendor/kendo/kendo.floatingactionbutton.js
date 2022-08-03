@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define('kendo.floatingactionbutton',["kendo.core", "kendo.popup", "kendo.fx"], f);
 })(function() {
 
-var __meta__ = { // jshint ignore:line
+var __meta__ = {
     id: "floatingactionbutton",
     name: "Floating Action Button",
     category: "web",
@@ -69,9 +69,9 @@ var __meta__ = { // jshint ignore:line
         itemText: 'k-fab-item-text',
         popup: 'k-fab-popup',
         popupTransparent: 'k-popup-transparent',
-        disabled: 'k-state-disabled',
-        hover: 'k-state-hover',
-        focus: 'k-state-focus'
+        disabled: 'k-disabled',
+        hover: 'k-hover',
+        focus: 'k-focus'
     };
 
     var templates = {

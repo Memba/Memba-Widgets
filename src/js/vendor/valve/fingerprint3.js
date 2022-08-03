@@ -1,5 +1,5 @@
 /**
- * FingerprintJS v3.1.3 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
+ * FingerprintJS v3.3.4 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  *
  * This software contains code from open-source projects:
@@ -8,6 +8,171 @@
 
 var FingerprintJS = (function (exports) {
     'use strict';
+
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation.
+
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+    ***************************************************************************** */
+
+    var __assign = function() {
+        __assign = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+
+    function __awaiter(thisArg, _arguments, P, generator) {
+        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    }
+
+    function __generator(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    }
+
+    function __spreadArrays() {
+        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+        for (var r = Array(s), k = 0, i = 0; i < il; i++)
+            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                r[k] = a[j];
+        return r;
+    }
+
+    var version = "3.3.4";
+
+    function wait(durationMs, resolveWith) {
+        return new Promise(function (resolve) { return setTimeout(resolve, durationMs, resolveWith); });
+    }
+    function requestIdleCallbackIfAvailable(fallbackTimeout, deadlineTimeout) {
+        if (deadlineTimeout === void 0) { deadlineTimeout = Infinity; }
+        var requestIdleCallback = window.requestIdleCallback;
+        if (requestIdleCallback) {
+            // The function `requestIdleCallback` loses the binding to `window` here.
+            // `globalThis` isn't always equal `window` (see https://github.com/fingerprintjs/fingerprintjs/issues/683).
+            // Therefore, an error can occur. `call(window,` prevents the error.
+            return new Promise(function (resolve) { return requestIdleCallback.call(window, function () { return resolve(); }, { timeout: deadlineTimeout }); });
+        }
+        else {
+            return wait(Math.min(fallbackTimeout, deadlineTimeout));
+        }
+    }
+    function isPromise(value) {
+        return value && typeof value.then === 'function';
+    }
+    /**
+     * Calls a maybe asynchronous function without creating microtasks when the function is synchronous.
+     * Catches errors in both cases.
+     *
+     * If just you run a code like this:
+     * ```
+     * console.time('Action duration')
+     * await action()
+     * console.timeEnd('Action duration')
+     * ```
+     * The synchronous function time can be measured incorrectly because another microtask may run before the `await`
+     * returns the control back to the code.
+     */
+    function awaitIfAsync(action, callback) {
+        try {
+            var returnedValue = action();
+            if (isPromise(returnedValue)) {
+                returnedValue.then(function (result) { return callback(true, result); }, function (error) { return callback(false, error); });
+            }
+            else {
+                callback(true, returnedValue);
+            }
+        }
+        catch (error) {
+            callback(false, error);
+        }
+    }
+    /**
+     * If you run many synchronous tasks without using this function, the JS main loop will be busy and asynchronous tasks
+     * (e.g. completing a network request, rendering the page) won't be able to happen.
+     * This function allows running many synchronous tasks such way that asynchronous tasks can run too in background.
+     */
+    function forEachWithBreaks(items, callback, loopReleaseInterval) {
+        if (loopReleaseInterval === void 0) { loopReleaseInterval = 16; }
+        return __awaiter(this, void 0, void 0, function () {
+            var lastLoopReleaseTime, i, now;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        lastLoopReleaseTime = Date.now();
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < items.length)) return [3 /*break*/, 4];
+                        callback(items[i], i);
+                        now = Date.now();
+                        if (!(now >= lastLoopReleaseTime + loopReleaseInterval)) return [3 /*break*/, 3];
+                        lastLoopReleaseTime = now;
+                        // Allows asynchronous actions and microtasks to happen
+                        return [4 /*yield*/, wait(0)];
+                    case 2:
+                        // Allows asynchronous actions and microtasks to happen
+                        _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        ++i;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    /**
+     * Makes the given promise never emit an unhandled promise rejection console warning.
+     * The promise will still pass errors to the next promises.
+     *
+     * Otherwise, promise emits a console warning unless it has a `catch` listener.
+     */
+    function suppressUnhandledRejectionWarning(promise) {
+        promise.then(undefined, function () { return undefined; });
+    }
 
     /*
      * Taken from https://github.com/karanlyons/murmurHash3.js/blob/a33d0723127e2e5415056c455f8aed2451ace208/murmurHash3.js
@@ -241,94 +406,6 @@ var FingerprintJS = (function (exports) {
             ('00000000' + (h2[1] >>> 0).toString(16)).slice(-8));
     }
 
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation.
-
-    Permission to use, copy, modify, and/or distribute this software for any
-    purpose with or without fee is hereby granted.
-
-    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
-    ***************************************************************************** */
-
-    var __assign = function() {
-        __assign = Object.assign || function __assign(t) {
-            for (var s, i = 1, n = arguments.length; i < n; i++) {
-                s = arguments[i];
-                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-            return t;
-        };
-        return __assign.apply(this, arguments);
-    };
-
-    function __awaiter(thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-
-    function __generator(thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    }
-
-    function __spreadArrays() {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    }
-
-    var version = "3.1.3";
-
-    function wait(durationMs, resolveWith) {
-        return new Promise(function (resolve) { return setTimeout(resolve, durationMs, resolveWith); });
-    }
-    function requestIdleCallbackIfAvailable(fallbackTimeout, deadlineTimeout) {
-        if (deadlineTimeout === void 0) { deadlineTimeout = Infinity; }
-        var requestIdleCallback = window.requestIdleCallback;
-        if (requestIdleCallback) {
-            return new Promise(function (resolve) { return requestIdleCallback(function () { return resolve(); }, { timeout: deadlineTimeout }); });
-        }
-        else {
-            return wait(Math.min(fallbackTimeout, deadlineTimeout));
-        }
-    }
-
     /**
      * Converts an error object to a plain object that can be used with `JSON.stringify`.
      * If you just run `JSON.stringify(error)`, you'll get `'{}'`.
@@ -435,6 +512,170 @@ var FingerprintJS = (function (exports) {
         return [tag, attributes];
     }
 
+    function ensureErrorWithMessage(error) {
+        return error && typeof error === 'object' && 'message' in error ? error : { message: error };
+    }
+    function isFinalResultLoaded(loadResult) {
+        return typeof loadResult !== 'function';
+    }
+    /**
+     * Loads the given entropy source. Returns a function that gets an entropy component from the source.
+     *
+     * The result is returned synchronously to prevent `loadSources` from
+     * waiting for one source to load before getting the components from the other sources.
+     */
+    function loadSource(source, sourceOptions) {
+        var sourceLoadPromise = new Promise(function (resolveLoad) {
+            var loadStartTime = Date.now();
+            // `awaitIfAsync` is used instead of just `await` in order to measure the duration of synchronous sources
+            // correctly (other microtasks won't affect the duration).
+            awaitIfAsync(source.bind(null, sourceOptions), function () {
+                var loadArgs = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    loadArgs[_i] = arguments[_i];
+                }
+                var loadDuration = Date.now() - loadStartTime;
+                // Source loading failed
+                if (!loadArgs[0]) {
+                    return resolveLoad(function () { return ({ error: ensureErrorWithMessage(loadArgs[1]), duration: loadDuration }); });
+                }
+                var loadResult = loadArgs[1];
+                // Source loaded with the final result
+                if (isFinalResultLoaded(loadResult)) {
+                    return resolveLoad(function () { return ({ value: loadResult, duration: loadDuration }); });
+                }
+                // Source loaded with "get" stage
+                resolveLoad(function () {
+                    return new Promise(function (resolveGet) {
+                        var getStartTime = Date.now();
+                        awaitIfAsync(loadResult, function () {
+                            var getArgs = [];
+                            for (var _i = 0; _i < arguments.length; _i++) {
+                                getArgs[_i] = arguments[_i];
+                            }
+                            var duration = loadDuration + Date.now() - getStartTime;
+                            // Source getting failed
+                            if (!getArgs[0]) {
+                                return resolveGet({ error: ensureErrorWithMessage(getArgs[1]), duration: duration });
+                            }
+                            // Source getting succeeded
+                            resolveGet({ value: getArgs[1], duration: duration });
+                        });
+                    });
+                });
+            });
+        });
+        suppressUnhandledRejectionWarning(sourceLoadPromise);
+        return function getComponent() {
+            return sourceLoadPromise.then(function (finalizeSource) { return finalizeSource(); });
+        };
+    }
+    /**
+     * Loads the given entropy sources. Returns a function that collects the entropy components.
+     *
+     * The result is returned synchronously in order to allow start getting the components
+     * before the sources are loaded completely.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function loadSources(sources, sourceOptions, excludeSources) {
+        var includedSources = Object.keys(sources).filter(function (sourceKey) { return excludes(excludeSources, sourceKey); });
+        var sourceGetters = Array(includedSources.length);
+        // Using `forEachWithBreaks` allows asynchronous sources to complete between synchronous sources
+        // and measure the duration correctly
+        forEachWithBreaks(includedSources, function (sourceKey, index) {
+            sourceGetters[index] = loadSource(sources[sourceKey], sourceOptions);
+        });
+        return function getComponents() {
+            return __awaiter(this, void 0, void 0, function () {
+                var components, _i, includedSources_1, sourceKey, componentPromises, _loop_1, state_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            components = {};
+                            for (_i = 0, includedSources_1 = includedSources; _i < includedSources_1.length; _i++) {
+                                sourceKey = includedSources_1[_i];
+                                components[sourceKey] = undefined;
+                            }
+                            componentPromises = Array(includedSources.length);
+                            _loop_1 = function () {
+                                var hasAllComponentPromises;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0:
+                                            hasAllComponentPromises = true;
+                                            return [4 /*yield*/, forEachWithBreaks(includedSources, function (sourceKey, index) {
+                                                    if (!componentPromises[index]) {
+                                                        // `sourceGetters` may be incomplete at this point of execution because `forEachWithBreaks` is asynchronous
+                                                        if (sourceGetters[index]) {
+                                                            var componentPromise = sourceGetters[index]().then(function (component) { return (components[sourceKey] = component); });
+                                                            suppressUnhandledRejectionWarning(componentPromise);
+                                                            componentPromises[index] = componentPromise;
+                                                        }
+                                                        else {
+                                                            hasAllComponentPromises = false;
+                                                        }
+                                                    }
+                                                })];
+                                        case 1:
+                                            _a.sent();
+                                            if (hasAllComponentPromises) {
+                                                return [2 /*return*/, "break"];
+                                            }
+                                            return [4 /*yield*/, wait(1)]; // Lets the source load loop continue
+                                        case 2:
+                                            _a.sent(); // Lets the source load loop continue
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            };
+                            _a.label = 1;
+                        case 1: return [5 /*yield**/, _loop_1()];
+                        case 2:
+                            state_1 = _a.sent();
+                            if (state_1 === "break")
+                                return [3 /*break*/, 4];
+                            _a.label = 3;
+                        case 3: return [3 /*break*/, 1];
+                        case 4: return [4 /*yield*/, Promise.all(componentPromises)];
+                        case 5:
+                            _a.sent();
+                            return [2 /*return*/, components];
+                    }
+                });
+            });
+        };
+    }
+    /**
+     * Modifies an entropy source by transforming its returned value with the given function.
+     * Keeps the source properties: sync/async, 1/2 stages.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function transformSource(source, transformValue) {
+        var transformLoadResult = function (loadResult) {
+            if (isFinalResultLoaded(loadResult)) {
+                return transformValue(loadResult);
+            }
+            return function () {
+                var getResult = loadResult();
+                if (isPromise(getResult)) {
+                    return getResult.then(transformValue);
+                }
+                return transformValue(getResult);
+            };
+        };
+        return function (options) {
+            var loadResult = source(options);
+            if (isPromise(loadResult)) {
+                return loadResult.then(transformLoadResult);
+            }
+            return transformLoadResult(loadResult);
+        };
+    }
+
     /*
      * Functions to help with features that vary through browsers
      */
@@ -537,7 +778,7 @@ var FingerprintJS = (function (exports) {
         return (countTruthy([
             'buildID' in navigator,
             'MozAppearance' in ((_b = (_a = document.documentElement) === null || _a === void 0 ? void 0 : _a.style) !== null && _b !== void 0 ? _b : {}),
-            'MediaRecorderErrorEvent' in w,
+            'onmozfullscreenchange' in w,
             'mozInnerScreenX' in w,
             'CSSMozDocumentRule' in w,
             'CanvasCaptureMediaStream' in w,
@@ -592,7 +833,8 @@ var FingerprintJS = (function (exports) {
         return (countTruthy([
             'MediaSource' in window,
             !!Element.prototype.webkitRequestFullscreen,
-            screenRatio > 2 / 3 && screenRatio < 3 / 2,
+            // iPhone 4S that runs iOS 9 matches this. But it won't match the criteria above, so it won't be detected as iPad.
+            screenRatio > 0.65 && screenRatio < 1.53,
         ]) >= 2);
     }
     /**
@@ -628,65 +870,56 @@ var FingerprintJS = (function (exports) {
         return (countTruthy([
             'onorientationchange' in w,
             'orientation' in w,
-            isItChromium && 'SharedWorker' in w,
+            isItChromium && !('SharedWorker' in w),
             isItGecko && /android/i.test(navigator.appVersion),
         ]) >= 2);
     }
 
     /**
-     * A deep description: https://fingerprintjs.com/blog/audio-fingerprinting/
+     * A deep description: https://fingerprint.com/blog/audio-fingerprinting/
      * Inspired by and based on https://github.com/cozylife/audio-fingerprint
      */
     function getAudioFingerprint() {
-        return __awaiter(this, void 0, void 0, function () {
-            var w, AudioContext, hashFromIndex, hashToIndex, context, oscillator, compressor, buffer, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        w = window;
-                        AudioContext = w.OfflineAudioContext || w.webkitOfflineAudioContext;
-                        if (!AudioContext) {
-                            return [2 /*return*/, -2 /* NotSupported */];
-                        }
-                        // In some browsers, audio context always stays suspended unless the context is started in response to a user action
-                        // (e.g. a click or a tap). It prevents audio fingerprint from being taken at an arbitrary moment of time.
-                        // Such browsers are old and unpopular, so the audio fingerprinting is just skipped in them.
-                        // See a similar case explanation at https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
-                        if (doesCurrentBrowserSuspendAudioContext()) {
-                            return [2 /*return*/, -1 /* KnownToSuspend */];
-                        }
-                        hashFromIndex = 4500;
-                        hashToIndex = 5000;
-                        context = new AudioContext(1, hashToIndex, 44100);
-                        oscillator = context.createOscillator();
-                        oscillator.type = 'triangle';
-                        oscillator.frequency.value = 10000;
-                        compressor = context.createDynamicsCompressor();
-                        compressor.threshold.value = -50;
-                        compressor.knee.value = 40;
-                        compressor.ratio.value = 12;
-                        compressor.attack.value = 0;
-                        compressor.release.value = 0.25;
-                        oscillator.connect(compressor);
-                        compressor.connect(context.destination);
-                        oscillator.start(0);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, renderAudio(context)];
-                    case 2:
-                        buffer = _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _a.sent();
-                        if (error_1.name === "timeout" /* Timeout */ || error_1.name === "suspended" /* Suspended */) {
-                            return [2 /*return*/, -3 /* Timeout */];
-                        }
-                        throw error_1;
-                    case 4: return [2 /*return*/, getHash(buffer.getChannelData(0).subarray(hashFromIndex))];
-                }
-            });
+        var w = window;
+        var AudioContext = w.OfflineAudioContext || w.webkitOfflineAudioContext;
+        if (!AudioContext) {
+            return -2 /* NotSupported */;
+        }
+        // In some browsers, audio context always stays suspended unless the context is started in response to a user action
+        // (e.g. a click or a tap). It prevents audio fingerprint from being taken at an arbitrary moment of time.
+        // Such browsers are old and unpopular, so the audio fingerprinting is just skipped in them.
+        // See a similar case explanation at https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
+        if (doesCurrentBrowserSuspendAudioContext()) {
+            return -1 /* KnownToSuspend */;
+        }
+        var hashFromIndex = 4500;
+        var hashToIndex = 5000;
+        var context = new AudioContext(1, hashToIndex, 44100);
+        var oscillator = context.createOscillator();
+        oscillator.type = 'triangle';
+        oscillator.frequency.value = 10000;
+        var compressor = context.createDynamicsCompressor();
+        compressor.threshold.value = -50;
+        compressor.knee.value = 40;
+        compressor.ratio.value = 12;
+        compressor.attack.value = 0;
+        compressor.release.value = 0.25;
+        oscillator.connect(compressor);
+        compressor.connect(context.destination);
+        oscillator.start(0);
+        var _a = startRenderingAudio(context), renderPromise = _a[0], finishRendering = _a[1];
+        var fingerprintPromise = renderPromise.then(function (buffer) { return getHash(buffer.getChannelData(0).subarray(hashFromIndex)); }, function (error) {
+            if (error.name === "timeout" /* Timeout */ || error.name === "suspended" /* Suspended */) {
+                return -3 /* Timeout */;
+            }
+            throw error;
         });
+        // Suppresses the console error message in case when the fingerprint fails before requested
+        suppressUnhandledRejectionWarning(fingerprintPromise);
+        return function () {
+            finishRendering();
+            return fingerprintPromise;
+        };
     }
     /**
      * Checks if the current browser is known to always suspend audio context
@@ -694,41 +927,69 @@ var FingerprintJS = (function (exports) {
     function doesCurrentBrowserSuspendAudioContext() {
         return isWebKit() && !isDesktopSafari() && !isWebKit606OrNewer();
     }
-    function renderAudio(context) {
-        var resumeTriesMaxCount = 3;
-        var resumeRetryDelay = 500;
-        var runningTimeout = 1000;
-        return new Promise(function (resolve, reject) {
+    /**
+     * Starts rendering the audio context.
+     * When the returned function is called, the render process starts finishing.
+     */
+    function startRenderingAudio(context) {
+        var renderTryMaxCount = 3;
+        var renderRetryDelay = 500;
+        var runningMaxAwaitTime = 500;
+        var runningSufficientTime = 5000;
+        var finalize = function () { return undefined; };
+        var resultPromise = new Promise(function (resolve, reject) {
+            var isFinalized = false;
+            var renderTryCount = 0;
+            var startedRunningAt = 0;
             context.oncomplete = function (event) { return resolve(event.renderedBuffer); };
-            var resumeTriesLeft = resumeTriesMaxCount;
-            var tryResume = function () {
-                context.startRendering();
-                switch (context.state) {
-                    case 'running':
-                        setTimeout(function () { return reject(makeInnerError("timeout" /* Timeout */)); }, runningTimeout);
-                        break;
-                    // Sometimes the audio context doesn't start after calling `startRendering` (in addition to the cases where
-                    // audio context doesn't start at all). A known case is starting an audio context when the browser tab is in
-                    // background on iPhone. Retries usually help in this case.
-                    case 'suspended':
-                        // The audio context can reject starting until the tab is in foreground. Long fingerprint duration
-                        // in background isn't a problem, therefore the retry attempts don't count in background. It can lead to
-                        // a situation when a fingerprint takes very long time and finishes successfully. FYI, the audio context
-                        // can be suspended when `document.hidden === false` and start running after a retry.
-                        if (!document.hidden) {
-                            resumeTriesLeft--;
-                        }
-                        if (resumeTriesLeft > 0) {
-                            setTimeout(tryResume, resumeRetryDelay);
-                        }
-                        else {
-                            reject(makeInnerError("suspended" /* Suspended */));
-                        }
-                        break;
+            var startRunningTimeout = function () {
+                setTimeout(function () { return reject(makeInnerError("timeout" /* Timeout */)); }, Math.min(runningMaxAwaitTime, startedRunningAt + runningSufficientTime - Date.now()));
+            };
+            var tryRender = function () {
+                try {
+                    context.startRendering();
+                    switch (context.state) {
+                        case 'running':
+                            startedRunningAt = Date.now();
+                            if (isFinalized) {
+                                startRunningTimeout();
+                            }
+                            break;
+                        // Sometimes the audio context doesn't start after calling `startRendering` (in addition to the cases where
+                        // audio context doesn't start at all). A known case is starting an audio context when the browser tab is in
+                        // background on iPhone. Retries usually help in this case.
+                        case 'suspended':
+                            // The audio context can reject starting until the tab is in foreground. Long fingerprint duration
+                            // in background isn't a problem, therefore the retry attempts don't count in background. It can lead to
+                            // a situation when a fingerprint takes very long time and finishes successfully. FYI, the audio context
+                            // can be suspended when `document.hidden === false` and start running after a retry.
+                            if (!document.hidden) {
+                                renderTryCount++;
+                            }
+                            if (isFinalized && renderTryCount >= renderTryMaxCount) {
+                                reject(makeInnerError("suspended" /* Suspended */));
+                            }
+                            else {
+                                setTimeout(tryRender, renderRetryDelay);
+                            }
+                            break;
+                    }
+                }
+                catch (error) {
+                    reject(error);
                 }
             };
-            tryResume();
+            tryRender();
+            finalize = function () {
+                if (!isFinalized) {
+                    isFinalized = true;
+                    if (startedRunningAt > 0) {
+                        startRunningTimeout();
+                    }
+                }
+            };
         });
+        return [resultPromise, finalize];
     }
     function getHash(signal) {
         var hash = 0;
@@ -754,27 +1015,36 @@ var FingerprintJS = (function (exports) {
      * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
      */
     function withIframe(action, initialHtml, domPollInterval) {
-        var _a, _b;
+        var _a, _b, _c;
         if (domPollInterval === void 0) { domPollInterval = 50; }
         return __awaiter(this, void 0, void 0, function () {
             var d, iframe;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         d = document;
-                        _c.label = 1;
+                        _d.label = 1;
                     case 1:
                         if (!!d.body) return [3 /*break*/, 3];
                         return [4 /*yield*/, wait(domPollInterval)];
                     case 2:
-                        _c.sent();
+                        _d.sent();
                         return [3 /*break*/, 1];
                     case 3:
                         iframe = d.createElement('iframe');
-                        _c.label = 4;
+                        _d.label = 4;
                     case 4:
-                        _c.trys.push([4, , 10, 11]);
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        _d.trys.push([4, , 10, 11]);
+                        return [4 /*yield*/, new Promise(function (_resolve, _reject) {
+                                var isComplete = false;
+                                var resolve = function () {
+                                    isComplete = true;
+                                    _resolve();
+                                };
+                                var reject = function (error) {
+                                    isComplete = true;
+                                    _reject(error);
+                                };
                                 iframe.onload = resolve;
                                 iframe.onerror = reject;
                                 var style = iframe.style;
@@ -794,8 +1064,16 @@ var FingerprintJS = (function (exports) {
                                 // This code checks for the loading state manually.
                                 // See https://github.com/fingerprintjs/fingerprintjs/issues/645
                                 var checkReadyState = function () {
-                                    var _a;
-                                    if (((_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document.readyState) === 'complete') {
+                                    var _a, _b;
+                                    // The ready state may never become 'complete' in Firefox despite the 'load' event being fired.
+                                    // So an infinite setTimeout loop can happen without this check.
+                                    // See https://github.com/fingerprintjs/fingerprintjs/pull/716#issuecomment-986898796
+                                    if (isComplete) {
+                                        return;
+                                    }
+                                    // Make sure iframe.contentWindow and iframe.contentWindow.document are both loaded
+                                    // The contentWindow.document can miss in JSDOM (https://github.com/jsdom/jsdom).
+                                    if (((_b = (_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document) === null || _b === void 0 ? void 0 : _b.readyState) === 'complete') {
                                         resolve();
                                     }
                                     else {
@@ -805,18 +1083,18 @@ var FingerprintJS = (function (exports) {
                                 checkReadyState();
                             })];
                     case 5:
-                        _c.sent();
-                        _c.label = 6;
+                        _d.sent();
+                        _d.label = 6;
                     case 6:
-                        if (!!((_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document.body)) return [3 /*break*/, 8];
+                        if (!!((_b = (_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document) === null || _b === void 0 ? void 0 : _b.body)) return [3 /*break*/, 8];
                         return [4 /*yield*/, wait(domPollInterval)];
                     case 7:
-                        _c.sent();
+                        _d.sent();
                         return [3 /*break*/, 6];
                     case 8: return [4 /*yield*/, action(iframe, iframe.contentWindow)];
-                    case 9: return [2 /*return*/, _c.sent()];
+                    case 9: return [2 /*return*/, _d.sent()];
                     case 10:
-                        (_b = iframe.parentNode) === null || _b === void 0 ? void 0 : _b.removeChild(iframe);
+                        (_c = iframe.parentNode) === null || _c === void 0 ? void 0 : _c.removeChild(iframe);
                         return [7 /*endfinally*/];
                     case 11: return [2 /*return*/];
                 }
@@ -832,9 +1110,32 @@ var FingerprintJS = (function (exports) {
         var element = document.createElement(tag !== null && tag !== void 0 ? tag : 'div');
         for (var _i = 0, _b = Object.keys(attributes); _i < _b.length; _i++) {
             var name_1 = _b[_i];
-            element.setAttribute(name_1, attributes[name_1].join(' '));
+            var value = attributes[name_1].join(' ');
+            // Changing the `style` attribute can cause a CSP error, therefore we change the `style.cssText` property.
+            // https://github.com/fingerprintjs/fingerprintjs/issues/733
+            if (name_1 === 'style') {
+                addStyleString(element.style, value);
+            }
+            else {
+                element.setAttribute(name_1, value);
+            }
         }
         return element;
+    }
+    /**
+     * Adds CSS styles from a string in such a way that doesn't trigger a CSP warning (unsafe-inline or unsafe-eval)
+     */
+    function addStyleString(style, source) {
+        // We don't use `style.cssText` because browsers must block it when no `unsafe-eval` CSP is presented: https://csplite.com/csp145/#w3c_note
+        // Even though the browsers ignore this standard, we don't use `cssText` just in case.
+        for (var _i = 0, _a = source.split(';'); _i < _a.length; _i++) {
+            var property = _a[_i];
+            var match = /^\s*([\w-]+)\s*:\s*(.+?)(\s*!([\w-]+))?\s*$/.exec(property);
+            if (match) {
+                var name_2 = match[1], value = match[2], priority = match[4];
+                style.setProperty(name_2, value, priority || ''); // The last argument can't be undefined in IE11
+            }
+        }
     }
 
     // We use m or w because these two characters take up the maximum width.
@@ -843,7 +1144,7 @@ var FingerprintJS = (function (exports) {
     // We test using 48px font size, we may use any size. I guess larger the better.
     var textSize = '48px';
     // A font will be compared against all the three default fonts.
-    // And if it doesn't match all 3 then that font is not available.
+    // And if for any default fonts it doesn't match, then that font is available.
     var baseFonts = ['monospace', 'sans-serif', 'serif'];
     var fontList = [
         // This is android-specific font from "Roboto" family
@@ -1076,7 +1377,7 @@ var FingerprintJS = (function (exports) {
             context.fill();
         }
         // Canvas winding
-        // http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
+        // https://web.archive.org/web/20130913061632/http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
         // http://jsfiddle.net/NDYV8/19/
         context.fillStyle = '#f9c';
         context.arc(60, 60, 60, 0, Math.PI * 2, true);
@@ -1110,7 +1411,7 @@ var FingerprintJS = (function (exports) {
             document.createEvent('TouchEvent');
             touchEvent = true;
         }
-        catch (_) {
+        catch (_a) {
             touchEvent = false;
         }
         var touchStart = 'ontouchstart' in window;
@@ -1175,7 +1476,7 @@ var FingerprintJS = (function (exports) {
     var screenFrameSizeTimeoutId;
     /**
      * Starts watching the screen frame size. When a non-zero size appears, the size is saved and the watch is stopped.
-     * Later, when `getScreenFrame` is called, it will return the saved non-zero size if the current size is null.
+     * Later, when `getScreenFrame` runs, it will return the saved non-zero size if the current size is null.
      *
      * This trick is required to mitigate the fact that the screen frame turns null in some cases.
      * See more on this at https://github.com/fingerprintjs/fingerprintjs/issues/568
@@ -1197,7 +1498,9 @@ var FingerprintJS = (function (exports) {
         checkScreenFrame();
     }
     function getScreenFrame() {
-        return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        watchScreenFrame();
+        return function () { return __awaiter(_this, void 0, void 0, function () {
             var frameSize;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -1226,31 +1529,29 @@ var FingerprintJS = (function (exports) {
                         return [2 /*return*/, frameSize];
                 }
             });
-        });
+        }); };
     }
     /**
      * Sometimes the available screen resolution changes a bit, e.g. 1900x1440 → 1900x1439. A possible reason: macOS Dock
      * shrinks to fit more icons when there is too little space. The rounding is used to mitigate the difference.
      */
     function getRoundedScreenFrame() {
-        return __awaiter(this, void 0, void 0, function () {
-            var processSize, frameSize;
+        var _this = this;
+        var screenFrameGetter = getScreenFrame();
+        return function () { return __awaiter(_this, void 0, void 0, function () {
+            var frameSize, processSize;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        processSize = function (sideSize) { return (sideSize === null ? null : round(sideSize, roundingPrecision)); };
-                        return [4 /*yield*/, getScreenFrame()
-                            // It might look like I don't know about `for` and `map`.
-                            // In fact, such code is used to avoid TypeScript issues without using `as`.
-                        ];
+                    case 0: return [4 /*yield*/, screenFrameGetter()];
                     case 1:
                         frameSize = _a.sent();
+                        processSize = function (sideSize) { return (sideSize === null ? null : round(sideSize, roundingPrecision)); };
                         // It might look like I don't know about `for` and `map`.
                         // In fact, such code is used to avoid TypeScript issues without using `as`.
                         return [2 /*return*/, [processSize(frameSize[0]), processSize(frameSize[1]), processSize(frameSize[2]), processSize(frameSize[3])]];
                 }
             });
-        });
+        }); };
     }
     function getCurrentScreenFrame() {
         var s = screen;
@@ -1457,7 +1758,7 @@ var FingerprintJS = (function (exports) {
         ],
         abpvn: [
             '#quangcaomb',
-            '.i-said-no-thing-can-stop-me-warning.dark',
+            '.iosAdsiosAds-layout',
             '.quangcao',
             '[href^="https://r88.vn/"]',
             '[href^="https://zbet.vn/"]',
@@ -1469,57 +1770,45 @@ var FingerprintJS = (function (exports) {
             'a[href*="/clickthrgh.asp?"]',
             'a[href^="https://app.readpeak.com/ads"]',
         ],
-        adBlockPersian: [
-            '#navbar_notice_50',
-            'a[href^="https://iqoption.com/lp/mobile-partner/?aff="]',
-            '.kadr',
-            'TABLE[width="140px"]',
-            '#divAgahi',
-        ],
+        adBlockPersian: ['#navbar_notice_50', '.kadr', 'TABLE[width="140px"]', '#divAgahi', '#ad2_inline'],
         adBlockWarningRemoval: [
-            '#adblock_message',
-            '.adblockInfo',
-            '.deadblocker-header-bar',
-            '.no-ad-reminder',
-            '#AdBlockDialog',
+            '#adblock-honeypot',
+            '.adblocker-root',
+            '.wp_adblock_detect',
+            '.header-blocked-ad',
+            '#ad_blocker',
         ],
         adGuardAnnoyances: ['amp-embed[type="zen"]', '.hs-sosyal', '#cookieconsentdiv', 'div[class^="app_gdpr"]', '.as-oil'],
-        adGuardBase: ['#gads_middle', '.tjads', '.BetterJsPopOverlay', '#ad_300X250', '#bannerfloat22'],
-        adGuardChinese: [
-            'a[href*=".123ch.cn"]',
-            'a[href*=".ttz5.cn"]',
-            'a[href*=".yabovip2027.com/"]',
-            '.tm3all2h4b',
-            '#j-new-ad',
-        ],
+        adGuardBase: ['.BetterJsPopOverlay', '#ad_300X250', '#bannerfloat22', '#ad-banner', '#campaign-banner'],
+        adGuardChinese: ['.Zi_ad_a_H', 'a[href*="/od005.com"]', 'a[href*=".hthbet34.com"]', '.qq_nr_lad', '#widget-quan'],
         adGuardFrench: [
-            '#div_banniere_pub',
-            'a[href^="https://secure.securitetotale.fr/"]',
-            'a[href*="fducks.com/"]',
-            'a[href^="http://frtyd.com/"]',
-            '.publicite1',
+            '#block-views-ads-sidebar-block-block',
+            '#pavePub',
+            '.ad-desktop-rectangle',
+            '.mobile_adhesion',
+            '.widgetadv',
         ],
         adGuardGerman: [
             '.banneritemwerbung_head_1',
             '.boxstartwerbung',
             '.werbung3',
-            'a[href^="http://www.ichwuerde.com/?ref="]',
-            'a[href^="http://partners.adklick.de/tracking.php?"]',
+            'a[href^="http://www.eis.de/index.phtml?refid="]',
+            'a[href^="https://www.tipico.com/?affiliateId="]',
         ],
         adGuardJapanese: [
-            '.ad-text-blockA01',
-            '._popIn_infinite_video',
-            '[class^=blogroll_wrapper]',
+            '#kauli_yad_1',
             'a[href^="http://ad2.trafficgate.net/"]',
-            'a[href^="http://www.rssad.jp/"]',
+            '._popIn_infinite_ad',
+            '.adgoogle',
+            '.ad_regular3',
         ],
-        adGuardMobile: ['amp-auto-ads', '#mgid_iframe', '.amp_ad', 'amp-sticky-ad', '.plugin-blogroll'],
+        adGuardMobile: ['amp-auto-ads', '.amp_ad', 'amp-embed[type="24smi"]', '#mgid_iframe1', '#ad_inview_area'],
         adGuardRussian: [
-            'a[href^="https://ya-distrib.ru/r/"]',
-            '[onclick*=".twkv.ru"]',
+            'a[href^="https://ad.letmeads.com/"]',
             '.reclama',
             'div[id^="smi2adblock"]',
             'div[id^="AdFox_banner_"]',
+            '#ad_square',
         ],
         adGuardSocial: [
             'a[href^="//www.stumbleupon.com/submit?url="]',
@@ -1536,11 +1825,11 @@ var FingerprintJS = (function (exports) {
             '[href^="http://ads.glispa.com/"]',
         ],
         adGuardTrackingProtection: [
-            'amp-embed[type="taboola"]',
             '#qoo-counter',
             'a[href^="http://click.hotlog.ru/"]',
             'a[href^="http://hitcounter.ru/top/stat.php"]',
             'a[href^="http://top.mail.ru/jump"]',
+            '#top100counter',
         ],
         adGuardTurkish: [
             '#backkapat',
@@ -1549,30 +1838,42 @@ var FingerprintJS = (function (exports) {
             'a[href^="http://izlenzi.com/campaign/"]',
             'a[href^="http://www.installads.net/"]',
         ],
-        bulgarian: ['td#freenet_table_ads', '#newAd', '#ea_intext_div', '.lapni-pop-over', '#xenium_hot_offers'],
-        easyList: ['[lazy-ad="leftthin_banner"]', '#ad_300x250_2', '#interstitialAd', '#wide_ad_unit', '.showcaseAd'],
+        bulgarian: ['td#freenet_table_ads', '#ea_intext_div', '.lapni-pop-over', '#xenium_hot_offers', '#newAd'],
+        easyList: [
+            '#AD_CONTROL_28',
+            '.second-post-ads-wrapper',
+            '.universalboxADVBOX03',
+            '.advertisement-728x90',
+            '.square_ads',
+        ],
         easyListChina: [
             'a[href*=".wensixuetang.com/"]',
-            'A[href*="/hth107.com/"]',
             '.appguide-wrap[onclick*="bcebos.com"]',
             '.frontpageAdvM',
             '#taotaole',
+            '#aafoot.top_box',
         ],
-        easyListCookie: ['#CookieEU', '#__cookies_', '#les_cookies', '.asset_balaNotification', '.gdpr-tab'],
+        easyListCookie: [
+            '#AdaCompliance.app-notice',
+            '.text-center.rgpd',
+            '.panel--cookie',
+            '.js-cookies-andromeda',
+            '.elxtr-consent',
+        ],
         easyListCzechSlovak: ['#onlajny-stickers', '#reklamni-box', '.reklama-megaboard', '.sklik', '[id^="sklikReklama"]'],
         easyListDutch: [
             '#advertentie',
             '#vipAdmarktBannerBlock',
             '.adstekst',
-            'a[href^="http://adserver.webads.nl/adclick/"]',
+            'a[href^="https://xltube.nl/click/"]',
             '#semilo-lrectangle',
         ],
         easyListGermany: [
-            '#LxWerbeteaser',
-            'a[href^="http://www.kontakt-vermittler.de/?wm="]',
-            '.werbung301',
-            '.ads_bueroklammer',
-            '#Werbung_Sky',
+            '#Ad_Win2day',
+            '#werbungsbox300',
+            'a[href^="http://www.rotlichtkartei.com/?sc="]',
+            '#werbung_wideskyscraper_screen',
+            'a[href^="http://landing.parkplatzkartei.com/?ag="]',
         ],
         easyListItaly: [
             '.box_adv_annunci',
@@ -1600,7 +1901,7 @@ var FingerprintJS = (function (exports) {
         fanboyEnhancedTrackers: [
             '.open.pushModal',
             '#issuem-leaky-paywall-articles-zero-remaining-nag',
-            'div[style*="box-shadow: rgb(136, 136, 136) 0px 0px 12px; color: "]',
+            '#sovrn_container',
             'div[class$="-hide"][zoompage-fontsize][style="display: block;"]',
             '.BlockNag__Card',
         ],
@@ -1625,13 +1926,7 @@ var FingerprintJS = (function (exports) {
             'DIV.agores300',
             'TABLE.advright',
         ],
-        hungarian: [
-            'A[href*="ad.eval.hu"]',
-            'A[href*="ad.netmedia.hu"]',
-            'A[href*="daserver.ultraweb.hu"]',
-            '#cemp_doboz',
-            '.optimonk-iframe-container',
-        ],
+        hungarian: ['#cemp_doboz', '.optimonk-iframe-container', '.ad__main', '[class*="GoogleAds"]', '#hirdetesek_box'],
         iDontCareAboutCookies: [
             '.alert-info[data-block-track*="CookieNotice"]',
             '.ModuleTemplateCookieIndicator',
@@ -1645,11 +1940,11 @@ var FingerprintJS = (function (exports) {
             'a[href="http://www.salidzini.lv/"][style="display: block; width: 88px; height: 31px; overflow: hidden; position: relative;"]',
         ],
         listKr: [
-            'a[href*="//kingtoon.slnk.kr"]',
-            'a[href*="//playdsb.com/kr"]',
-            'div.logly-lift-adz',
-            'div[data-widget_id="ml6EJ074"]',
-            'ins.daum_ddn_area',
+            'a[href*="//ad.planbplus.co.kr/"]',
+            '#livereAdWrapper',
+            'a[href*="//adv.imadrep.co.kr/"]',
+            'ins.fastview-ad',
+            '.revenue_unit_item.dable',
         ],
         listeAr: [
             '.geminiLB1Ad',
@@ -1695,10 +1990,8 @@ var FingerprintJS = (function (exports) {
             '.yt.btn-link.btn-md.btn',
         ],
     };
-    /** Just a syntax sugar */
-    var filterNames = Object.keys(filters);
     /**
-     * The returned array order means nothing (it's always sorted alphabetically).
+     * The order of the returned array means nothing (it's always sorted alphabetically).
      *
      * Notice that the source is slightly unstable.
      * Safari provides a 2-taps way to disable all content blockers on a page temporarily.
@@ -1709,7 +2002,7 @@ var FingerprintJS = (function (exports) {
     function getDomBlockers(_a) {
         var debug = (_a === void 0 ? {} : _a).debug;
         return __awaiter(this, void 0, void 0, function () {
-            var allSelectors, blockedSelectors, activeBlockers;
+            var filterNames, allSelectors, blockedSelectors, activeBlockers;
             var _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -1717,6 +2010,7 @@ var FingerprintJS = (function (exports) {
                         if (!isApplicable()) {
                             return [2 /*return*/, undefined];
                         }
+                        filterNames = Object.keys(filters);
                         allSelectors = (_b = []).concat.apply(_b, filterNames.map(function (filterName) { return filters[filterName]; }));
                         return [4 /*yield*/, getBlockedSelectors(allSelectors)];
                     case 1:
@@ -1727,7 +2021,7 @@ var FingerprintJS = (function (exports) {
                         activeBlockers = filterNames.filter(function (filterName) {
                             var selectors = filters[filterName];
                             var blockedCount = countTruthy(selectors.map(function (selector) { return blockedSelectors[selector]; }));
-                            return blockedCount > selectors.length * 0.5;
+                            return blockedCount > selectors.length * 0.6;
                         });
                         activeBlockers.sort();
                         return [2 /*return*/, activeBlockers];
@@ -1742,27 +2036,26 @@ var FingerprintJS = (function (exports) {
     function getBlockedSelectors(selectors) {
         var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var d, root, elements, blockedSelectors, _i, selectors_1, selector, element, holder, i;
+            var d, root, elements, blockedSelectors, i, element, holder, i;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         d = document;
                         root = d.createElement('div');
-                        elements = [];
+                        elements = new Array(selectors.length);
                         blockedSelectors = {} // Set() isn't used just in case somebody need older browser support
                         ;
                         forceShow(root);
                         // First create all elements that can be blocked. If the DOM steps below are done in a single cycle,
                         // browser will alternate tree modification and layout reading, that is very slow.
-                        for (_i = 0, selectors_1 = selectors; _i < selectors_1.length; _i++) {
-                            selector = selectors_1[_i];
-                            element = selectorToElement(selector);
+                        for (i = 0; i < selectors.length; ++i) {
+                            element = selectorToElement(selectors[i]);
                             holder = d.createElement('div') // Protects from unwanted effects of `+` and `~` selectors of filters
                             ;
                             forceShow(holder);
                             holder.appendChild(element);
                             root.appendChild(holder);
-                            elements.push(element);
+                            elements[i] = element;
                         }
                         _b.label = 1;
                     case 1:
@@ -1795,11 +2088,11 @@ var FingerprintJS = (function (exports) {
     }
     function printDebug(blockedSelectors) {
         var message = 'DOM blockers debug:\n```';
-        for (var _i = 0, filterNames_1 = filterNames; _i < filterNames_1.length; _i++) {
-            var filterName = filterNames_1[_i];
+        for (var _i = 0, _a = Object.keys(filters); _i < _a.length; _i++) {
+            var filterName = _a[_i];
             message += "\n" + filterName + ":";
-            for (var _a = 0, _b = filters[filterName]; _a < _b.length; _a++) {
-                var selector = _b[_a];
+            for (var _b = 0, _c = filters[filterName]; _b < _c.length; _b++) {
+                var selector = _c[_b];
                 message += "\n  " + selector + " " + (blockedSelectors[selector] ? '🚫' : '➡️');
             }
         }
@@ -1826,15 +2119,15 @@ var FingerprintJS = (function (exports) {
      * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/inverted-colors
      */
     function areColorsInverted() {
-        if (doesMatch('inverted')) {
+        if (doesMatch$4('inverted')) {
             return true;
         }
-        if (doesMatch('none')) {
+        if (doesMatch$4('none')) {
             return false;
         }
         return undefined;
     }
-    function doesMatch(value) {
+    function doesMatch$4(value) {
         return matchMedia("(inverted-colors: " + value + ")").matches;
     }
 
@@ -1842,15 +2135,15 @@ var FingerprintJS = (function (exports) {
      * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
      */
     function areColorsForced() {
-        if (doesMatch$1('active')) {
+        if (doesMatch$3('active')) {
             return true;
         }
-        if (doesMatch$1('none')) {
+        if (doesMatch$3('none')) {
             return false;
         }
         return undefined;
     }
-    function doesMatch$1(value) {
+    function doesMatch$3(value) {
         return matchMedia("(forced-colors: " + value + ")").matches;
     }
 
@@ -1906,15 +2199,15 @@ var FingerprintJS = (function (exports) {
      * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
      */
     function isMotionReduced() {
-        if (doesMatch$3('reduce')) {
+        if (doesMatch$1('reduce')) {
             return true;
         }
-        if (doesMatch$3('no-preference')) {
+        if (doesMatch$1('no-preference')) {
             return false;
         }
         return undefined;
     }
-    function doesMatch$3(value) {
+    function doesMatch$1(value) {
         return matchMedia("(prefers-reduced-motion: " + value + ")").matches;
     }
 
@@ -1922,51 +2215,51 @@ var FingerprintJS = (function (exports) {
      * @see https://www.w3.org/TR/mediaqueries-5/#dynamic-range
      */
     function isHDR() {
-        if (doesMatch$4('high')) {
+        if (doesMatch('high')) {
             return true;
         }
-        if (doesMatch$4('standard')) {
+        if (doesMatch('standard')) {
             return false;
         }
         return undefined;
     }
-    function doesMatch$4(value) {
+    function doesMatch(value) {
         return matchMedia("(dynamic-range: " + value + ")").matches;
     }
 
     var M = Math; // To reduce the minified code size
     var fallbackFn = function () { return 0; };
-    // Native operations
-    var acos = M.acos || fallbackFn;
-    var acosh = M.acosh || fallbackFn;
-    var asin = M.asin || fallbackFn;
-    var asinh = M.asinh || fallbackFn;
-    var atanh = M.atanh || fallbackFn;
-    var atan = M.atan || fallbackFn;
-    var sin = M.sin || fallbackFn;
-    var sinh = M.sinh || fallbackFn;
-    var cos = M.cos || fallbackFn;
-    var cosh = M.cosh || fallbackFn;
-    var tan = M.tan || fallbackFn;
-    var tanh = M.tanh || fallbackFn;
-    var exp = M.exp || fallbackFn;
-    var expm1 = M.expm1 || fallbackFn;
-    var log1p = M.log1p || fallbackFn;
-    // Operation polyfills
-    var powPI = function (value) { return M.pow(M.PI, value); };
-    var acoshPf = function (value) { return M.log(value + M.sqrt(value * value - 1)); };
-    var asinhPf = function (value) { return M.log(value + M.sqrt(value * value + 1)); };
-    var atanhPf = function (value) { return M.log((1 + value) / (1 - value)) / 2; };
-    var sinhPf = function (value) { return M.exp(value) - 1 / M.exp(value) / 2; };
-    var coshPf = function (value) { return (M.exp(value) + 1 / M.exp(value)) / 2; };
-    var expm1Pf = function (value) { return M.exp(value) - 1; };
-    var tanhPf = function (value) { return (M.exp(2 * value) - 1) / (M.exp(2 * value) + 1); };
-    var log1pPf = function (value) { return M.log(1 + value); };
     /**
      * @see https://gitlab.torproject.org/legacy/trac/-/issues/13018
      * @see https://bugzilla.mozilla.org/show_bug.cgi?id=531915
      */
     function getMathFingerprint() {
+        // Native operations
+        var acos = M.acos || fallbackFn;
+        var acosh = M.acosh || fallbackFn;
+        var asin = M.asin || fallbackFn;
+        var asinh = M.asinh || fallbackFn;
+        var atanh = M.atanh || fallbackFn;
+        var atan = M.atan || fallbackFn;
+        var sin = M.sin || fallbackFn;
+        var sinh = M.sinh || fallbackFn;
+        var cos = M.cos || fallbackFn;
+        var cosh = M.cosh || fallbackFn;
+        var tan = M.tan || fallbackFn;
+        var tanh = M.tanh || fallbackFn;
+        var exp = M.exp || fallbackFn;
+        var expm1 = M.expm1 || fallbackFn;
+        var log1p = M.log1p || fallbackFn;
+        // Operation polyfills
+        var powPI = function (value) { return M.pow(M.PI, value); };
+        var acoshPf = function (value) { return M.log(value + M.sqrt(value * value - 1)); };
+        var asinhPf = function (value) { return M.log(value + M.sqrt(value * value + 1)); };
+        var atanhPf = function (value) { return M.log((1 + value) / (1 - value)) / 2; };
+        var sinhPf = function (value) { return M.exp(value) - 1 / M.exp(value) / 2; };
+        var coshPf = function (value) { return (M.exp(value) + 1 / M.exp(value)) / 2; };
+        var expm1Pf = function (value) { return M.exp(value) - 1; };
+        var tanhPf = function (value) { return (M.exp(2 * value) - 1) / (M.exp(2 * value) + 1); };
+        var log1pPf = function (value) { return M.log(1 + value); };
         // Note: constant values are empirical
         return {
             acos: acos(0.123124234234234242),
@@ -2019,7 +2312,7 @@ var FingerprintJS = (function (exports) {
         /** User can change it in desktop Chrome and desktop Firefox. */
         mono: [{ fontFamily: 'monospace' }],
         /**
-         * Check the minimal allowed font size. User can change it in desktop Chrome, desktop Firefox and desktop Safari.
+         * Check the smallest allowed font size. User can change it in desktop Chrome, desktop Firefox and desktop Safari.
          * The height can be 0 in Chrome on a retina display.
          */
         min: [{ fontSize: '1px' }],
@@ -2143,10 +2436,16 @@ var FingerprintJS = (function (exports) {
      *
      * This value isn't restricted by Semantic Versioning, i.e. it may be changed without bumping minor or major version of
      * this package.
+     *
+     * Note: Rollup and Webpack are smart enough to remove unused properties of this object during tree-shaking, so there is
+     * no need to export the sources individually.
      */
     var sources = {
-        // Expected errors and default values must be handled inside the functions. Unexpected errors must be thrown.
-        // The sources run in this exact order. The asynchronous sources are at the start to run in parallel with other sources.
+        // READ FIRST:
+        // See https://github.com/fingerprintjs/fingerprintjs/blob/master/contributing.md#how-to-make-an-entropy-source
+        // to learn how entropy source works and how to make your own.
+        // The sources run in this exact order.
+        // The asynchronous sources are at the start to run in parallel with other sources.
         fonts: getFonts,
         domBlockers: getDomBlockers,
         fontPreferences: getFontPreferences,
@@ -2180,108 +2479,53 @@ var FingerprintJS = (function (exports) {
         hdr: isHDR,
         math: getMathFingerprint,
     };
-    function ensureErrorWithMessage(error) {
-        return error && typeof error === 'object' && 'message' in error ? error : { message: error };
-    }
     /**
-     * Gets a component from the given entropy source.
+     * Loads the built-in entropy sources.
+     * Returns a function that collects the entropy components to make the visitor identifier.
      */
-    function getComponent(source, sourceOptions) {
-        return __awaiter(this, void 0, void 0, function () {
-            var result, startTime, error_1;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        startTime = Date.now();
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        _a = {};
-                        return [4 /*yield*/, source(sourceOptions)];
-                    case 2:
-                        result = (_a.value = _b.sent(), _a);
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _b.sent();
-                        result = { error: ensureErrorWithMessage(error_1) };
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/, __assign(__assign({}, result), { duration: Date.now() - startTime })];
-                }
-            });
-        });
+    function loadBuiltinSources(options) {
+        return loadSources(sources, options, []);
     }
-    /**
-     * Gets a components list from the given list of entropy sources.
-     *
-     * Warning for package users:
-     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
-     */
-    function getComponents(sources, sourceOptions, excludeSources) {
-        return __awaiter(this, void 0, void 0, function () {
-            var sourcePromises, components, loopReleaseInterval, lastLoopReleaseTime, _loop_1, _i, _a, sourceKey;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        sourcePromises = [];
-                        components = {};
-                        loopReleaseInterval = 16;
-                        lastLoopReleaseTime = Date.now();
-                        _loop_1 = function (sourceKey) {
-                            var now;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        if (!excludes(excludeSources, sourceKey)) {
-                                            return [2 /*return*/, "continue"];
-                                        }
-                                        // Create the keys immediately to keep the component keys order the same as the sources keys order
-                                        components[sourceKey] = undefined;
-                                        sourcePromises.push(getComponent(sources[sourceKey], sourceOptions).then(function (component) {
-                                            components[sourceKey] = component;
-                                        }));
-                                        now = Date.now();
-                                        if (!(now >= lastLoopReleaseTime + loopReleaseInterval)) return [3 /*break*/, 2];
-                                        lastLoopReleaseTime = now;
-                                        // Allows asynchronous sources to complete and measure the duration correctly before running the next sources
-                                        return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve); })];
-                                    case 1:
-                                        // Allows asynchronous sources to complete and measure the duration correctly before running the next sources
-                                        _a.sent();
-                                        return [3 /*break*/, 4];
-                                    case 2: return [4 /*yield*/, undefined];
-                                    case 3:
-                                        _a.sent();
-                                        _a.label = 4;
-                                    case 4: return [2 /*return*/];
-                                }
-                            });
-                        };
-                        _i = 0, _a = Object.keys(sources);
-                        _b.label = 1;
-                    case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 4];
-                        sourceKey = _a[_i];
-                        return [5 /*yield**/, _loop_1(sourceKey)];
-                    case 2:
-                        _b.sent();
-                        _b.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 4: return [4 /*yield*/, Promise.all(sourcePromises)];
-                    case 5:
-                        _b.sent();
-                        return [2 /*return*/, components];
-                }
-            });
-        });
+
+    var commentTemplate = '$ if upgrade to Pro: https://fpjs.dev/pro';
+    function getConfidence(components) {
+        var openConfidenceScore = getOpenConfidenceScore(components);
+        var proConfidenceScore = deriveProConfidenceScore(openConfidenceScore);
+        return { score: openConfidenceScore, comment: commentTemplate.replace(/\$/g, "" + proConfidenceScore) };
     }
-    /**
-     * Collects entropy components from the built-in sources to make the visitor identifier.
-     */
-    function getBuiltinComponents(options) {
-        return getComponents(sources, options, []);
+    function getOpenConfidenceScore(components) {
+        // In order to calculate the true probability of the visitor identifier being correct, we need to know the number of
+        // website visitors (the higher the number, the less the probability because the fingerprint entropy is limited).
+        // JS agent doesn't know the number of visitors, so we can only do an approximate assessment.
+        if (isAndroid()) {
+            return 0.4;
+        }
+        // Safari (mobile and desktop)
+        if (isWebKit()) {
+            return isDesktopSafari() ? 0.5 : 0.3;
+        }
+        var platform = components.platform.value || '';
+        // Windows
+        if (/^Win/.test(platform)) {
+            // The score is greater than on macOS because of the higher variety of devices running Windows.
+            // Chrome provides more entropy than Firefox according too
+            // https://netmarketshare.com/browser-market-share.aspx?options=%7B%22filter%22%3A%7B%22%24and%22%3A%5B%7B%22platform%22%3A%7B%22%24in%22%3A%5B%22Windows%22%5D%7D%7D%5D%7D%2C%22dateLabel%22%3A%22Trend%22%2C%22attributes%22%3A%22share%22%2C%22group%22%3A%22browser%22%2C%22sort%22%3A%7B%22share%22%3A-1%7D%2C%22id%22%3A%22browsersDesktop%22%2C%22dateInterval%22%3A%22Monthly%22%2C%22dateStart%22%3A%222019-11%22%2C%22dateEnd%22%3A%222020-10%22%2C%22segments%22%3A%22-1000%22%7D
+            // So we assign the same score to them.
+            return 0.6;
+        }
+        // macOS
+        if (/^Mac/.test(platform)) {
+            // Chrome provides more entropy than Safari and Safari provides more entropy than Firefox.
+            // Chrome is more popular than Safari and Safari is more popular than Firefox according to
+            // https://netmarketshare.com/browser-market-share.aspx?options=%7B%22filter%22%3A%7B%22%24and%22%3A%5B%7B%22platform%22%3A%7B%22%24in%22%3A%5B%22Mac%20OS%22%5D%7D%7D%5D%7D%2C%22dateLabel%22%3A%22Trend%22%2C%22attributes%22%3A%22share%22%2C%22group%22%3A%22browser%22%2C%22sort%22%3A%7B%22share%22%3A-1%7D%2C%22id%22%3A%22browsersDesktop%22%2C%22dateInterval%22%3A%22Monthly%22%2C%22dateStart%22%3A%222019-11%22%2C%22dateEnd%22%3A%222020-10%22%2C%22segments%22%3A%22-1000%22%7D
+            // So we assign the same score to them.
+            return 0.5;
+        }
+        // Another platform, e.g. a desktop Linux. It's rare, so it should be pretty unique.
+        return 0.7;
+    }
+    function deriveProConfidenceScore(openConfidenceScore) {
+        return round(0.99 + 0.01 * openConfidenceScore, 0.0001);
     }
 
     function componentsToCanonicalString(components) {
@@ -2311,9 +2555,10 @@ var FingerprintJS = (function (exports) {
      */
     function makeLazyGetResult(components) {
         var visitorIdCache;
+        // This function runs very fast, so there is no need to make it lazy
+        var confidence = getConfidence(components);
         // A plain class isn't used because its getters and setters aren't enumerable.
         return {
-            components: components,
             get visitorId() {
                 if (visitorIdCache === undefined) {
                     visitorIdCache = hashComponents(this.components);
@@ -2323,65 +2568,92 @@ var FingerprintJS = (function (exports) {
             set visitorId(visitorId) {
                 visitorIdCache = visitorId;
             },
+            confidence: confidence,
+            components: components,
             version: version,
         };
     }
     /**
-     * The class isn't exported from the index file to not expose the constructor.
-     * The hiding gives more freedom for future non-breaking updates.
+     * A delay is required to ensure consistent entropy components.
+     * See https://github.com/fingerprintjs/fingerprintjs/issues/254
+     * and https://github.com/fingerprintjs/fingerprintjs/issues/307
+     * and https://github.com/fingerprintjs/fingerprintjs/commit/945633e7c5f67ae38eb0fea37349712f0e669b18
      */
-    var OpenAgent = /** @class */ (function () {
-        function OpenAgent() {
-            watchScreenFrame();
-        }
-        /**
-         * @inheritDoc
-         */
-        OpenAgent.prototype.get = function (options) {
-            if (options === void 0) { options = {}; }
-            return __awaiter(this, void 0, void 0, function () {
-                var components, result;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, getBuiltinComponents(options)];
-                        case 1:
-                            components = _a.sent();
-                            result = makeLazyGetResult(components);
-                            if (options.debug) {
-                                // console.log is ok here because it's under a debug clause
-                                // eslint-disable-next-line no-console
-                                console.log("Copy the text below to get the debug data:\n\n```\nversion: " + result.version + "\nuserAgent: " + navigator.userAgent + "\ngetOptions: " + JSON.stringify(options, undefined, 2) + "\nvisitorId: " + result.visitorId + "\ncomponents: " + componentsToDebugString(components) + "\n```");
-                            }
-                            return [2 /*return*/, result];
-                    }
+    function prepareForSources(delayFallback) {
+        if (delayFallback === void 0) { delayFallback = 50; }
+        // A proper deadline is unknown. Let it be twice the fallback timeout so that both cases have the same average time.
+        return requestIdleCallbackIfAvailable(delayFallback, delayFallback * 2);
+    }
+    /**
+     * The function isn't exported from the index file to not allow to call it without `load()`.
+     * The hiding gives more freedom for future non-breaking updates.
+     *
+     * A factory function is used instead of a class to shorten the attribute names in the minified code.
+     * Native private class fields could've been used, but TypeScript doesn't allow them with `"target": "es5"`.
+     */
+    function makeAgent(getComponents, debug) {
+        var creationTime = Date.now();
+        return {
+            get: function (options) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var startTime, components, result;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                startTime = Date.now();
+                                return [4 /*yield*/, getComponents()];
+                            case 1:
+                                components = _a.sent();
+                                result = makeLazyGetResult(components);
+                                if (debug || (options === null || options === void 0 ? void 0 : options.debug)) {
+                                    // console.log is ok here because it's under a debug clause
+                                    // eslint-disable-next-line no-console
+                                    console.log("Copy the text below to get the debug data:\n\n```\nversion: " + result.version + "\nuserAgent: " + navigator.userAgent + "\ntimeBetweenLoadAndGet: " + (startTime - creationTime) + "\nvisitorId: " + result.visitorId + "\ncomponents: " + componentsToDebugString(components) + "\n```");
+                                }
+                                return [2 /*return*/, result];
+                        }
+                    });
                 });
-            });
+            },
         };
-        return OpenAgent;
-    }());
+    }
+    /**
+     * Sends an unpersonalized AJAX request to collect installation statistics
+     */
+    function monitor() {
+        // The FingerprintJS CDN (https://github.com/fingerprintjs/cdn) replaces `window.__fpjs_d_m` with `true`
+        if (window.__fpjs_d_m || Math.random() >= 0.001) {
+            return;
+        }
+        try {
+            var request = new XMLHttpRequest();
+            request.open('get', "https://m1.openfpcdn.io/fingerprintjs/v" + version + "/npm-monitoring", true);
+            request.send();
+        }
+        catch (error) {
+            // console.error is ok here because it's an unexpected error handler
+            // eslint-disable-next-line no-console
+            console.error(error);
+        }
+    }
     /**
      * Builds an instance of Agent and waits a delay required for a proper operation.
      */
     function load(_a) {
-        var _b = (_a === void 0 ? {} : _a).delayFallback, delayFallback = _b === void 0 ? 50 : _b;
+        var _b = _a === void 0 ? {} : _a, delayFallback = _b.delayFallback, debug = _b.debug, _c = _b.monitoring, monitoring = _c === void 0 ? true : _c;
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0: 
-                    // A delay is required to ensure consistent entropy components.
-                    // See https://github.com/fingerprintjs/fingerprintjs/issues/254
-                    // and https://github.com/fingerprintjs/fingerprintjs/issues/307
-                    // and https://github.com/fingerprintjs/fingerprintjs/commit/945633e7c5f67ae38eb0fea37349712f0e669b18
-                    // A proper deadline is unknown. Let it be twice the fallback timeout so that both cases have the same average time.
-                    return [4 /*yield*/, requestIdleCallbackIfAvailable(delayFallback, delayFallback * 2)];
+            var getComponents;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        if (monitoring) {
+                            monitor();
+                        }
+                        return [4 /*yield*/, prepareForSources(delayFallback)];
                     case 1:
-                        // A delay is required to ensure consistent entropy components.
-                        // See https://github.com/fingerprintjs/fingerprintjs/issues/254
-                        // and https://github.com/fingerprintjs/fingerprintjs/issues/307
-                        // and https://github.com/fingerprintjs/fingerprintjs/commit/945633e7c5f67ae38eb0fea37349712f0e669b18
-                        // A proper deadline is unknown. Let it be twice the fallback timeout so that both cases have the same average time.
-                        _c.sent();
-                        return [2 /*return*/, new OpenAgent()];
+                        _d.sent();
+                        getComponents = loadBuiltinSources({ debug: debug });
+                        return [2 /*return*/, makeAgent(getComponents, debug)];
                 }
             });
         });
@@ -2395,8 +2667,7 @@ var FingerprintJS = (function (exports) {
     var murmurX64Hash128 = x64hash128;
 
     exports.componentsToDebugString = componentsToDebugString;
-    exports.default = index;
-    exports.getComponents = getComponents;
+    exports["default"] = index;
     exports.getFullscreenElement = getFullscreenElement;
     exports.getScreenFrame = getScreenFrame;
     exports.hashComponents = hashComponents;
@@ -2408,8 +2679,14 @@ var FingerprintJS = (function (exports) {
     exports.isTrident = isTrident;
     exports.isWebKit = isWebKit;
     exports.load = load;
+    exports.loadSources = loadSources;
     exports.murmurX64Hash128 = murmurX64Hash128;
+    exports.prepareForSources = prepareForSources;
+    exports.sources = sources;
+    exports.transformSource = transformSource;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
 
     return exports;
 
-}({}));
+})({});

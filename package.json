@@ -33,12 +33,12 @@
     "upgrade": "ncu -u && npm i"
   },
   "devDependencies": {
-    "@babel/cli": "^7.18.9",
-    "@babel/core": "^7.18.9",
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.18.10",
     "@babel/eslint-parser": "^7.18.9",
-    "@babel/eslint-plugin": "^7.17.7",
-    "@babel/plugin-transform-runtime": "^7.18.9",
-    "@babel/preset-env": "^7.18.9",
+    "@babel/eslint-plugin": "^7.18.10",
+    "@babel/plugin-transform-runtime": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
     "@babel/register": "^7.18.9",
     "@progress/kendo-theme-bootstrap": "^5.6.0",
     "@rollup/plugin-buble": "^0.21.3",
@@ -107,6 +107,6 @@
     "msvs_version": "2017"
   },
   "dependencies": {
-    "@progress/kendo-ui": "^2022.2.621"
+    "@progress/kendo-ui": "^2022.2.802"
   }
 }

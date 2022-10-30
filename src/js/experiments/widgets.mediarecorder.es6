@@ -42,8 +42,6 @@ const logger = new Logger('widgets.mediarecorder');
 const URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
 const MediaStream = window.MediaStream || window.webkitMediaStream;
 const WindowMediaRecorder = window.MediaRecorder; // OUr Widget is already MediaRecorder
-const DISABLED_CLASS = 'k-state-disabled';
-const ACTIVE_CLASS = 'k-state-active';
 
 const ATTR_SELECTOR = '[{0}="{1}"]';
 const TOOGLE_TMPL = `<a class="k-toggle-button k-button" data-${ns}command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>`;
@@ -360,17 +358,17 @@ const MediaRecorder = Widget.extend({
         const hasChunks = $.isArray(this._chunks) && this._chunks.length;
         this.toolbar
             .children(format(ATTR_SELECTOR, attr('command'), 'save'))
-            .toggleClass(DISABLED_CLASS, !isInactive || !hasChunks);
+            .toggleClass(CONSTANTS.DISABLED_CLASS, !isInactive || !hasChunks);
         this.toolbar
             .children(format(ATTR_SELECTOR, attr('command'), 'record'))
-            .toggleClass(DISABLED_CLASS, !isInactive);
+            .toggleClass(CONSTANTS.DISABLED_CLASS, !isInactive);
         this.toolbar
             .children(format(ATTR_SELECTOR, attr('command'), 'pauseResume'))
-            .toggleClass(DISABLED_CLASS, isInactive)
-            .toggleClass(ACTIVE_CLASS, isPaused);
+            .toggleClass(CONSTANTS.DISABLED_CLASS, isInactive)
+            .toggleClass(CONSTANTS.ACTIVE_CLASS, isPaused);
         this.toolbar
             .children(format(ATTR_SELECTOR, attr('command'), 'stop'))
-            .toggleClass(DISABLED_CLASS, isInactive);
+            .toggleClass(CONSTANTS.DISABLED_CLASS, isInactive);
     },
 
     /* This function's cyclomatic complexity is too high. */

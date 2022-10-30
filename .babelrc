@@ -30,8 +30,12 @@
         [
             "@babel/preset-env",
             {
-                "useBuiltIns": "entry",
-                "corejs": 3
+                "corejs": 3,
+                "targets": {
+                    "chrome": "100",
+                    "ie": "11"
+                },
+                "useBuiltIns": "entry"
             }
         ]
     ]

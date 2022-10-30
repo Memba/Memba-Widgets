@@ -132,6 +132,7 @@ module.exports = (config) => {
             externals: {
                 // CDN modules
                 jquery: 'jQuery',
+                kendo: 'kendo',
             },
             mode:
                 process.env.NODE_ENV === 'production'
@@ -152,7 +153,7 @@ module.exports = (config) => {
                     },
                     {
                         // Prevent any kendo.* from loading (we have already added kendo.all.min.js)
-                        test: /kendo\.\w+\.js$/,
+                        test: /kendo\.\w+(\.[-\w]+)?\.js$/,
                         use: 'null-loader',
                     },
                     {
@@ -206,32 +207,28 @@ module.exports = (config) => {
                             },
                         ],
                     },
-                    /* ,
-                    {
-                        // import sinonChai from 'sinon-chai' does not work
-                        // @see https://github.com/domenic/sinon-chai/issues/85
-                        // @see https://webpack.js.org/loaders/imports-loader/#disable-amd
-                        test: require.resolve('sinon-chai'),
-                        use: [
-                            {
-                                loader: 'imports-loader',
-                                options: { require: '>function(){}' }
-                            }
-                        ]
-                    }
-                    */
+                    // {
+                    //    import sinonChai from 'sinon-chai' does not work
+                    //    @see https://github.com/domenic/sinon-chai/issues/85
+                    //    @see https://webpack.js.org/loaders/imports-loader/#disable-amd
+                    //    test: require.resolve('sinon-chai'),
+                    //     use: [
+                    //         {
+                    //             loader: 'imports-loader',
+                    //             options: { require: '>function(){}' }
+                    //         }
+                    //     ]
+                    // }
                 ],
             },
-            /*
-            optimization: {
-                mergeDuplicateChunks: true,
-                // splitChunks: { minChunks: 10 },
-            },
-             */
+            // optimization: {
+            //     mergeDuplicateChunks: true,
+            //     // splitChunks: { minChunks: 10 },
+            // },
             resolve: {
                 extensions: ['.es6', '.js'],
                 modules: [
-                    path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
+                    // path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
                     path.resolve(__dirname, 'src/js/vendor/modernizr'),
                     path.resolve(__dirname, 'test/vendor'),
                     'node_modules',

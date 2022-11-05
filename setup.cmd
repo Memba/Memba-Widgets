@@ -1,5 +1,6 @@
 cd /d %~dp0
 call "%ProgramFiles%\nodejs\nodevars.bat"
+
 REM update npm, which is a requirement for some modules
 call npm install -g npm
 

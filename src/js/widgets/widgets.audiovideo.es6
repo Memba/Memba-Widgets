@@ -1008,14 +1008,14 @@ const AudioVideo = Widget.extend({
                         );
                 }
                 toolbar
-                    .removeClass(CONSTANTS.DISABLED_CLASS)
+                    .removeClass('k-disabled')
                     .on(
                         `${CONSTANTS.CLICK}${NS}`,
                         'a.k-button',
                         this._onButtonClick.bind(this)
                     );
             } else {
-                toolbar.addClass(CONSTANTS.DISABLED_CLASS).show();
+                toolbar.addClass('k-disabled').show();
             }
             seekerSlider.enable(enabled);
             volumeSlider.enable(enabled);

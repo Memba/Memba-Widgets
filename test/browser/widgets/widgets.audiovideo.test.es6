@@ -362,12 +362,12 @@ describe('widgets.audiovideo', () => {
             expect(widget.seekerSlider).to.be.an.instanceof(Slider);
             expect(widget.volumeSlider).to.be.an.instanceof(Slider);
             widget.enable(false);
-            expect(widget.toolbar).to.have.class('k-state-disabled');
+            expect(widget.toolbar).to.have.class('k-disabled');
             expect(widget.seekerSlider.wrapper).to.have.class(
-                'k-state-disabled'
+                'k-disabled'
             );
             expect(widget.volumeSlider.wrapper).to.have.class(
-                'k-state-disabled'
+                'k-disabled'
             );
         });
 

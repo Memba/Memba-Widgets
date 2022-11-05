@@ -30,7 +30,7 @@ SystemJS.config({
         kendospreadsheet: ['kendo.spreadsheet'],
     },
     map: {
-        jquery: 'src/js/vendor/jquery/jquery-3.6.0.js',
+        jquery: 'src/js/vendor/jquery/jquery-3.6.1.js',
         // http://docs.telerik.com/kendo-ui/third-party/systemjs
         'kendo.culture.en-GB':
             'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',

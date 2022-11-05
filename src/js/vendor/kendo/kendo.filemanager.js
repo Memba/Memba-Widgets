@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1170,6 +1170,7 @@ return window.kendo;
         extend = $.extend,
         ToolBar = kendo.ui.ToolBar,
         Item = kendo.toolbar.Item,
+        TemplateItem = kendo.toolbar.TemplateItem,
 
         CLICK = "click",
         TOGGLE = "toggle",
@@ -1380,35 +1381,28 @@ return window.kendo;
         }
     });
 
-    var SearchTool = Item.extend({
+    var SearchTool = TemplateItem.extend({
         init: function(options, toolbar) {
             var that = this,
-                element = $("<div class='k-filemanager-search-tool'></div>"),
                 input = $("<input class='k-input-inner' autocomplete='off' />"),
                 icon = $("<span class='k-input-icon k-icon k-i-search'/>"),
                 inputWrapper = $('<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid"></span>');
 
-
-            that.element = element;
             that.input = input;
             that.icon = icon;
-            that.options = options;
-            that.options.type = "fileManagerSearch";
-            that.toolbar = toolbar;
 
-            that.attributes();
+            TemplateItem.fn.init.call(this, inputWrapper, options, toolbar);
+
+            that.options.type = "fileManagerSearch";
+
             that.renderIcon();
-            that.addUidAttr();
-            that.addIdAttr();
-            that.addOverflowAttr();
+
+            inputWrapper.append(icon).append(input);
 
             that.input.attr({
                 placeholder: that.options.text,
                 title: that.options.text
             });
-
-            inputWrapper.append(icon).append(that.input);
-            that.element.append(inputWrapper);
 
             that._bindEvents();
             that.toolbar.fileManagerSearch = that;
@@ -2247,10 +2241,14 @@ var __meta__ = {
 
             if (options.toolbar) {
                 that.header = $("<div />").addClass(fileManagerStyles.header);
-                that.header.append(that._initToolbar().element);
             }
 
             that.wrapper.append(that.header);
+
+            if (options.toolbar) {
+                that._initToolbar();
+                that.toolbar._tabIndex();
+            }
         },
 
         _renderContentContainer: function() {
@@ -2370,6 +2368,8 @@ var __meta__ = {
                     messages: options.messages.toolbar,
                     action: that.executeCommand.bind(that)
                 });
+
+            that.header.append(toolbarElement);
 
             that.toolbar = new ui.filemanager.ToolBar(toolbarElement, toolbarOptions);
 
@@ -2968,7 +2968,8 @@ var __meta__ = {
             if (that.toolbar) {
                 that.toolbar.destroy();
                 that.header.empty();
-                that.header.append(that._initToolbar().element);
+                that._initToolbar();
+                that.toolbar._tabIndex();
             }
 
             if (that.treeView) {

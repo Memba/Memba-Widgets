@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -364,7 +364,7 @@
         redo: "Redo"
     };
 
-    var supportedBrowser = !os || (os.ios && os.flatVersion >= 500) || (!os.ios && typeof(document.documentElement.contentEditable) != 'undefined');
+    var supportedContentEditable = typeof(document.documentElement.contentEditable) != 'undefined';
 
     var toolGroups = {
         basic: [ "bold", "italic", "underline" ],
@@ -387,8 +387,8 @@
             var domElement;
             var dom = editorNS.Dom;
 
-            /* suppress initialization in mobile webkit devices (w/o proper contenteditable support) */
-            if (!supportedBrowser) {
+            /* suppress initialization in devices w/o proper contenteditable support */
+            if (!supportedContentEditable) {
                 return;
             }
 
@@ -12774,10 +12774,17 @@ var MSWordFormatCleaner = Cleaner.extend({
     removeAttributes: function(element) {
         var attributes = element.attributes,
             i = attributes.length,
-            borderStyles = [],
-            addBorderStyles = function(val) {
-                if (val.trim().indexOf("border") === 0) {
-                    borderStyles.push(val.trim());
+            significantStyles = [],
+            isSignificantCss = function(val) {
+                var significantCss = ["border", "background", "padding"];
+
+                return significantCss.filter(function(cssAttr) {
+                    return val.trim().indexOf(cssAttr) === 0;
+                }).length > 0;
+            },
+            addSignificantStyles = function(val) {
+                if (isSignificantCss(val)) {
+                    significantStyles.push(val.trim());
                 }
             },
             attr, attributeName, attributeValues;
@@ -12789,16 +12796,15 @@ var MSWordFormatCleaner = Cleaner.extend({
 
                 if (attributeName === "style" && (element.nodeName === "TD" || element.nodeName === "TH")) {
                     attributeValues = attr.value.split(";");
-
-                    attributeValues.forEach(addBorderStyles);
+                    attributeValues.forEach(addSignificantStyles);
                 }
 
                 element.removeAttributeNode(attributes[i]);
             }
         }
 
-        if (borderStyles.length > 0) {
-            element.setAttribute("style", borderStyles.join(";"));
+        if (significantStyles.length > 0) {
+            element.setAttribute("style", significantStyles.join(";"));
         }
     },
 
@@ -12877,14 +12883,6 @@ var MSWordFormatCleaner = Cleaner.extend({
         }
     },
 
-    removeDefaultColors: function(spans) {
-        for (var i = 0; i < spans.length; i++) {
-            if (/^\s*color:\s*[^;]*;?$/i.test(spans[i].style.cssText)) {
-                dom.unwrap(spans[i]);
-            }
-        }
-    },
-
     removeTextNodes: function(trs) {
         var i, j, childNodes, currentNode, row;
 
@@ -12924,7 +12922,6 @@ var MSWordFormatCleaner = Cleaner.extend({
             that.removeAttributes(tables[i]);
 
             that.removeParagraphs(tables.eq(i).find("td,th"));
-            that.removeDefaultColors(tables.eq(i).find("span"));
 
             that.removeTextNodes(tables.eq(i).find("tr"));
         }

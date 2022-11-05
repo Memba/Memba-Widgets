@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -495,7 +495,7 @@ var __meta__ = {
         },
 
         _angularItems: function(action) {
-            var elements = this.wrapper.closest("th").get();
+            var elements = this.wrapper.closest("td").get();
             var column = this.options.column;
 
             this.angular(action, function() {

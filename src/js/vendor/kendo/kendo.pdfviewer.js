@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -358,7 +358,7 @@ return window.kendo;
         },
 
         options: {
-            linkTemplate: '<a href="\\#" aria-label="#=text#" title="#=text#" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-pager-nav #= wrapClass #" data-page="#=pageIdx#"><span class="k-button-icon k-icon #= iconClass #"></span></a>',
+            linkTemplate: '<a role="button" href="\\#" aria-label="#=text#" title="#=text#" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-pager-nav #= wrapClass #" data-page="#=pageIdx#"><span class="k-button-icon k-icon #= iconClass #"></span></a>',
             previousNext: true,
             input: true,
             page: 1,
@@ -461,8 +461,6 @@ return window.kendo;
                 input = $(e.target),
                 page = parseInt(input.val(), 10),
                 upDown = key === keys.UP || key === keys.DOWN,
-                allowedKeys = key === keys.RIGHT || key === keys.LEFT ||
-                                key === keys.BACKSPACE || key === keys.DELETE,
                 direction = upDown && key === keys.UP ? 1 : -1;
 
             if (upDown) {
@@ -477,10 +475,7 @@ return window.kendo;
                 }
                 this._change(page);
                 e.preventDefault();
-            } else if (!e.key.match(/^\d+$/) && !allowedKeys) {
-                e.preventDefault();
             }
-
         },
 
         _change: function(page) {
@@ -586,11 +581,11 @@ return window.kendo;
         extend = $.extend,
         ACTION = "action",
         KEYDOWN = "keydown",
-        CLICK = kendo.support.click,
         CHANGE = "change",
-        ZOOMIN = "zoomin",
-        ZOOMOUT = "zoomout",
+        COMMAND = "command",
+        DOT = ".",
         Item = kendo.toolbar.Item,
+        TemplateItem = kendo.toolbar.TemplateItem,
         ToolBar = kendo.ui.ToolBar,
         PREDEFINED_ZOOM_VALUES = {
             auto: "auto",
@@ -600,18 +595,9 @@ return window.kendo;
         },
         styles = {
             zoomOutIcon: "k-i-zoom-out",
-            zoomInIcon: "k-i-zoom-in",
-            zoomButtons: "k-button-flat k-button-flat-base",
-            zoomOverflowButtons: "k-button-solid k-button-solid-base k-overflow-button",
-            overflowHidden: "k-overflow-hidden"
+            zoomInIcon: "k-i-zoom-in"
         };
 
-    var ZOOM_BUTTON_TEMPLATE = kendo.template('<a href="\\#" aria-label="#=text#" title="#=text#" data-command="#=command#" class="k-button k-button-md k-rounded-md # if(!showText) { # k-icon-button # } # #=className#">' +
-            '<span class="k-button-icon k-icon #= iconClass #"></span> ' +
-            '# if(showText) { #' +
-                '<span class="k-button-text">#= text #</span> ' +
-            '# } #' +
-        '</a>');
     var ZOOM_COMBOBOX_TEMPLATE = kendo.template('<select title="#=zoomLevel#" aria-label="#=zoomLevel#">' +
         '#for(var zoomIndex in zoomLevels){#' +
             '# var zoomLevel = zoomLevels[zoomIndex]; #' +
@@ -626,13 +612,20 @@ return window.kendo;
             command: "PageChangeCommand"
         },
         spacer: { type: "spacer" },
+        zoomInOut: {
+            type: "buttonGroup",
+            attributes: { "class": "k-zoom-in-out-group" },
+            buttons: [
+                { type: "button", icon: "zoom-out", name: "zoomOut", command: "ZoomCommand", showText: "overflow", options: "zoomOut" },
+                { type: "button", icon: "zoom-in", name: "zoomIn", command: "ZoomCommand", showText: "overflow", options: "zoomIn" },
+            ]
+        },
         zoom: {
             type: "zoom",
             command: "ZoomCommand",
-            zoomInOut: true,
             combobox: { zoomLevels: [50, 100, 150, 200, 300, 400] },
             enable: false,
-            attributes: { "class": "k-button-group" }
+            overflow: "never"
         },
         toggleSelection: {
             type: "buttonGroup",
@@ -720,8 +713,7 @@ return window.kendo;
             this.addOverflowAttr();
         },
         _change: function(e) {
-            if (this.options.change && this.options.change(e.page))
-            {
+            if (this.options.change && this.options.change(e.page)) {
                 return;
             }
 
@@ -738,14 +730,9 @@ return window.kendo;
                 keyCode = e.keyCode,
                 children = that.element.find(":kendoFocusable"),
                 targetIndex = children.index(target),
-                direction = e.shiftKey ? -1 : 1,
                 keys = kendo.keys;
 
-            if (keyCode === keys.TAB && children[targetIndex + direction]) {
-                children[targetIndex + direction].focus();
-                e.preventDefault();
-                e.stopPropagation();
-            } else if (keyCode === keys.RIGHT && children[targetIndex + 1]) {
+            if (keyCode === keys.RIGHT && children[targetIndex + 1]) {
                 children[targetIndex + 1].focus();
                 e.preventDefault();
                 e.stopPropagation();
@@ -759,76 +746,25 @@ return window.kendo;
 
     kendo.toolbar.registerComponent("pager", ToolbarPager);
 
-    function appendZoomButtons(element, messages, isOverflow) {
-        var className = isOverflow ? styles.zoomOverflowButtons : styles.zoomButtons;
-
-        element.append(ZOOM_BUTTON_TEMPLATE({
-            text: messages.zoomOut,
-            command: ZOOMOUT,
-            iconClass: styles.zoomOutIcon,
-            showText: isOverflow,
-            className: className
-        }));
-        element.append(ZOOM_BUTTON_TEMPLATE({
-            text: messages.zoomIn,
-            command: ZOOMIN,
-            iconClass: styles.zoomInIcon,
-            showText: isOverflow,
-            className: className
-        }));
-    }
-
     var ToolBarZoom = Item.extend({
         init: function(options, toolbar) {
-            this._init(options, toolbar);
-            this.toolbar.zoom = this;
-
-            if (toolbar.options.scale)
-            {
-                this._initValue = toolbar.options.scale * 100 + "%";
-            }
-
-            this._appendElements();
-
-            this._click = kendo.throttle(
-                this._click.bind(this),
-                200
-            );
-            this._keydown = kendo.throttle(
-                this._keydown.bind(this),
-                200
-            );
-
-            this.element.on(CLICK, ".k-button[data-command='zoomin'], .k-button[data-command='zoomout']", this._click);
-            this.element.on(KEYDOWN, ".k-button[data-command='zoomin'], .k-button[data-command='zoomout']", this._keydown);
-
-            this.attributes();
-            this.addUidAttr();
-            this.addOverflowAttr();
-            this.enable(options.enable);
-        },
-
-        _init: function(options, toolbar) {
-            var zoomElement = $("<div />");
-
             this.options = extend(true, options, {
                 messages: toolbar.options.messages.zoom
             });
 
-            this.toolbar = toolbar;
-            this.element = zoomElement;
-        },
+            TemplateItem.fn.init.call(this, "", options, toolbar);
 
-        _appendElements: function() {
-            var options = this.options;
+            this.toolbar.zoom = this;
 
-            if (options.zoomInOut) {
-                appendZoomButtons(this.element, options.messages, false);
+            if (toolbar.options.scale) {
+                this._initValue = toolbar.options.scale * 100 + "%";
             }
 
-            if (options.combobox) {
+            if (this.options.combobox) {
                 this._buildComboBox();
             }
+
+            this.enable(options.enable);
         },
 
         _buildComboBox: function() {
@@ -897,45 +833,6 @@ return window.kendo;
             });
         },
 
-        _buttonCommand: function(target) {
-            var button = $(target).closest(".k-button"),
-            command = button.data("command");
-
-            this.toolbar.action({
-                command: "ZoomCommand",
-                options: {
-                    zoomIn: command === ZOOMIN,
-                    zoomOut: command === ZOOMOUT,
-                    updateComboBox: true
-                }
-            });
-        },
-
-        _click: function(e) {
-            this._buttonCommand(e.target);
-        },
-
-        _keydown: function(e) {
-            var target = e.target,
-                keyCode = e.keyCode,
-                keys = kendo.keys,
-                children = this.element.find(":kendoFocusable"),
-                targetIndex = children.index($(target));
-
-            if (keyCode === keys.ENTER) {
-                this._buttonCommand(target);
-                e.preventDefault();
-            } else if (keyCode === keys.RIGHT && children[targetIndex + 1]) {
-                children[targetIndex + 1].focus();
-                e.preventDefault();
-                e.stopPropagation();
-            } else if (keyCode === keys.LEFT && children[targetIndex - 1]) {
-                children[targetIndex - 1].focus();
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        },
-
         enable: function(value) {
             var element = this.element;
 
@@ -953,29 +850,7 @@ return window.kendo;
         }
     });
 
-    var ToolBarOverflowZoom = ToolBarZoom.extend({
-        _init: function(options, toolbar) {
-            var zoomElement = $("<li></li>");
-
-            this.options = extend(true, options, {
-                messages: toolbar.options.messages.zoom
-            });
-
-            this.toolbar = toolbar;
-            this.element = zoomElement;
-        },
-        _appendElements: function() {
-            var options = this.options;
-            if (options.zoomInOut) {
-                appendZoomButtons(this.element, options.messages, true);
-            }
-        },
-        overflowHidden: function() {
-            this.element.addClass(styles.overflowHidden);
-        }
-    });
-
-    kendo.toolbar.registerComponent("zoom", ToolBarZoom, ToolBarOverflowZoom);
+    kendo.toolbar.registerComponent("zoom", ToolBarZoom);
 
     var ViewerToolBar = ToolBar.extend({
         init: function(element, options) {
@@ -1011,6 +886,12 @@ return window.kendo;
                 var options;
                 var toolName = toolOptions.name;
 
+                if (tool.name === "zoomIn" || tool.name === "zoomOut") {
+                    tool.text = that.options.messages.zoom[tool.name];
+                } else if (tool === 'zoom' || tool.name === "zoom" || tool.type === "zoom") {
+                    tool.overflow = "never";
+                }
+
                 if (toolOptions.type === "buttonGroup") {
                     toolOptions.buttons = that._updateItems(toolOptions.buttons);
                 } else if (toolOptions.type !== "pager") {
@@ -1039,24 +920,34 @@ return window.kendo;
                 return toolOptions;
             });
         },
-        _click: function(e)
-        {
-            var command = $(e.target).data("command");
+        _click: function(e) {
+            var button = $(e.target).closest(".k-button"),
+                command = button.data(COMMAND),
+                zoomIn = button.find(DOT + styles.zoomInIcon).length > 0,
+                zoomOut = button.find(DOT + styles.zoomOutIcon).length > 0,
+                options;
 
             if (!command) {
                 return;
             }
 
+            options = $.extend({}, e.options, {
+                zoomIn: zoomIn,
+                zoomOut: zoomOut,
+                updateComboBox: zoomIn || zoomOut
+            });
+
             this.action({
                 command: command,
-                options: e.options
+                options: options
             });
         },
         _update: function(e) {
             var pageOptions = {
-                page: e.page || 1,
-                total: e.total || 1
-            };
+                    page: e.page || 1,
+                    total: e.total || 1
+                },
+                focusable = this.element.find(":kendoFocusable").not("[tabindex=-1]");
 
             if (this.zoom) {
                 this.zoom.enable(!e.isBlank);
@@ -1070,10 +961,14 @@ return window.kendo;
             }
 
             this.enable(this.wrapper.find(".k-toggle-selection-group"), !e.isBlank);
+            this.enable(this.wrapper.find(".k-zoom-in-out-group"), !e.isBlank);
 
             this.enable(this.wrapper.find("[data-command='OpenSearchCommand']"), !e.isBlank);
             this.enable(this.wrapper.find("[data-command='DownloadCommand']"), !e.isBlank);
             this.enable(this.wrapper.find("[data-command='PrintCommand']"), !e.isBlank);
+
+            this.element.find(":kendoFocusable").not("[tabindex=-1]").attr("tabindex", -1);
+            focusable.attr("tabindex", 0);
         },
         _updateZoomComboBox: function(value) {
             var isPredefined = value === PREDEFINED_ZOOM_VALUES.auto ||
@@ -1090,8 +985,7 @@ return window.kendo;
                 this.zoom.combobox.value(value);
             }
         },
-        action: function(args)
-        {
+        action: function(args) {
             this.trigger(ACTION, args);
         },
         destroy: function() {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -30,7 +30,7 @@ var __meta__ = {
         REFRESH = "refresh",
         CHANGE = "change",
         NS = ".kendoFilterMenu",
-        COLUMNHEADERATTR = "[role='columnheader']",
+        COLUMNHEADERATTR = "[scope='col']",
         EQ = "Is equal to",
         NEQ = "Is not equal to",
         roles = {
@@ -597,8 +597,7 @@ var __meta__ = {
             if (!link[0]) {
                 link = appendTarget
                     .append('<a class="k-grid-filter-menu k-grid-filter" href="#" title="' +
-                        title + '" aria-label="' +
-                        title + '"><span class="k-icon k-i-filter"></span></a>')
+                        title + '" ><span class="k-icon k-i-filter"></span></a>')
                     .find(".k-grid-filter");
             }
 

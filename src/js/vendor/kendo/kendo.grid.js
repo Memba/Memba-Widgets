@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -857,7 +857,7 @@ var __meta__ = {
                 column.headerAttributes = extend({ id: uid }, column.headerAttributes);
                 column.uid = uid;
             } else {
-                uid = column.headerAttributes.id;
+                column.uid = uid = column.headerAttributes.id;
             }
 
             if (column.columns) {
@@ -1400,6 +1400,28 @@ var __meta__ = {
         return result;
     }
 
+    function visibleLeafExportColumns(columns) {
+        var result = [];
+
+        for (var idx = 0; idx < columns.length; idx++) {
+            if (columns[idx].hidden) {
+                continue;
+            }
+
+            if (columns[idx].columns) {
+                result = result.concat(visibleLeafColumns(columns[idx].columns));
+            } else {
+                result.push({
+                    field: columns[idx].field,
+                    width: columns[idx].width,
+                    values: columns[idx].values
+                });
+            }
+        }
+
+        return result;
+    }
+
     function childColumns(columns) {
         var result = [];
 
@@ -1852,7 +1874,7 @@ var __meta__ = {
 
             that._element();
 
-            that._aria();
+            that._ariaId();
 
             that._columns($.extend(true, [], that.options.columns));
 
@@ -2057,7 +2079,10 @@ var __meta__ = {
                 groupHeader: "Press ctrl + space to group",
                 ungroupHeader: "Press ctrl + space to ungroup",
                 itemsSelected: "items selected",
-                dragHandleLabel: "Drag row"
+                dragHandleLabel: "Drag row",
+                toolbarLabel: "grid toolbar",
+                groupingHeaderLabel: "grid grouping header",
+                filterCellTitle: "filter cell"
             },
             width: null
         },
@@ -2391,11 +2416,349 @@ var __meta__ = {
         },
 
         _aria: function() {
+            var wrapper = this.wrapper,
+                gridRole = this._hasDetails() ? "treegrid" : "grid",
+                table = this.table,
+                toolbar = wrapper.find(".k-grid-toolbar"),
+                groupingHeader = wrapper.find(".k-grouping-header"),
+                gridId = table.attr("id"),
+                tableTabindex = table.attr("tabindex"),
+                tbodyId, headerGroupId, footerGroupId, tableOwned,
+                numberOfFixedRows = this.thead.find("tr").length + this.wrapper.find(".k-grid-footer-wrap table tr").length,
+                trailingColumns = this._trailingColumns(),
+                virtual = this.virtualScroll,
+                pageable = this.options.pageable,
+                rowsCount;
+
+            table.attr({
+                role: gridRole,
+                tabindex: tableTabindex >= 0 ? tableTabindex : 0
+            });
+
+            table.find("tbody, thead, tfoot").attr("role", "rowgroup");
+            table.find("tr").attr("role", "row");
+            table.find("th").attr("role", "columnheader");
+            table.find("td").attr("role", "gridcell");
+
+            if ((pageable && this.dataSource.totalPages() > 1) || (virtual && virtual.rows)) {
+                if (this.dataSource.group().length > 0) {
+                    rowsCount = -1;
+                } else if (this._hasDetails()) {
+                    rowsCount = numberOfFixedRows + (this.dataSource.total() * 2);
+                } else {
+                    rowsCount = numberOfFixedRows + this.dataSource.total();
+                }
+
+                table.attr("aria-rowcount", rowsCount);
+            } else if (this._hasDetails()) {
+                if (this.dataSource.group().length > 0) {
+                    rowsCount = -1;
+                } else {
+                    rowsCount = numberOfFixedRows + (this.dataSource.total() * 2);
+                }
+
+                table.attr("aria-rowcount", rowsCount);
+            }
+
+            if (rowsCount && rowsCount > 0) {
+                this._ariaRowIndex();
+            }
+
+            if ((virtual && virtual.columns) ||
+                (!table.attr("aria-colcount") &&
+                    (table.find("td:hidden").length > 0 ||
+                    wrapper.find(".k-grid-content-locked td:hidden").length > 0))) {
+                        table.attr("aria-colcount", trailingColumns + leafColumns(this.columns).length);
+                        this._ariaColumnIndex();
+            }
+
+            if (!gridId) {
+                gridId = kendo.guid();
+                table.attr("id", gridId);
+            }
+
+            if (this.pager) {
+                this.pager.element.attr("aria-controls", gridId);
+            }
+
+            toolbar.attr({
+                role: "toolbar",
+                "aria-label": this.options.messages.toolbarLabel,
+                "aria-controls": gridId
+            });
+
+            groupingHeader.attr({
+                role: "toolbar",
+                "aria-label": this.options.messages.groupingHeaderLabel,
+                "aria-controls": gridId
+            });
+
+            headerGroupId = this._ariaHeaderFooter("header", "thead", "th, td", "columnheader");
+            footerGroupId = this._ariaHeaderFooter("footer", "tfoot", "td", "gridcell");
+
+            if (wrapper.find(".k-grid-content-locked").length > 0) {
+                this._ariaLockedContent();
+            }
+
+            if (!!headerGroupId || !!footerGroupId) {
+                tbodyId = this.tbody.attr("id") || kendo.guid();
+                tableOwned = [headerGroupId, tbodyId, footerGroupId].join(" ");
+
+                this.tbody.attr("id", tbodyId);
+                table.attr("aria-owns", tableOwned);
+            }
+        },
+
+        _ariaColumnIndex: function() {
+            var trailingColumns = this._trailingColumns(),
+                dataVirtual = this.tbody.find(">tr").last().find("> td[data-virtual]"),
+                headerRows = this.thead.find(">tr").not(".k-filter-row"),
+                lockedHeaderRows = this.wrapper.find(".k-grid-header-locked thead > tr").not(".k-filter-row"),
+                firstIndex = Number.MAX_VALUE,
+                lastIndex = 0,
+                lockedLastIndex = 0,
+                previousVirtual = 0,
+                nextVirtual = 0,
+                previousIndex, i, cells, dataIndex, cellsIndex,
+                eachHeaderCell = function(j, cell) {
+                    var current = cell.getAttribute("data-index"),
+                        currentIndex = Number(current),
+                        lockedParent = $(cell).closest(".k-grid-header-locked");
+
+                    if (lockedParent.length === 0 && currentIndex < firstIndex) {
+                        firstIndex = currentIndex;
+                    }
+
+                    if (lockedParent.length > 0 && lockedLastIndex < currentIndex) {
+                        lockedLastIndex = currentIndex;
+                    }
+
+                    if (lockedParent.length === 0 && lastIndex < currentIndex) {
+                        lastIndex = currentIndex;
+                    }
+
+                    if (current !== null) {
+                        cell.setAttribute("aria-colindex", Number(currentIndex) + 1);
+                        previousIndex = Number(currentIndex) + 1 + cell.getAttribute("colspan");
+                    } else {
+                        cell.setAttribute("aria-colindex", previousIndex + 1);
+                        previousIndex = previousIndex + cell.getAttribute("colspan");
+                    }
+                };
+
+            if (dataVirtual.length === 2) {
+                previousVirtual = Number(dataVirtual[0].getAttribute("colspan"));
+                nextVirtual = Number(dataVirtual[1].getAttribute("colspan"));
+            } else if (dataVirtual.length === 1 && dataVirtual.prev().length === 0) {
+                previousVirtual = Number(dataVirtual[0].getAttribute("colspan"));
+            } else if (dataVirtual.length === 1 && dataVirtual.prev().length === 1) {
+                nextVirtual = Number(dataVirtual[0].getAttribute("colspan"));
+            }
+
+            for (i = 0; i < lockedHeaderRows.length; i++) {
+                previousIndex = 0;
+                lockedHeaderRows.eq(i).find("th").each(eachHeaderCell);
+            }
+
+            for (i = 0; i < headerRows.length; i++) {
+                previousIndex = 0;
+                headerRows.eq(i).find("th").each(eachHeaderCell);
+            }
+
+            for (i = 0; i <= lockedLastIndex; i++) {
+                dataIndex = i + trailingColumns;
+                cells = this.wrapper.find(".k-grid-content-locked tbody > tr > td:nth-child(" + (i + 1) + ")");
+                cells.attr("aria-colindex", dataIndex + 1);
+            }
+
+            for (i = previousVirtual; i <= lastIndex - firstIndex - nextVirtual; i++) {
+                if (previousVirtual === 0 ) {
+                    cellsIndex = i + 1;
+                } else {
+                    cellsIndex = i - previousVirtual + 2;
+                }
+
+                dataIndex = firstIndex + i + trailingColumns;
+
+                cells = this.tbody.find("> tr > td:nth-child(" + cellsIndex + ")");
+                cells.attr("aria-colindex", dataIndex + 1);
+            }
+        },
+
+        _ariaHeaderFooter: function(type, group, el, role) {
+            var that = this,
+                wrapper = that.wrapper,
+                table = wrapper.find(".k-grid-" + type + " .k-grid-" + type + "-wrap table"),
+                lockedTable = wrapper.find(".k-grid-" + type + " .k-grid-" + type + "-locked table"),
+                groupId = "",
+                rowGroup;
+
+            if (table.length > 0) {
+                rowGroup = table.find(group + ", tbody");
+                groupId = rowGroup.attr("id") || kendo.guid();
+
+                table.attr("role", "none");
+                table.find("tr").attr("role", "row");
+                table.find(el).attr("role", role);
+                rowGroup.attr({
+                    role: "rowgroup",
+                    id: groupId
+                });
+            }
+
+            if (lockedTable.length > 0) {
+                that._ariaLocked(type, group, el, role);
+            }
+
+            lockedTable.find("td").attr("role", "gridcell");
+            table.find("td").attr("role", "gridcell");
+
+            return groupId;
+        },
+
+        _ariaId: function() {
             var id = this.element.attr("id") || "aria";
 
             if (id) {
                 this._cellId = id + "_active_cell";
             }
+        },
+
+        _ariaLocked: function(type, group, el, role) {
+            var that = this,
+                wrapper = that.wrapper,
+                table = wrapper.find(".k-grid-" + type + " .k-grid-" + type + "-wrap table"),
+                lockedTable = wrapper.find(".k-grid-" + type + " .k-grid-" + type + "-locked table"),
+                rows = table.find("tr"),
+                lockedRows = lockedTable.find("tr");
+
+            lockedTable.attr("role", "none");
+            lockedTable.find(group + ", tbody").attr("role", "none");
+            lockedRows.attr("role", "none");
+
+            lockedTable.find(el).attr("role", role);
+
+            rows.each(function(i, row) {
+                var ownedCells = [];
+
+                ownedCells = that._cellsIds(lockedRows.eq(i).find(el), "locked_" + type, i);
+                ownedCells = ownedCells.concat(that._cellsIds($(row).find(el), type, i));
+
+                row.setAttribute("aria-owns", ownedCells.join(" "));
+            });
+        },
+
+        _ariaLockedContent: function() {
+            var that = this,
+                table = that.table,
+                tableRows = table.find("tr"),
+                lockedTable = that.wrapper.find(".k-grid-content-locked table"),
+                lockedRows = lockedTable.find("tr");
+
+            lockedTable.attr("role", "none");
+            lockedTable.find("tbody").attr("role", "none");
+            lockedRows.attr("role", "none");
+            lockedTable.find("td").attr("role", "gridcell");
+
+            tableRows.each(function(i, row) {
+                var ownedCells = [];
+
+                ownedCells = that._cellsIds(lockedRows.eq(i).find("td"), "locked_datacell", i);
+                ownedCells = ownedCells.concat(that._cellsIds($(row).find("td"), "datacell", i));
+
+                row.setAttribute("aria-owns", ownedCells.join(" "));
+            });
+        },
+
+        _ariaAddHiddenColIndex: function() {
+            var virtualScroll = this.virtualScroll || {},
+                columns = this.columns,
+                table = this.table,
+                leafColsCount = leafColumns(columns).length;
+
+            if (!virtualScroll.columns && !table.attr("aria-colcount")) {
+                this._ariaColumnIndex();
+
+                table.attr("aria-colcount", leafColsCount);
+            }
+        },
+
+        _ariaRemoveHiddenColIndex: function() {
+            var virtualScroll = this.virtualScroll || {},
+                columns = this.columns,
+                leafColsCount = leafColumns(columns).length;
+
+            if (!virtualScroll.columns && (leafColsCount === visibleLeafColumns(this.columns).length)) {
+                this.wrapper.find("td, th").removeAttr("aria-colindex");
+
+                this.table.removeAttr("aria-colcount");
+            }
+        },
+
+        _ariaRowIndex: function() {
+            var headerRows = this.thead.find(">tr"),
+                numberOfHeaderRows = headerRows.length,
+                bodyRows = this.tbody.find(">tr"),
+                footerRows = this.wrapper.find(".k-grid-footer-wrap tfoot > tr"),
+                totalNumberOfItems = this.dataSource.total(),
+                previousItems = this.dataSource.skip() || 0,
+                currentIndex = 1,
+                previousMaster = false,
+                i, currentRow;
+
+            if (this._hasDetails()) {
+                totalNumberOfItems = totalNumberOfItems * 2;
+                previousItems = previousItems * 2;
+            }
+
+            for (i = 0; i < numberOfHeaderRows; i++) {
+                headerRows.eq(i).attr("aria-rowindex", currentIndex + i);
+            }
+
+            currentIndex = numberOfHeaderRows + previousItems;
+
+            for (i = 0; i < bodyRows.length; i++) {
+                currentRow = bodyRows.eq(i);
+
+                if (this._hasDetails() && currentRow.hasClass("k-master-row")) {
+                    if (previousMaster) {
+                        currentIndex = currentIndex + 2;
+                    } else {
+                        currentIndex = currentIndex + 1;
+                    }
+
+                    previousMaster = true;
+                } else {
+                    currentIndex = currentIndex + 1;
+                    previousMaster = false;
+                }
+
+                currentRow.attr("aria-rowindex", currentIndex);
+            }
+
+            currentIndex = numberOfHeaderRows + totalNumberOfItems + 1;
+
+            for (i = 0; i < footerRows.length; i++) {
+                footerRows.eq(i).attr("aria-rowindex", currentIndex + i);
+            }
+        },
+
+        _cellsIds: function(elements, prefix, i) {
+            var ownedCells = [];
+
+            elements.each(function(j, cell) {
+                var id = cell.getAttribute("id") || prefix + "_" + i + "_" + j;
+
+                cell.setAttribute("id", id);
+
+                ownedCells.push(id);
+            });
+
+            return ownedCells;
+        },
+
+        _trailingColumns: function() {
+            return this.dataSource.group().length + (this._hasDetails() ? 1 : 0);
         },
 
         _element: function() {
@@ -2414,7 +2777,7 @@ var __meta__ = {
                 }
             }
 
-            that.table = table.attr("role", that._hasDetails() ? "treegrid" : "grid");
+            that.table = table;
 
             that._wrapper();
         },
@@ -3016,7 +3379,7 @@ var __meta__ = {
             }
 
             if (that._hasFilterRow()) {
-                reorder(that.wrapper.find(".k-filter-row th:not(.k-group-cell,.k-hierarchy-cell)"), sourceIndex, destIndex, before, sources.length);
+                reorder(that.wrapper.find(".k-filter-row td:not(.k-group-cell,.k-hierarchy-cell)"), sourceIndex, destIndex, before, sources.length);
             }
 
             if (colSourceIndex >= 0) {
@@ -4978,7 +5341,7 @@ var __meta__ = {
                         html += "<span class='k-spacer'></span>";
                         html += "<span class='k-searchbox k-input k-input-md k-rounded-md k-input-solid k-grid-search'>";
                         html += "<span class='k-input-icon k-icon k-i-search'></span>";
-                        html += "<input autocomplete='off' placeholder='" + searchText + "' title='" + searchText + "' class='k-input-inner' />";
+                        html += "<input autocomplete='off' placeholder='" + searchText + "' title='" + searchText + "' aria-label='" + searchText + "' class='k-input-inner' />";
                         html += "</span>";
                     } else {
                         html += that._createButton(commands[idx]);
@@ -5100,7 +5463,6 @@ var __meta__ = {
                 filter = that.content ? ".k-grid-header:first " + draggables : "table:first>.k-grid-header " + draggables;
 
             if (groupable && groupable.enabled !== false) {
-
                 if (!wrapper.has("div.k-grouping-header")[0]) {
                     $("<div>&nbsp;</div>").addClass("k-grouping-header").prependTo(wrapper);
                 }
@@ -5121,11 +5483,15 @@ var __meta__ = {
                     draggableElements: filter,
                     filter: filter,
                     allowDrag: that.options.reorderable,
+                    removeGroup: function(e) {
+                        that._showUngroupedColumn(e);
+                    },
                     change: function(e) {
                         if (that.trigger("group", { groups: e.groups })) {
                             e.preventDefault();
                         } else {
                             that._clearEditableState();
+                            that._hideGroupedColumns(e.groups);
                             if (that.dataSource.options.endless) {
                                 that._resetEndless();
                             }
@@ -5134,6 +5500,38 @@ var __meta__ = {
                 }));
 
                 that._addGroupableOptionsToHeader();
+            }
+        },
+
+        _showUngroupedColumn: function(group) {
+            var columns = leafColumns(this.columns);
+            var i;
+
+            for (i = 0; i < columns.length; i++) {
+                if (columns[i].uid == group.colID && columns[i].hideOnGroup) {
+                    this.showColumn(columns[i]);
+                }
+            }
+        },
+
+        _hideGroupedColumns: function(groups) {
+            if (!groups) {
+                return;
+            }
+            var columns = leafColumns(this.columns);
+            var fields = [];
+            var i;
+
+            for (i = 0; i < groups.length; i++) {
+                if (groups[i].colID) {
+                    fields.push(groups[i].colID);
+                }
+            }
+
+            for (i = 0; i < columns.length; i++) {
+                if (fields.indexOf(columns[i].uid) >= 0 && columns[i].hideOnGroup) {
+                    this.hideColumn(columns[i]);
+                }
             }
         },
 
@@ -5313,6 +5711,8 @@ var __meta__ = {
                         var current = that.current();
                         var target = e.target;
                         var eventObject = { event: e };
+                        var triggerChange;
+                        var lastSelection;
                         if (!current) {
                             return;
                         }
@@ -5322,6 +5722,7 @@ var __meta__ = {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 current = cell ? current : current.parent();
+                                triggerChange = !current.hasClass(SELECTED) || that.selectable.value().length > 1;
 
                                 if (isLocked && !cell) {
                                     current = current.add(that._relatedRow(current));
@@ -5342,7 +5743,10 @@ var __meta__ = {
                                 if (!cell) {
                                     that.selectable._lastActive = current;
                                 }
-                                that.selectable.value(current, eventObject);
+                                that.selectable.value(current);
+                                if (triggerChange) {
+                                    that.trigger(CHANGE);
+                                }
                         } else if (!cell &&
                             ($(target).is("td") || ($(target).is("table") && inArray(target, this._navigatableTables))) &&
                           ((e.shiftKey && e.keyCode == keys.LEFT) ||
@@ -5354,6 +5758,8 @@ var __meta__ = {
                             e.stopPropagation();
                             current = current.parent();
 
+                            lastSelection = that.selectable.value();
+
                             if (isLocked) {
                                 current = current.add(that._relatedRow(current));
                             }
@@ -5362,10 +5768,15 @@ var __meta__ = {
                                 if (!that.selectable._lastActive) {
                                     that.selectable._lastActive = current;
                                 }
-                                that.selectable.selectRange(that.selectable._firstSelectee(), current, eventObject);
-                            } else {
+                                that.selectable.selectRange(that.selectable._firstSelectee(), current);
+
+                                if (!compareElements(lastSelection, that.selectable.value())) {
+                                    that.trigger(CHANGE, eventObject);
+                                }
+                            } else if (!current.hasClass("k-selected")) {
                                 that.selectable.clear();
-                                that.selectable.value(current, eventObject);
+                                that.selectable.value(current);
+                                that.trigger(CHANGE);
                             }
                         }
                     });
@@ -5379,8 +5790,9 @@ var __meta__ = {
             if (selectable && options.allowCopy) {
                 var grid = this;
                 if (!options.navigatable) {
+                    grid.table.attr("tabindex", 0);
+
                     grid.table.add(grid.lockedTable)
-                        .attr("tabindex", 0)
                         .on("mousedown" + NS + " keydown" + NS, ".k-detail-cell", function(e) {
                             if (e.target !== e.currentTarget) {
                                 e.stopImmediatePropagation();
@@ -5492,7 +5904,6 @@ var __meta__ = {
                         result[rowIndex] = [];
                     }
                     result[rowIndex][cellIndex] = cellText;
-
                 });
 
                 var rowsOffset = result.length;
@@ -5529,14 +5940,8 @@ var __meta__ = {
         },
 
         clearArea: function(e) {
-            var table;
             if (this.areaClipBoard && e && e.target === this.areaClipBoard[0]) {
-                if (this.options.navigatable) {
-                    table = $(this.current()).closest("table");
-                } else {
-                    table = this.table;
-                }
-                focusTable(table, true);
+                focusTable(this.table, true);
             }
 
             if (this.areaClipBoard) {
@@ -5759,7 +6164,7 @@ var __meta__ = {
 
         _updateStickyFilterCells: function() {
             var that = this;
-            var filterCells = that.thead.find(".k-filter-row").find("th:not(.k-group-cell,.k-hierarchy-cell)");
+            var filterCells = that.thead.find(".k-filter-row").find("td:not(.k-group-cell,.k-hierarchy-cell)");
             if (filterCells.length) {
                 filterCells.each(function() {
                     var th = $(this);
@@ -6164,7 +6569,7 @@ var __meta__ = {
 
         _addSingleSelectionRows: function(book, exporter, data, includeHeaders) {
             var idx = 0;
-            var visibleColumns = visibleLeafColumns(this.columns);
+            var visibleColumns = visibleLeafExportColumns(this.columns);
             var item;
 
             for (idx = 0; idx < data.length; idx++) {
@@ -6176,7 +6581,7 @@ var __meta__ = {
         },
 
         _addRangeSelectionRows: function(book, exporter, data, includeHeaders) {
-            var visibleColumns = visibleLeafColumns(this.columns);
+            var visibleColumns = visibleLeafExportColumns(this.columns);
 
             exporter.data = data;
             this._setExporterColumns(exporter, visibleColumns, data[0]);
@@ -6254,11 +6659,12 @@ var __meta__ = {
             var grid = this;
             var inLockedArea = hasLockedCols && $.contains(grid.lockedTable[0], cell[0]);
             var fieldAttr = kendo.attr('field');
+            var index = kendo.attr('index');
 
             if (hasLockedCols) {
-                return grid.element.find(".k-grid-header-" + (inLockedArea ? "locked" : "wrap") + " th").eq(cell.index()).attr(fieldAttr);
+                return grid.element.find(".k-grid-header-" + (inLockedArea ? "locked" : "wrap") + " th[" + index + "='" + cell.index() + "']").attr(fieldAttr);
             } else {
-                return grid.thead.find("th").eq(cell.index()).attr(fieldAttr);
+                return grid.thead.find("th[" + index + "='" + cell.index() + "']").attr(fieldAttr);
             }
         },
 
@@ -6339,18 +6745,16 @@ var __meta__ = {
                 }
 
                 if (selectable && !that._checkBoxSelection) {
-                   selectable.value(items);
+                    selectable.value(items);
                 } else {
                     that._checkRows(items);
                     if (that.select().length === that.items().length) {
                         that._toggleHeaderCheckState(true);
                     }
+                }
 
-                    if (!cell) {
-                        that._persistSelectedRows();
-                    }
-
-                    that.trigger(CHANGE);
+                if (!cell) {
+                    that._persistSelectedRows();
                 }
 
                 return;
@@ -6465,10 +6869,8 @@ var __meta__ = {
             var nextId;
             var descId;
 
-            $(current)
-                .removeClass(FOCUSED)
-                .closest("table")
-                .removeAttr("aria-activedescendant");
+            $(current).removeClass(FOCUSED);
+            this.table.removeAttr("aria-activedescendant");
 
             if (headerId) {
                 headerId = headerId.replace(this._cellId, "");
@@ -6483,15 +6885,14 @@ var __meta__ = {
                 next.data("headerId", nextId);
             }
 
-            if (next.is("th")) {
+            if (!!nextId) {
                 descId = nextId;
             } else {
                 next.attr("id", this._cellId);
             }
 
-            next.addClass(FOCUSED)
-                .closest("table")
-                .attr("aria-activedescendant", descId || this._cellId);
+            next.addClass(FOCUSED);
+            this.table.attr("aria-activedescendant", descId || this._cellId);
 
             this._current = next;
         },
@@ -6663,8 +7064,6 @@ var __meta__ = {
             if (that.options.scrollable) {
                 //add the header table when the widget is scrollable
                 tables = tables.add(headerTables);
-                //data tables will recive first focus on TAB
-                headerTables.attr(TABINDEX, -1);
             }
 
             this._navigatableTables = tables;
@@ -6674,12 +7073,10 @@ var __meta__ = {
             tables.off("mousedown" + NS + " focus" + NS + " focusout" + NS + " keydown" + NS);
 
             headerTables
-                .on("keydown" + NS, that._openHeaderMenu.bind(that))
                 .find("a.k-link").attr("tabIndex", -1);
 
             //prevent propagation when clicked inside detail grid
             dataTables
-                .attr(TABINDEX, math.max(dataTables.attr(TABINDEX) || 0, 0))
                 .on("keydown" + NS, ".k-detail-cell", function(e) {
                     if (e.target !== e.currentTarget) {
                         e.stopImmediatePropagation();
@@ -6704,22 +7101,9 @@ var __meta__ = {
             $(header).removeClass(FOCUSED);
         },
 
-        _openHeaderMenu: function(e) {
-            if (e.altKey && e.keyCode == keys.DOWN) {
-                this.current().find(".k-grid-filter, .k-header-column-menu").click();
-                e.stopImmediatePropagation();
-            }
-        },
-
-        _setTabIndex: function(table) {
-            this._navigatableTables.attr(TABINDEX, -1);
-
-            table.attr(TABINDEX, 0);
-        },
-
-        _tableFocus: function(e) {
+        _tableFocus: function() {
             var current = this.current();
-            var table = $(e.currentTarget);
+            var table = this.lockedTable ? this.lockedTable : this.table;
 
             //if there is already current, highlighted it
             //otherwise highlight the first possible cell
@@ -6733,7 +7117,7 @@ var __meta__ = {
                 }
             }
 
-            this._setTabIndex(table);
+            this.table.attr(TABINDEX, 0);
         },
 
         _tableBlur: function() {
@@ -6806,6 +7190,12 @@ var __meta__ = {
             var requestInProgress = this.virtualScrollable && this.virtualScrollable.fetching();
             var target = $(e.target);
             var canHandle = !e.isDefaultPrevented() && !target.is(":button,a,:input:not(.k-select-checkbox),a>.k-icon");
+
+            if (e.altKey && e.keyCode == keys.DOWN) {
+                this.current().find(".k-grid-filter, .k-header-column-menu").click();
+                e.stopImmediatePropagation();
+                return;
+            }
 
             // do not handle key down if request in progress
             // or there isn't current set
@@ -6920,7 +7310,7 @@ var __meta__ = {
                         next = this._prevHorizontalCell(container, current, index);
 
                         if (next[0] !== current[0]) {
-                            focusTable(container.parent(), true);
+                            focusTable(this.table, true);
                         }
                     }
                 }
@@ -6966,7 +7356,7 @@ var __meta__ = {
                         next = this._nextHorizontalCell(container, current, index);
 
                         if (next[0] !== current[0]) {
-                            focusTable(container.parent(), true);
+                            focusTable(this.table, true);
                         }
                     }
                 }
@@ -7006,7 +7396,7 @@ var __meta__ = {
                   next = this._prevVerticalCell(container, current);
 
                   if (next[0]) {
-                      focusTable(container.parent(), true);
+                      focusTable(this.table, true);
                   }
                }
             }
@@ -7046,7 +7436,7 @@ var __meta__ = {
 
                     next = this._nextVerticalCell(container, current);
                     if (next[0]) {
-                        focusTable(container.parent(), true);
+                        focusTable(this.table, true);
                     }
                 }
             }
@@ -7197,21 +7587,21 @@ var __meta__ = {
             return false;
         },
 
-        _handleEscKey: function(current, currentTable) {
+        _handleEscKey: function(current) {
             var active = activeElement();
             var isInCell = this._editMode() == "incell";
 
             if (!isInEdit(current)) {
                 if (current.has(active).length) {
                     // return focus back to the table
-                    focusTable(currentTable, true);
+                    focusTable(this.table, true);
 
                     return true;
                 }
 
                 if (current.parent().hasClass("k-filter-row")) {
                     this._filterFocusable().attr("tabindex", -1);
-                    focusTable(currentTable, true);
+                    focusTable(this.table, true);
 
                     return true;
                 }
@@ -7232,7 +7622,7 @@ var __meta__ = {
                 }
             }
 
-            focusTable(currentTable, true);
+            focusTable(this.table, true);
 
             return true;
         },
@@ -7269,7 +7659,7 @@ var __meta__ = {
             var descriptors = that.groupable.descriptors();
             var field = current.attr(kendo.attr("field"));
             var aggregates = that.groupable.aggregates();
-            var label = current.attr(kendo.attr("title")) || field;
+            var label;
 
             if (that.groupable._canDrag(current)) {
                 descriptors.push({
@@ -7277,16 +7667,16 @@ var __meta__ = {
                     dir: "asc",
                     aggregates: aggregates || []
                 });
-                label += " " + that.options.messages.ungroupHeader;
+                label = that.options.messages.ungroupHeader;
             } else {
                 descriptors = $.grep(descriptors, function(item)
                 {
                     return item.field !== field;
                 });
-                label += " " + that.options.messages.groupHeader;
+                label = that.options.messages.groupHeader;
             }
 
-            current.attr("aria-label", label);
+            current.attr("title", label);
 
             that.dataSource.group(descriptors);
 
@@ -7631,7 +8021,7 @@ var __meta__ = {
                 }
 
                 if (!that.editable) {
-                    focusTable(table);
+                    focusTable(that.table);
                     return;
                 }
 
@@ -7660,7 +8050,7 @@ var __meta__ = {
                 that._setCurrent(next);
             }
 
-            focusTable(table, true);
+            focusTable(that.table, true);
 
             if (!editable) {
                 return;
@@ -7777,7 +8167,7 @@ var __meta__ = {
                 tbody = $("<tbody/>").appendTo(table);
             }
 
-            that.tbody = tbody.attr("role", "rowgroup");
+            that.tbody = tbody;
         },
 
         _scrollable: function() {
@@ -7800,7 +8190,7 @@ var __meta__ = {
 
                 // workaround for IE issue where scroll is not raised if container is same width as the scrollbar
                 header.css((isRtl ? "padding-left" : "padding-right"), scrollable.virtual ? scrollbar + 1 : scrollbar);
-                table = $('<table role="grid" />');
+                table = $('<table role="none"/>');
 
                 table.width(that.table[0].style.width);
 
@@ -8600,7 +8990,7 @@ var __meta__ = {
                 scrollbar = !kendo.support.mobileOS ? kendo.support.scrollbar() : 0;
 
             if (that.options.scrollable) {
-                html = $('<div class="k-grid-footer"><div class="k-grid-footer-wrap"><table><tbody>' + footerRow + '</tbody></table></div></div>');
+                html = $('<div class="k-grid-footer"><div class="k-grid-footer-wrap"><table><tfoot>' + footerRow + '</tfoot></table></div></div>');
                 that._appendCols(html.find("table"));
                 html.css((isRtl ? "padding-left" : "padding-right"), scrollbar); // Update inner fix.
 
@@ -8637,8 +9027,8 @@ var __meta__ = {
                 openCallback = function(e) {
                     that.trigger(COLUMNMENUOPEN, { field: e.field, container: e.container });
                 },
-                closeCallback = function(element) {
-                    focusTable(element.closest("table"), true);
+                closeCallback = function() {
+                    focusTable(that.table, true);
                 },
                 stickCallback = function(e) {
                     that.trigger(COLUMNSTICK, { column: e.column });
@@ -8681,7 +9071,7 @@ var __meta__ = {
                     column = columns[idx];
                     var cell = cells.eq(idx);
 
-                    if (!column.command && (column.field || cell.attr("data-" + kendo.ns + "field"))) {
+                    if (column.columnMenu !== false && !column.command && (column.field || cell.attr("data-" + kendo.ns + "field"))) {
                         menu = cell.data("kendoColumnMenu");
                         if (menu) {
                             menu.destroy();
@@ -8761,8 +9151,8 @@ var __meta__ = {
                 filterInit = function(e) {
                     that.trigger(FILTERMENUINIT, { field: e.field, container: e.container });
                 },
-                closeCallback = function(element) {
-                    focusTable(element.closest("table"), true);
+                closeCallback = function() {
+                    focusTable(that.table, true);
                 },
                 filterHandler = function(e) {
                     if (that.trigger("filter", { filter: e.filter, field: e.field })) {
@@ -8864,13 +9254,13 @@ var __meta__ = {
                     col = columns[i],
                     operators = that.options.filterable.operators,
                     customDataSource = false,
-                    th = $("<th/>"),
+                    td = $("<td title='" + that.options.messages.filterCellTitle + "'/>"),
                     field = col.field;
 
                 if (col.hidden) {
-                    th.hide();
+                    td.hide();
                 }
-                rowheader.append(th);
+                rowheader.append(td);
                 if (field && col.filterable !== false) {
                     var cellOptions = col.filterable && col.filterable.cell || {};
 
@@ -8885,7 +9275,7 @@ var __meta__ = {
                     }
 
                     if (cellOptions.enabled === false) {
-                        th.html("&nbsp;");
+                        td.html("&nbsp;");
                         continue;
                     }
                     if (cellOptions.dataSource) {
@@ -8921,12 +9311,12 @@ var __meta__ = {
                     }
 
                     $("<span/>").attr(kendo.attr("field"), field)
-                        .appendTo(th)
+                        .appendTo(td)
                         .kendoFilterCell(settings);
                 } else {
-                    th.html("&nbsp;");
+                    td.html("&nbsp;");
                 }
-                th.data("column", col);
+                td.data("column", col);
             }
 
             this._filterFocusable().attr("tabindex", -1);
@@ -8997,6 +9387,7 @@ var __meta__ = {
                     groupable = th.attr(kendo.attr("groupable")),
                     field = th.attr(kendo.attr("field")),
                     title = th.attr(kendo.attr("title")),
+                    columnMenu = th.attr(kendo.attr("column-menu")),
                     menu = th.attr(kendo.attr("menu"));
 
                 if (!field) {
@@ -9011,6 +9402,7 @@ var __meta__ = {
                     filterable: filterable !== "false",
                     groupable: groupable !== "false",
                     menu: menu !== "false",
+                    columnMenu: columnMenu !== "false",
                     template: th.attr(kendo.attr("template")),
                     width: cols.eq(idx).css("width")
                 };
@@ -9143,6 +9535,7 @@ var __meta__ = {
 
             if (isSelecting) {
                 that.select(row);
+                that.trigger(CHANGE);
             } else {
                 that._deselectCheckRows(row);
             }
@@ -9166,8 +9559,8 @@ var __meta__ = {
                 type,
                 hasDetails = that._hasDetails(),
                 className = [],
-                groups = that._groups(),
-                navigatable = that.options.navigatable;
+                groups = that._groups();
+
             var fieldAttr = kendo.attr("field");
             var field;
             var dirtyCellTemplate = "";
@@ -9190,7 +9583,7 @@ var __meta__ = {
                     rowTemplate += ' ' + kendo.attr("uid") + '="#=' + kendo.expr("uid", settings.paramName) + '#"';
                 }
 
-                rowTemplate += " role='row'>";
+                rowTemplate += ">";
 
                 if (groups > 0 && !skipGroupCells) {
                     rowTemplate += groupCells(groups);
@@ -9262,10 +9655,6 @@ var __meta__ = {
 
                     rowTemplate += "<td" + stringifyAttributes(column.attributes);
 
-                    if (navigatable && !column.draggable) {
-                        rowTemplate += " aria-describedby='" + column.headerAttributes.id + "'";
-                    }
-
                     if (column.colSpan) {
                         if (column.colSpan > 1) {
                             rowTemplate += " " + kendo.attr("virtual");
@@ -9273,7 +9662,7 @@ var __meta__ = {
                         rowTemplate += " colSpan='" + column.colSpan + "'";
                     }
 
-                    rowTemplate += " role='gridcell'>";
+                    rowTemplate += ">";
                     rowTemplate += that._cellTmpl(column, state);
 
                     rowTemplate += "</td>";
@@ -9649,7 +10038,7 @@ var __meta__ = {
                 headerTemplateIndex = groupHeaderColumnTemplateColumns.length ? inArray(groupHeaderColumnTemplateColumns[0], columns) : -1,
                 groupHeaderColumnTemplateClass;
 
-            html += '<tr role="row" class="' + rowClass + '">';
+            html += '<tr class="' + rowClass + '">';
 
             if (!skipGroupCells) {
                 html += '# for (var i = 0; i < data.groupCells; i++) { #' +
@@ -9736,11 +10125,11 @@ var __meta__ = {
                 colspan = visibleColumns(leafColumns(that.columns)).length,
                 type = typeof template;
 
-            html += '<tr class="k-detail-row">';
+            html += '<tr role="row" class="k-detail-row">';
             if (groups > 0) {
                 html += groupCells(groups);
             }
-            html += '<td class="k-hierarchy-cell"></td><td class="k-detail-cell"' + (colspan ? ' colspan="' + colspan + '"' : '') + ">";
+            html += '<td role="gridcell" class="k-hierarchy-cell"></td><td role="gridcell" class="k-detail-cell"' + (colspan ? ' colspan="' + colspan + '"' : '') + ">";
 
             if (type === FUNCTION) {
                 templateFunctionStorage["tmpl" + templateFunctionCount] = template;
@@ -9804,6 +10193,7 @@ var __meta__ = {
             cell = button.closest("td.k-hierarchy-cell"),
             expanding = button.hasClass("k-i-expand"),
             masterRow = button.closest("tr.k-master-row"),
+            masterRowIndex = masterRow.attr("aria-rowindex"),
             detailRow,
             detailTemplate = that.detailTemplate,
             data,
@@ -9825,6 +10215,10 @@ var __meta__ = {
                 detailRow = $(detailTemplate(data))
                     .addClass(masterRow.hasClass("k-alt") ? "k-alt" : "")
                     .insertAfter(masterRow);
+
+                if (masterRowIndex || masterRowIndex === 0) {
+                    detailRow.attr("aria-rowindex", Number(masterRowIndex) + 1);
+                }
 
                 that.angular("compile", function() {
                     return {
@@ -9948,9 +10342,11 @@ var __meta__ = {
                         field = kendo.attr("field") + "='" + th.field + "' ";
                     }
 
-                    html += "<th scope='col' role='columnheader' " + field;
-                    if ((columnMenu && th.field && th.menu !== false) || (filterable && th.filterable !== false && !th.command)) {
-                        html += " aria-haspopup='true'";
+                    html += "<th scope='col' " + field;
+                    if ((columnMenu && th.field && th.menu !== false)) {
+                        html += " aria-haspopup='menu'";
+                    } else if (filterable && th.filterable !== false && !th.command) {
+                        html += " aria-haspopup='dialog'";
                     }
 
                     if (rowSpan && !columns[idx].colSpan) {
@@ -9974,7 +10370,7 @@ var __meta__ = {
                     }
 
                     if (isColumnGroupable(that, th)) {
-                        html += "aria-label='" + (title || th.field) + " ";
+                        html += "title='";
                         html += isGroupedBy(groups, th.field) ? messages.ungroupHeader : messages.groupHeader;
                         html += "' ";
                     }
@@ -10048,7 +10444,7 @@ var __meta__ = {
             var footer = that.footer;
             var cells = footer.find(".k-footer-template>td");
             var cols = footer.find(".k-grid-footer-wrap>table>colgroup>col");
-            var html = $('<div class="k-grid-footer-locked"><table><colgroup></colgroup><tbody><tr class="k-footer-template"></tr></tbody></table></div>');
+            var html = $('<div class="k-grid-footer-locked"><table><colgroup></colgroup><tfoot><tr class="k-footer-template"></tr></tfoot></table></div>');
             var idx, length;
             var groups = that._groups();
             var lockedCells = $(), lockedCols = $();
@@ -10092,7 +10488,7 @@ var __meta__ = {
 
             colgroup = that.thead.prev().find(COLGROUP);
             header = that.thead.find("tr").first().find(".k-header:not(.k-group-cell,.k-hierarchy-cell)");
-            filtercellCells = that.thead.find(".k-filter-row").find("th:not(.k-group-cell,.k-hierarchy-cell)");
+            filtercellCells = that.thead.find(".k-filter-row").find("td:not(.k-group-cell,.k-hierarchy-cell)");
 
             var colOffset = 0;
             for (idx = 0, length = columns.length; idx < length; idx++) {
@@ -10189,7 +10585,7 @@ var __meta__ = {
                 tr;
 
             if (!thead.length) {
-                thead = $("<thead/>").insertBefore(that.tbody);
+                thead = $("<thead role='rowgroup'/>").insertBefore(that.tbody);
             }
 
             if (that.lockedHeader && that.thead) {
@@ -10237,7 +10633,7 @@ var __meta__ = {
                 var filterRow = $("<tr/>");
                 filterRow.addClass("k-filter-row");
                 if (hasDetails || tr.find(".k-hierarchy-cell").length) { // handles server side detail template
-                    filterRow.prepend('<th class="k-hierarchy-cell" scope="col">&nbsp;</th>');
+                    filterRow.prepend('<td class="k-hierarchy-cell">&nbsp;</td>');
                 }
 
                 var existingFilterRow = (that.thead || thead).find(".k-filter-row");
@@ -10262,7 +10658,7 @@ var __meta__ = {
                 tr.prepend('<th class="k-hierarchy-cell" scope="col">' + (headerContent ? headerContent : '&nbsp;') + '</th>');
             }
 
-            tr.attr("role", "row").find("th").addClass("k-header");
+            tr.find("th").addClass("k-header");
 
             if (!that.options.scrollable) {
                 thead.addClass("k-grid-header");
@@ -10287,7 +10683,7 @@ var __meta__ = {
                 };
             });
 
-            that.thead = thead.attr("role", "rowgroup");
+            that.thead = thead;
 
             that._sortable();
 
@@ -10498,7 +10894,6 @@ var __meta__ = {
                     var th = that.element.find("[id='" + columns[i].headerAttributes.id + "']");
                     th.attr("headers", columns[i].headerAttributes.headers);
                 }
-
             }
 
             that._updateHeadersAttr(childColumns(columns));
@@ -10864,7 +11259,7 @@ var __meta__ = {
         _updateHeader: function(groups) {
             var that = this,
                 container = that._isLocked() ? that.lockedHeader.find("thead") : that.thead,
-                filterCells = container.find("tr.k-filter-row").find("th.k-group-cell").length,
+                filterCells = container.find("tr.k-filter-row").find("td.k-group-cell").length,
                 length = container.find("tr").first().find("th.k-group-cell").length,
                 rows = container.children("tr:not(:first)").filter(function() {
                     return !$(this).children(":visible").length;
@@ -10882,7 +11277,7 @@ var __meta__ = {
                 });
             }
             if (groups > filterCells) {
-                $(new Array(groups - filterCells + 1).join('<th class="k-group-cell k-header" scope="col">&nbsp;</th>')).prependTo(container.find(".k-filter-row"));
+                $(new Array(groups - filterCells + 1).join('<td class="k-group-cell k-header">&nbsp;</td>')).prependTo(container.find(".k-filter-row"));
             }
         },
 
@@ -10968,6 +11363,7 @@ var __meta__ = {
                    this.hideColumn(column.columns[idx]);
                 }
 
+                that._ariaAddHiddenColIndex();
                 that.trigger(COLUMNHIDE, { column: column });
 
                 return;
@@ -10996,7 +11392,7 @@ var __meta__ = {
             cell = leafDataCells(container).filter(isCellVisible).eq(headerCellIndex);
             cell[0].style.display = "none";
 
-            setCellVisibility(elements($(">table>thead", that.lockedHeader), that.thead, ">tr.k-filter-row>th"), columnIndex, false);
+            setCellVisibility(elements($(">table>thead", that.lockedHeader), that.thead, ">tr.k-filter-row>td"), columnIndex, false);
             if (footer[0]) {
                 that._updateCols(footer.find(">.k-grid-footer-wrap>table"));
                 that._updateLockedCols(footer.find(">.k-grid-footer-locked>table"));
@@ -11062,6 +11458,7 @@ var __meta__ = {
             if (groupHeaderColumnTemplateColumns.length > 0) {
                 that._renderGroupRows();
             }
+            that._ariaAddHiddenColIndex();
             that.trigger(COLUMNHIDE, { column: column });
         },
 
@@ -11171,6 +11568,7 @@ var __meta__ = {
                     }
                 }
 
+                that._ariaRemoveHiddenColIndex();
                 that.trigger(COLUMNSHOW, { column: column });
 
                 return;
@@ -11198,7 +11596,7 @@ var __meta__ = {
             cell = leafDataCells(container).eq(headerCellIndex);
             cell[0].style.display = "";
 
-            setCellVisibility(elements($(">table>thead", that.lockedHeader), that.thead, ">tr.k-filter-row>th"), columnLeafIndex, true);
+            setCellVisibility(elements($(">table>thead", that.lockedHeader), that.thead, ">tr.k-filter-row>td"), columnLeafIndex, true);
             if (footer[0]) {
                 that._updateCols(footer.find(">.k-grid-footer-wrap>table"));
                 that._updateLockedCols(footer.find(">.k-grid-footer-locked>table"));
@@ -11265,6 +11663,7 @@ var __meta__ = {
             if (groupHeaderColumnTemplateColumns.length > 0) {
                 that._renderGroupRows();
             }
+            that._ariaRemoveHiddenColIndex();
             that.trigger(COLUMNSHOW, { column: column });
         },
 
@@ -11541,6 +11940,8 @@ var __meta__ = {
                 that._reorderableRows();
             }
 
+            that._aria();
+
             that.trigger(DATABOUND);
        },
 
@@ -11598,7 +11999,7 @@ var __meta__ = {
             }
 
             if (this._current) {
-                focusTable(this._current.closest("table")[0], true);
+                focusTable(this.table, true);
             }
         },
 
@@ -12225,10 +12626,28 @@ var __meta__ = {
        return null;
    }
 
-    function focusTable(table, direct) {
-        if (direct === true) {
-            table = $(table);
-            var scrollLeft = kendo.scrollLeft(table.parent());
+   function compareElements(element, toCompare) {
+       if (element.length !== toCompare.length) {
+           return false;
+       }
+
+       for (var i = 0; i < element.length; i++) {
+           if (element[i] !== toCompare[i]) {
+               return false;
+           }
+       }
+
+       return true;
+   }
+
+   function focusTable(table, direct) {
+       if (!table || table.length === 0) {
+           return;
+       }
+
+       if (direct === true) {
+           table = $(table);
+           var scrollLeft = kendo.scrollLeft(table.parent());
 
             kendo.focusElement(table);
             kendo.scrollLeft(table.parent(), scrollLeft);
@@ -12265,7 +12684,8 @@ var __meta__ = {
    }
 
     function tableClick(e) {
-        var currentTarget = $(e.currentTarget),
+        var that = this,
+            currentTarget = $(e.currentTarget),
             isHeader = currentTarget.is("th"),
             table = this.table.add(this.lockedTable),
             headerTable = this.thead.parent().add($(">table", this.lockedHeader)),
@@ -12299,9 +12719,9 @@ var __meta__ = {
                 }
 
                 //Only if input element is not selected yet and it is not descendant of the grid's table
-                if (activeEl.is(CHECKBOXINPUT) || !isInputElement(kendo._activeElement()) || !$.contains(currentTable, kendo._activeElement())) {
+                if (that.table && (activeEl.is(CHECKBOXINPUT) || !isInputElement(kendo._activeElement()) || !$.contains(currentTable, kendo._activeElement()))) {
                     //DOMElement.focus() only for header, because IE doesn't really focus the table
-                    focusTable(currentTable, true);
+                    focusTable(that.table[0], true);
                 }
             });
         }
@@ -12407,7 +12827,7 @@ var __meta__ = {
    }
 
    function groupRowBuilder(colspan, level, text, expanded, uid, includeAdditionalData) {
-    return '<tr role="row"' + (includeAdditionalData ? 'data-group-uid="' + uid + '"' : '') + 'class="k-grouping-row">' + groupCells(level) +
+    return '<tr ' + (includeAdditionalData ? 'data-group-uid="' + uid + '"' : '') + 'class="k-grouping-row">' + groupCells(level) +
         '<td colspan="' + colspan + '" aria-expanded="' + !!expanded + '">' +
         '<p class="k-reset">' +
         '<a class="k-icon ' + (expanded ? 'k-i-collapse' : 'k-i-expand') + '" href="#" tabindex="-1" ' + ARIALABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>' + text +
@@ -12415,7 +12835,7 @@ var __meta__ = {
    }
 
    function groupRowLockedContentBuilder(colspan) {
-    return '<tr role="row" class="k-grouping-row">' +
+    return '<tr class="k-grouping-row">' +
         '<td colspan="' + colspan + '" aria-expanded="true">' +
         '<p class="k-reset">&nbsp;</p></td></tr>';
    }

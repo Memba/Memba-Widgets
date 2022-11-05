@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -23,7 +23,7 @@ var packageMetadata = {
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
     version: '',
-    licensingDocsUrl: 'https://www.telerik.com/kendo-ui/my-license/'
+    licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
 
@@ -131,7 +131,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2022.2.802".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.3.913".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -10160,6 +10160,7 @@ var __meta__ = {
 
                 if (skip + take > total && options.virtual) {
                     skip -= skip + take - total;
+                    skip = skip < 0 ? 0 : skip;
                 }
                 query = query.range(skip, take);
             }
@@ -10538,12 +10539,18 @@ var __meta__ = {
                     if (currOriginal.hasSubgroups && currOriginal.value == currentNew.value) {
                         fillLastGroup(currOriginal, currentNew);
                     } else if (currOriginal.field && currOriginal.value == currentNew.value) {
+                        currOriginal.items.omitChangeEvent = true;
                         currOriginal.items.push.apply(currOriginal.items, currentNew.items);
+                        currOriginal.items.omitChangeEvent = false;
                     } else {
+                        originalGroup.items.omitChangeEvent = true;
                         originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                        originalGroup.items.omitChangeEvent = false;
                     }
                 } else if (currentNew) {
+                    originalGroup.items.omitChangeEvent = true;
                     originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                    originalGroup.items.omitChangeEvent = false;
                 }
             }
         }
@@ -21965,7 +21972,7 @@ var BaseColor = Class.extend({
     },
 
     equals: function(c) {
-        return c === this || c !== null && this.toCssRgba() === parseColor(c).toCssRgba();
+        return c === this || ((c !== null && c !== undefined) && this.toCssRgba() === parseColor(c).toCssRgba());
     },
 
     diff: function(other) {
@@ -24997,7 +25004,7 @@ var ComplexNumber = (function (Class$$1) {
     return ComplexNumber;
 }(Class));
 
-function numberSign(x) {
+function numberSign$1(x) {
     return x < 0 ? -1 : 1;
 }
 
@@ -25027,9 +25034,9 @@ function solveCubicEquation(a, b, c, d) {
         x2 = new ComplexNumber(-q / 2, - Math.sqrt(-Q)).nthRoot(3);
     } else {
         x1 = -q / 2 + Math.sqrt(Q);
-        x1 = new ComplexNumber(numberSign(x1) * Math.pow(Math.abs(x1), 1 / 3));
+        x1 = new ComplexNumber(numberSign$1(x1) * Math.pow(Math.abs(x1), 1 / 3));
         x2 = -q / 2 - Math.sqrt(Q);
-        x2 = new ComplexNumber(numberSign(x2) * Math.pow(Math.abs(x2), 1 / 3));
+        x2 = new ComplexNumber(numberSign$1(x2) * Math.pow(Math.abs(x2), 1 / 3));
     }
 
     y1 = x1.add(x2);
@@ -25304,6 +25311,298 @@ function arrayLimits(arr) {
         min: min,
         max: max
     };
+}
+
+var geometry = {
+	Circle: Circle$2,
+	Arc: Arc$2,
+	Rect: Rect,
+	Point: Point,
+	Segment: Segment,
+	Matrix: Matrix,
+	Size: Size,
+	toMatrix: toMatrix,
+	Transformation: Transformation,
+	transform: transform$1
+};
+
+var WEIGHT = 0.333;
+var EXTREMUM_ALLOWED_DEVIATION = 0.01;
+var X = "x";
+var Y = "y";
+
+function pointsToCurve(pointsIn, closed) {
+    var points = pointsIn.slice(0);
+    var segments = [];
+    var length = points.length;
+
+    if (length > 2) {
+        removeDuplicates(0, points);
+        length = points.length;
+    }
+
+    if (length < 2 || (length === 2 && points[0].equals(points[1]))) {
+        return segments;
+    }
+
+    var p0 = points[0];
+    var p1 = points[1];
+    var p2 = points[2];
+
+    segments.push(new Segment(p0));
+
+    while (p0.equals(points[length - 1])) {
+        closed = true;
+        points.pop();
+        length--;
+    }
+
+    if (length === 2) {
+        var tangent = getTangent(p0,p1, X, Y);
+
+        last(segments).controlOut(
+            firstControlPoint(tangent, p0, p1, X, Y)
+        );
+
+        segments.push(new Segment(
+            p1,
+            secondControlPoint(tangent, p0, p1, X, Y)
+        ));
+
+        return segments;
+    }
+
+    var initialControlPoint, lastControlPoint;
+
+    if (closed) {
+        p0 = points[length - 1]; p1 = points[0]; p2 = points[1];
+        var controlPoints = getControlPoints(p0, p1, p2);
+        initialControlPoint = controlPoints[1];
+        lastControlPoint = controlPoints[0];
+    } else {
+        var tangent$1 = getTangent(p0, p1, X,Y);
+        initialControlPoint = firstControlPoint(tangent$1, p0, p1, X, Y);
+    }
+
+    var cp0 = initialControlPoint;
+    for (var idx = 0; idx <= length - 3; idx++) {
+        removeDuplicates(idx, points);
+        length = points.length;
+        if (idx + 3 <= length) {
+            p0 = points[idx]; p1 = points[idx + 1]; p2 = points[idx + 2];
+            var controlPoints$1 = getControlPoints(p0,p1,p2);
+
+            last(segments).controlOut(cp0);
+            cp0 = controlPoints$1[1];
+
+            var cp1 = controlPoints$1[0];
+            segments.push(new Segment(p1, cp1));
+        }
+    }
+
+    if (closed) {
+        p0 = points[length - 2]; p1 = points[length - 1]; p2 = points[0];
+        var controlPoints$2 = getControlPoints(p0, p1, p2);
+
+        last(segments).controlOut(cp0);
+        segments.push(new Segment(
+            p1,
+            controlPoints$2[0]
+        ));
+
+        last(segments).controlOut(controlPoints$2[1]);
+        segments.push(new Segment(
+            p2,
+            lastControlPoint
+        ));
+    } else {
+        var tangent$2 = getTangent(p1, p2, X, Y);
+
+        last(segments).controlOut(cp0);
+        segments.push(new Segment(
+            p2,
+            secondControlPoint(tangent$2, p1, p2, X, Y)
+        ));
+    }
+
+    return segments;
+}
+
+function removeDuplicates(idx, points) {
+    while (points[idx + 1] && (points[idx].equals(points[idx + 1]) || points[idx + 1].equals(points[idx + 2]))) {
+        points.splice(idx + 1, 1);
+    }
+}
+
+function invertAxis(p0, p1, p2) {
+    var invertAxis = false;
+
+    if (p0.x === p1.x) {
+        invertAxis = true;
+    } else if (p1.x === p2.x) {
+        if ((p1.y < p2.y && p0.y <= p1.y) || (p2.y < p1.y && p1.y <= p0.y)) {
+            invertAxis = true;
+        }
+    } else {
+        var fn = lineFunction(p0,p1);
+        var y2 = calculateFunction(fn, p2.x);
+        if (!(p0.y <= p1.y && p2.y <= y2) &&
+            !(p1.y <= p0.y && p2.y >= y2)) {
+            invertAxis = true;
+        }
+    }
+
+    return invertAxis;
+}
+
+function isLine(p0, p1, p2) {
+    var fn = lineFunction(p0, p1);
+    var y2 = calculateFunction(fn, p2.x);
+
+    return (p0.x === p1.x && p1.x === p2.x) || round(y2, 1) === round(p2.y, 1);
+}
+
+function lineFunction(p1, p2) {
+    var a = (p2.y - p1.y) / (p2.x - p1.x);
+    var b = p1.y - a * p1.x;
+
+    return [ b, a ];
+}
+
+function getControlPoints(p0, p1, p2) {
+    var xField = X;
+    var yField = Y;
+    var restrict = false;
+    var switchOrientation = false;
+    var tangent;
+
+    if (isLine(p0, p1, p2)) {
+        tangent = getTangent(p0, p1, X, Y);
+    } else {
+        var monotonic = {
+            x: isMonotonicByField(p0, p1, p2, X),
+            y: isMonotonicByField(p0, p1, p2, Y)
+        };
+
+        if (monotonic.x && monotonic.y) {
+            tangent = getTangent(p0, p2, X, Y);
+            restrict = true;
+        } else {
+            if (invertAxis(p0, p1, p2)) {
+                xField = Y;
+                yField = X;
+            }
+
+            if (monotonic[xField]) {
+                tangent = 0;
+            } else {
+                var sign;
+                if ((p2[yField] < p0[yField] && p0[yField] <= p1[yField]) ||
+                    (p0[yField] < p2[yField] && p1[yField] <= p0[yField])) {
+                    sign = numberSign((p2[yField] - p0[yField]) * (p1[xField] - p0[xField]));
+                } else {
+                    sign = -numberSign((p2[xField] - p0[xField]) * (p1[yField] - p0[yField]));
+                }
+
+                tangent = EXTREMUM_ALLOWED_DEVIATION * sign;
+                switchOrientation = true;
+            }
+        }
+    }
+
+    var secondCP = secondControlPoint(tangent, p0, p1, xField, yField);
+
+    if (switchOrientation) {
+        var oldXField = xField;
+        xField = yField;
+        yField = oldXField;
+    }
+
+    var firstCP = firstControlPoint(tangent, p1, p2, xField, yField);
+
+    if (restrict) {
+        restrictControlPoint(p0, p1, secondCP, tangent);
+        restrictControlPoint(p1, p2, firstCP, tangent);
+    }
+
+    return [ secondCP, firstCP ];
+}
+
+function restrictControlPoint(p1, p2, cp, tangent) {
+    if (p1.y < p2.y) {
+        if (p2.y < cp.y) {
+            cp.x = p1.x + (p2.y - p1.y) / tangent;
+            cp.y = p2.y;
+        } else if (cp.y < p1.y) {
+            cp.x = p2.x - (p2.y - p1.y) / tangent;
+            cp.y = p1.y;
+        }
+    } else {
+        if (cp.y < p2.y) {
+            cp.x = p1.x - (p1.y - p2.y) / tangent;
+            cp.y = p2.y;
+        } else if (p1.y < cp.y) {
+            cp.x = p2.x + (p1.y - p2.y) / tangent;
+            cp.y = p1.y;
+        }
+    }
+}
+
+function getTangent(p0, p1, xField, yField) {
+    var x = p1[xField] - p0[xField];
+    var y = p1[yField] - p0[yField];
+    var tangent;
+
+    if (x === 0) {
+        tangent = 0;
+    } else {
+        tangent = y / x;
+    }
+
+    return tangent;
+}
+
+function isMonotonicByField(p0, p1, p2, field) {
+    return (p2[field] > p1[field] && p1[field] > p0[field]) ||
+                (p2[field] < p1[field] && p1[field] < p0[field]);
+}
+
+function firstControlPoint(tangent, p0, p3, xField, yField) {
+    var t1 = p0[xField];
+    var t2 = p3[xField];
+    var distance = (t2 - t1) * WEIGHT;
+
+    return point(t1 + distance, p0[yField] + distance * tangent, xField, yField);
+}
+
+function secondControlPoint(tangent, p0, p3, xField, yField) {
+    var t1 = p0[xField];
+    var t2 = p3[xField];
+    var distance = (t2 - t1) * WEIGHT;
+
+    return point(t2 - distance, p3[yField] - distance * tangent, xField, yField);
+}
+
+function point(xValue, yValue, xField, yField) {
+    var controlPoint = new Point();
+    controlPoint[xField] = xValue;
+    controlPoint[yField] = yValue;
+
+    return controlPoint;
+}
+
+function calculateFunction(fn, x) {
+    var length = fn.length;
+    var result = 0;
+
+    for (var i = 0; i < length; i++) {
+        result += Math.pow(x,i) * fn[i];
+    }
+    return result;
+}
+
+function numberSign(value) {
+    return value <= 0 ? -1 : 1;
 }
 
 var ShapeMap = {
@@ -25602,6 +25901,15 @@ function elementsClippedBoundingBox(elements, transformation) {
     return boundingBox;
 }
 
+var SPACE = ' ';
+var printPoints = function (precision) { return function () {
+    var points = [], len = arguments.length;
+    while ( len-- ) points[ len ] = arguments[ len ];
+
+    return points.map(function (p) { return p.toString(precision); }).join(SPACE);
+ }    };
+var segmentType = function (segmentStart, segmentEnd) { return segmentStart.controlOut() && segmentEnd.controlIn() ? 'C' : 'L'; };
+
 var Path = (function (superclass) {
     function Path(options) {
         superclass.call(this, options);
@@ -25609,10 +25917,10 @@ var Path = (function (superclass) {
         this.segments.addObserver(this);
 
         if (!defined(this.options.stroke)) {
-            this.stroke("#000");
+            this.stroke('#000');
 
             if (!defined(this.options.stroke.lineJoin)) {
-                this.options.set("stroke.lineJoin", "miter");
+                this.options.set('stroke.lineJoin', 'miter');
             }
         }
     }
@@ -25625,12 +25933,8 @@ var Path = (function (superclass) {
 
     var prototypeAccessors = { nodeType: {} };
 
-    Path.parse = function parse (str, options) {
-        return MultiPath.parse(str, options);
-    };
-
     prototypeAccessors.nodeType.get = function () {
-        return "Path";
+        return 'Path';
     };
 
     Path.prototype.moveTo = function moveTo (x, y) {
@@ -25644,18 +25948,18 @@ var Path = (function (superclass) {
     };
 
     Path.prototype.lineTo = function lineTo (x, y) {
-        var point = defined(y) ? new Point(x, y) : x;
-        var segment = new Segment(point);
+        var point$$1 = defined(y) ? new Point(x, y) : x;
+        var segment = new Segment(point$$1);
 
         this.segments.push(segment);
 
         return this;
     };
 
-    Path.prototype.curveTo = function curveTo (controlOut, controlIn, point) {
+    Path.prototype.curveTo = function curveTo (controlOut, controlIn, point$$1) {
         if (this.segments.length > 0) {
             var lastSegment = last(this.segments);
-            var segment = new Segment(point, controlIn);
+            var segment = new Segment(point$$1, controlIn);
             this.suspend();
             lastSegment.controlOut(controlOut);
             this.resume();
@@ -25724,7 +26028,42 @@ var Path = (function (superclass) {
         return this._bbox();
     };
 
-    Path.prototype._containsPoint = function _containsPoint (point) {
+    Path.prototype.toString = function toString (digits) {
+        var output = '';
+
+        var segments = this.segments;
+        var length = segments.length;
+        if (length > 0) {
+            var parts = [];
+            var print = printPoints(digits);
+            var currentType;
+
+            for (var i = 1; i < length; i++) {
+                var type = segmentType(segments[i - 1], segments[i]);
+                if (type !== currentType) {
+                    currentType = type;
+                    parts.push(type);
+                }
+
+                if (type === 'L') {
+                    parts.push(print(segments[i].anchor()));
+                } else {
+                    parts.push(print(
+                        segments[i - 1].controlOut(), segments[i].controlIn(), segments[i].anchor()
+                    ));
+                }
+            }
+
+            output = 'M' + print(segments[0].anchor()) + SPACE + parts.join(SPACE);
+            if (this.options.closed) {
+                output += 'Z';
+            }
+        }
+
+        return output;
+    };
+
+    Path.prototype._containsPoint = function _containsPoint (point$$1) {
         var segments = this.segments;
         var length = segments.length;
         var intersectionsCount = 0;
@@ -25733,33 +26072,33 @@ var Path = (function (superclass) {
         for (var idx = 1; idx < length; idx++) {
             previous = segments[idx - 1];
             current = segments[idx];
-            intersectionsCount += previous._intersectionsTo(current, point);
+            intersectionsCount += previous._intersectionsTo(current, point$$1);
         }
 
         if (this.options.closed || !segments[0].anchor().equals(segments[length - 1].anchor())) {
-            intersectionsCount += lineIntersectionsCount(segments[0].anchor(), segments[length - 1].anchor(), point);
+            intersectionsCount += lineIntersectionsCount(segments[0].anchor(), segments[length - 1].anchor(), point$$1);
         }
 
         return intersectionsCount % 2 !== 0;
     };
 
-    Path.prototype._isOnPath = function _isOnPath (point, width) {
+    Path.prototype._isOnPath = function _isOnPath (point$$1, width) {
         var segments = this.segments;
         var length = segments.length;
         var pathWidth = width || this.options.stroke.width;
 
         if (length > 1) {
-            if (segments[0]._isOnPathTo(segments[1], point, pathWidth, "start")) {
+            if (segments[0]._isOnPathTo(segments[1], point$$1, pathWidth, 'start')) {
                 return true;
             }
 
             for (var idx = 2; idx <= length - 2; idx++) {
-                if (segments[idx - 1]._isOnPathTo(segments[idx], point, pathWidth)) {
+                if (segments[idx - 1]._isOnPathTo(segments[idx], point$$1, pathWidth)) {
                     return true;
                 }
             }
 
-            if (segments[length - 2]._isOnPathTo(segments[length - 1], point, pathWidth, "end")) {
+            if (segments[length - 2]._isOnPathTo(segments[length - 1], point$$1, pathWidth, 'end')) {
                 return true;
             }
         }
@@ -25786,6 +26125,10 @@ var Path = (function (superclass) {
         }
 
         return boundingBox;
+    };
+
+    Path.parse = function parse (str, options) {
+        return MultiPath.parse(str, options);
     };
 
     Path.fromRect = function fromRect (rect, options) {
@@ -25828,15 +26171,25 @@ var Path = (function (superclass) {
             var path = new Path(options);
 
             for (var i = 0; i < points.length; i++) {
-                var point = Point.create(points[i]);
-                if (point) {
+                var point$$1 = Point.create(points[i]);
+                if (point$$1) {
                     if (i === 0) {
-                        path.moveTo(point);
+                        path.moveTo(point$$1);
                     } else {
-                        path.lineTo(point);
+                        path.lineTo(point$$1);
                     }
                 }
             }
+
+            return path;
+        }
+    };
+
+    Path.curveFromPoints = function curveFromPoints (points, options) {
+        if (points) {
+            var segments = pointsToCurve(points);
+            var path = new Path(options);
+            path.segments.push.apply(path.segments, segments);
 
             return path;
         }
@@ -25863,7 +26216,7 @@ var MultiPath = (function (superclass) {
         this.paths.addObserver(this);
 
         if (!defined(this.options.stroke)) {
-            this.stroke("#000");
+            this.stroke('#000');
         }
     }
 
@@ -25880,8 +26233,25 @@ var MultiPath = (function (superclass) {
         return parsePath(instance, str);
     };
 
+    MultiPath.prototype.toString = function toString (digits) {
+        var paths = this.paths;
+        var output = '';
+
+        if (paths.length > 0) {
+            var result = [];
+
+            for (var i = 0; i < paths.length; i++) {
+                result.push(paths[i].toString(digits));
+            }
+
+            output = result.join(SPACE);
+        }
+
+        return output;
+    };
+
     prototypeAccessors$1.nodeType.get = function () {
-        return "MultiPath";
+        return 'MultiPath';
     };
 
     MultiPath.prototype.moveTo = function moveTo (x, y) {
@@ -25901,9 +26271,9 @@ var MultiPath = (function (superclass) {
         return this;
     };
 
-    MultiPath.prototype.curveTo = function curveTo (controlOut, controlIn, point) {
+    MultiPath.prototype.curveTo = function curveTo (controlOut, controlIn, point$$1) {
         if (this.paths.length > 0) {
-            last(this.paths).curveTo(controlOut, controlIn, point);
+            last(this.paths).curveTo(controlOut, controlIn, point$$1);
         }
 
         return this;
@@ -25941,23 +26311,23 @@ var MultiPath = (function (superclass) {
         return elementsBoundingBox(this.paths, false);
     };
 
-    MultiPath.prototype._containsPoint = function _containsPoint (point) {
+    MultiPath.prototype._containsPoint = function _containsPoint (point$$1) {
         var paths = this.paths;
 
         for (var idx = 0; idx < paths.length; idx++) {
-            if (paths[idx]._containsPoint(point)) {
+            if (paths[idx]._containsPoint(point$$1)) {
                 return true;
             }
         }
         return false;
     };
 
-    MultiPath.prototype._isOnPath = function _isOnPath (point) {
+    MultiPath.prototype._isOnPath = function _isOnPath (point$$1) {
         var paths = this.paths;
         var width = this.options.stroke.width;
 
         for (var idx = 0; idx < paths.length; idx++) {
-            if (paths[idx]._isOnPath(point, width)) {
+            if (paths[idx]._isOnPath(point$$1, width)) {
                 return true;
             }
         }
@@ -27503,6 +27873,7 @@ var NODE_MAP = {};
 
 var SVG_NS = "http://www.w3.org/2000/svg";
 var NONE = "none";
+var POINT_DIGITS = 3;
 
 var renderSVG = function(container, svg) {
     container.innerHTML = svg;
@@ -28228,7 +28599,6 @@ var ATTRIBUTE_MAP = {
     "stroke.width": "stroke-width",
     "stroke.opacity": "stroke-opacity"
 };
-var SPACE = " ";
 
 var PathNode = (function (Node$$1) {
     function PathNode () {
@@ -28290,55 +28660,7 @@ var PathNode = (function (Node$$1) {
     };
 
     PathNode.prototype.renderData = function renderData () {
-        return this.printPath(this.srcElement);
-    };
-
-    PathNode.prototype.printPath = function printPath (path) {
-        var this$1 = this;
-
-        var segments = path.segments;
-        var length = segments.length;
-        if (length > 0) {
-            var parts = [];
-            var output, currentType;
-
-            for (var i = 1; i < length; i++) {
-                var segmentType = this$1.segmentType(segments[i - 1], segments[i]);
-                if (segmentType !== currentType) {
-                    currentType = segmentType;
-                    parts.push(segmentType);
-                }
-
-                if (segmentType === "L") {
-                    parts.push(this$1.printPoints(segments[i].anchor()));
-                } else {
-                    parts.push(this$1.printPoints(segments[i - 1].controlOut(), segments[i].controlIn(), segments[i].anchor()));
-                }
-            }
-
-            output = "M" + this.printPoints(segments[0].anchor()) + SPACE + parts.join(SPACE);
-            if (path.options.closed) {
-                output += "Z";
-            }
-
-            return output;
-        }
-    };
-
-    PathNode.prototype.printPoints = function printPoints () {
-        var points = arguments;
-        var length = points.length;
-        var result = [];
-
-        for (var i = 0; i < length; i++) {
-            result.push(points[i].toString(3));
-        }
-
-        return result.join(" ");
-    };
-
-    PathNode.prototype.segmentType = function segmentType (segmentStart, segmentEnd) {
-        return segmentStart.controlOut() && segmentEnd.controlIn() ? "C" : "L";
+        return this.srcElement.toString(POINT_DIGITS) || undefined;
     };
 
     PathNode.prototype.mapStroke = function mapStroke (stroke) {
@@ -28436,7 +28758,7 @@ var ArcNode = (function (PathNode$$1) {
     ArcNode.fn.init = ArcNode.fn.constructor;
 
     ArcNode.prototype.renderData = function renderData () {
-        return this.printPath(this.srcElement.toPath());
+        return this.srcElement.toPath().toString(POINT_DIGITS);
     };
 
     return ArcNode;
@@ -28580,19 +28902,7 @@ var MultiPathNode = (function (PathNode$$1) {
     MultiPathNode.fn.init = MultiPathNode.fn.constructor;
 
     MultiPathNode.prototype.renderData = function renderData () {
-        var this$1 = this;
-
-        var paths = this.srcElement.paths;
-
-        if (paths.length > 0) {
-            var result = [];
-
-            for (var i = 0; i < paths.length; i++) {
-                result.push(this$1.printPath(paths[i]));
-            }
-
-            return result.join(" ");
-        }
+        return this.srcElement.toString(POINT_DIGITS) || 'undefined';
     };
 
     return MultiPathNode;
@@ -29187,19 +29497,6 @@ var QuadRoot = (function (Class$$1) {
     return QuadRoot;
 }(Class));
 
-var geometry = {
-	Circle: Circle$2,
-	Arc: Arc$2,
-	Rect: Rect,
-	Point: Point,
-	Segment: Segment,
-	Matrix: Matrix,
-	Size: Size,
-	toMatrix: toMatrix,
-	Transformation: Transformation,
-	transform: transform$1
-};
-
 var QuadNode = (function (QuadRoot$$1) {
     function QuadNode(rect) {
         QuadRoot$$1.call(this);
@@ -29757,12 +30054,15 @@ var ImageNode$2 = (function (PathNode) {
         this.loading = createPromise();
 
         var img = this.img = new Image();
+        var src = srcElement.src();
 
-        if (cors && !(/^data:/i.test(srcElement.src()))) {
+        if (cors && !(/^data:/i.test(src))) {
             img.crossOrigin = cors;
         }
 
-        img.src = srcElement.src();
+        if (src) {
+            img.src = src;
+        }
 
         if (img.complete) {
             this.onLoad();
@@ -86954,16 +87254,22 @@ var __meta__ = {
         OVERFLOW_WRAPPER = "k-overflow-wrapper",
         FIRST_TOOLBAR_VISIBLE = "k-toolbar-first-visible",
         LAST_TOOLBAR_VISIBLE = "k-toolbar-last-visible",
+        SPLIT_BUTTON_ARROW = "k-split-button-arrow",
+        TEMPLATE_ITEM = "k-toolbar-item",
+        DROPDOWNLIST = "k-dropdownlist",
+        COLORPICKER = "k-colorpicker",
+        INPUT_BUTTON = "k-input-button",
+        KFOCUS = "k-focus",
 
         ARIA_DISABLED = "aria-disabled",
         ARIA_PRESSED = "aria-pressed",
+        ARIA_LEBEL = "aria-label",
 
         CLICK = "click",
         TOGGLE = "toggle",
         OPEN = "open",
         CLOSE = "close",
         FOCUS = "focus",
-        FOCUSIN = "focusin",
         KEYDOWN = "keydown",
         TAP = "tap",
 
@@ -86981,6 +87287,13 @@ var __meta__ = {
         PREV = "prev",
         TABINDEX = "tabindex",
         TEMPLATE = "template",
+        INPUT = "input",
+        SELECT = "select",
+        CHECKBOX = "checkbox",
+        HIDDEN = "hidden",
+        GROUP = "group",
+
+        KENDO_FOCUSABLE = ":kendoFocusable",
 
         OVERFLOW_OPEN = "overflowOpen",
         OVERFLOW_CLOSE = "overflowClose",
@@ -87007,7 +87320,8 @@ var __meta__ = {
         TEXT_ITEM = "textItem",
         DOT = ".",
         COMMA = ",",
-        ID = "id";
+        ID = "id",
+        UID = "uid";
 
         kendo.toolbar = {};
 
@@ -87151,7 +87465,7 @@ var __meta__ = {
                 }
 
                 if (options.group) {
-                    element.attr(kendo.attr("group"), options.group);
+                    element.attr(kendo.attr(GROUP), options.group);
                     this.group = this.toolbar.addToGroup(this, options.group);
                 }
 
@@ -87214,7 +87528,7 @@ var __meta__ = {
                         element.html(options.text);
                     }
                 } else if (!!options.text) {
-                    element.attr("aria-label", options.text);
+                    element.attr(ARIA_LEBEL, options.text);
                 }
 
                 if (options.icon || options.spriteCssClass || options.imageUrl) {
@@ -87273,7 +87587,7 @@ var __meta__ = {
                         element.html(options.text);
                     }
                 } else if (!!options.text) {
-                    element.attr("aria-label", options.text);
+                    element.attr(ARIA_LEBEL, options.text);
                 }
 
                 if (options.icon || options.spriteCssClass || options.imageUrl) {
@@ -87470,7 +87784,7 @@ var __meta__ = {
                 this.enable(options.enable);
 
                 if (options.group) {
-                    element.attr(kendo.attr("group"), options.group);
+                    element.attr(kendo.attr(GROUP), options.group);
                     this.group = this.toolbar.addToGroup(this, options.group);
                 }
 
@@ -87502,11 +87816,11 @@ var __meta__ = {
                     that.options.themeColor = PRIMARY;
                 }
 
-                if (options.showIcon === "overflow") {
+                if (options.showIcon === OVERFLOW) {
                     that.options.icon = null;
                 }
 
-                if (options.showText === "overflow") {
+                if (options.showText === OVERFLOW) {
                     that.options.text = "";
                 }
 
@@ -87702,11 +88016,11 @@ var __meta__ = {
                     that.options.themeColor = PRIMARY;
                 }
 
-                if (options.showIcon === "overflow") {
+                if (options.showIcon === OVERFLOW) {
                     that.options.icon = null;
                 }
 
-                if (options.showText === "overflow") {
+                if (options.showText === OVERFLOW) {
                     that.options.text = "";
                 }
 
@@ -87977,6 +88291,7 @@ var __meta__ = {
                 element.data({
                     type: SPACER
                 });
+                this.addOverflowAttr();
             }
         });
 
@@ -87987,14 +88302,14 @@ var __meta__ = {
                 var element = isFunction(template) ? template(options) : template;
 
                 if (!(element instanceof jQuery)) {
-                    element = $("<div></div>").html(element);
+                    element = $("<div class='k-toolbar-item' aria-keyshortcuts='Enter'></div>").html(element);
                 } else {
-                    element = element.wrap("<div></div>").parent();
+                    element = element.wrap("<div class='k-toolbar-item' aria-keyshortcuts='Enter'></div>").parent();
                 }
 
                 this.element = element;
                 this.options = options;
-                this.options.type = TEMPLATE;
+                this.options.type = options.type || TEMPLATE;
                 this.toolbar = toolbar;
 
                 this.attributes();
@@ -88078,12 +88393,12 @@ var __meta__ = {
                 return element;
             }
 
-            if (candidate.is(":kendoFocusable") || !candidate.length) {
+            if (candidate.is(KENDO_FOCUSABLE) || !candidate.length) {
                 return candidate;
             }
 
-            if (candidate.find(":kendoFocusable").length) {
-                return getter.call(candidate.find(":kendoFocusable"));
+            if (candidate.find(KENDO_FOCUSABLE).length) {
+                return getter.call(candidate.find(KENDO_FOCUSABLE));
             }
 
             return findFocusableSibling(candidate, dir);
@@ -88178,24 +88493,31 @@ var __meta__ = {
                     threshold: 5,
                     allowSelection: true,
                     filter:
-                        "[" + KENDO_UID_ATTR + "=" + this.uid + "] a." + KBUTTON + COMMA + EMPTY +
-                        "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + MENU_ITEM + COMMA + EMPTY +
-                        "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + OVERFLOW_BUTTON,
+                        "[" + KENDO_UID_ATTR + "=" + that.uid + "] a." + KBUTTON + COMMA + EMPTY +
+                        "[" + KENDO_UID_ATTR + "=" + that.uid + "] ." + OVERFLOW_ANCHOR + COMMA + EMPTY +
+                        "[" + KENDO_UID_ATTR + "=" + that.uid + "] ." + SPLIT_BUTTON_ARROW + COMMA + EMPTY +
+                        "[" + KENDO_UID_ATTR + "=" + that.uid + "] ." + TEMPLATE_ITEM + COMMA + EMPTY +
+                        "[" + KENDO_UID_ATTR + "=" + that.uid + "] ." + MENU_BUTTON,
                     tap: that._buttonClick.bind(that),
                     press: toggleActive,
                     release: toggleActive
                 });
 
-                that.element.on(CLICK + ns, "a.k-button", preventClick);
-                that._navigatable();
+                that.element.on(CLICK + ns, "a.k-button", preventClick)
+                    .on(KEYDOWN + ns, that._keydown.bind(that))
+                    .on("focusin" + ns, that._focusIn.bind(that))
+                    .on("focusout" + ns, that._focusOut.bind(that));
 
-                if (options.resizable) {
+                if (that.options.resizable) {
                     that.popup.element.on(CLICK + ns, + "a.k-button", preventClick);
                 }
 
                 if (options.resizable) {
+                    that.overflowAnchor.appendTo(that.wrapper);
                     this._toggleOverflowAnchor();
                 }
+
+                that._tabIndex();
 
                 kendo.notify(that);
             },
@@ -88213,7 +88535,8 @@ var __meta__ = {
                 name: "ToolBar",
                 items: [],
                 resizable: true,
-                mobile: null
+                mobile: null,
+                navigateOnTab: false
             },
 
             addToGroup: function(button, groupName) {
@@ -88295,7 +88618,7 @@ var __meta__ = {
                     tool, that = this,
                     itemClasses = that.isMobile ? NOTHING : "k-item",
                     overflowTemplate = options.overflowTemplate,
-                    overflowTool;
+                    overflowTool, inputsInTemplate;
 
                 $.extend(options, {
                     uid: kendo.guid(),
@@ -88343,6 +88666,12 @@ var __meta__ = {
                 if (options.overflow !== OVERFLOW_ALWAYS) {
                     if (template) { //template command
                         tool = new TemplateItem(template, options, that);
+                        inputsInTemplate = tool.element.find(INPUT + COMMA + SELECT);
+
+                        if (!this.options.navigateOnTab && inputsInTemplate.length > 0) {
+                            tool.element.attr(TABINDEX, 0);
+                            inputsInTemplate.attr(TABINDEX, -1);
+                        }
                     } else if (component) { //build-in command
                         tool = new component.toolbar(options, that);
                     }
@@ -88548,7 +88877,7 @@ var __meta__ = {
                         }
                     },
                     activate: function() {
-                        this.element.find(":kendoFocusable").first().trigger(FOCUS);
+                        this.element.find(KENDO_FOCUSABLE).first().trigger(FOCUS);
                     },
                     close: function(e) {
                         if (that.trigger(OVERFLOW_CLOSE)) {
@@ -88568,22 +88897,21 @@ var __meta__ = {
                     e.preventDefault();
 
                     if (e.keyCode === keys.ESC || e.keyCode === keys.TAB || (e.altKey && e.keyCode === keys.UP)) {
-
                         that._toggleOverflow();
                         that.overflowAnchor.trigger(FOCUS);
                     } else if (e.keyCode === keys.DOWN) {
-                        element = !isComplexTool || (isComplexTool && target.is(":last-child")) || (isComplexTool && !target.next().is(":kendoFocusable")) ? li : target;
+                        element = !isComplexTool || (isComplexTool && target.is(":last-child")) || (isComplexTool && !target.next().is(KENDO_FOCUSABLE)) ? li : target;
                         findFocusableSibling(element, NEXT).trigger(FOCUS);
                     } else if (e.keyCode === keys.UP) {
-                        element = !isComplexTool || (isComplexTool && target.is(":first-child")) || (isComplexTool && !target.prev().is(":kendoFocusable")) ? li : target;
+                        element = !isComplexTool || (isComplexTool && target.is(":first-child")) || (isComplexTool && !target.prev().is(KENDO_FOCUSABLE)) ? li : target;
                         findFocusableSibling(element, PREV).trigger(FOCUS);
                     } else if ((e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) && !$(e.target).is(DOT + STATE_DISABLED)) {
                         that.userEvents.trigger(TAP, { target: $(e.target) });
                         that.overflowAnchor.trigger(FOCUS);
                     } else if (e.keyCode === keys.HOME) {
-                        li.parent().find(":kendoFocusable").first().trigger(FOCUS);
+                        li.parent().find(KENDO_FOCUSABLE).first().trigger(FOCUS);
                     } else if (e.keyCode === keys.END) {
-                        li.parent().find(":kendoFocusable").last().trigger(FOCUS);
+                        li.parent().find(KENDO_FOCUSABLE).last().trigger(FOCUS);
                     }
                 });
 
@@ -88614,7 +88942,7 @@ var __meta__ = {
                     this.wrapper.css(paddingEnd, this.overflowAnchor.outerWidth(true));
                 } else {
                     this.overflowAnchor.css({
-                        visibility: "hidden",
+                        visibility: HIDDEN,
                         width: "1px"
                     });
                     this.wrapper.css(paddingEnd, NOTHING);
@@ -88624,19 +88952,36 @@ var __meta__ = {
             _buttonClick: function(e) {
                 var that = this,
                     target = $(e.target),
-                    item, handler, eventData, urlTarget;
+                    item, handler, eventData, urlTarget,
+                    templateFocusable;
 
                 e.preventDefault();
 
-                if (!target.data(SPLITBUTTON)) {
-                    target = $(e.target).closest(DOT + KBUTTON + COMMA + EMPTY + DOT + MENU_LINK, that.element);
-                }
+                if (target.hasClass(MENU_BUTTON) || target.hasClass(OVERFLOW_ANCHOR)) {
+                    that._resetTabIndex(target);
+                    return;
+                } else if (target.hasClass(SPLIT_BUTTON_ARROW)) {
+                    that._resetTabIndex(target.prev());
+                    return;
+                } else if (target.hasClass(TEMPLATE_ITEM)) {
+                    templateFocusable = target.find(INPUT + COMMA + SELECT + COMMA + DOT + DROPDOWNLIST);
 
-                if (target.hasClass(OVERFLOW_ANCHOR)) {
+                    if (templateFocusable.length > 0) {
+                        that._resetTabIndex(templateFocusable.first());
+                    }
+
                     return;
                 }
 
+                if (!target.data(SPLITBUTTON)) {
+                    target = $(e.target).closest(DOT + KBUTTON + COMMA + DOT + MENU_LINK, that.element);
+                }
+
                 item = target.data(BUTTON);
+
+                if (item && !target.hasClass(MENU_ITEM)) {
+                    that._resetTabIndex(target);
+                }
 
                 if (!item && that.popup) {
                     target = $(e.target).closest(DOT + OVERFLOW_BUTTON, that.popup.container);
@@ -88675,95 +89020,25 @@ var __meta__ = {
                 }
             },
 
-            _navigatable: function() {
-                var that = this;
+            _focusOut: function(e) {
+                this.wrapper.find(DOT + KBUTTON + DOT + KFOCUS).removeClass(KFOCUS);
+            },
 
-                that.element
-                    .attr(TABINDEX, 0)
-                    .on(FOCUSIN + ns, function(ev) {
-                        var target = $(ev.target);
-                        var element = $(this).find(":kendoFocusable").first();
+            _focusIn: function(e) {
+                var target = $(e.target);
 
-                        if (!target.is(DOT + TOOLBAR) || element.length === 0) {
-                            return;
-                        }
-
-                        if (element.is(DOT + OVERFLOW_ANCHOR)) {
-                            element = findFocusableSibling(element, NEXT);
-                        }
-
-                        if (element.length) {
-                            element[0].focus();
-                        }
-                    })
-                    .on(KEYDOWN + ns, that._keydown.bind(that));
+                if (target.closest(DOT + KBUTTON).length > 0) {
+                    target.closest(DOT + KBUTTON).addClass(KFOCUS);
+                }
             },
 
             _keydown: function(e) {
                 var target = $(e.target),
                     keyCode = e.keyCode,
-                    items = this.element.children(":not(.k-separator):visible"),
-                    direction = this._isRtl ? -1 : 1;
-
-                if (keyCode === keys.TAB) {
-                    var element = target.parentsUntil(this.element).last(),
-                        lastHasFocus = false,
-                        firstHasFocus = false,
-                        isOnlyOverflowAnchor = false;
-
-                    if (!items.not(DOT + OVERFLOW_ANCHOR).length) {
-                        isOnlyOverflowAnchor = true;
-                    }
-
-                    if (!element.length) {
-                        element = target;
-                    }
-
-                    if (element.is(DOT + OVERFLOW_ANCHOR) && !isOnlyOverflowAnchor) {
-                        var lastItemNotOverflowAnchor = items.last();
-
-                        if (e.shiftKey) {
-                            e.preventDefault();
-                        }
-
-                        if (lastItemNotOverflowAnchor.is(":kendoFocusable")) {
-                            items.last().trigger(FOCUS);
-                        } else {
-                            items.last().find(":kendoFocusable").last().trigger(FOCUS);
-                        }
-                    }
-
-                    if (!e.shiftKey && items.index(element) === items.length - 1) {
-                        if (element.is(DOT + BUTTON_GROUP)) {
-                            lastHasFocus = target.is(":last-child");
-                        } else {
-                            lastHasFocus = true;
-                        }
-                    }
-
-                    var isFirstTool = items.index(element) === items.not(".k-overflow-anchor").first().index();
-                    if (e.shiftKey && isFirstTool) {
-                        if (element.is(DOT + BUTTON_GROUP)) {
-                            firstHasFocus = target.is(":first-child");
-                        } else {
-                            firstHasFocus = true;
-                        }
-                    }
-
-                    if (lastHasFocus && this.overflowAnchor && this.overflowAnchor.css("visibility") !== "hidden" && !isOnlyOverflowAnchor) {
-                        e.preventDefault();
-                        this.overflowAnchor.trigger(FOCUS);
-                    }
-
-                    if (firstHasFocus || (isOnlyOverflowAnchor && e.shiftKey)) {
-                        e.preventDefault();
-                        var prevFocusable = this._getPrevFocusable(this.wrapper);
-                        if (prevFocusable) {
-                            prevFocusable.trigger(FOCUS);
-                        }
-                    }
-                    this._preventNextFocus = false;
-                }
+                    items = this._getItems(),
+                    direction = this._isRtl ? -1 : 1,
+                    templateItem = target.closest(DOT + TEMPLATE_ITEM),
+                    last, next, innerFocusable, innerWidget, widgetInstance;
 
                 if (e.altKey && keyCode === keys.DOWN) {
                     var isOverflowAnchor = $(document.activeElement).is(DOT + OVERFLOW_ANCHOR);
@@ -88775,7 +89050,43 @@ var __meta__ = {
                     return;
                 }
 
-                if ((keyCode === keys.SPACEBAR || keyCode === keys.ENTER) && !target.is("input, checkbox, button")) {
+                if (!this.options.navigateOnTab && keyCode === keys.ENTER && target.hasClass(TEMPLATE_ITEM)) {
+                    innerFocusable = target.find(KENDO_FOCUSABLE + ":not('" + DOT + INPUT_BUTTON + "')" + COMMA + DOT + DROPDOWNLIST);
+
+                    if (innerFocusable.length > 0) {
+                        target.attr(TABINDEX, -1);
+
+                        innerFocusable.attr(TABINDEX, 0);
+                        innerFocusable.first().trigger(FOCUS);
+                    }
+
+                    return;
+                } else if (!this.options.navigateOnTab && keyCode === keys.ESC && templateItem.length > 0) {
+                    innerWidget = templateItem.find("[data-role]");
+                    innerFocusable = templateItem.find(KENDO_FOCUSABLE + ":not('" + DOT + INPUT_BUTTON + "')" + COMMA + DOT + DROPDOWNLIST);
+
+                    if (innerWidget.length > 0) {
+                        widgetInstance = kendo.widgetInstance(innerWidget);
+
+                        if (widgetInstance) {
+                            if (widgetInstance.popup && widgetInstance.popup.visible()) {
+                                return;
+                            } else {
+                                templateItem.attr(TABINDEX, 0);
+                                templateItem.trigger(FOCUS);
+                                templateItem.find(KENDO_FOCUSABLE).attr(TABINDEX, -1);
+                            }
+                        }
+                    }
+
+                    if (innerFocusable.length > 0) {
+                        templateItem.attr(TABINDEX, 0);
+                        templateItem.trigger(FOCUS);
+                        innerFocusable.attr(TABINDEX, -1);
+                    }
+
+                    return;
+                } else if ((keyCode === keys.SPACEBAR || keyCode === keys.ENTER) && !target.is(INPUT + COMMA + CHECKBOX + COMMA + BUTTON)) {
                     if (keyCode === keys.SPACEBAR) {
                         e.preventDefault(); //prevent spacebar to scroll the page down
                         this.userEvents.trigger(TAP, { target: target });
@@ -88785,114 +89096,76 @@ var __meta__ = {
                 }
 
                 if (keyCode === keys.HOME) {
-                    if (target.is(".k-dropdownlist") || target.is("input")) {
+                    if (target.is(DOT + DROPDOWNLIST) || target.is(INPUT)) {
                         return;
                     }
 
-                    if (this.overflowAnchor) {
-                        items.eq(1).trigger(FOCUS);
-                    } else {
-                        items.first().trigger(FOCUS);
-                    }
+                    this._resetTabIndex(items.first());
+                    items.first().trigger(FOCUS);
                     e.preventDefault();
                 } else if (keyCode === keys.END) {
-                    if (target.is(".k-dropdownlist") || target.is("input")) {
+                    if (target.is(DOT + DROPDOWNLIST) || target.is(INPUT)) {
                         return;
                     }
-                    if (this.overflowAnchor && $(this.overflowAnchor).css("visibility") != "hidden") {
-                        this.overflowAnchor.trigger(FOCUS);
-                    } else {
-                        items.last().trigger(FOCUS);
+
+                    last = items.last();
+
+                    if (last.width() === 0) {
+                        last = items.eq(items.length - 2);
                     }
+
+                    this._resetTabIndex(last);
+                    last.trigger(FOCUS);
                     e.preventDefault();
-                } else if (keyCode === keys.RIGHT && !this._preventNextFocus && !target.is("input, select, .k-dropdownlist, .k-colorpicker") && this._getNextElement(e.target, 1 * direction)) {
-                    this._getNextElement(e.target, 1 * direction).focus();
+                } else if (!this.options.navigateOnTab && keyCode === keys.RIGHT && !target.is(INPUT + ":not([type=file])" + COMMA + SELECT + COMMA + DOT + DROPDOWNLIST + COMMA + DOT + COLORPICKER) && this._getNextElement(e.target, 1 * direction)) {
+                    next = $(this._getNextElement(e.target, 1 * direction));
+                    this._resetTabIndex(next);
+                    next.trigger(FOCUS);
+
                     e.preventDefault();
-                } else if (keyCode === keys.LEFT && !this._preventNextFocus && !target.is("input, select, .k-dropdownlist, .k-colorpicker") && this._getNextElement(e.target, -1 * direction)) {
-                    this._getNextElement(e.target, -1 * direction).focus();
+                } else if (!this.options.navigateOnTab && keyCode === keys.LEFT && !target.is(INPUT + ":not([type=file])" + COMMA + SELECT + COMMA + EMPTY + DOT + DROPDOWNLIST + COMMA + DOT + COLORPICKER) && this._getNextElement(e.target, -1 * direction)) {
+                    next = $(this._getNextElement(e.target, -1 * direction));
+                    this._resetTabIndex(next);
+                    next.trigger(FOCUS);
+
                     e.preventDefault();
                 }
             },
 
             _getNextElement: function(item, direction) {
-                var items = this.element.children(":not(.k-separator, .k-spacer):visible");
-                var itemIndex = items.index(item) === -1 ? items.index(item.parentElement) : items.index(item);
-                var startIndex = this.overflowAnchor ? 1 : 0;
-                var directionNumber = direction;
-                var searchIndex = direction === 1 ? items.length - 1 : startIndex;
-                var index = direction === 1 ? startIndex : items.length - 1;
-                var focusableItem = items[itemIndex + direction];
-                this._preventNextFocus = false;
+                var items = this._getItems(),
+                    itemIndex = items.index(item) === -1 ? items.index(item.parentElement) : items.index(item),
+                    focusableItem = items[itemIndex + direction];
 
-                if ($(item).closest(DOT + BUTTON_GROUP).not(DOT + SPLIT_BUTTON).length && !$(item).is(direction === 1 ? ":last-child" : ":first-child")) {
-                    return $(item)
-                        .closest(DOT + BUTTON_GROUP)
-                        .children()[$(item)
-                        .closest(DOT + BUTTON_GROUP)
-                        .children()
-                        .index(item) + direction];
-                }
-
-                if (this.overflowAnchor && item === this.overflowAnchor[0] && direction === -1) {
-                    focusableItem = items[items.length - 1];
-                }
-
-                if (itemIndex === searchIndex) {
-                    focusableItem = !this.overflowAnchor ||
-                        (this.overflowAnchor &&
-                        $(this.overflowAnchor).css("visibility") === "hidden") ? items[index] : this.overflowAnchor;
-                }
-
-                while (!$(focusableItem).is(":kendoFocusable")) {
-                    if (direction === -1 && $(focusableItem).closest(DOT + BUTTON_GROUP).length) {
-                        focusableItem = $(focusableItem).children(":not(label, div)").last();
+                if (!focusableItem) {
+                    if (direction === -1) {
+                        focusableItem = items.last();
                     } else {
-                        focusableItem = $(focusableItem).children(":not(label, div)").first();
+                        focusableItem = items.first();
                     }
-                    if (!focusableItem.length) {
-                        directionNumber = directionNumber + direction;
-                        focusableItem = items[itemIndex + directionNumber];
-                        if (!focusableItem) {
-                            return this.overflowAnchor;
-                        }
-                    }
-
-                    if ($(focusableItem).hasClass("k-combobox")) {
-                        focusableItem = $(focusableItem).find("input");
-                    }
-
-                    if ($(focusableItem).hasClass("k-split-button-arrow")) {
-                        focusableItem = $(focusableItem).prev();
-                    }
-
-                    this._preventNextFocus = $(focusableItem).closest(DOT + BUTTON_GROUP).length ? false : true;
                 }
 
                 return focusableItem;
             },
 
-            _getPrevFocusable: function(element) {
-                if (element.is("html")) {
-                    return element;
-                }
+            _getItems: function() {
+                return this.wrapper.find(KENDO_FOCUSABLE + COMMA + DOT + TEMPLATE_ITEM + COMMA + DOT + OVERFLOW_ANCHOR + COMMA + DOT + "k-switch").filter(function() {
+                    var current = $(this);
 
-                var elementToFocus, prevElement,
-                    prevElements = element.prevAll();
-                prevElements.each(function() {
-                    prevElement = $(this);
-                    if (prevElement.is(":kendoFocusable")) {
-                        elementToFocus = prevElement;
+                    if (current.hasClass("k-hidden")) {
                         return false;
-                    } else if (prevElement.find(":kendoFocusable").length > 0) {
-                        elementToFocus = prevElement.find(":kendoFocusable").last();
+                    } else if (current.hasClass(OVERFLOW_ANCHOR) && current.css("visibility") === HIDDEN) {
+                        return false;
+                    } else if (current.hasClass(TEMPLATE_ITEM) && current.find(DOT + "k-picker" + COMMA + DOT + "k-input").length === 0) {
+                        return false;
+                    } else if (!current.hasClass(TEMPLATE_ITEM) && current.closest(DOT + TEMPLATE_ITEM).length > 0) {
+                        return false;
+                    } else if (current.hasClass(INPUT_BUTTON) || current.hasClass(SPLIT_BUTTON_ARROW)) {
                         return false;
                     }
+
+                    return true;
                 });
-                if (elementToFocus) {
-                    return elementToFocus;
-                } else {
-                    return this._getPrevFocusable(element.parent());
-                }
             },
 
             _toggle: function(e) {
@@ -88941,7 +89214,8 @@ var __meta__ = {
 
             _shrink: function(containerWidth) {
                 var commandElement,
-                    visibleCommands;
+                    visibleCommands,
+                    activeElement;
 
                 if (containerWidth < this._childrenWidth()) {
                     visibleCommands = this.element.children(":visible:not([data-overflow='never'], ." + OVERFLOW_ANCHOR + ")");
@@ -88952,6 +89226,13 @@ var __meta__ = {
                         if (containerWidth > this._childrenWidth()) {
                             break;
                         } else {
+                            activeElement = commandElement.find("[tabindex=0]");
+
+                            if (activeElement.length > 0) {
+                                activeElement.attr(TABINDEX, -1);
+                                this.element.children(DOT + OVERFLOW_ANCHOR).attr(TABINDEX, 0);
+                            }
+
                             this._hideItem(commandElement);
                         }
                     }
@@ -88979,7 +89260,7 @@ var __meta__ = {
 
                 if (this.popup) {
                     this.popup.container
-                        .find(">li[data-uid='" + item.data("uid") + "']")
+                        .find(">li[data-uid='" + item.data(UID) + "']")
                         .removeClass(OVERFLOW_HIDDEN);
                 }
             },
@@ -88995,12 +89276,15 @@ var __meta__ = {
                 item.addClass(STATE_HIDDEN);
 
                 if (item.length && containerWidth > this._childrenWidth() + itemOuterWidth) {
-
                     item.removeClass(STATE_HIDDEN);
+
+                    if (this.options.navigateOnTab !== true) {
+                        item.find(KENDO_FOCUSABLE).attr(TABINDEX, -1);
+                    }
 
                     if (this.popup) {
                         this.popup.container
-                            .find(">li[data-uid='" + item.data("uid") + "']")
+                            .find(">li[data-uid='" + item.data(UID) + "']")
                             .addClass(OVERFLOW_HIDDEN);
                     }
 
@@ -89012,15 +89296,31 @@ var __meta__ = {
 
             _markVisibles: function() {
                 var overflowItems = this.popup.container.children(),
-                    toolbarItems = this.element.children(":not(.k-overflow-anchor)"),
-                    visibleOverflowItems = overflowItems.filter(":not(.k-overflow-hidden)"),
+                    toolbarItems = this.element.children(":not(" + DOT + OVERFLOW_ANCHOR + ")"),
+                    visibleOverflowItems = overflowItems.filter(":not(" + DOT + OVERFLOW_HIDDEN + ")"),
                     visibleToolbarItems = toolbarItems.filter(":visible");
 
                 overflowItems.add(toolbarItems).removeClass(FIRST_TOOLBAR_VISIBLE + EMPTY + LAST_TOOLBAR_VISIBLE);
                 visibleOverflowItems.first().add(visibleToolbarItems.first()).addClass(FIRST_TOOLBAR_VISIBLE);
                 visibleOverflowItems.last().add(visibleToolbarItems.last()).addClass(LAST_TOOLBAR_VISIBLE);
-            }
+            },
 
+            _resetTabIndex: function(toFocus) {
+                if (this.options.navigateOnTab !== true) {
+                    this.wrapper.find(KENDO_FOCUSABLE).attr(TABINDEX, -1);
+                    toFocus.attr(TABINDEX, 0);
+                }
+            },
+
+            _tabIndex: function() {
+                var focusableItems = this.wrapper.find(KENDO_FOCUSABLE + ":not('[tabindex=-1]')"),
+                    firstFocusable = focusableItems.first();
+
+                if (this.options.navigateOnTab !== true) {
+                    focusableItems.attr(TABINDEX, -1);
+                    firstFocusable.attr(TABINDEX, 0);
+                }
+            }
         });
 
     kendo.ui.plugin(ToolBar);
@@ -89214,6 +89514,7 @@ var __meta__ = {
         options: {
             label: null,
             labelPosition: "after",
+            labelId: null,
             encoded: true
         },
         _wrapper: function() {
@@ -89237,6 +89538,14 @@ var __meta__ = {
                     that.labelEl.text(options.label);
                 } else {
                     that.labelEl.html(options.label);
+                }
+
+                if (options.labelId) {
+                    that.labelEl.attr("id", options.labelId);
+                }
+
+                if (options.optional) {
+                    that.labelEl.append("<span class='" + options.optionalClass + "'>" + options.optionalText + "</span>");
                 }
 
                 that.element[options.labelPosition](that.labelEl);
@@ -89269,6 +89578,8 @@ var __meta__ = {
             name: "HTMLCheckBox",
             inputClass: "k-checkbox",
             labelClass: "k-checkbox-label",
+            optionalClass: "k-label-optional",
+            optionalText: "(Optional)",
             type: "checkbox",
             rounded: "medium",
             size: "medium",
@@ -89286,6 +89597,8 @@ var __meta__ = {
             name: "HTMLRadioButton",
             inputClass: "k-radio",
             labelClass: "k-radio-label",
+            optionalClass: "k-label-optional",
+            optionalText: "(Optional)",
             type: "radio",
             size: "medium",
             stylingOptions: [ "size"]
@@ -95395,7 +95708,7 @@ var __meta__ = {
             span = wrapper.find(SELECTOR);
 
             if (!span[0]) {
-                arrowBtn = html.renderButton('<button type="button" tabindex="-1" unselectable="on" class="k-input-button" aria-label="select"></button>', {
+                arrowBtn = html.renderButton('<span role="button" class="k-input-button" aria-label="select"></span>', {
                     icon: "arrow-s",
                     size: options.size,
                     fillMode: options.fillMode,
@@ -95751,23 +96064,41 @@ var __meta__ = {
             }
 
             selected = target.hasClass(selectedClass);
-            if (!multiple || !ctrlKey) {
-                that.clear();
-            }
 
             target = target.add(that.relatedTarget(target));
 
-            if (shiftKey) {
-                that.selectRange(that._firstSelectee(), target, e);
-            } else {
+            if (!multiple) {
                 if (selected && ctrlKey) {
                     that._unselect(target);
                     that._notify(CHANGE, e);
-                } else {
+                } else if (!selected) {
+                    that.clear();
                     that.value(target, e);
+                    that._notify(CHANGE, e);
                 }
+            } else {
+                if (shiftKey) {
+                    if (!that._lastRange || !compareElements(that._lastRange, target)) {
+                        that.selectRange(that._firstSelectee(), target, e);
+                        that._notify(CHANGE, e);
+                    }
+                    that._lastRange = target;
+                } else {
+                    that._lastRange = null;
+                    if (selected && ctrlKey) {
+                        that._unselect(target);
+                        that._notify(CHANGE, e);
+                    } else if (ctrlKey) {
+                        that.value(target, e);
+                        that._notify(CHANGE, e);
+                    } else if (!selected || that.value().length > 1) {
+                        that.clear();
+                        that.value(target, e);
+                        that._notify(CHANGE, e);
+                    }
 
-                that._lastActive = that._downTarget = target;
+                    that._lastActive = that._downTarget = target;
+                }
             }
         },
 
@@ -95859,7 +96190,11 @@ var __meta__ = {
                 }
             }
 
-            that.value(target, e);
+            if (!that._lastRange || !compareElements(that._lastRange, target)) {
+                that.value(target, e);
+                that._notify(CHANGE, e);
+            }
+            that._lastRange = target;
             that._lastActive = that._downTarget;
             that._items = null;
         },
@@ -95928,7 +96263,7 @@ var __meta__ = {
             return collision;
         },
 
-        value: function(val, e) {
+        value: function(val) {
             var that = this,
                 selectElement = that._selectElement.bind(that);
 
@@ -95937,7 +96272,6 @@ var __meta__ = {
                     selectElement(this);
                 });
 
-                that._notify(CHANGE, e);
                 return;
             }
 
@@ -96049,7 +96383,7 @@ var __meta__ = {
             this._unselect(items);
         },
 
-        selectRange: function(start, end, e) {
+        selectRange: function(start, end) {
             var that = this,
                 idx,
                 tmp,
@@ -96079,10 +96413,8 @@ var __meta__ = {
             }
 
             for (idx = start; idx <= end; idx ++ ) {
-                that._selectElement(items[idx]);
+                that._selectElement(items[idx], true);
             }
-
-            that._notify(CHANGE, e);
         },
 
         destroy: function() {
@@ -96106,6 +96438,21 @@ var __meta__ = {
             cell: asLowerString && asLowerString.indexOf("cell") > -1
         };
     };
+
+    function compareElements(element, toCompare) {
+
+        if (element.length !== toCompare.length) {
+            return false;
+        }
+
+        for (var i = 0; i < element.length; i++) {
+            if (element[i] !== toCompare[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     function collision(element, position) {
         if (!element.is(":visible")) {
@@ -96292,7 +96639,8 @@ var __meta__ = {
                 element.on(CLICK, WEEKCOLUMNSELECTOR, function(e) {
                         var first = $(e.currentTarget).closest("tr").find(CELLSELECTORVALID).first(),
                             last = that.selectable._lastActive = $(e.currentTarget).closest("tr").find(CELLSELECTORVALID).last();
-                        that.selectable.selectRange(first, last, { event: e });
+                        that.selectable.selectRange(first, last);
+                        that.selectable.trigger(CHANGE, { event: e });
                         that._current = that._value = toDateObject(last.find("a"));
                         that._setCurrent(that._current);
                 });
@@ -97072,11 +97420,11 @@ var __meta__ = {
 
             if ($(that._cell[0]).hasClass(SELECTED)) {
                 that.selectable._unselect($(that._cell[0]));
-                that.selectable.trigger(CHANGE, { event: event });
             }
             else {
-                that.selectable.value($(that._cell[0]), { event: event });
+                that.selectable.value($(that._cell[0]));
             }
+            that.selectable.trigger(CHANGE, { event: event });
         },
 
         _nextNavigatable: function(currentValue, value) {
@@ -97134,7 +97482,8 @@ var __meta__ = {
                 active = that._active,
                 horizontal = that.options.animation.horizontal,
                 effects = horizontal.effects,
-                viewWidth = outerWidth(from);
+                viewWidth = outerWidth(from),
+                margin = (outerWidth(from, true) - viewWidth);
 
             if (effects && effects.indexOf(SLIDE) != -1) {
                 from.add(to).css({ width: viewWidth });
@@ -97146,9 +97495,9 @@ var __meta__ = {
                 from.parent()
                 .css({
                     position: "relative",
-                    width: viewWidth * 2,
-                    "float": LEFT,
-                    "margin-left": future ? 0 : -viewWidth
+                    width: (viewWidth * 2) + (2 * margin),
+                    display: "flex",
+                    "margin-left": future ? 0 : (-viewWidth - margin)
                 });
 
                 to[future ? "insertAfter" : "insertBefore"](from);
@@ -101508,6 +101857,10 @@ var __meta__ = {
 
             input.removeAttr(ARIAINVALID);
 
+            if (input.hasClass("k-hidden")) {
+                widgetInstance = kendo.widgetInstance(input.closest(".k-signature"));
+            }
+
             if (!valid && !input.data("captcha_validating")) {
                 that._errors[fieldName] = messageText;
                 var lblId = lbl.attr('id');
@@ -101522,7 +101875,7 @@ var __meta__ = {
                 if (lbl.length !== 0) {
                     lbl.replaceWith(messageLabel);
                 } else {
-                    widgetInstance = kendo.widgetInstance(input);
+                    widgetInstance = widgetInstance || kendo.widgetInstance(input);
                     var parentElement = input.parent().get(0);
                     var nextElement = input.next().get(0);
                     var prevElement = input.prev().get(0);
@@ -101537,7 +101890,7 @@ var __meta__ = {
                         widgetInstance = kendo.widgetInstance(input.closest(".k-checkbox-list"));
                     }
 
-                    if (widgetInstance && widgetInstance.wrapper) {
+                    if (widgetInstance && widgetInstance.wrapper && (widgetInstance.element !== widgetInstance.wrapper || widgetInstance.options.name == "Signature")) {
                         messageLabel.insertAfter(widgetInstance.wrapper);
                     } else if (parentElement && parentElement.nodeName === "LABEL") {
                         // Input inside label
@@ -101567,16 +101920,15 @@ var __meta__ = {
                 this.trigger(VALIDATE_INPUT, { valid: valid, input: input, error: messageText, field: fieldName });
             }
 
-            widgetInstance = kendo.widgetInstance(input);
+            widgetInstance = (widgetInstance && widgetInstance.options.name == "Signature") ? widgetInstance : kendo.widgetInstance(input);
             if (!widgetInstance || !(widgetInstance._inputWrapper || widgetInstance.wrapper)) {
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
             }
 
             if (widgetInstance) {
-                var widget = kendo.widgetInstance(input);
-                var inputWrap = widget._inputWrapper || widget.wrapper;
-                var inputLabel = widget._inputLabel;
+                var inputWrap = widgetInstance._inputWrapper || widgetInstance.wrapper;
+                var inputLabel = widgetInstance._inputLabel;
 
                 if (inputWrap) {
                     inputWrap.toggleClass(INVALIDINPUT, !valid);
@@ -102014,6 +102366,8 @@ var __meta__ = {
             tag = "<select />";
         } else if (type === "RadioGroup" || type === "CheckBoxGroup") {
             tag = "<ul />";
+        } else if (type === "Signature") {
+            tag = "<div></div>";
         } else {
             tag = type === "Editor" || type === "TextArea" ? "<textarea />" : "<input />";
         }
@@ -102022,11 +102376,11 @@ var __meta__ = {
     }
 
     var kendoEditors = [
-        "AutoComplete", "CheckBox", "CheckBoxGroup", "ColorPicker", "ComboBox", "DateInput",
+        "AutoComplete", "CheckBox", "CheckBoxGroup", "ColorGradient", "ColorPicker", "ColorPalette", "ComboBox", "DateInput",
         "DatePicker", "DateTimePicker", "DropDownTree",
-        "Editor", "MaskedTextBox", "MultiColumnComboBox","MultiSelect",
+        "Editor", "FlatColorPicker", "MaskedTextBox", "MultiColumnComboBox","MultiSelect",
         "NumericTextBox", "RadioGroup", "Rating", "Slider", "Switch", "TimePicker", "DropDownList",
-        "TextBox", "TextArea", "Captcha"
+        "TextBox", "TextArea", "Captcha", "Signature"
     ];
 
     var editors = {

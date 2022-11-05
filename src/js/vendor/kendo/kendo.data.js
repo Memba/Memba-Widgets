@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1979,6 +1979,7 @@ var __meta__ = {
 
                 if (skip + take > total && options.virtual) {
                     skip -= skip + take - total;
+                    skip = skip < 0 ? 0 : skip;
                 }
                 query = query.range(skip, take);
             }
@@ -2357,12 +2358,18 @@ var __meta__ = {
                     if (currOriginal.hasSubgroups && currOriginal.value == currentNew.value) {
                         fillLastGroup(currOriginal, currentNew);
                     } else if (currOriginal.field && currOriginal.value == currentNew.value) {
+                        currOriginal.items.omitChangeEvent = true;
                         currOriginal.items.push.apply(currOriginal.items, currentNew.items);
+                        currOriginal.items.omitChangeEvent = false;
                     } else {
+                        originalGroup.items.omitChangeEvent = true;
                         originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                        originalGroup.items.omitChangeEvent = false;
                     }
                 } else if (currentNew) {
+                    originalGroup.items.omitChangeEvent = true;
                     originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                    originalGroup.items.omitChangeEvent = false;
                 }
             }
         }

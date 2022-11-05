@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -888,21 +888,18 @@ var __meta__ = {
         _resetStep: function(i, index, forward) {
             var step = this._steps[i];
 
-            if (!forward && i < index) {
-                step.options.selectable = true;
-            } else if (i === index) {
+            if (i === index) {
                 step.options.previous = false;
                 step.options.selected = true;
-                step.options.selectable = true;
-            } else if (forward && i > index) {
-                step.options.selectable = true;
-            } else {
+            } else if ((forward || i > index) && (!forward || i < index)) {
                 step.options.selected = false;
                 step.options.previous = forward;
             }
 
             if (this.options.linear && (i < index - 1 || i > index + 1)) {
                 step.options.selectable = false;
+            } else {
+                step.options.selectable = true;
             }
 
             step._link();

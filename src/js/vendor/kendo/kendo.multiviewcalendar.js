@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -401,6 +401,7 @@ var __meta__ = {
             that._footer(that.footer);
             that._selectDates = [];
             that.value(options.value);
+            that._addSelectedCellsToArray();
 
             if (options.selectable == MULTIPLE) {
                 that._selectDates = options.selectDates.length ? options.selectDates : that._selectDates;
@@ -783,7 +784,7 @@ var __meta__ = {
             var currentValue = new DATE(+(that._current || toDateObject(focusedCell.find("a"))));
             var isRtl = kendo.support.isRtl(that.wrapper);
             var navigate = false;
-            var value, prevent, method, cell, lastActive, cellIndex;
+            var value, prevent, method, cell, lastActive, cellIndex, triggerChange;
 
             if (key == keys.RIGHT && !isRtl || key == keys.LEFT && isRtl) {
                 value = 1;
@@ -926,10 +927,14 @@ var __meta__ = {
             } else {
                 if (key == keys.ENTER || key == keys.SPACEBAR) {
                     if (that._currentView.name === MONTH) {
+                        triggerChange = !focusedCell.hasClass(SELECTED) || that.element.find(DOT + SELECTED).length > 1;
+                        that.value(currentValue);
                         if (that.selectable) {
                             that.selectable._lastActive = that._cellByDate(currentValue);
+                            if (triggerChange) {
+                                that.selectable.trigger(CHANGE, { event: e });
+                            }
                         }
-                        that.value(currentValue);
                         if (that.rangeSelectable) {
                             that.rangeSelectable.change();
                         }
@@ -1047,11 +1052,11 @@ var __meta__ = {
 
             if ($(that._cell[0]).hasClass(SELECTED)) {
                 that.selectable._unselect($(that._cell[0]));
-                that.selectable.trigger(CHANGE, { event: event });
             }
             else {
-                that.selectable.value($(that._cell[0]), { event: event });
+                that.selectable.value($(that._cell[0]));
             }
+            that.selectable.trigger(CHANGE, { event: event });
         },
 
         _option: function(option, value) {
@@ -1351,6 +1356,9 @@ var __meta__ = {
 
         _addSelectedCellsToArray: function() {
             var that = this;
+            if (!that.selectable) {
+                return;
+            }
             that.selectable.value().each(function(index, item) {
                 var date = toDateObject($(item.firstChild));
                 if (!that.options.disableDates(date)) {

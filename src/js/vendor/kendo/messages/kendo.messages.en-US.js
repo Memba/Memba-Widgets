@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -524,7 +524,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "pdf": "Export to PDF",
     "save": "Save changes",
     "select": "Select",
-    "update": "Update"
+    "update": "Update",
+    "search": "Search..."
   },
   "editable": {
     "cancelDelete": "Cancel",
@@ -532,10 +533,12 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmDelete": "Delete"
   },
   "noRecords": "No records available.",
-  "search": "Search...",
   "expandCollapseColumnHeader": "",
   "groupHeader": "Press ctrl + space to group",
-  "ungroupHeader": "Press ctrl + space to ungroup"
+  "ungroupHeader": "Press ctrl + space to ungroup",
+  "toolbarLabel": "grid toolbar",
+  "groupingHeaderLabel": "grid grouping header",
+  "filterCellTitle": "filter cell"
 });
 }
 

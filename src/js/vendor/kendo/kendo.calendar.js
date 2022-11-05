@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -158,7 +158,8 @@ var __meta__ = {
                 element.on(CLICK, WEEKCOLUMNSELECTOR, function(e) {
                         var first = $(e.currentTarget).closest("tr").find(CELLSELECTORVALID).first(),
                             last = that.selectable._lastActive = $(e.currentTarget).closest("tr").find(CELLSELECTORVALID).last();
-                        that.selectable.selectRange(first, last, { event: e });
+                        that.selectable.selectRange(first, last);
+                        that.selectable.trigger(CHANGE, { event: e });
                         that._current = that._value = toDateObject(last.find("a"));
                         that._setCurrent(that._current);
                 });
@@ -938,11 +939,11 @@ var __meta__ = {
 
             if ($(that._cell[0]).hasClass(SELECTED)) {
                 that.selectable._unselect($(that._cell[0]));
-                that.selectable.trigger(CHANGE, { event: event });
             }
             else {
-                that.selectable.value($(that._cell[0]), { event: event });
+                that.selectable.value($(that._cell[0]));
             }
+            that.selectable.trigger(CHANGE, { event: event });
         },
 
         _nextNavigatable: function(currentValue, value) {
@@ -1000,7 +1001,8 @@ var __meta__ = {
                 active = that._active,
                 horizontal = that.options.animation.horizontal,
                 effects = horizontal.effects,
-                viewWidth = outerWidth(from);
+                viewWidth = outerWidth(from),
+                margin = (outerWidth(from, true) - viewWidth);
 
             if (effects && effects.indexOf(SLIDE) != -1) {
                 from.add(to).css({ width: viewWidth });
@@ -1012,9 +1014,9 @@ var __meta__ = {
                 from.parent()
                 .css({
                     position: "relative",
-                    width: viewWidth * 2,
-                    "float": LEFT,
-                    "margin-left": future ? 0 : -viewWidth
+                    width: (viewWidth * 2) + (2 * margin),
+                    display: "flex",
+                    "margin-left": future ? 0 : (-viewWidth - margin)
                 });
 
                 to[future ? "insertAfter" : "insertBefore"](from);

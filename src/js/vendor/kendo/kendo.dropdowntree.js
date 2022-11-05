@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1189,10 +1189,10 @@ var __meta__ = {
         },
 
         _clearTextAndValue: function() {
+            this._selection._clearValue();
             this.setValue([]);
             this._clearInput();
             this._clearText();
-            this._selection._clearValue();
             this.popup.position();
             this._toggleCloseVisibility();
         },
@@ -2315,12 +2315,17 @@ var __meta__ = {
         _clearValue: function() {
             var dropdowntree = this._dropdowntree;
             var selectedNode = dropdowntree.treeview.select();
-
+            var dropdowntreeHasValue = dropdowntree._values.length;
+            var triggerChange = false;
             if (dropdowntree.treeview.dataItem(selectedNode)) {
                 dropdowntree.treeview.dataItem(selectedNode).set('selected', false);
-                if (!dropdowntree._valueMethodCalled) {
-                    dropdowntree.trigger(CHANGE);
-                }
+                triggerChange = true;
+            } else if (dropdowntreeHasValue > 0) {
+                triggerChange = true;
+            }
+
+            if (!dropdowntree._valueMethodCalled && triggerChange) {
+                dropdowntree.trigger(CHANGE);
             }
         },
 

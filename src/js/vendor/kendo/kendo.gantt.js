@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -376,6 +376,7 @@ var __meta__ = {
             }
 
             list.select(value);
+            this._selectionUpdate();
 
             this.list.element.find("table[role=treegrid]").trigger("focus");
             return;
@@ -959,7 +960,6 @@ var __meta__ = {
         _attachListEvents: function() {
             var that = this,
                 navigatable = that.options.navigatable,
-                toggleButtons = this.wrapper.find(DOT + ganttStyles.toolbar.toolbar + " " + DOT + ganttStyles.toolbar.appendButton),
                 restoreFocus = function() {
                     var element;
 
@@ -1088,15 +1088,8 @@ var __meta__ = {
                 .bind("change", function() {
                     that.trigger("change");
 
-                    var selection = that.list.select();
+                    that._selectionUpdate();
 
-                    if (selection.length) {
-                        toggleButtons.removeAttr("data-action", "add");
-                        that.timeline.select("[data-uid='" + selection.attr("data-uid") + "']");
-                    } else {
-                        toggleButtons.attr("data-action", "add");
-                        that.timeline.clearSelection();
-                    }
                 })
                 .bind("collapse", function(e) {
                     e.preventDefault();
@@ -1153,6 +1146,20 @@ var __meta__ = {
                     that._updateTask(e.task, e.updateInfo);
                     restoreFocus();
                 });
+        },
+
+        _selectionUpdate: function() {
+            var that = this,
+                selection = that.list.select(),
+                toggleButtons = this.wrapper.find(DOT + ganttStyles.toolbar.toolbar + " " + DOT + ganttStyles.toolbar.appendButton);
+
+            if (selection.length) {
+                toggleButtons.removeAttr("data-action", "add");
+                that.timeline.select("[data-uid='" + selection.attr("data-uid") + "']");
+            } else {
+                toggleButtons.attr("data-action", "add");
+                that.timeline.clearSelection();
+            }
         },
 
         _list: function() {
@@ -2228,7 +2235,7 @@ var __meta__ = {
             $(this.wrapper)
                 .on("mousedown" + NS, "tr" + attr + ", div" + attr + ":not(" + DOT + ganttStyles.line + ")", function(e) {
                     var currentTarget = $(e.currentTarget);
-                    var isInput = $(e.target).is(":button,a,:input,a>.k-icon,textarea,span.k-icon:not(.k-i-none),span.k-link,.k-input,.k-multiselect-wrap");
+                    var isInput = $(e.target).is(":button,a,:input,a>.k-icon,textarea,span.k-icon:not(.k-i-none),span.k-link,.k-input,.k-multiselect-wrap,.k-input-value-text,.k-input-inner");
                     var current;
 
                     if (e.ctrlKey) {

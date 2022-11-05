@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -15,7 +15,7 @@
         ui = kendo.ui,
         extend = $.extend,
         ToolBar = kendo.ui.ToolBar,
-        Item = kendo.toolbar.Item,
+        TemplateItem = kendo.toolbar.TemplateItem,
 
         CLICK = "click",
         DROPDOWNCHANGE = "dropDownChange",
@@ -141,7 +141,8 @@
 
         toggleTools: function(conditions) {
             var that = this,
-                tools = that.element.find("[data-toggle]");
+                tools = that.element.find("[data-toggle]"),
+                focusable = that.element.find(":kendoFocusable").not("[tabindex=-1]");
 
             tools.each(function(index, elm) {
                 var tool = $(elm),
@@ -159,6 +160,9 @@
                     that.enable(tool, toToggle);
                 }
             });
+
+            that.element.find(":kendoFocusable").not("[tabindex=-1]").attr("tabindex", -1);
+            focusable.attr("tabindex", 0);
         },
 
         destroy: function() {
@@ -172,16 +176,15 @@
         }
     });
 
-    var ImageEditorZoomDropDown = Item.extend({
+    var ImageEditorZoomDropDown = TemplateItem.extend({
         init: function(options, toolbar) {
             var that = this,
-                element = $("<div></div>"),
                 input = $("<input />").attr(options.attributes),
                 template = "<span class=\"k-icon k-i-#:icon#\"></span> #:text#";
 
-                that.element = element;
                 that.input = input;
-                that.toolbar = toolbar;
+
+                delete options.attributes["aria-label"];
 
                 that.dropDown = new ui.DropDownList(that.input, {
                     optionLabel: { text: options.text, icon: "" },
@@ -191,7 +194,8 @@
                     change: that._change.bind(that)
                 });
 
-                that.element.append(that.dropDown.wrapper);
+                TemplateItem.fn.init.call(this, that.dropDown.wrapper, options, toolbar);
+
                 that.dropDown.list.find(".k-list-optionlabel").hide();
 
                 that.toolbar.zoomDropdown = that;
@@ -1267,12 +1271,12 @@ var __meta__ = {
                 options = that.options;
 
             that.header = $("<div />").addClass(imageEditorStyles.header);
+            that.wrapper.append(that.header);
 
             if (options.toolbar) {
-                that.header.append(that._initToolbar().element);
+                that._initToolbar();
+                that.toolbar._tabIndex();
             }
-
-            that.wrapper.append(that.header);
         },
 
         _initToolbar: function() {
@@ -1283,6 +1287,8 @@ var __meta__ = {
                     messages: options.messages.toolbar,
                     action: that.executeCommand.bind(that)
                 });
+
+            that.header.append(toolbarElement);
 
             that.toolbar = new ui.imageeditor.ToolBar(toolbarElement, toolbarOptions);
 

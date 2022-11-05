@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1487,7 +1487,7 @@ var __meta__ = {
             var options = this.options;
 
             if (options.footer !== false) {
-                var html = '<div class="k-scheduler-footer k-toolbar">';
+                var html = '<div class="k-scheduler-footer k-toolbar" role="toolbar">';
 
                 var command = options.footer.command;
 

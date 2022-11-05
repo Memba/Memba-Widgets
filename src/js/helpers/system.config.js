@@ -185,6 +185,7 @@ SystemJS.config({
             'src/js/vendor/kendo/kendo.scheduler.yearview.js',
         'kendo.scrollview': 'src/js/vendor/kendo/kendo.scrollview.js',
         'kendo.selectable': 'src/js/vendor/kendo/kendo.selectable.js',
+        'kendo.signature': 'src/js/vendor/kendo/kendo.signature.js',
         'kendo.skeletoncontainer':
             'src/js/vendor/kendo/kendo.skeletoncontainer.js',
         'kendo.slider': 'src/js/vendor/kendo/kendo.slider.js',

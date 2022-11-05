@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -4818,17 +4818,9 @@ var __meta__ = {
             }
             var contentTable = this._contentWrapper.find("table");
             var columnTable = this._columnHeadersWrapper.children("table");
+            var rowTable = this._rowHeadersWrapper.children("table");
 
-            var rowLength = contentTable.children("colgroup").children().length;
-
-            var calculatedWidth = rowLength * this.options.columnWidth;
-            var minWidth = Math.ceil((calculatedWidth / this._contentWrapper.width()) * 100);
-
-            if (minWidth < 100) {
-                minWidth = 100;
-            }
-
-            contentTable.add(columnTable).css("width", minWidth + "%");
+            contentTable.add(columnTable).add(rowTable).find("col").width(this.options.columnWidth);
         },
 
         _bindConfigurator: function() {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -50,18 +50,24 @@ var __meta__ = {
             name: 'Badge',
             cutoutBorder: false,
             data: {},
-            fill: 'solid',
+            fillMode: 'solid',
             icon: '',
             max: Infinity,
             position: 'inline',
             align: '',
+            rounded: 'medium',
+            roundings: {
+                'small': 'sm',
+                'medium': 'md',
+                'large': 'lg',
+                'full': 'full'
+            },
             sizes: {
                 'small': 'sm',
                 'medium': 'md',
                 'large': 'lg'
             },
             size: 'medium',
-            shape: 'rounded',
             template: null,
             text: '',
             themeColor: 'secondary',
@@ -111,7 +117,9 @@ var __meta__ = {
             that._shape = that.options.shape;
             that._sizes = that.options.sizes;
             that._size = that.options.size;
-            that._fill = that.options.fill;
+            that._fillMode = that.options.fillMode;
+            that._rounded = that.options.rounded;
+            that._roundings = that.options.roundings;
             that._cutoutBorder = that.options.cutoutBorder;
             that._align = that.options.align;
             that._position = that.options.position;
@@ -129,7 +137,10 @@ var __meta__ = {
             var sizes = that._sizes;
             var size = that._size;
             var sizeAbbr = sizes[size] === undefined ? size : sizes[size];
-            var fill = that._fill;
+            var fillMode = that._fillMode;
+            var rounded = that._rounded;
+            var roundings = that._roundings;
+            var roundedAbbr = roundings[rounded] === undefined ? rounded : roundings[rounded];
             var cutoutBorder = that._cutoutBorder;
             var align = that._align;
             var position = that._position;
@@ -143,18 +154,23 @@ var __meta__ = {
             });
 
             // Fill
-            if (typeof fill === 'string' && fill !== '') {
-                classNames.push('k-badge-' + fill);
+            if (typeof fillMode === 'string' && fillMode !== '') {
+                classNames.push('k-badge-' + fillMode);
             }
 
             // Color
             if (typeof themeColor === 'string' && themeColor !== '') {
-                classNames.push('k-badge-' + themeColor);
+                classNames.push('k-badge-' + fillMode + '-' + themeColor);
             }
 
             // Size
             if (typeof size === 'string' && size !== '') {
                 classNames.push('k-badge-' + sizeAbbr);
+            }
+
+            // Rounded
+            if (typeof rounded === 'string' && rounded !== '') {
+                classNames.push('k-rounded-' + roundedAbbr);
             }
 
             // Shape
@@ -283,15 +299,15 @@ var __meta__ = {
             that._updateClassNames();
         },
 
-        shape: function(shape) {
+        rounded: function(rounded) {
             var that = this;
 
             // handle badge.shape()
-            if (arguments.length === 0 || shape === undefined) {
-                return that._shape;
+            if (arguments.length === 0 || rounded === undefined) {
+                return that._rounded;
             }
 
-            that._shape = shape;
+            that._rounded = rounded;
             that._updateClassNames();
         },
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -78,6 +78,7 @@
             layout: "k-form-layout",
             legend: "k-form-legend",
             label: "k-label k-form-label",
+            emptyLabel: "k-form-label k-label-empty",
             optional: "k-label-optional",
             buttonsContainer: "k-form-buttons",
             buttonsEnd: "k-buttons-end",
@@ -116,6 +117,8 @@
 
                 that._editable();
 
+                that._renderBoolLabels();
+
                 that._renderFieldsHints();
 
                 that._setEvents();
@@ -151,6 +154,11 @@
                 focusFirst: false
             },
 
+            _noLabelfieldTemplate: "<div class='#:styles.field# #if (colSpan) { # k-colspan-#:colSpan# # } # #if (hidden) { ##:styles.hidden## } #'>" +
+                                        "<span class='#:styles.emptyLabel#'></span>" +
+                                        "<div class='k-form-field-wrap' data-container-for='#:field#'></div>" +
+                                    "</div>",
+
             _fieldTemplate: "<div class='#:styles.field# #if (colSpan) { # k-colspan-#:colSpan# # } # #if (hidden) { ##:styles.hidden## } #'>" +
                                 "# if (label && !hidden) { # " +
                                     "<label class='#:styles.label#' for='#:id#' id='#:id#-form-label'>" +
@@ -164,6 +172,15 @@
                                 "# } #" +
                                 "<div class='k-form-field-wrap' data-container-for='#:field#'></div>" +
                             "</div>",
+
+            _boolLabelTemplate: "<label class='k-checkbox-label' for='#:id#' id='#:id#-form-label'>" +
+                                    "# if (typeof label.encoded != 'undefined' && label.encoded === false) {#" +
+                                        "#= label.text || label #" +
+                                    "# } else { #" +
+                                        "#: label.text || label #" +
+                                    "# } #" +
+                                    "# if (label.optional) { # <span class='#:styles.optional#'>#:optional#</span>  #}#" +
+                                "</label>",
 
             _groupTemplate: "<fieldset class='#:styles.fieldset# #if (colSpan) { #  k-colspan-#:colSpan# # }#'>" +
                                 "<legend class='#:styles.legend#'>#:label.text || label #</legend>" +
@@ -300,7 +317,10 @@
                         }
                     }
 
-                    fieldInfo = extend(true, {}, fieldInfo, {
+                    fieldInfo = extend(true, {
+                        label: fieldInfo.label || fieldInfo.name || fieldInfo.field,
+                        optionalText: that.options.messages.optional
+                    }, fieldInfo, {
                         id: fieldInfo.id || fieldInfo.field,
                         name: fieldInfo.name || fieldInfo.field,
                         type: type,
@@ -388,13 +408,22 @@
             _renderField: function(item) {
                 var that = this,
                     formStyles = Form.styles,
-                    renderedField;
+                    isHorizontal = that.options.orientation === formOrientation.horizontal,
+                    fieldType = that._model.fields && that._model.fields[item.field] && that._model.fields[item.field].type,
+                    isBoolField = fieldType && fieldType === "boolean",
+                    fieldTemplate, renderedField;
 
-                renderedField = (kendo.template(that._fieldTemplate)({
+                if (isBoolField && isHorizontal) {
+                    fieldTemplate = that._noLabelfieldTemplate;
+                } else {
+                    fieldTemplate = that._fieldTemplate;
+                }
+
+                renderedField = (kendo.template(fieldTemplate)({
                     styles: formStyles,
                     id: item.id || item.field || "",
                     field: item.field || "",
-                    label: that._formatLabel(item.field, item.label),
+                    label: isBoolField ? null : that._formatLabel(item.field, item.label),
                     colSpan: item.colSpan || "",
                     optional: that.options.messages.optional,
                     hidden: that._isHidden(item.editor) || that._isAntiForgeryToken(item.field)
@@ -411,10 +440,33 @@
                 }
             },
 
+            _renderBoolLabels: function() {
+                var that = this,
+                    formStyles = Form.styles,
+                    fields = that._fields,
+                    field, fieldElement;
+
+                for (var i = 0; i < fields.length; i += 1) {
+                    field = fields[i];
+                    fieldElement = that.wrapper.find("[name='" + field.name + "']:not([type='hidden'])");
+
+                    if (!fieldElement || !field.label || field.isHidden || field.type !== "boolean") {
+                        continue;
+                    }
+
+                    fieldElement.after(kendo.template(that._boolLabelTemplate)({
+                        styles: formStyles,
+                        id: field.id || field.field || "",
+                        optional: that.options.messages.optional,
+                        label: that._formatLabel(field.field, field.label)
+                    }));
+                }
+            },
+
             _renderFieldsHints: function() {
                 var that = this,
                     fields = that._fields,
-                    field, fieldWidgetInstance, fieldElement, hint;
+                    field, fieldWidgetInstance, fieldElement, nextLabelElement, hint;
 
                 for (var i = 0; i < fields.length; i += 1) {
                     field = fields[i];
@@ -429,8 +481,10 @@
                     that._associateHintContainer(fieldElement, hint.attr("id"));
 
                     fieldWidgetInstance = kendo.widgetInstance(fieldElement);
+
                     if (fieldWidgetInstance) {
-                        fieldElement = fieldWidgetInstance.wrapper;
+                        nextLabelElement = fieldWidgetInstance.element.next("label[for='" + fieldWidgetInstance.element.attr("id") + "']");
+                        fieldElement = nextLabelElement.length ? nextLabelElement : fieldWidgetInstance.wrapper;
                     }
 
                     if (that.validator._errorsByName(field.name).length) {
@@ -685,6 +739,10 @@
 
                     if (!element.is(DATA_ROLE_CHECKBOX_GROUP) && !element.is(DATA_ROLE_RADIO_GROUP) && !isHiddenInput) {
                         element.val("");
+                    }
+
+                    if (!widgetInstance && element.hasClass("k-hidden")) {
+                        widgetInstance = kendo.widgetInstance(element.closest(".k-signature"));
                     }
 
                     if (widgetInstance) {

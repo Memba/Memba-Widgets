@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -2613,7 +2613,7 @@ var ComplexNumber = (function (Class$$1) {
     return ComplexNumber;
 }(Class));
 
-function numberSign(x) {
+function numberSign$1(x) {
     return x < 0 ? -1 : 1;
 }
 
@@ -2643,9 +2643,9 @@ function solveCubicEquation(a, b, c, d) {
         x2 = new ComplexNumber(-q / 2, - Math.sqrt(-Q)).nthRoot(3);
     } else {
         x1 = -q / 2 + Math.sqrt(Q);
-        x1 = new ComplexNumber(numberSign(x1) * Math.pow(Math.abs(x1), 1 / 3));
+        x1 = new ComplexNumber(numberSign$1(x1) * Math.pow(Math.abs(x1), 1 / 3));
         x2 = -q / 2 - Math.sqrt(Q);
-        x2 = new ComplexNumber(numberSign(x2) * Math.pow(Math.abs(x2), 1 / 3));
+        x2 = new ComplexNumber(numberSign$1(x2) * Math.pow(Math.abs(x2), 1 / 3));
     }
 
     y1 = x1.add(x2);
@@ -2920,6 +2920,298 @@ function arrayLimits(arr) {
         min: min,
         max: max
     };
+}
+
+var geometry = {
+	Circle: Circle$2,
+	Arc: Arc$2,
+	Rect: Rect,
+	Point: Point,
+	Segment: Segment,
+	Matrix: Matrix,
+	Size: Size,
+	toMatrix: toMatrix,
+	Transformation: Transformation,
+	transform: transform$1
+};
+
+var WEIGHT = 0.333;
+var EXTREMUM_ALLOWED_DEVIATION = 0.01;
+var X = "x";
+var Y = "y";
+
+function pointsToCurve(pointsIn, closed) {
+    var points = pointsIn.slice(0);
+    var segments = [];
+    var length = points.length;
+
+    if (length > 2) {
+        removeDuplicates(0, points);
+        length = points.length;
+    }
+
+    if (length < 2 || (length === 2 && points[0].equals(points[1]))) {
+        return segments;
+    }
+
+    var p0 = points[0];
+    var p1 = points[1];
+    var p2 = points[2];
+
+    segments.push(new Segment(p0));
+
+    while (p0.equals(points[length - 1])) {
+        closed = true;
+        points.pop();
+        length--;
+    }
+
+    if (length === 2) {
+        var tangent = getTangent(p0,p1, X, Y);
+
+        last(segments).controlOut(
+            firstControlPoint(tangent, p0, p1, X, Y)
+        );
+
+        segments.push(new Segment(
+            p1,
+            secondControlPoint(tangent, p0, p1, X, Y)
+        ));
+
+        return segments;
+    }
+
+    var initialControlPoint, lastControlPoint;
+
+    if (closed) {
+        p0 = points[length - 1]; p1 = points[0]; p2 = points[1];
+        var controlPoints = getControlPoints(p0, p1, p2);
+        initialControlPoint = controlPoints[1];
+        lastControlPoint = controlPoints[0];
+    } else {
+        var tangent$1 = getTangent(p0, p1, X,Y);
+        initialControlPoint = firstControlPoint(tangent$1, p0, p1, X, Y);
+    }
+
+    var cp0 = initialControlPoint;
+    for (var idx = 0; idx <= length - 3; idx++) {
+        removeDuplicates(idx, points);
+        length = points.length;
+        if (idx + 3 <= length) {
+            p0 = points[idx]; p1 = points[idx + 1]; p2 = points[idx + 2];
+            var controlPoints$1 = getControlPoints(p0,p1,p2);
+
+            last(segments).controlOut(cp0);
+            cp0 = controlPoints$1[1];
+
+            var cp1 = controlPoints$1[0];
+            segments.push(new Segment(p1, cp1));
+        }
+    }
+
+    if (closed) {
+        p0 = points[length - 2]; p1 = points[length - 1]; p2 = points[0];
+        var controlPoints$2 = getControlPoints(p0, p1, p2);
+
+        last(segments).controlOut(cp0);
+        segments.push(new Segment(
+            p1,
+            controlPoints$2[0]
+        ));
+
+        last(segments).controlOut(controlPoints$2[1]);
+        segments.push(new Segment(
+            p2,
+            lastControlPoint
+        ));
+    } else {
+        var tangent$2 = getTangent(p1, p2, X, Y);
+
+        last(segments).controlOut(cp0);
+        segments.push(new Segment(
+            p2,
+            secondControlPoint(tangent$2, p1, p2, X, Y)
+        ));
+    }
+
+    return segments;
+}
+
+function removeDuplicates(idx, points) {
+    while (points[idx + 1] && (points[idx].equals(points[idx + 1]) || points[idx + 1].equals(points[idx + 2]))) {
+        points.splice(idx + 1, 1);
+    }
+}
+
+function invertAxis(p0, p1, p2) {
+    var invertAxis = false;
+
+    if (p0.x === p1.x) {
+        invertAxis = true;
+    } else if (p1.x === p2.x) {
+        if ((p1.y < p2.y && p0.y <= p1.y) || (p2.y < p1.y && p1.y <= p0.y)) {
+            invertAxis = true;
+        }
+    } else {
+        var fn = lineFunction(p0,p1);
+        var y2 = calculateFunction(fn, p2.x);
+        if (!(p0.y <= p1.y && p2.y <= y2) &&
+            !(p1.y <= p0.y && p2.y >= y2)) {
+            invertAxis = true;
+        }
+    }
+
+    return invertAxis;
+}
+
+function isLine(p0, p1, p2) {
+    var fn = lineFunction(p0, p1);
+    var y2 = calculateFunction(fn, p2.x);
+
+    return (p0.x === p1.x && p1.x === p2.x) || round(y2, 1) === round(p2.y, 1);
+}
+
+function lineFunction(p1, p2) {
+    var a = (p2.y - p1.y) / (p2.x - p1.x);
+    var b = p1.y - a * p1.x;
+
+    return [ b, a ];
+}
+
+function getControlPoints(p0, p1, p2) {
+    var xField = X;
+    var yField = Y;
+    var restrict = false;
+    var switchOrientation = false;
+    var tangent;
+
+    if (isLine(p0, p1, p2)) {
+        tangent = getTangent(p0, p1, X, Y);
+    } else {
+        var monotonic = {
+            x: isMonotonicByField(p0, p1, p2, X),
+            y: isMonotonicByField(p0, p1, p2, Y)
+        };
+
+        if (monotonic.x && monotonic.y) {
+            tangent = getTangent(p0, p2, X, Y);
+            restrict = true;
+        } else {
+            if (invertAxis(p0, p1, p2)) {
+                xField = Y;
+                yField = X;
+            }
+
+            if (monotonic[xField]) {
+                tangent = 0;
+            } else {
+                var sign;
+                if ((p2[yField] < p0[yField] && p0[yField] <= p1[yField]) ||
+                    (p0[yField] < p2[yField] && p1[yField] <= p0[yField])) {
+                    sign = numberSign((p2[yField] - p0[yField]) * (p1[xField] - p0[xField]));
+                } else {
+                    sign = -numberSign((p2[xField] - p0[xField]) * (p1[yField] - p0[yField]));
+                }
+
+                tangent = EXTREMUM_ALLOWED_DEVIATION * sign;
+                switchOrientation = true;
+            }
+        }
+    }
+
+    var secondCP = secondControlPoint(tangent, p0, p1, xField, yField);
+
+    if (switchOrientation) {
+        var oldXField = xField;
+        xField = yField;
+        yField = oldXField;
+    }
+
+    var firstCP = firstControlPoint(tangent, p1, p2, xField, yField);
+
+    if (restrict) {
+        restrictControlPoint(p0, p1, secondCP, tangent);
+        restrictControlPoint(p1, p2, firstCP, tangent);
+    }
+
+    return [ secondCP, firstCP ];
+}
+
+function restrictControlPoint(p1, p2, cp, tangent) {
+    if (p1.y < p2.y) {
+        if (p2.y < cp.y) {
+            cp.x = p1.x + (p2.y - p1.y) / tangent;
+            cp.y = p2.y;
+        } else if (cp.y < p1.y) {
+            cp.x = p2.x - (p2.y - p1.y) / tangent;
+            cp.y = p1.y;
+        }
+    } else {
+        if (cp.y < p2.y) {
+            cp.x = p1.x - (p1.y - p2.y) / tangent;
+            cp.y = p2.y;
+        } else if (p1.y < cp.y) {
+            cp.x = p2.x + (p1.y - p2.y) / tangent;
+            cp.y = p1.y;
+        }
+    }
+}
+
+function getTangent(p0, p1, xField, yField) {
+    var x = p1[xField] - p0[xField];
+    var y = p1[yField] - p0[yField];
+    var tangent;
+
+    if (x === 0) {
+        tangent = 0;
+    } else {
+        tangent = y / x;
+    }
+
+    return tangent;
+}
+
+function isMonotonicByField(p0, p1, p2, field) {
+    return (p2[field] > p1[field] && p1[field] > p0[field]) ||
+                (p2[field] < p1[field] && p1[field] < p0[field]);
+}
+
+function firstControlPoint(tangent, p0, p3, xField, yField) {
+    var t1 = p0[xField];
+    var t2 = p3[xField];
+    var distance = (t2 - t1) * WEIGHT;
+
+    return point(t1 + distance, p0[yField] + distance * tangent, xField, yField);
+}
+
+function secondControlPoint(tangent, p0, p3, xField, yField) {
+    var t1 = p0[xField];
+    var t2 = p3[xField];
+    var distance = (t2 - t1) * WEIGHT;
+
+    return point(t2 - distance, p3[yField] - distance * tangent, xField, yField);
+}
+
+function point(xValue, yValue, xField, yField) {
+    var controlPoint = new Point();
+    controlPoint[xField] = xValue;
+    controlPoint[yField] = yValue;
+
+    return controlPoint;
+}
+
+function calculateFunction(fn, x) {
+    var length = fn.length;
+    var result = 0;
+
+    for (var i = 0; i < length; i++) {
+        result += Math.pow(x,i) * fn[i];
+    }
+    return result;
+}
+
+function numberSign(value) {
+    return value <= 0 ? -1 : 1;
 }
 
 var ShapeMap = {
@@ -3218,6 +3510,15 @@ function elementsClippedBoundingBox(elements, transformation) {
     return boundingBox;
 }
 
+var SPACE = ' ';
+var printPoints = function (precision) { return function () {
+    var points = [], len = arguments.length;
+    while ( len-- ) points[ len ] = arguments[ len ];
+
+    return points.map(function (p) { return p.toString(precision); }).join(SPACE);
+ }    };
+var segmentType = function (segmentStart, segmentEnd) { return segmentStart.controlOut() && segmentEnd.controlIn() ? 'C' : 'L'; };
+
 var Path = (function (superclass) {
     function Path(options) {
         superclass.call(this, options);
@@ -3225,10 +3526,10 @@ var Path = (function (superclass) {
         this.segments.addObserver(this);
 
         if (!defined(this.options.stroke)) {
-            this.stroke("#000");
+            this.stroke('#000');
 
             if (!defined(this.options.stroke.lineJoin)) {
-                this.options.set("stroke.lineJoin", "miter");
+                this.options.set('stroke.lineJoin', 'miter');
             }
         }
     }
@@ -3241,12 +3542,8 @@ var Path = (function (superclass) {
 
     var prototypeAccessors = { nodeType: {} };
 
-    Path.parse = function parse (str, options) {
-        return MultiPath.parse(str, options);
-    };
-
     prototypeAccessors.nodeType.get = function () {
-        return "Path";
+        return 'Path';
     };
 
     Path.prototype.moveTo = function moveTo (x, y) {
@@ -3260,18 +3557,18 @@ var Path = (function (superclass) {
     };
 
     Path.prototype.lineTo = function lineTo (x, y) {
-        var point = defined(y) ? new Point(x, y) : x;
-        var segment = new Segment(point);
+        var point$$1 = defined(y) ? new Point(x, y) : x;
+        var segment = new Segment(point$$1);
 
         this.segments.push(segment);
 
         return this;
     };
 
-    Path.prototype.curveTo = function curveTo (controlOut, controlIn, point) {
+    Path.prototype.curveTo = function curveTo (controlOut, controlIn, point$$1) {
         if (this.segments.length > 0) {
             var lastSegment = last(this.segments);
-            var segment = new Segment(point, controlIn);
+            var segment = new Segment(point$$1, controlIn);
             this.suspend();
             lastSegment.controlOut(controlOut);
             this.resume();
@@ -3340,7 +3637,42 @@ var Path = (function (superclass) {
         return this._bbox();
     };
 
-    Path.prototype._containsPoint = function _containsPoint (point) {
+    Path.prototype.toString = function toString (digits) {
+        var output = '';
+
+        var segments = this.segments;
+        var length = segments.length;
+        if (length > 0) {
+            var parts = [];
+            var print = printPoints(digits);
+            var currentType;
+
+            for (var i = 1; i < length; i++) {
+                var type = segmentType(segments[i - 1], segments[i]);
+                if (type !== currentType) {
+                    currentType = type;
+                    parts.push(type);
+                }
+
+                if (type === 'L') {
+                    parts.push(print(segments[i].anchor()));
+                } else {
+                    parts.push(print(
+                        segments[i - 1].controlOut(), segments[i].controlIn(), segments[i].anchor()
+                    ));
+                }
+            }
+
+            output = 'M' + print(segments[0].anchor()) + SPACE + parts.join(SPACE);
+            if (this.options.closed) {
+                output += 'Z';
+            }
+        }
+
+        return output;
+    };
+
+    Path.prototype._containsPoint = function _containsPoint (point$$1) {
         var segments = this.segments;
         var length = segments.length;
         var intersectionsCount = 0;
@@ -3349,33 +3681,33 @@ var Path = (function (superclass) {
         for (var idx = 1; idx < length; idx++) {
             previous = segments[idx - 1];
             current = segments[idx];
-            intersectionsCount += previous._intersectionsTo(current, point);
+            intersectionsCount += previous._intersectionsTo(current, point$$1);
         }
 
         if (this.options.closed || !segments[0].anchor().equals(segments[length - 1].anchor())) {
-            intersectionsCount += lineIntersectionsCount(segments[0].anchor(), segments[length - 1].anchor(), point);
+            intersectionsCount += lineIntersectionsCount(segments[0].anchor(), segments[length - 1].anchor(), point$$1);
         }
 
         return intersectionsCount % 2 !== 0;
     };
 
-    Path.prototype._isOnPath = function _isOnPath (point, width) {
+    Path.prototype._isOnPath = function _isOnPath (point$$1, width) {
         var segments = this.segments;
         var length = segments.length;
         var pathWidth = width || this.options.stroke.width;
 
         if (length > 1) {
-            if (segments[0]._isOnPathTo(segments[1], point, pathWidth, "start")) {
+            if (segments[0]._isOnPathTo(segments[1], point$$1, pathWidth, 'start')) {
                 return true;
             }
 
             for (var idx = 2; idx <= length - 2; idx++) {
-                if (segments[idx - 1]._isOnPathTo(segments[idx], point, pathWidth)) {
+                if (segments[idx - 1]._isOnPathTo(segments[idx], point$$1, pathWidth)) {
                     return true;
                 }
             }
 
-            if (segments[length - 2]._isOnPathTo(segments[length - 1], point, pathWidth, "end")) {
+            if (segments[length - 2]._isOnPathTo(segments[length - 1], point$$1, pathWidth, 'end')) {
                 return true;
             }
         }
@@ -3402,6 +3734,10 @@ var Path = (function (superclass) {
         }
 
         return boundingBox;
+    };
+
+    Path.parse = function parse (str, options) {
+        return MultiPath.parse(str, options);
     };
 
     Path.fromRect = function fromRect (rect, options) {
@@ -3444,15 +3780,25 @@ var Path = (function (superclass) {
             var path = new Path(options);
 
             for (var i = 0; i < points.length; i++) {
-                var point = Point.create(points[i]);
-                if (point) {
+                var point$$1 = Point.create(points[i]);
+                if (point$$1) {
                     if (i === 0) {
-                        path.moveTo(point);
+                        path.moveTo(point$$1);
                     } else {
-                        path.lineTo(point);
+                        path.lineTo(point$$1);
                     }
                 }
             }
+
+            return path;
+        }
+    };
+
+    Path.curveFromPoints = function curveFromPoints (points, options) {
+        if (points) {
+            var segments = pointsToCurve(points);
+            var path = new Path(options);
+            path.segments.push.apply(path.segments, segments);
 
             return path;
         }
@@ -3479,7 +3825,7 @@ var MultiPath = (function (superclass) {
         this.paths.addObserver(this);
 
         if (!defined(this.options.stroke)) {
-            this.stroke("#000");
+            this.stroke('#000');
         }
     }
 
@@ -3496,8 +3842,25 @@ var MultiPath = (function (superclass) {
         return parsePath(instance, str);
     };
 
+    MultiPath.prototype.toString = function toString (digits) {
+        var paths = this.paths;
+        var output = '';
+
+        if (paths.length > 0) {
+            var result = [];
+
+            for (var i = 0; i < paths.length; i++) {
+                result.push(paths[i].toString(digits));
+            }
+
+            output = result.join(SPACE);
+        }
+
+        return output;
+    };
+
     prototypeAccessors$1.nodeType.get = function () {
-        return "MultiPath";
+        return 'MultiPath';
     };
 
     MultiPath.prototype.moveTo = function moveTo (x, y) {
@@ -3517,9 +3880,9 @@ var MultiPath = (function (superclass) {
         return this;
     };
 
-    MultiPath.prototype.curveTo = function curveTo (controlOut, controlIn, point) {
+    MultiPath.prototype.curveTo = function curveTo (controlOut, controlIn, point$$1) {
         if (this.paths.length > 0) {
-            last(this.paths).curveTo(controlOut, controlIn, point);
+            last(this.paths).curveTo(controlOut, controlIn, point$$1);
         }
 
         return this;
@@ -3557,23 +3920,23 @@ var MultiPath = (function (superclass) {
         return elementsBoundingBox(this.paths, false);
     };
 
-    MultiPath.prototype._containsPoint = function _containsPoint (point) {
+    MultiPath.prototype._containsPoint = function _containsPoint (point$$1) {
         var paths = this.paths;
 
         for (var idx = 0; idx < paths.length; idx++) {
-            if (paths[idx]._containsPoint(point)) {
+            if (paths[idx]._containsPoint(point$$1)) {
                 return true;
             }
         }
         return false;
     };
 
-    MultiPath.prototype._isOnPath = function _isOnPath (point) {
+    MultiPath.prototype._isOnPath = function _isOnPath (point$$1) {
         var paths = this.paths;
         var width = this.options.stroke.width;
 
         for (var idx = 0; idx < paths.length; idx++) {
-            if (paths[idx]._isOnPath(point, width)) {
+            if (paths[idx]._isOnPath(point$$1, width)) {
                 return true;
             }
         }
@@ -5119,6 +5482,7 @@ var NODE_MAP = {};
 
 var SVG_NS = "http://www.w3.org/2000/svg";
 var NONE = "none";
+var POINT_DIGITS = 3;
 
 var renderSVG = function(container, svg) {
     container.innerHTML = svg;
@@ -5844,7 +6208,6 @@ var ATTRIBUTE_MAP = {
     "stroke.width": "stroke-width",
     "stroke.opacity": "stroke-opacity"
 };
-var SPACE = " ";
 
 var PathNode = (function (Node$$1) {
     function PathNode () {
@@ -5906,55 +6269,7 @@ var PathNode = (function (Node$$1) {
     };
 
     PathNode.prototype.renderData = function renderData () {
-        return this.printPath(this.srcElement);
-    };
-
-    PathNode.prototype.printPath = function printPath (path) {
-        var this$1 = this;
-
-        var segments = path.segments;
-        var length = segments.length;
-        if (length > 0) {
-            var parts = [];
-            var output, currentType;
-
-            for (var i = 1; i < length; i++) {
-                var segmentType = this$1.segmentType(segments[i - 1], segments[i]);
-                if (segmentType !== currentType) {
-                    currentType = segmentType;
-                    parts.push(segmentType);
-                }
-
-                if (segmentType === "L") {
-                    parts.push(this$1.printPoints(segments[i].anchor()));
-                } else {
-                    parts.push(this$1.printPoints(segments[i - 1].controlOut(), segments[i].controlIn(), segments[i].anchor()));
-                }
-            }
-
-            output = "M" + this.printPoints(segments[0].anchor()) + SPACE + parts.join(SPACE);
-            if (path.options.closed) {
-                output += "Z";
-            }
-
-            return output;
-        }
-    };
-
-    PathNode.prototype.printPoints = function printPoints () {
-        var points = arguments;
-        var length = points.length;
-        var result = [];
-
-        for (var i = 0; i < length; i++) {
-            result.push(points[i].toString(3));
-        }
-
-        return result.join(" ");
-    };
-
-    PathNode.prototype.segmentType = function segmentType (segmentStart, segmentEnd) {
-        return segmentStart.controlOut() && segmentEnd.controlIn() ? "C" : "L";
+        return this.srcElement.toString(POINT_DIGITS) || undefined;
     };
 
     PathNode.prototype.mapStroke = function mapStroke (stroke) {
@@ -6052,7 +6367,7 @@ var ArcNode = (function (PathNode$$1) {
     ArcNode.fn.init = ArcNode.fn.constructor;
 
     ArcNode.prototype.renderData = function renderData () {
-        return this.printPath(this.srcElement.toPath());
+        return this.srcElement.toPath().toString(POINT_DIGITS);
     };
 
     return ArcNode;
@@ -6196,19 +6511,7 @@ var MultiPathNode = (function (PathNode$$1) {
     MultiPathNode.fn.init = MultiPathNode.fn.constructor;
 
     MultiPathNode.prototype.renderData = function renderData () {
-        var this$1 = this;
-
-        var paths = this.srcElement.paths;
-
-        if (paths.length > 0) {
-            var result = [];
-
-            for (var i = 0; i < paths.length; i++) {
-                result.push(this$1.printPath(paths[i]));
-            }
-
-            return result.join(" ");
-        }
+        return this.srcElement.toString(POINT_DIGITS) || 'undefined';
     };
 
     return MultiPathNode;
@@ -6803,19 +7106,6 @@ var QuadRoot = (function (Class$$1) {
     return QuadRoot;
 }(Class));
 
-var geometry = {
-	Circle: Circle$2,
-	Arc: Arc$2,
-	Rect: Rect,
-	Point: Point,
-	Segment: Segment,
-	Matrix: Matrix,
-	Size: Size,
-	toMatrix: toMatrix,
-	Transformation: Transformation,
-	transform: transform$1
-};
-
 var QuadNode = (function (QuadRoot$$1) {
     function QuadNode(rect) {
         QuadRoot$$1.call(this);
@@ -7373,12 +7663,15 @@ var ImageNode$2 = (function (PathNode) {
         this.loading = createPromise();
 
         var img = this.img = new Image();
+        var src = srcElement.src();
 
-        if (cors && !(/^data:/i.test(srcElement.src()))) {
+        if (cors && !(/^data:/i.test(src))) {
             img.crossOrigin = cors;
         }
 
-        img.src = srcElement.src();
+        if (src) {
+            img.src = src;
+        }
 
         if (img.complete) {
             this.onLoad();

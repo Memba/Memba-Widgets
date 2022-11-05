@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -26716,25 +26716,6 @@ return window.kendo;
             this.element.addClass("k-spreadsheet-toolbar");
 
             this._addSeparators(this.element);
-            var that = this;
-            this.element.on("keydown", function (e) {
-                var tool;
-                if (e.keyCode === 9) {
-                    tool = that._nextTool(e.shiftKey ? -1 : 1);
-                    if (tool) {
-                        document.activeElement.blur();
-                        if ($(tool).is(".k-upload-button")) {
-                            $(tool).addClass("k-focus");
-                        }
-                        if($(tool).find("input").length) {
-                            $(tool).find("input").trigger("focus");
-                        } else {
-                            tool.focus();
-                        }
-                        e.preventDefault();
-                    }
-                }
-            });
 
             this.element.on("focusout", function () {
                 $(this).find(".k-toolbar-first-visible").removeClass("k-focus");
@@ -26964,7 +26945,7 @@ return window.kendo;
     });
     kendo.spreadsheet.ToolBar = SpreadsheetToolBar;
 
-    var DropDownTool = kendo.toolbar.Item.extend({
+    var DropDownTool = kendo.toolbar.TemplateItem.extend({
         init: function(options, toolbar) {
             var dropDownList = $("<select />")
                 .attr("title", options.attributes.title)
@@ -26975,18 +26956,15 @@ return window.kendo;
                 }).data("kendoDropDownList");
 
             this.dropDownList = dropDownList;
-            this.element = dropDownList.wrapper;
-            this.options = options;
-            this.toolbar = toolbar;
 
-            this.attributes();
-            this.addUidAttr();
-            this.addOverflowAttr();
+            delete options.attributes["aria-label"];
+
+            kendo.toolbar.TemplateItem.fn.init.call(this, dropDownList.wrapper, options, toolbar);
 
             dropDownList.bind("open", this._open.bind(this));
             dropDownList.bind("change", this._change.bind(this));
 
-            this.element.width(options.width).attr({
+            this.element.parent(".k-toolbar-item").width(options.width).attr({
                 "data-command": "PropertyChangeCommand",
                 "data-property": options.property
             });
@@ -27189,7 +27167,7 @@ return window.kendo;
     var FONT_SIZES = [8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
     var DEFAULT_FONT_SIZE = 12;
 
-    var FontSize = kendo.toolbar.Item.extend({
+    var FontSize = kendo.toolbar.TemplateItem.extend({
         init: function(options, toolbar) {
             var comboBox = $("<input />")
                 .attr("aria-label", options.attributes.title)
@@ -27202,13 +27180,8 @@ return window.kendo;
                 }).data("kendoComboBox");
 
             this.comboBox = comboBox;
-            this.element = comboBox.wrapper;
-            this.options = options;
-            this.toolbar = toolbar;
 
-            this.attributes();
-            this.addUidAttr();
-            this.addOverflowAttr();
+            kendo.toolbar.TemplateItem.fn.init.call(this, comboBox.wrapper, options, toolbar);
 
             this.element.width(options.width).attr({
                 "data-command": "PropertyChangeCommand",
@@ -27758,7 +27731,16 @@ return window.kendo;
             }.bind(this));
 
             this.one("activate", function() { //force resize of the tabstrip after TabStrip tab is opened
-                this.toolbars[this.options.dataSource[0].id].resize();
+                var toolbar = this.toolbars[this.options.dataSource[0].id];
+                toolbar.resize();
+            });
+
+            this.bind("activate", function(e) { //force resize of the tabstrip after TabStrip tab is opened
+                var toolbar = $(e.contentElement).find(".k-toolbar").data("kendoSpreadsheetToolBar");
+
+                toolbar._tabIndex();
+                this.wrapper.removeAttr("tabindex");
+                this.wrapper.find(".k-tabstrip-content").removeAttr("tabindex");
             });
         },
 
@@ -32635,7 +32617,7 @@ return window.kendo;
 
             _keyDown: function(e) {
                 var key = e.keyCode;
-                var redoTool = $(".k-spreadsheet-quick-access-toolbar [title=Redo]");
+
                 if (key === keys.F11 && e.shiftKey) {
                     this._view.sheetsbar._onAddSelect();
                     e.preventDefault();
@@ -32666,11 +32648,6 @@ return window.kendo;
                     return;
                 } else if (e.altKey && key === keys.R) {
                     this._view.sheetsbar._createEditor();
-                    e.preventDefault();
-                    return;
-                } else if (key === keys.F10 && this._view.tabstrip || (key === keys.TAB && !e.shiftKey && $(document.activeElement).is(redoTool))) {
-                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find("li.k-active").text().toLowerCase()].element.find(":not(.k-overflow-anchor):kendoFocusable").first().trigger("focus");
-                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find("li.k-active").text().toLowerCase()].element.find(".k-toolbar-first-visible").addClass("k-focus");
                     e.preventDefault();
                     return;
                 } else if (e.ctrlKey && key === keys.B) {

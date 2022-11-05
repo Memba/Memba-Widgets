@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -102,6 +102,8 @@ var __meta__ = {
                 33: step(+options.largeStep), // page up
                 34: step(-options.largeStep) // page down
             };
+
+            that._ariaLabel(that.wrapper.find(DRAG_HANDLE));
 
             kendo.notify(that);
         },

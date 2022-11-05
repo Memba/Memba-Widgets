@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -153,6 +153,8 @@ var __meta__ = {
             tag = "<select />";
         } else if (type === "RadioGroup" || type === "CheckBoxGroup") {
             tag = "<ul />";
+        } else if (type === "Signature") {
+            tag = "<div></div>";
         } else {
             tag = type === "Editor" || type === "TextArea" ? "<textarea />" : "<input />";
         }
@@ -161,11 +163,11 @@ var __meta__ = {
     }
 
     var kendoEditors = [
-        "AutoComplete", "CheckBox", "CheckBoxGroup", "ColorPicker", "ComboBox", "DateInput",
+        "AutoComplete", "CheckBox", "CheckBoxGroup", "ColorGradient", "ColorPicker", "ColorPalette", "ComboBox", "DateInput",
         "DatePicker", "DateTimePicker", "DropDownTree",
-        "Editor", "MaskedTextBox", "MultiColumnComboBox","MultiSelect",
+        "Editor", "FlatColorPicker", "MaskedTextBox", "MultiColumnComboBox","MultiSelect",
         "NumericTextBox", "RadioGroup", "Rating", "Slider", "Switch", "TimePicker", "DropDownList",
-        "TextBox", "TextArea", "Captcha"
+        "TextBox", "TextArea", "Captcha", "Signature"
     ];
 
     var editors = {

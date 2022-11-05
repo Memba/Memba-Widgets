@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -42,7 +42,7 @@ var __meta__ = {
         '<div class="k-popover-body">#=body#</div>' +
         '#if (actions){ #<div class="k-popover-actions k-actions k-hstack k-justify-content-#=positioning#">#=actions#</div>#}#',
         TEMPLATE = '<div role="tooltip" class="k-popover k-widget">' +
-        '#if (callout){ #<div class="k-popover-callout k-callout-#=dir#"></div>#}#' +
+        '#if (callout){ #<div class="k-popover-callout k-callout-#=dir#"></div><div class="k-popover-inner"></div>#}#' +
         '</div>',
         SHOW = "show",
         HIDE = "hide",
@@ -172,14 +172,21 @@ var __meta__ = {
         _appendContent: function(target) {
             var that = this,
                 options = that.options,
+                element = that.wrapper.find(".k-popover-inner"),
                 template = that.options.template;
 
-            that.wrapper.children(":not(.k-popover-callout)").remove();
+            if (element.length) {
+                element.children().remove();
+            } else {
+                that.wrapper.children(":not(.k-popover-callout)").remove();
+            }
+
+            element = element.length ? element : that.wrapper;
 
             if (template) {
-                that.wrapper.append(kendo.template(template)({ target: target }));
+                element.append(kendo.template(template)({ target: target }));
             } else {
-                that.wrapper.append(kendo.template(CARDTEMPLATE)({
+                element.append(kendo.template(CARDTEMPLATE)({
                     header: kendo.template(options.header || "")({ target: target }),
                     body: kendo.template(options.body || "")({ target: target }),
                     actions: that._buildActions(options.actions),

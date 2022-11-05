@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -184,7 +184,7 @@ var __meta__ = {
                 '</select>' +
             '#}#' +
             '</div>' +
-            '<div class="k-scheduler-toolbar k-toolbar">' +
+            '<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
                 '<span class="k-scheduler-navigation">' +
                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-prev"><span class="k-button-icon k-icon k-i-arrow-chevron-left"></span></button>' +
                    '<span class="k-nav-current">' +
@@ -2162,7 +2162,10 @@ var __meta__ = {
                 recurrence.options = that.options.messages.recurrence;
             }
 
-            that._tabindex();
+            if (that.options.selectable) {
+                that._tabindex();
+            }
+
             that._navigation();
             that._selectable();
             that._touchHandlers();
@@ -2438,6 +2441,10 @@ var __meta__ = {
                 wrapper.on(TOUCHMOVE + NS, ".k-scheduler-header-all-day td, .k-scheduler-content td, .k-event", touchMoveHandler);
             });
 
+            wrapper.on("contextmenu" + NS, ".k-scheduler-header-all-day td, .k-scheduler-content td, .k-event", function(e) {
+                that._preventFocus = true;
+            });
+
             wrapper.on(TOUCHEND + NS, ".k-scheduler-header-all-day td, .k-scheduler-content td, .k-event", function(e) {
                 if (!that._isTouch(e)) {
                     return;
@@ -2475,16 +2482,22 @@ var __meta__ = {
             wrapper.on("focus" + NS, function() {
                 var selection = that._selection;
 
-                if ((!selection ||
-                        (selection.events.length > 0 && wrapper.find("[data-uid='" + selection.events[0] + "']").length === 0)) &&
-                    !that._userTouched &&
-                    !that._mouseDown) {
-                        that._initialFocus();
-                } else {
-                    that._mouseDown = false;
-                }
+                setTimeout(function() {
+                    if (!that._preventFocus) {
+                        if ((!selection ||
+                                (selection.events.length > 0 && wrapper.find("[data-uid='" + selection.events[0] + "']").length === 0)) &&
+                            !that._userTouched &&
+                            !that._mouseDown) {
+                                that._initialFocus();
+                        } else {
+                            that._mouseDown = false;
+                        }
 
-                that._select();
+                        that._select();
+                    } else {
+                        that._preventFocus = false;
+                    }
+                }, 300);
             });
 
             wrapper.on("focusout" + NS, function() {

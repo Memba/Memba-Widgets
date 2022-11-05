@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -32,15 +32,16 @@ var __meta__ = {
         TITLE = "title",
         ASCENDING = "asc",
         DESCENDING = "desc",
+        REMOVEGROUP = "removeGroup",
         GROUP_SORT = "group-sort",
         NS = ".kendoGroupable",
         CHANGE = "change",
-        indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' +
-                '<a href="\\#" class="k-link">' +
+        indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" ${data.id ? ("data-" + data.ns + "id="+data.id) : ""} data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' +
+                '<a role="button" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})" href="\\#" class="k-link">' +
                     '<span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})"></span>' +
                     '${data.title ? data.title: data.field}' +
                 '</a>' +
-                '<a href="\\#" data-role="button" aria-label="Remove grouping by ${data.title || data.field} field" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
+                '<a href="\\#" role="button" data-role="button" aria-label="Remove grouping by ${data.title || data.field} field" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
                     '<span class="k-button-icon k-icon k-i-close"></span>' +
                 '</a>' +
              '</div>', { useWithBlock: false }),
@@ -93,6 +94,7 @@ var __meta__ = {
                         var targetElement = e.draggable.currentTarget,
                             field = targetElement.attr(kendo.attr("field")),
                             title = targetElement.attr(kendo.attr("title")),
+                            colID = targetElement.attr("id"),
                             sourceIndicator = that.indicator(field),
                             dropCuePositions = that._dropCuePositions,
                             lastCuePosition = dropCuePositions[dropCuePositions.length - 1],
@@ -107,9 +109,9 @@ var __meta__ = {
                             position = that._dropCuePosition(kendo.getOffset(dropCue).left + parseInt(lastCuePosition.element.css("marginLeft"), 10) * (isRtl ? -1 : 1) + parseInt(lastCuePosition.element.css("marginRight"), 10));
                             if (position && that._canDrop($(sourceIndicator), position.element, position.left)) {
                                 if (position.before) {
-                                    position.element.before(sourceIndicator || that.buildIndicator(field, title, dir));
+                                    position.element.before(sourceIndicator || that.buildIndicator(field, title, dir, colID));
                                 } else {
-                                    position.element.after(sourceIndicator || that.buildIndicator(field, title, dir));
+                                    position.element.after(sourceIndicator || that.buildIndicator(field, title, dir, colID));
                                 }
 
                                 that._setIndicatorSortOptions(field, sortOptions);
@@ -117,7 +119,7 @@ var __meta__ = {
                             }
                         } else {
                             that.groupContainer.empty();
-                            that.groupContainer.append(that.buildIndicator(field, title, dir));
+                            that.groupContainer.append(that.buildIndicator(field, title, dir, colID));
                             that._setIndicatorSortOptions(field, sortOptions);
                             that._change();
                         }
@@ -216,7 +218,7 @@ var __meta__ = {
                             return $(this).attr(fieldAttr) === field;
                         });
 
-                    indicatorHtml = that.buildIndicator(field, element.attr(titleAttr), dir);
+                    indicatorHtml = that.buildIndicator(field, element.attr(titleAttr), dir, element.attr("id"));
                     that.groupContainer.append(indicatorHtml);
                     that._setIndicatorSortOptions(field, extend({}, that.options.sort, { dir: dir, compare: group.compare }));
                 });
@@ -252,7 +254,7 @@ var __meta__ = {
             that.groupContainer = that.element = that.draggable = null;
         },
 
-        events: ["change"],
+        events: ["change", "removeGroup"],
 
         options: {
             name: "Groupable",
@@ -275,12 +277,13 @@ var __meta__ = {
                 })[0];
         },
 
-        buildIndicator: function(field, title, dir) {
+        buildIndicator: function(field, title, dir, id) {
             var that = this;
             var indicator = indicatorTmpl({
                 ns: kendo.ns,
                 field: field.replace(/"/g, "'"),
                 title: title,
+                id: id,
                 dir: dir || (that.options.sort || {}).dir || ASCENDING
             });
 
@@ -330,6 +333,7 @@ var __meta__ = {
                     field: field,
                     dir: item.attr(kendo.attr("dir")),
                     aggregates: aggregates || [],
+                    colID: item.attr(kendo.attr("id")),
                     compare: indicatorSortOptions.compare || sortOptions.compare
                 };
             });
@@ -337,6 +341,11 @@ var __meta__ = {
 
         _removeIndicator: function(indicator) {
             var that = this;
+
+            that.trigger(REMOVEGROUP, {
+                field: indicator.attr(kendo.attr("field")),
+                colID: indicator.attr(kendo.attr("id")),
+            });
             indicator.off();
             indicator.removeData();
             indicator.remove();

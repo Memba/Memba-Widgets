@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.802 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -23,7 +23,7 @@ var packageMetadata = {
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
     version: '',
-    licensingDocsUrl: 'https://www.telerik.com/kendo-ui/my-license/'
+    licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
 
@@ -131,7 +131,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2022.2.802".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.3.913".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -9618,6 +9618,7 @@ var __meta__ = {
 
                 if (skip + take > total && options.virtual) {
                     skip -= skip + take - total;
+                    skip = skip < 0 ? 0 : skip;
                 }
                 query = query.range(skip, take);
             }
@@ -9996,12 +9997,18 @@ var __meta__ = {
                     if (currOriginal.hasSubgroups && currOriginal.value == currentNew.value) {
                         fillLastGroup(currOriginal, currentNew);
                     } else if (currOriginal.field && currOriginal.value == currentNew.value) {
+                        currOriginal.items.omitChangeEvent = true;
                         currOriginal.items.push.apply(currOriginal.items, currentNew.items);
+                        currOriginal.items.omitChangeEvent = false;
                     } else {
+                        originalGroup.items.omitChangeEvent = true;
                         originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                        originalGroup.items.omitChangeEvent = false;
                     }
                 } else if (currentNew) {
+                    originalGroup.items.omitChangeEvent = true;
                     originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                    originalGroup.items.omitChangeEvent = false;
                 }
             }
         }
@@ -17009,6 +17016,10 @@ var __meta__ = {
 
             input.removeAttr(ARIAINVALID);
 
+            if (input.hasClass("k-hidden")) {
+                widgetInstance = kendo.widgetInstance(input.closest(".k-signature"));
+            }
+
             if (!valid && !input.data("captcha_validating")) {
                 that._errors[fieldName] = messageText;
                 var lblId = lbl.attr('id');
@@ -17023,7 +17034,7 @@ var __meta__ = {
                 if (lbl.length !== 0) {
                     lbl.replaceWith(messageLabel);
                 } else {
-                    widgetInstance = kendo.widgetInstance(input);
+                    widgetInstance = widgetInstance || kendo.widgetInstance(input);
                     var parentElement = input.parent().get(0);
                     var nextElement = input.next().get(0);
                     var prevElement = input.prev().get(0);
@@ -17038,7 +17049,7 @@ var __meta__ = {
                         widgetInstance = kendo.widgetInstance(input.closest(".k-checkbox-list"));
                     }
 
-                    if (widgetInstance && widgetInstance.wrapper) {
+                    if (widgetInstance && widgetInstance.wrapper && (widgetInstance.element !== widgetInstance.wrapper || widgetInstance.options.name == "Signature")) {
                         messageLabel.insertAfter(widgetInstance.wrapper);
                     } else if (parentElement && parentElement.nodeName === "LABEL") {
                         // Input inside label
@@ -17068,16 +17079,15 @@ var __meta__ = {
                 this.trigger(VALIDATE_INPUT, { valid: valid, input: input, error: messageText, field: fieldName });
             }
 
-            widgetInstance = kendo.widgetInstance(input);
+            widgetInstance = (widgetInstance && widgetInstance.options.name == "Signature") ? widgetInstance : kendo.widgetInstance(input);
             if (!widgetInstance || !(widgetInstance._inputWrapper || widgetInstance.wrapper)) {
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
             }
 
             if (widgetInstance) {
-                var widget = kendo.widgetInstance(input);
-                var inputWrap = widget._inputWrapper || widget.wrapper;
-                var inputLabel = widget._inputLabel;
+                var inputWrap = widgetInstance._inputWrapper || widgetInstance.wrapper;
+                var inputLabel = widgetInstance._inputLabel;
 
                 if (inputWrap) {
                     inputWrap.toggleClass(INVALIDINPUT, !valid);

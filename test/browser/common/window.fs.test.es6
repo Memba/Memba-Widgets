@@ -372,14 +372,14 @@ if (!support.filesystem) {
                 test(remoteUrl, fileName, done);
             });
 
-            it('it should grab the default profile picture from Google', (done) => {
+            xit('it should grab the default profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
                 const fileName = 'picture.jpg';
                 test(remoteUrl, fileName, done);
             });
 
-            it('it should grab a custom profile picture from Google', (done) => {
+            xit('it should grab a custom profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-3ZCodtNM7jE/AAAAAAAAAAI/AAAAAAABcuo/s-E1n4YTpik/photo.jpg';
                 const fileName = 'picture.jpg';
@@ -505,13 +505,13 @@ if (!support.filesystem) {
                 test(remoteUrl, done);
             });
 
-            it('it should grab the default profile picture from Google', (done) => {
+            xit('it should grab the default profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
                 test(remoteUrl, done);
             });
 
-            it('it should grab a custom profile picture from Google', (done) => {
+            xit('it should grab a custom profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-3ZCodtNM7jE/AAAAAAAAAAI/AAAAAAABcuo/s-E1n4YTpik/photo.jpg';
                 test(remoteUrl, done);

@@ -14,7 +14,7 @@ const { location } = window;
 const base = window.__karma__
     ? 'base' // Base directory for Karma assets
     : `${location.protocol}//${location.host}${
-        /^\/Memba.Widgets\//.test(location.pathname) ? '/Memba.Widgets' : '' // eslint-disable-line prettier/prettier
+        /^\/Memba-Widgets\//.test(location.pathname) ? '/Memba-Widgets' : '' // eslint-disable-line prettier/prettier
     }`; // eslint-disable-line prettier/prettier
 
 /**

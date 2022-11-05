@@ -392,7 +392,7 @@ LocalStream.reset();
 // Schemes
 const schemes = {
     cdn: 'https://cdn.kidoju.com/',
-    data: `${location.protocol}//${location.host}/Memba.Widgets/test/data/images/miscellaneous/`,
+    data: `${location.protocol}//${location.host}/Memba-Widgets/test/data/images/miscellaneous/`,
 };
 
 // Assets
@@ -410,7 +410,7 @@ window.app.assets = {
                 name: 'G-Collection',
                 transport: {
                     read:
-                        'http://localhost:63342/Memba.Widgets/test/data/images/g_collection/svg/all/index.json',
+                        'http://localhost:63342/Memba-Widgets/test/data/images/g_collection/svg/all/index.json',
                 },
             },
             {
@@ -420,21 +420,21 @@ window.app.assets = {
                         name: 'Dark Grey',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/o_collection/svg/dark_grey/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/o_collection/svg/dark_grey/index.json',
                         },
                     },
                     {
                         name: 'Office',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/o_collection/svg/office/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/o_collection/svg/office/index.json',
                         },
                     },
                     {
                         name: 'White',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/o_collection/svg/white/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/o_collection/svg/white/index.json',
                         },
                     },
                 ],
@@ -446,28 +446,28 @@ window.app.assets = {
                         name: 'Small',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/v_collection/png/32x32/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/v_collection/png/32x32/index.json',
                         },
                     },
                     {
                         name: 'Medium',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/v_collection/png/64x64/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/v_collection/png/64x64/index.json',
                         },
                     },
                     {
                         name: 'Large',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/v_collection/png/128x128/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/v_collection/png/128x128/index.json',
                         },
                     },
                     {
                         name: 'Huge',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/v_collection/png/256x256/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/v_collection/png/256x256/index.json',
                         },
                     },
                 ],
@@ -479,14 +479,14 @@ window.app.assets = {
                         name: 'Small',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/x_collection/png/32x32/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/x_collection/png/32x32/index.json',
                         },
                     },
                     {
                         name: 'Large',
                         transport: {
                             read:
-                                'http://localhost:63342/Memba.Widgets/test/data/images/x_collection/png/128x128/index.json',
+                                'http://localhost:63342/Memba-Widgets/test/data/images/x_collection/png/128x128/index.json',
                         },
                     },
                 ],

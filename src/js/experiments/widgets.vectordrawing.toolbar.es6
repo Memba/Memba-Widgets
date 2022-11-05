@@ -2312,7 +2312,7 @@
                 var element = self.dialog().element;
                 var model = kendo.observable({
                     url: 'https://cdn.kidoju.com/s/en/570cc7f46d1dd91900729417/image.png',
-                    // url: 'http://localhost:63342/Memba.Widgets/test/data/images/miscellaneous/Elvis.jpg',
+                    // url: 'http://localhost:63342/Memba-Widgets/test/data/images/miscellaneous/Elvis.jpg',
                     apply: function () {
                         if (!/\S/.test(model.url)) {
                             model.url = null;

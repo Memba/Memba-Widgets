@@ -272,7 +272,7 @@ export function getTransformRotation(element) {
 
 /**
  * Get the scale of an element's CSS transformation
- * Note: the same function is used in Memba.Widgets.stage
+ * Note: the same function is used in widgets.stage
  * @param element
  * @returns {Number|number}
  */

@@ -33,7 +33,7 @@
         var deepExtend = kendo.deepExtend;
 
         var assert = window.assert;
-        var logger = new window.Logger('Memba.Widgets.mathgraph.tools');
+        var logger = new window.Logger('widgets.mathgraph.tools');
         var util = window.kidoju.util;
         var NUMBER = 'number';
 

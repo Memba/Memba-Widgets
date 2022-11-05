@@ -1,6 +1,6 @@
 # Weinre
 
-> How to debug Memba.Widgets on mobile devices
+> How to debug Memba-Widgets on mobile devices
 
 ## Requirements
 

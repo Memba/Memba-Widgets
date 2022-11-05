@@ -1,7 +1,7 @@
 REM ****************************************
 REM No need to build, simply import sources
 REM   - Beware deep-freeze-es6
-REM   - Check http://localhost:63342/Memba.Widgets/src/js/widgets/widgets.markdown.html
+REM   - Check http://localhost:63342/Memba-Widgets/src/js/widgets/widgets.markdown.html
 REM ****************************************
 
 REM goto current directory

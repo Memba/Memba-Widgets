@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// Bootstrap 5.1.3
 // ~ tilde only works with webpack module resolution
 // @import "~bootstrap/scss/bootstrap";
 // @import "../../../node_modules/bootstrap/scss/bootstrap";
@@ -11,22 +10,29 @@
 // The following merges bootstrap-grid.scss and bootstrap-reboot.scss (typography)
 
 /*!
- * Bootstrap Grid v5.1.3 (https://getbootstrap.com/)
- * Copyright 2011-2021 The Bootstrap Authors
- * Copyright 2011-2021 Twitter, Inc.
+ * Bootstrap Grid v5.2.2 (https://getbootstrap.com/)
+ * Copyright 2011-2022 The Bootstrap Authors
+ * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+
+@import "../../../node_modules/bootstrap/scss/mixins/banner";
+@include bsBanner(Grid);
 
 $include-column-box-sizing: true !default;
 
 @import "../../../node_modules/bootstrap/scss/functions";
 @import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/maps"; //?
+
 @import "../../../node_modules/bootstrap/scss/mixins/lists";
 @import "../../../node_modules/bootstrap/scss/mixins/breakpoints";
 @import "../../../node_modules/bootstrap/scss/mixins/container";
 @import "../../../node_modules/bootstrap/scss/mixins/grid";
 @import "../../../node_modules/bootstrap/scss/mixins/utilities";
+
 @import "../../../node_modules/bootstrap/scss/vendor/rfs";
+
 @import "../../../node_modules/bootstrap/scss/root";
 
 // BEGIN: Add reboot here for typography
@@ -35,48 +41,50 @@ $include-column-box-sizing: true !default;
 
 @import "../../../node_modules/bootstrap/scss/containers";
 @import "../../../node_modules/bootstrap/scss/grid";
+
 @import "../../../node_modules/bootstrap/scss/utilities";
+
 // Only use the utilities we need
 // stylelint-disable-next-line scss/dollar-variable-default
 $utilities: map-get-multiple(
-    $utilities,
-    (
-        "display",
-        "order",
-        "flex",
-        "flex-direction",
-        "flex-grow",
-        "flex-shrink",
-        "flex-wrap",
-        // BEGIN: Add gap
-        "gap",
-        // END: Add gap
-        "justify-content",
-        "align-items",
-        "align-content",
-        "align-self",
-        "margin",
-        "margin-x",
-        "margin-y",
-        "margin-top",
-        "margin-end",
-        "margin-bottom",
-        "margin-start",
-        "negative-margin",
-        "negative-margin-x",
-        "negative-margin-y",
-        "negative-margin-top",
-        "negative-margin-end",
-        "negative-margin-bottom",
-        "negative-margin-start",
-        "padding",
-        "padding-x",
-        "padding-y",
-        "padding-top",
-        "padding-end",
-        "padding-bottom",
-        "padding-start",
-    )
+        $utilities,
+            (
+                "display",
+                "order",
+                "flex",
+                "flex-direction",
+                "flex-grow",
+                "flex-shrink",
+                "flex-wrap",
+                // BEGIN: Add gap
+                "gap",
+                // END: Add gap
+                "justify-content",
+                "align-items",
+                "align-content",
+                "align-self",
+                "margin",
+                "margin-x",
+                "margin-y",
+                "margin-top",
+                "margin-end",
+                "margin-bottom",
+                "margin-start",
+                "negative-margin",
+                "negative-margin-x",
+                "negative-margin-y",
+                "negative-margin-top",
+                "negative-margin-end",
+                "negative-margin-bottom",
+                "negative-margin-start",
+                "padding",
+                "padding-x",
+                "padding-y",
+                "padding-top",
+                "padding-end",
+                "padding-bottom",
+                "padding-start",
+            )
 );
 
 @import "../../../node_modules/bootstrap/scss/utilities/api";

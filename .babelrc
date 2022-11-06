@@ -31,10 +31,6 @@
             "@babel/preset-env",
             {
                 "corejs": 3,
-                "targets": {
-                    "chrome": "100",
-                    "ie": "11"
-                },
                 "useBuiltIns": "entry"
             }
         ]

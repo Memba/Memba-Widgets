@@ -98,9 +98,9 @@ module.exports = (config) => {
             // Mocha tests
             {
                 // pattern: 'test/browser/**/*.test.es6',
-                // pattern:
-                    // 'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
-                pattern: 'test/browser/app/*.test.es6',
+                pattern:
+                    'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
+                // pattern: 'test/browser/app/*.test.es6',
                 served: true,
                 included: true, // They need to be included!
             },

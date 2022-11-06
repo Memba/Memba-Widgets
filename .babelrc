@@ -24,6 +24,19 @@
                     // "jquery": "./src/js/vendor/jquery/jquery-3.6.1.min.js"
                 }
             }
+        ],
+        ["@babel/plugin-syntax-dynamic-import"],
+        [
+            "@babel/transform-runtime",
+            {
+                // @see https://babeljs.io/docs/en/babel-plugin-transform-runtime
+                "helpers": false, // defaults to true
+                // "polyfill": false, // defaults to true
+                "regenerator": true, // defaults to true
+                // "moduleName": "babel-runtime" // defaults to "babel-runtime"
+                "useESModules": true,
+                "corejs": 3
+            }
         ]
     ],
     "presets": [

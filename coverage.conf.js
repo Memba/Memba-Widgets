@@ -98,9 +98,9 @@ module.exports = (config) => {
             // Mocha tests
             {
                 // pattern: 'test/browser/**/*.test.es6',
-                pattern:
-                    'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
-                // pattern: 'test/browser/widgets/*.test.es6',
+                // pattern:
+                    // 'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
+                pattern: 'test/browser/app/*.test.es6',
                 served: true,
                 included: true, // They need to be included!
             },
@@ -155,19 +155,6 @@ module.exports = (config) => {
                         // Prevent any kendo.* from loading (we have already added kendo.all.min.js)
                         test: /kendo\.\w+(\.[-\w]+)?\.js$/,
                         use: 'null-loader',
-                    },
-                    {
-                        // Append  module.exports = JSC; to jscheck.js
-                        // @see https://webpack.js.org/loaders/exports-loader/
-                        test: require.resolve(
-                            path.join(__dirname, '/test/vendor/jscheck.js')
-                        ),
-                        // use: 'exports-loader?JSC',
-                        loader: 'exports-loader',
-                        options: {
-                            type: 'commonjs',
-                            exports: 'single JSC',
-                        },
                     },
                     {
                         // Prepend var jQuery = require("jquery"); to jquery.simulate.js.

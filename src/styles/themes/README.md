@@ -21,6 +21,8 @@ install with `npm i -g node-sass node-sass-package-importer`
 
 Then configure a file watcher in settings as follows:
 - Program: `C:\Users\<user>>\AppData\Roaming\npm\node-sass`
-- Arguments: `--source-map true --importer C:\Users\jlche\AppData\Roaming\npm\node_modules\node-sass-package-importer\dist\cli.js $FileName$ $FileNameWithoutExtension$.css`
+- Arguments:
+  - On Windows `--source-map true --importer C:\Users\<user>\AppData\Roaming\npm\node_modules\node-sass-package-importer\dist\cli.js $FileName$ $FileNameWithoutExtension$.css`
+  - On macOS `--source-map true --importer /usr/local/lib/node_modules/node-sass-package-importer/dist/cli.js $FileName$ $FileNameWithoutExtension$.css`
 - Output paths to refresh: `$FileNameWithoutExtension$.css:$FileNameWithoutExtension$.css.map`
 - Working directory: `$FileDir$`

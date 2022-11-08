@@ -47,12 +47,12 @@ function openQuizWizard(options = {}) {
             content: `<div class="k-widget k-notification k-notification-info" role="alert">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.quizwizard.message')}</div>
                           </div>
-                          <div class="kj-dialog-form">
-                            <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.question}">${__('dialogs.quizwizard.question')}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value:question"></div>
+                          <div class="m-dialog-form">
+                            <div class="m-dialog-flexrow">
+                              <div class="m-dialog-col25"><label for="${ids.question}">${__('dialogs.quizwizard.question')}:</label></div>
+                              <div class="m-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value:question"></div>
                             </div>
-                            <div class="kj-dialog-flexrow">
+                            <div class="m-dialog-flexrow">
                               <div id="${ids.grid}"></div>
                             </div>
                             <div>
@@ -95,7 +95,7 @@ function openQuizWizard(options = {}) {
         .data('kendoBaseDialog');
 
     const validator = $dialog
-        .find('.kj-dialog-form')
+        .find('.m-dialog-form')
         .kendoValidator({
             rules: {
                 question(input) {
@@ -226,7 +226,7 @@ function openQuizWizard(options = {}) {
 
         // Bind the question input
         bind(
-            e.sender.element.find('.kj-dialog-flexrow:first-child'),
+            e.sender.element.find('.m-dialog-flexrow:first-child'),
             e.sender.viewModel
         );
     });

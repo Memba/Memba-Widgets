@@ -87,7 +87,7 @@ const ImageListAdapter = BaseAdapter.extend({
             openAssetManager({
                 title: options.title || this.title,
                 assets: assets.image,
-                cssClass: 'kj-dialog-2', // Potentially a second level of depth considering contextual menu
+                cssClass: 'm-dialog-2', // Potentially a second level of depth considering contextual menu
                 data: {
                     value: e.item.get('url'),
                 },

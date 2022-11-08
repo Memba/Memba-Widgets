@@ -25,7 +25,7 @@ const {
 const NOTIFICATION =
     '<div class="k-widget k-notification k-notification-info"><div class="k-notification-wrap"><span class="k-icon k-i-info"></span>#: help #</div></div>';
 const CONTENT =
-    '<div class="kj-dialog-form"><div class="kj-dialog-row"></div></div>';
+    '<div class="m-dialog-form"><div class="m-dialog-row"></div></div>';
 
 /**
  * A shortcut function to display a dialog with a property editor
@@ -118,7 +118,7 @@ function openPropertyDialog(options = {}) {
 
     // Add validator
     const validator = $dialog
-        .find('.kj-dialog-form')
+        .find('.m-dialog-form')
         .kendoValidator({ rules })
         .data('kendoValidator');
 
@@ -127,7 +127,7 @@ function openPropertyDialog(options = {}) {
         // Add editor
         const { row } = options;
         row.model = e.sender.viewModel;
-        const container = e.sender.element.find('.kj-dialog-row');
+        const container = e.sender.element.find('.m-dialog-row');
         row.editor(container, row);
         // Bind viewModel
         bind(container, e.sender.viewModel);

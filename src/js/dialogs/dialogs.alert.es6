@@ -27,7 +27,7 @@ function openAlert(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const $dialog = BaseDialog.getElement('kj-dialog-alert');
+    const $dialog = BaseDialog.getElement('m-dialog-alert');
 
     // Create the dialog
     const dialog = $dialog

@@ -1,22 +1,24 @@
 @include exports( 'widgets.basedialog/layout' ) {
     .k-dialog {
-        .k-notification {
-            margin-bottom: 1em;
+        .m-dialog {
+            .k-notification {
+                margin-bottom: 1em;
 
-            .k-notification-wrap {
-                align-items: flex-end;
-                white-space: initial;
+                .k-notification-wrap {
+                    align-items: flex-end;
+                    white-space: initial;
 
-                span.k-icon {
-                    margin-right: $icon-spacing;
+                    span.k-icon {
+                        margin-right: $icon-spacing;
+                    }
                 }
             }
-        }
 
-        .k-input,
-        .k-textbox {
-            // TODO Check forms (might be a useless duplicate)
-            width: 100%;
+            .k-input,
+            .k-textbox {
+                // TODO Check forms (might be a useless duplicate)
+                width: 100%;
+            }
         }
 
         .k-dialog-buttongroup {
@@ -29,54 +31,54 @@
                 }
             }
         }
+    }
 
-        /*
+    /*
+    .kj-label {
+        // Make white spaces count
+        white-space: pre-wrap;
+    }
+    .k-dialog {
+        .k-spreadsheet {
+            .k-tabstrip {
+                .k-content {
+                    padding: 0;
+                }
+            }
+        }
+        .k-spreadsheet, .kj-assetmanager, .kj-codeeditor, .kj-styleeditor {
+            width: 100%;
+            border-style: none;
+        }
+    }
+
+    .m-dialog-flexrow {
+        display: flex;
+        align-items: flex-start;
+        line-height: 2em;
+
+        /// &.k-header.k-toolbar {
+        &.k-toolbar {
+            padding: 0.5em 1em;
+        }
+
+        // &:not(.k-header.k-toolbar) { => does not work!
+        &:not(.k-toolbar) {
+            margin-top: 1em;
+        }
+
         .kj-label {
             // Make white spaces count
             white-space: pre-wrap;
         }
-        .k-dialog {
-            .k-spreadsheet {
-                .k-tabstrip {
-                    .k-content {
-                        padding: 0;
-                    }
-                }
-            }
-            .k-spreadsheet, .kj-assetmanager, .kj-codeeditor, .kj-styleeditor {
-                width: 100%;
-                border-style: none;
-            }
-        }
 
-        .kj-dialog-flexrow {
-            display: flex;
-            align-items: flex-start;
-            line-height: 2em;
-
-            /// &.k-header.k-toolbar {
-            &.k-toolbar {
-                padding: 0.5em 1em;
-            }
-
-            // &:not(.k-header.k-toolbar) { => does not work!
-            &:not(.k-toolbar) {
-                margin-top: 1em;
-            }
-
-            .kj-label {
-                // Make white spaces count
-                white-space: pre-wrap;
-            }
-
-        }
-
-        .k-spreadsheet {
-            .k-content {
-                // Removes padding around the toolbar within tabstrip
-                padding: 0;
-            }
-        }
-        */
     }
+
+    .k-spreadsheet {
+        .k-content {
+            // Removes padding around the toolbar within tabstrip
+            padding: 0;
+        }
+    }
+    */
 }

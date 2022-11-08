@@ -28,7 +28,7 @@ const {
 
 // const NS = '.kendoBaseDialog';
 const logger = new Logger('widgets.basedialog');
-const WIDGET_CLASS = 'kj-dialog';
+const WIDGET_CLASS = 'm-dialog';
 const ACTION = {
     cancel: 'cancel',
     close: 'close',
@@ -40,10 +40,10 @@ const ACTION = {
 };
 const tmpl = {
     action: template(
-        '<button type="button" class="k-button# if (data.primary) { # k-primary# } #" role="button"></button>'
+        '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid # if (data.primary) { #k-button-solid-primary# } else { #k-button-solid-base# } #" role="button"></button>'
     ),
     image: template(
-        '<img alt="#: data.text #" class="k-image" src="#: data.imageUrl #">#: data.text #'
+        '<img alt="#: data.text #" class="k-image k-button-icon" src="#: data.imageUrl #"><span class="k-button-text">#: data.text #</span>'
     ),
 };
 
@@ -339,7 +339,7 @@ const BaseDialog = Dialog.extend({
  * @param cssClass
  * @returns {jQuery|HTMLElement}
  */
-BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
+BaseDialog.getElement = function getElement(cssClass = 'm-dialog-tools') {
     // If a dialog already exists, remove it
     let element = $(
         `${CONSTANTS.DOT}${WIDGET_CLASS}${CONSTANTS.DOT}${cssClass}`

@@ -77,8 +77,8 @@ const CharGridAdapter = BaseAdapter.extend({
                     ),
             /* eslint-enable prettier/prettier */
             charGrid: {
-                container: '.kj-dialog',
-                scaler: '.kj-dialog',
+                container: '.m-dialog',
+                scaler: '.m-dialog',
                 height: model.get('height'),
                 width: model.get('width'),
                 columns,

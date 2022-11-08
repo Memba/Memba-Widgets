@@ -27,7 +27,7 @@ function openPrompt(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const $dialog = BaseDialog.getElement('kj-dialog-prompt');
+    const $dialog = BaseDialog.getElement('m-dialog-prompt');
 
     // Create the dialog
     const dialog = $dialog

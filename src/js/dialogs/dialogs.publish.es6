@@ -41,10 +41,10 @@ function openPublish(options = {}) {
             content: `<div class="k-widget k-notification k-notification-info" role="alert">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.publish.message')}</div>
                           </div>
-                          <div class="kj-dialog-form">
-                            <div class="kj-dialog-flexrow">
+                          <div class="m-dialog-form">
+                            <div class="m-dialog-flexrow">
                             </div>
-                            <div class="kj-dialog-flexrow">
+                            <div class="m-dialog-flexrow">
                             </div>
                           </div>`,
             /* eslint-enable prettier/prettier */
@@ -61,7 +61,7 @@ function openPublish(options = {}) {
         .data('kendoBaseDialog');
 
     const validator = $dialog
-        .find('.kj-dialog-form')
+        .find('.m-dialog-form')
         .kendoValidator()
         .data('kendoValidator');
 

@@ -42,14 +42,14 @@ function openTextBoxWizard(options = {}) {
             content: `<div class="k-widget k-notification k-notification-info" role="alert">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.textboxwizard.message')}</div>
                           </div>
-                          <div class="kj-dialog-form">
-                            <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.question}">${__('dialogs.textboxwizard.question')}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value: question"></div>
+                          <div class="m-dialog-form">
+                            <div class="m-dialog-flexrow">
+                              <div class="m-dialog-col25"><label for="${ids.question}">${__('dialogs.textboxwizard.question')}:</label></div>
+                              <div class="m-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value: question"></div>
                             </div>
-                            <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.solution}">${__('dialogs.textboxwizard.solution')}:</label></div>
-                              <div class="kj-dialog-col75"><textarea id="${ids.solution}" type="text" name="solution" class="k-input k-textbox" data-${ns}bind="value: solution" style="height:5em;"></textarea></div>
+                            <div class="m-dialog-flexrow">
+                              <div class="m-dialog-col25"><label for="${ids.solution}">${__('dialogs.textboxwizard.solution')}:</label></div>
+                              <div class="m-dialog-col75"><textarea id="${ids.solution}" type="text" name="solution" class="k-input k-textbox" data-${ns}bind="value: solution" style="height:5em;"></textarea></div>
                             </div>
                           </div>`,
             /* eslint-enable prettier/prettier */
@@ -67,7 +67,7 @@ function openTextBoxWizard(options = {}) {
         .data('kendoBaseDialog');
 
     const validator = $dialog
-        .find('.kj-dialog-form')
+        .find('.m-dialog-form')
         .kendoValidator({
             rules: {
                 question(input) {

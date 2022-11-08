@@ -44,24 +44,26 @@ const NS = '.kendoBasicList';
 const WIDGET_CLASS = 'k-widget m-basiclist';
 
 const TOOLBAR_TMPL =
-    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-icon k-i-plus k-button-icon"></span><span class="k-button-text">{0}</span></a></div></div>';
+    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-icon k-i-plus k-button-icon"></span><span class="k-button-text">{0}</span></button></div></div>';
 const ITEM_TMPL = `<li class="k-list-item">
         <div class="m-handle"><span class="k-icon k-i-handler-drag" /></div>
-        <span class="k-input k-input-solid k-input-md k-rounded-md">
-            <input value="#: value$() #" class="k-input-inner k-disabled" />
+        <div class="m-input-wrap">
+            <span class="k-input k-input-solid k-input-md k-rounded-md">
+                <input class="k-input-inner k-disabled" value="#: value$() #" />
+            </span>
+        </div><div class="m-buttons">
             <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-edit-button" href="\\#"><span class="k-icon k-i-edit k-button-icon"/></button>
             <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-delete-button" href="\\#"><span class="k-icon k-i-delete k-button-icon"/></button>
-        </span>
+        </div>
     </li>`;
 const EDIT_TMPL = `<li class="k-list-item">
         <div class="m-handle"><span class="k-icon k-i-handler-drag"/></div>
         <div class="m-input-wrap">
             <input data-${ns}bind="value: value" name="value" validationMessage="{0}"/>
             <span data-${ns}for="value" class="k-invalid-msg"/>
-        </div>
-        <div class="m-buttons">
-            <a class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-update-button" href="\\#"><span class="k-icon k-i-check k-button-icon"/></a>
-            <a class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel k-button-icon"/></a>
+        </div><div class="m-buttons">
+            <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-update-button" href="\\#"><span class="k-icon k-i-check k-button-icon"/></button>
+            <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel k-button-icon"/></button>
         </div>
     </li>`;
 

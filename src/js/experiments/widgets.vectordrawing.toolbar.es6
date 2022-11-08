@@ -568,13 +568,13 @@
                             .insertAfter(openButton)
                             // Change the state of the covered openButton
                             .hover(function (e) {
-                                openButton.toggleClass('k-state-hover', e.type === 'mouseenter');
+                                openButton.toggleClass('k-hover', e.type === 'mouseenter');
                             })
                             .mousedown(function () {
-                                openButton.addClass('k-state-active');
+                                openButton.addClass('k-active');
                             })
                             .mouseup(function () {
-                                openButton.removeClass('k-state-active');
+                                openButton.removeClass('k-active');
                             });
                     }
                     // At this stage, we have an empty form
@@ -592,10 +592,10 @@
                         // ensure we can tab through the toolbar, especially the open button
                         // Click the new button, then tab, then enter to show the open file dialog
                         .focus(function () {
-                            openButton.addClass('k-state-focused');
+                            openButton.addClass('k-focus');
                         })
                         .blur(function () {
-                            openButton.removeClass('k-state-focused');
+                            openButton.removeClass('k-focus');
                         });
                 }
             },
@@ -910,8 +910,8 @@
                 });
             },
             _open: function (e) {
-                // Note: testing k-state-disabled is not part of the original DropDownTool from SpreadsheetToolbar
-                if (this.element.hasClass('k-state-disabled')) {
+                // Note: testing k-disabled is not part of the original DropDownTool from SpreadsheetToolbar
+                if (this.element.hasClass('k-disabled')) {
                     e.preventDefault();
                     return false;
                 }
@@ -975,8 +975,8 @@
             },
             open: function (e) {
                 e.preventDefault();
-                // Note: testing k-state-disabled is not part of the original DropDownTool from SpreadsheetToolbar
-                if (!this.element.hasClass('k-state-disabled')) {
+                // Note: testing k-disabled is not part of the original DropDownTool from SpreadsheetToolbar
+                if (!this.element.hasClass('k-disabled')) {
                     this.popup.toggle();
                 }
             },
@@ -1500,9 +1500,9 @@
             update: function (selected) {
                 var strokeDashType = selected && selected.options && selected.options.stroke && selected.options.stroke.dashType;
                 var element = this.popup.element;
-                element.find('.k-button').removeClass('k-state-active');
+                element.find('.k-button').removeClass('k-active');
                 if (strokeDashType) {
-                    element.find('[data-property=strokeDashType][data-value=' + strokeDashType + ']').addClass('k-state-active');
+                    element.find('[data-property=strokeDashType][data-value=' + strokeDashType + ']').addClass('k-active');
                 }
             },
             _commandPalette: function () {
@@ -1584,9 +1584,9 @@
             update: function (selected) {
                 var startCapType = selected && selected.options && selected.options.startCap && selected.options.startCap.type;
                 var element = this.popup.element;
-                element.find('.k-button').removeClass('k-state-active');
+                element.find('.k-button').removeClass('k-active');
                 if (startCapType) {
-                    element.find('[data-property=startCapType][data-value=' + startCapType + ']').addClass('k-state-active');
+                    element.find('[data-property=startCapType][data-value=' + startCapType + ']').addClass('k-active');
                 }
             },
             _commandPalette: function () {
@@ -1667,9 +1667,9 @@
             update: function (selected) {
                 var endCapType = selected && selected.options && selected.options.endCap && selected.options.endCap.type;
                 var element = this.popup.element;
-                element.find('.k-button').removeClass('k-state-active');
+                element.find('.k-button').removeClass('k-active');
                 if (endCapType) {
-                    element.find('[data-property=endCapType][data-value=' + endCapType + ']').addClass('k-state-active');
+                    element.find('[data-property=endCapType][data-value=' + endCapType + ']').addClass('k-active');
                 }
             },
             _commandPalette: function () {

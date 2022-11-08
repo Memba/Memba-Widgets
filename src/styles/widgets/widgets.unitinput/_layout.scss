@@ -28,9 +28,9 @@
             flex: 1 1 34%;
 
             .k-dropdown-wrap {
-                &.k-state-active,
-                &.k-state-focused,
-                &.k-state-hover {
+                &.k-active,
+                &.k-focus,
+                &.k-hover {
                     // Remove box-shadow
                     box-shadow: initial;
                 }

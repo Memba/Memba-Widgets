@@ -191,7 +191,7 @@ function openQuizWizard(options = {}) {
             placeholder(element) {
                 return element
                     .clone()
-                    .addClass('k-state-hover')
+                    .addClass('k-hover')
                     .css({ opacity: 0.65 });
             },
             container: `#${ids.grid} tbody`,

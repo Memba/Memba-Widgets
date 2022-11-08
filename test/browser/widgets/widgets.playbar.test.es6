@@ -493,7 +493,7 @@ describe('widgets.playbar', () => {
                 check();
                 viewModel.set('current', page);
                 expect($(widget.items()[index]).find('span')).to.have.class(
-                    'k-state-selected'
+                    'k-selected'
                 );
             });
             expect(check).to.have.callCount(pageCollectionData1.length);

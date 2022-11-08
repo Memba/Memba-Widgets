@@ -51,7 +51,7 @@ const SortedList = ListView.extend({
                     return element.clone().css('opacity', 0.4);
                 },
                 hint(element) {
-                    return element.clone(); // .removeClass('k-state-selected');
+                    return element.clone(); // .removeClass('k-selected');
                 },
                 change(e) {
                     const skip = dataSource.skip() || 0;

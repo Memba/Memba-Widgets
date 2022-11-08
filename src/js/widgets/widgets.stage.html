@@ -74,7 +74,7 @@
                             if (e.value) {
                                 var uid = grid.dataSource.get(e.value.id).uid;
                                 var rows = grid.table.find('tr[data-uid="' + uid + '"]');
-                                if (!rows.hasClass('k-state-selected')) {
+                                if (!rows.hasClass('k-selected')) {
                                     grid.select(rows);
                                 }
                             } else {

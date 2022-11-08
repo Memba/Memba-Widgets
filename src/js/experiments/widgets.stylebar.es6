@@ -705,7 +705,7 @@ var StyleToolBar = ToolBar.extend({
                 if (tool) {
                     document.activeElement.blur();
                     if ($(tool).is('.k-upload-button')) {
-                        $(tool).addClass('k-state-focused');
+                        $(tool).addClass('k-focus');
                     }
                     if ($(tool).find('input').length) {
                         $(tool).find('input').focus();
@@ -717,7 +717,7 @@ var StyleToolBar = ToolBar.extend({
             }
         });
         this.element.on('focusout', function () {
-            $(this).find('.k-toolbar-first-visible').removeClass('k-state-focused');
+            $(this).find('.k-toolbar-first-visible').removeClass('k-focus');
         });
         this.bind({
             click: handleClick,
@@ -1384,12 +1384,12 @@ var AlignmentTool = PopupTool.extend({
         var textAlign = range.textAlign();
         var verticalAlign = range.verticalAlign();
         var element = this.popup.element;
-        element.find('.k-button').removeClass('k-state-active');
+        element.find('.k-button').removeClass('k-active');
         if (textAlign) {
-            element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
+            element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-active');
         }
         if (verticalAlign) {
-            element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+            element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-active');
         }
     },
     _commandPalette: function () {

@@ -439,7 +439,7 @@ const MathQuillToolBar = ToolBar.extend({
     },
     focused() {
         // As in kendo.editor at L#8410
-        return this.element.find('.k-state-focused').length > 0; // || this.preventPopupHide || this.overflowPopup && this.overflowPopup.visible();
+        return this.element.find('.k-focus').length > 0; // || this.preventPopupHide || this.overflowPopup && this.overflowPopup.visible();
     },
     action(args) {
         this.trigger('action', args);

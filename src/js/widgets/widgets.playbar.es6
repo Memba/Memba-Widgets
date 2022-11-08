@@ -129,7 +129,7 @@ const PlayBar = DataBoundWidget.extend({
         iconTemplate:
             '<a href="\\#" aria-label="#:text#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #"></span></a>',
         selectTemplate:
-            '<li><span class="k-link k-state-selected">#: text #</span></li>',
+            '<li><span class="k-link k-selected">#: text #</span></li>',
         currentPageTemplate:
             '<li class="k-current-page"><span class="k-link k-pager-nav">#=text#</span></li>',
         linkTemplate:
@@ -472,7 +472,7 @@ const PlayBar = DataBoundWidget.extend({
         if (this.ul instanceof $) {
             this.tooltip = this.ul
                 .kendoTooltip({
-                    filter: 'span.k-state-selected, a[data-index]',
+                    filter: 'span.k-selected, a[data-index]',
                     width: 272, // 1024 * 0.25 = 250
                     height: 207, // 768 * 0.25 = 192
                     position: 'bottom',
@@ -585,7 +585,7 @@ const PlayBar = DataBoundWidget.extend({
             // Add drop down when there is not enough space to display numeric button
             // TODO this is only a temporary fix, but we have lost the dropdown
             //  html = currentPageTemplate({ text: index + 1 }) + html;
-            this.ul.removeClass('k-state-expanded').html(html);
+            this.ul.removeClass('k-expanded').html(html);
         }
 
         // Update info
@@ -674,7 +674,7 @@ const PlayBar = DataBoundWidget.extend({
      * @private
      */
     _toggleDropDown() {
-        this.ul.toggleClass('k-state-expanded');
+        this.ul.toggleClass('k-expanded');
     },
 
     /**
@@ -687,7 +687,7 @@ const PlayBar = DataBoundWidget.extend({
         if (e instanceof $.Event) {
             e.preventDefault();
             const target = $(e.currentTarget);
-            if (!target.is('.k-state-disabled')) {
+            if (!target.is('.k-disabled')) {
                 const index = parseInt(target.attr(attr('index')), 10);
                 if (!Number.isNaN(index)) {
                     this.index(index);

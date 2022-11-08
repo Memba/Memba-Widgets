@@ -207,9 +207,9 @@ describe('widgets.social', () => {
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
             widget.enable(false);
-            expect(widget.wrapper).to.have.class('k-state-disabled');
+            expect(widget.wrapper).to.have.class('k-disabled');
             widget.enable(true);
-            expect(widget.wrapper).not.to.have.class('k-state-disabled');
+            expect(widget.wrapper).not.to.have.class('k-disabled');
         });
 
         // it('visible', function () {

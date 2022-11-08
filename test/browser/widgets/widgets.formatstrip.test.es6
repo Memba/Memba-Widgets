@@ -101,7 +101,7 @@ describe('widgets.formatstrip', () => {
             expect(wrapper.find('span.kj-widget-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-widget-star.k-state-selected'))
+            expect(wrapper.find('span.kj-widget-star.k-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
         });
@@ -137,7 +137,7 @@ describe('widgets.formatstrip', () => {
             expect(wrapper.find('span.kj-widget-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-widget-star.k-state-selected'))
+            expect(wrapper.find('span.kj-widget-star.k-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
         });
@@ -183,9 +183,9 @@ describe('widgets.formatstrip', () => {
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
             widget.enable(false);
-            expect(widget.wrapper).to.have.class('k-state-disabled');
+            expect(widget.wrapper).to.have.class('k-disabled');
             widget.enable(true);
-            expect(widget.wrapper).not.to.have.class('k-state-disabled');
+            expect(widget.wrapper).not.to.have.class('k-disabled');
         });
 
         // it('visible', function () {
@@ -240,11 +240,11 @@ describe('widgets.formatstrip', () => {
                 for (let i = 0; i < count; i++) {
                     if (i <= pos) {
                         expect($(stars.get(i))).to.have.class(
-                            'k-state-selected'
+                            'k-selected'
                         );
                     } else {
                         expect($(stars.get(i))).to.not.have.class(
-                            'k-state-selected'
+                            'k-selected'
                         );
                     }
                 }
@@ -269,11 +269,11 @@ describe('widgets.formatstrip', () => {
                 for (let i = 0; i < count; i++) {
                     if (i <= pos) {
                         expect($(stars.get(i))).to.have.class(
-                            'k-state-selected'
+                            'k-selected'
                         );
                     } else {
                         expect($(stars.get(i))).to.not.have.class(
-                            'k-state-selected'
+                            'k-selected'
                         );
                     }
                 }
@@ -302,10 +302,10 @@ describe('widgets.formatstrip', () => {
                 $(stars.get(pos)).simulate('mouseover');
                 for (let i = 0; i < count; i++) {
                     if (i <= pos) {
-                        expect($(stars.get(i))).to.have.class('k-state-hover');
+                        expect($(stars.get(i))).to.have.class('k-hover');
                     } else {
                         expect($(stars.get(i))).to.not.have.class(
-                            'k-state-hover'
+                            'k-hover'
                         );
                     }
                 }

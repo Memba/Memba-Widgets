@@ -298,7 +298,7 @@ describe('widgets.navigation', () => {
                     widget.element.find(
                         format('[{0}="{1}"]', attr('uid'), page.uid)
                     )
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             });
             expect(check).to.have.callCount(data.length);
         });

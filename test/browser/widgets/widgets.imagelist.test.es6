@@ -58,7 +58,7 @@ describe('widgets.imagelist', () => {
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageList);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
         });
 
         it('from code with options', () => {
@@ -69,7 +69,7 @@ describe('widgets.imagelist', () => {
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageList);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
         });
 
         it('from markup', () => {
@@ -83,7 +83,7 @@ describe('widgets.imagelist', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageList);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
         });
 
         it('from markup with attributes', () => {
@@ -98,7 +98,7 @@ describe('widgets.imagelist', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageList);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
         });
     });
 

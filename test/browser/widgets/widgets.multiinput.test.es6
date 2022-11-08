@@ -203,10 +203,10 @@ describe('widgets.multiinput', () => {
             expect(widget.wrapper).to.exist;
             expect(widget.input).to.exist;
             widget.enable(false);
-            expect(widget.wrapper).to.match('.k-state-disabled');
+            expect(widget.wrapper).to.match('.k-disabled');
             expect(widget.input).to.match('input:disabled');
             widget.enable(true);
-            expect(widget.wrapper).not.to.match('.k-state-disabled');
+            expect(widget.wrapper).not.to.match('.k-disabled');
             expect(widget.input).not.to.match('input:disabled');
         });
 

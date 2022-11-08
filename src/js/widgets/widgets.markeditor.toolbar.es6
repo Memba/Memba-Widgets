@@ -495,8 +495,8 @@ if (
                 });
             },
             _open: function (e) {
-                // Note: testing k-state-disabled is not part of the original DropDownTool from SpreadsheetToolbar
-                if (this.element.hasClass('k-state-disabled')) {
+                // Note: testing k-disabled is not part of the original DropDownTool from SpreadsheetToolbar
+                if (this.element.hasClass('k-disabled')) {
                     e.preventDefault();
                     return false;
                 }
@@ -563,8 +563,8 @@ const PopupTool = toolbar.Item.extend({
     },
     open(e) {
         e.preventDefault();
-        // Note: testing k-state-disabled is not part of the original PopupTool from SpreadsheetToolbar
-        if (!this.element.hasClass('k-state-disabled')) {
+        // Note: testing k-disabled is not part of the original PopupTool from SpreadsheetToolbar
+        if (!this.element.hasClass('k-disabled')) {
             this.popup.toggle();
         }
     },
@@ -658,11 +658,11 @@ const HeadingsTool = PopupTool.extend({
             selected.options.startCap &&
             selected.options.startCap.type;
         const { element } = this.popup;
-        element.find('.k-button').removeClass('k-state-active');
+        element.find('.k-button').removeClass('k-active');
         if (headings) {
             element
                 .find(`[data-property=headings][data-value=${headings}]`)
-                .addClass('k-state-active');
+                .addClass('k-active');
         }
     },
     _commandPalette() {

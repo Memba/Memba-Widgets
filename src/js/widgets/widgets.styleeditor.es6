@@ -578,7 +578,7 @@ const StyleEditor = DataBoundWidget.extend({
         let ret;
         // Find the corresponding property name and custom editor
         const name = container
-            .closest('tr.k-state-selected')
+            .closest('tr.k-selected')
             .children()
             .first()
             .text();

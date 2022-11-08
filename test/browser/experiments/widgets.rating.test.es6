@@ -77,7 +77,7 @@ describe('widgets.rating', () => {
             expect(wrapper.find('span.kj-rating-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
+            expect(wrapper.find('span.kj-rating-star.k-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
         });
@@ -105,7 +105,7 @@ describe('widgets.rating', () => {
             expect(wrapper.find('span.kj-rating-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
+            expect(wrapper.find('span.kj-rating-star.k-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
         });
@@ -141,7 +141,7 @@ describe('widgets.rating', () => {
             expect(wrapper.find('span.kj-rating-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
+            expect(wrapper.find('span.kj-rating-star.k-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
         });

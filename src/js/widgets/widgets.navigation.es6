@@ -590,7 +590,7 @@ const Navigation = DataBoundWidget.extend({
     },
 
     /**
-     * Adds the k-state-selected class to the selected page determined by that._selectedUid
+     * Adds the k-selected class to the selected page determined by that._selectedUid
      * This actually adds a coloured border
      * @method displaySelection
      */

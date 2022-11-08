@@ -144,7 +144,7 @@ const CodeInput = DataBoundWidget.extend({
 
         // Static input showing `Custom`
         this.customInput = $(
-            '<input class="k-textbox k-state-disabled" disabled>'
+            '<input class="k-textbox k-disabled" disabled>'
         )
             .width('100%')
             .val(options.messages.custom)
@@ -166,7 +166,7 @@ const CodeInput = DataBoundWidget.extend({
             .data('kendoDropDownList');
 
         this.moreButton = $(
-            `<span unselectable="on" class="kj-codeinput-wrap k-state-default">
+            `<span unselectable="on" class="kj-codeinput-wrap k-default">
                 <span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-more-horizontal"/></span>
             </span>`
         )

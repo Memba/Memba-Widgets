@@ -2,11 +2,11 @@
     .kj-navigation-item {
         background-color: $button-bg;
 
-        &.k-state-hover {
+        &.k-hover {
             // TODO background-color: $button-hovered-bg;
         }
 
-        &.k-state-selected {
+        &.k-selected {
             background-color: $selected-bg; // $primary-button-bg
         }
     }

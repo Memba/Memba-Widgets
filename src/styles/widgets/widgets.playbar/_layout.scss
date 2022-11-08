@@ -3,7 +3,7 @@
         z-index: 1000; // so that the drop down list of numeric buttons displays over other controls
 
         .k-pager-numbers {
-            .k-state-selected {
+            .k-selected {
                 line-height: 2em;
             }
         }
@@ -24,7 +24,7 @@
      */
     .kj-playbar.kj-top {
         // .k-pager-numbers { flex-direction: column; }
-        .k-pager-numbers.k-state-expanded {
+        .k-pager-numbers.k-expanded {
             // border-radius: 4px 4px 0 0;
             border-radius: 0 0 4px 4px;
             transform: translateY(1.72em); //same as line-height

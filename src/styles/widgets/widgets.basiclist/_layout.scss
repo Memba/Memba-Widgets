@@ -20,7 +20,7 @@
 
     // Cursor
     body > .k-list-item > .m-handle,
-    .m-basiclist > .k-listview:not(.k-state-disabled) > .k-listview-content > .k-list-item > .m-handle {
+    .m-basiclist > .k-listview:not(.k-disabled) > .k-listview-content > .k-list-item > .m-handle {
         cursor: move;
     }
 

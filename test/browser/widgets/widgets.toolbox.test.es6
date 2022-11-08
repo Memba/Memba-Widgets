@@ -196,7 +196,7 @@ describe('widgets.toolbox', () => {
             tools.active = 'label';
             expect(widget.value()).to.equal('label');
             expect(
-                element.find('a.k-state-selected').attr(attr('tool'))
+                element.find('a.k-selected').attr(attr('tool'))
             ).to.equal('label');
             // expect(change).to.have.been.calledOnce;
         });
@@ -212,7 +212,7 @@ describe('widgets.toolbox', () => {
             expect(widget.value()).to.equal('label');
             expect(tools).to.have.property('active', 'label');
             expect(
-                element.find('a.k-state-selected').attr(attr('tool'))
+                element.find('a.k-selected').attr(attr('tool'))
             ).to.equal('label');
         });
     });

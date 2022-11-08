@@ -45,7 +45,7 @@ const BaseToolBar = ToolBar.extend({
                 if (tool) {
                     document.activeElement.blur();
                     if ($(tool).is('.k-upload-button')) {
-                        $(tool).addClass('k-state-focused');
+                        $(tool).addClass('k-focus');
                     }
                     if ($(tool).find('input').length) {
                         $(tool).find('input').focus();
@@ -59,7 +59,7 @@ const BaseToolBar = ToolBar.extend({
         this.element.on('focusout', function focusout() {
             $(this)
                 .find('.k-toolbar-first-visible')
-                .removeClass('k-state-focused');
+                .removeClass('k-focus');
         });
         this.bind({
             click: handleClick,

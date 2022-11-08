@@ -283,7 +283,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`button.kj-multiquiz-button:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
 
@@ -302,7 +302,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`button.kj-multiquiz-button:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
 
@@ -323,7 +323,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`button.kj-multiquiz-button:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
     });
@@ -449,7 +449,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`div.kj-multiquiz-image:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
 
@@ -468,7 +468,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`div.kj-multiquiz-image:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
 
@@ -489,7 +489,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`div.kj-multiquiz-image:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
     });
@@ -534,7 +534,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`span.kj-multiquiz-link:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
 
@@ -553,7 +553,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`span.kj-multiquiz-link:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
 
@@ -574,7 +574,7 @@ describe('widgets.multiquiz', () => {
                 expect(change).to.have.callCount(i + 1);
                 expect(
                     widget.element.find(`span.kj-multiquiz-link:eq(${i})`)
-                ).to.have.class('k-state-selected');
+                ).to.have.class('k-selected');
             }
         });
     });

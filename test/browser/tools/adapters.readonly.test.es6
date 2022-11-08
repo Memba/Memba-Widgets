@@ -20,7 +20,7 @@ describe('adapters.readonly', () => {
         it('It should have descriptors', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(14);
             expect(adapter).to.have.property('attributes').that.deep.equals({
-                class: 'k-textbox k-state-disabled',
+                class: 'k-textbox k-disabled',
                 disabled: true,
                 type: 'text',
             });
@@ -52,7 +52,7 @@ describe('adapters.readonly', () => {
             const row = adapter.getRow(field);
             expect(row).to.deep.equal({
                 attributes: {
-                    class: 'k-textbox k-state-disabled',
+                    class: 'k-textbox k-disabled',
                     disabled: true,
                     type: 'text',
                 },

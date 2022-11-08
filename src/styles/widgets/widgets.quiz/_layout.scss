@@ -21,8 +21,8 @@
     }
 
     .kj-quiz {
-        &.k-state-disabled,
-        .k-state-disabled {
+        &.k-disabled,
+        .k-disabled {
             color: inherit;
             opacity: 1;
 
@@ -106,7 +106,7 @@
                 &::after {
                     content: "\0020"; // space
                 }
-                // &.k-state-selected {}
+                // &.k-selected {}
             }
 
             //*******************

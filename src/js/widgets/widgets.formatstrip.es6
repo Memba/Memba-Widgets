@@ -341,7 +341,7 @@ const FormatBar = ToolBar.extend({
                     .find(
                         format(ATTR_SELECTOR, attr('border-type'), borderType)
                     )
-                    .toggleClass('k-state-disabled', !enabled);
+                    .toggleClass('k-disabled', !enabled);
             }
         );
     },
@@ -714,7 +714,7 @@ const FormatBar = ToolBar.extend({
                 tool.has('.k-font-icon') &&
                 (tool.has('.k-i-arrow-s') || tool.has('.k-text'))
             ) {
-                tool.toggleClass('k-state-disabled', !enabled); // Otherwise the border tool does not look disabled
+                tool.toggleClass('k-disabled', !enabled); // Otherwise the border tool does not look disabled
                 if (enabled) {
                     tool.off(CONSTANTS.CLICK + that.ns);
                 } else {

@@ -337,7 +337,7 @@ const MultiQuiz = DataBoundWidget.extend({
             this._value = [];
         }
         const index = this._value.indexOf(value);
-        // Note: contrary to k-state.selected which would be toggled later, prop checked is true here
+        // Note: contrary to k-selected which would be toggled later, prop checked is true here
         const checked = !!checkbox.prop(CHECKED);
         if (checked && index === -1) {
             this._value.push(value);

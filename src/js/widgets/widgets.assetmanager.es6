@@ -58,33 +58,33 @@ const logger = new Logger('widgets.assetmanager');
 const NS = '.kendoAssetManager';
 const WIDGET_CLASS = 'k-widget m-assetmanager';
 const WINDOW_SELECTOR = '.m-assetmanager-window';
-const TOOLBAR_TMPL =
-    '<div class="k-widget k-filebrowser-toolbar k-toolbar k-floatwrap">' +
-    '<div class="k-toolbar-wrap">' +
-    '<label class="k-label" style="display:none">#=messages.toolbar.collections#<select data-role="dropdownlist"></select></label>' +
-    '<div class="k-widget k-upload"><div class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button">' +
-    '<span class="k-button-icon k-icon k-i-plus"></span><span class="k-button-text">#:messages.toolbar.upload#</span><input type="file" name="file" accept="#=accept#" multiple autocomplete="off" />' +
-    '</div></div>' +
-    '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button" title="#:messages.toolbar.create#"><span class="k-i-button-icon k-icon k-i-file-add"></span></button>' +
-    '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-disabled" title="#:messages.toolbar.edit#"><span class="k-i-button-icon k-icon k-i-track-changes-enable"></span></button>' +
-    '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-disabled" title="#:messages.toolbar.delete#"><span class="k-i-button-icon k-icon k-i-delete"></span></button>' +
-    '</div>' +
-    // '<span class="k-toolbar-spacer"></span>' +
-    '<div class="k-tiles-arrange">' +
-    '<div class="k-progressbar"></div>' + // TODO Review progressbar
-    '<div class="k-widget k-search-wrap"><span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input data-role="searchbox" placeholder="#=messages.toolbar.search#" class="k-input-inner"><span class="k-input-suffix"><a href="\\#" class="k-icon k-i-zoom k-search"></a></span></span></div>' +
-    '</div>' +
-    '</div>';
+const TOOLBAR_TMPL = `<div class="k-widget k-filebrowser-toolbar k-toolbar k-floatwrap">
+    <div class="k-toolbar-wrap">
+        <label class="k-label" style="display:none">#=messages.toolbar.collections#<select data-role="dropdownlist"></select></label>
+        <div class="k-widget k-upload"><div class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button">
+            <span class="k-button-icon k-icon k-i-plus"></span><span class="k-button-text">#:messages.toolbar.upload#</span><input type="file" name="file" accept="#=accept#" multiple autocomplete="off" />
+        </div></div>
+        <button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button" title="#:messages.toolbar.create#"><span class="k-i-button-icon k-icon k-i-file-add"></span></button>
+        <button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-disabled" title="#:messages.toolbar.edit#"><span class="k-i-button-icon k-icon k-i-track-changes-enable"></span></button>
+        <button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-disabled" title="#:messages.toolbar.delete#"><span class="k-i-button-icon k-icon k-i-delete"></span></button>
+    </div>
+    <div class="k-spacer"></div>
+    <div class="k-tiles-arrange">
+        <div class="k-progressbar"></div>
+        <div class="k-widget k-search-wrap"><span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input data-role="searchbox" placeholder="#=messages.toolbar.search#" class="k-input-inner"><span class="k-input-suffix"><a href="\\#" class="k-icon k-i-zoom k-search"></a></span></span></div>
+    </div>
+</div>`;
 const ITEM_TMPL =
-    `<li class="k-tile" ${attr(CONSTANTS.UID)}="#=uid#">` + // ' + attr('type') + '="#=mime$()#">' +
-    `#if (/^image\\//.test(mime$())) {#` +
-    `<div class="k-thumb"><img alt="#=name$()#" src="#=url$()#" class="k-image"></span></div>` +
-    `#}else{#` +
-    `<div class="k-thumb"><span class="k-icon k-i-file"></span></div>` +
-    `#}#` +
-    `<strong>#=name$()#</strong>` +
-    `<span class="k-filesize">#=size$()#</span>` +
-    `</li>`;
+    // `<li class="k-tile" ${attr(CONSTANTS.UID)}="#=uid#"> // ' + attr('type') + '="#=mime$()#">
+    `<li class="k-tile" ${attr(CONSTANTS.UID)}="#=uid#">
+    #if (/^image\\//.test(mime$())) {#
+    <div class="k-thumb"><img alt="#=name$()#" src="#=url$()#" class="k-image"></span></div>
+    #}else{#
+    <div class="k-thumb"><span class="k-icon k-i-file"></span></div>
+    #}#
+    <strong>#=name$()#</strong>
+    <span class="k-filesize">#=size$()#</span>
+    </li>`;
 const ACTION = {
     CREATE: 'create',
     EDIT: 'edit',

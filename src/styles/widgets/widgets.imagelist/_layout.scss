@@ -1,5 +1,5 @@
 @include exports( "widgets.imagelist/layout" ) {
-    .kj-imagelist {
+    .m-imagelist {
         > .k-toolbar {
             // border-bottom: none;
             border-left: none;
@@ -19,25 +19,25 @@
     }
 
     // Cursor
-    body > .k-list-item > .kj-handle,
-    .kj-imagelist > .k-listview:not(.k-state-disabled) > .k-listview-content > .k-list-item > .kj-handle {
+    body > .k-list-item > .m-handle,
+    .m-imagelist > .k-listview:not(.k-disabled) > .k-listview-content > .k-list-item > .m-handle {
         cursor: move;
     }
 
     // we also need body > k-list-item for draggable hints
     body,
-    .kj-imagelist > .k-listview > .k-listview-content {
+    .m-imagelist > .k-listview > .k-listview-content {
         > .k-list-item {
             align-items: center;
             display: flex;
             flex-flow: row nowrap;
             padding: 2px;
 
-            > .kj-handle {
-                width: 1em;
+            > .m-handle {
+                width: 1rem;
             }
 
-            > .kj-input-wrap {
+            > .m-input-wrap {
                 flex: 1 1 auto;
                 overflow: hidden;
                 position: relative;
@@ -48,48 +48,33 @@
                     width: 100%;
                 }
 
-                .k-textbox,
-                .k-dateinput-wrap,
-                    // .k-dropdown-wrap,
-                    // .k-picker-wrap,
-                    // .k-multiselect-wrap,
-                .k-numeric-wrap {
-                    border-bottom-right-radius: 0;
-                    border-top-right-radius: 0;
-
-                    .k-select {
-                        border-bottom-right-radius: 0;
-                        border-top-right-radius: 0;
-                    }
-                }
-
-                .k-tooltip-validation {
+                .k-validation-msg {
                     position: absolute;
                     right: 0;
-                    top: 0;
+                    bottom: 0;
                 }
             }
 
-            > .kj-buttons {
+            > .m-buttons {
                 align-items: center;
                 display: flex;
                 flex: 0 0 auto;
                 flex-flow: row nowrap;
 
                 .k-image {
-                    height: 2.3125em;
-                    width: 2.3125em;
+                    width: 2rem;
                 }
 
-                .k-button {
-                    height: 2.3125em;
+                .k-button,
+                .k-image {
+                    height: 2rem;
 
-                    &:not(:last-child) {
-                        border-radius: 0;
+                    &:first-child {
+                        border-radius: 0.25rem 0 0 0.25rem;
                     }
 
                     &:last-child {
-                        border-radius: 0 0.25em 0.25em 0;
+                        border-radius: 0 0.25rem 0.25rem 0;
                     }
                 }
             }
@@ -98,13 +83,13 @@
 
     // Tooltips
     .k-tooltip {
-        .kj-imagelist-tooltip {
+        .m-imagelist-tooltip {
             background-position: center;
             background-size: cover;
             height: 150px;
             width: 150px;
 
-            .kj-imagelist-title {
+            .m-imagelist-title {
                 background-color: rgba(255, 255, 255, 0.5);
                 bottom: 0;
                 color: #000;

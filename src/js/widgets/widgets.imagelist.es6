@@ -28,36 +28,41 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.imagelist');
 const NS = '.kendoImageList';
-const WIDGET_CLASS = 'k-widget kj-imagelist';
+const WIDGET_CLASS = 'k-widget m-imagelist';
 
 const TOOLTIP_TMPL =
-    '<div style="background-image:url({1});" class="kj-imagelist-tooltip"><div class="kj-imagelist-title">{0}</div></div>';
+    '<div style="background-image:url({1});" class="m-imagelist-tooltip"><div class="m-imagelist-title">{0}</div></div>';
 const TOOLBAR_TMPL =
-    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-icontext"><span class="k-icon k-i-plus"></span>{0}</a></div></div>';
-const ITEM_TMPL =
-    '<li class="k-list-item">' +
-    '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
-    '<div class="kj-input-wrap"><input class="k-textbox k-state-disabled" name="text" value="#:text#" disabled /></div>' +
-    '<div class="kj-buttons">' +
-    '# if (url$().length) { #' +
-    '<img class="k-image" alt="#:text#" src="#:url$()#">' +
-    '# } #' +
-    '<a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>' +
-    '<a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-delete"/></a>' +
-    '</div></li>';
-const EDIT_TMPL =
-    '<li class="k-list-item">' +
-    '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
-    '<div class="kj-input-wrap">' +
-    `<input data-${ns}bind="value:text" name="text" validationMessage="{0}"/><span data-${ns}for="text" class="k-invalid-msg"/>` +
-    '# if ({1}) { #' +
-    `<input type="hidden" data-${ns}bind="value:url$()" name="url" required="required" validationMessage="{2}"/><span data-${ns}for="url" class="k-invalid-msg"/>` +
-    '# } #' +
-    '</div><div class="kj-buttons">' +
-    '<a class="k-button k-image-button" href="\\#"><span class="k-icon k-i-image-insert"/></a>' +
-    '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"/></a>' +
-    '<a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"/></a>' +
-    '</div></li>';
+    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-icon k-i-plus k-button-icon"></span><span class="k-button-text">{0}</span></button></div></div>';
+const ITEM_TMPL = `<li class="k-list-item">
+    <div class="m-handle"><span class="k-icon k-i-handler-drag"/></div>
+    <div class="m-input-wrap">
+        <span class="k-input k-input-solid k-input-md k-rounded-md">
+            <input class="k-input-inner k-disabled" value="#:text #" />
+        </span>
+    </div><div class="m-buttons">
+        # if (url$().length) { #
+        <img class="k-image" alt="#:text#" src="#:url$()#">
+        # } #
+        <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-edit-button" href="\\#"><span class="k-icon k-i-edit k-button-icon"/></button>
+        <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-delete-button" href="\\#"><span class="k-icon k-i-delete k-button-icon"/></button>
+    </div></li>`;
+const EDIT_TMPL = `<li class="k-list-item">
+    <div class="m-handle"><span class="k-icon k-i-handler-drag"/></div>
+    <div class="m-input-wrap">
+        <span class="k-input k-input-solid k-input-md k-rounded-md">
+            <input class="k-input-inner" data-${ns}bind="value:text" name="text" validationMessage="{0}"/>
+            <span data-${ns}for="text" class="k-invalid-msg"/>
+            # if ({1}) { #
+            <input type="hidden" data-${ns}bind="value:url$()" name="url" required="required" validationMessage="{2}"/>
+            <span data-${ns}for="url" class="k-invalid-msg"/>
+            # } #
+        </span>
+    </div><div class="m-buttons">
+        <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-image-button" href="\\#"><span class="k-icon k-i-image-insert k-button-icon"/></button>
+        <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-update-button" href="\\#"><span class="k-icon k-i-check k-button-icon"/></button>
+        <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel k-button-icon"/></button>
+    </div></li>`;
 
 /**
  * ImageList
@@ -86,7 +91,7 @@ const ImageList = DataBoundWidget.extend({
     options: {
         name: 'ImageList',
         attributes: {
-            class: 'k-textbox',
+            // class: 'k-textbox',
             // Note: pattern validation won't work without type="text"
             // Also it cannot enforce required="required" which is also needed to prevent empty inputs
             type: 'text',
@@ -163,7 +168,7 @@ const ImageList = DataBoundWidget.extend({
                     // We need to trigger a change and a blur otherwise
                     // the change event might not be raised to induce data bindings
                     e.item
-                        .find('input.k-textbox:not(.k-state-disabled)')
+                        .find('input.k-textbox:not(.k-disabled)')
                         .change()
                         .blur();
                 },
@@ -197,7 +202,7 @@ const ImageList = DataBoundWidget.extend({
     },
 
     /**
-     * Compute read template with type and atttibutes
+     * Compute read template with type and attributes
      * @method _getTemplate
      * @private
      */
@@ -308,11 +313,11 @@ const ImageList = DataBoundWidget.extend({
         this.ul.children('li').each((index, li) => {
             // @see https://www.telerik.com/forums/disable-listview-template-edit-delete-buttons
             $(li)
-                .find('a.k-button')
+                .find('button.k-button')
                 .eq(0)
                 .toggleClass('k-edit-button', enabled);
             $(li)
-                .find('a.k-button')
+                .find('button.k-button')
                 .eq(1)
                 .toggleClass('k-delete-button', enabled);
         });
@@ -321,7 +326,7 @@ const ImageList = DataBoundWidget.extend({
             // Add the delegated click event handler for item buttons
             this.ul.on(
                 `${CONSTANTS.CLICK}${NS}`,
-                'a.k-button',
+                'button.k-button',
                 this._onItemButtonClick.bind(this)
             );
         }
@@ -338,7 +343,7 @@ const ImageList = DataBoundWidget.extend({
                     cursor: 'move',
                     // filter: '> .k-listview-content > .k-list-item',
                     filter: '.k-list-item',
-                    handler: '.kj-handle, .kj-handle *',
+                    handler: '.m-handle, .m-handle *',
                     holdToDrag: support.touch,
                     ignore: 'input', // otherwise focus and selections won't work properly in inputs
                     placeholder(element) {
@@ -348,7 +353,7 @@ const ImageList = DataBoundWidget.extend({
                         const hint = element
                             .clone()
                             .removeClass(CONSTANTS.SELECTED_CLASS);
-                        hint.find('a.k-button')
+                        hint.find('button.k-button')
                             .addClass(CONSTANTS.DISABLED_CLASS)
                             .removeClass(
                                 // Remove any handler from buttons

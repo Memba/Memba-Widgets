@@ -21,14 +21,15 @@ import 'kendo.progressbar';
 import 'kendo.tabstrip';
 // import 'kendo.upload'; // <--- does not work with AWS S3
 import 'kendo.window';
-// import './widgets.vectordrawing';
-import '../dialogs/widgets.basedialog.es6';
+import { iconUri } from '../app/app.uris.es6'
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 // import { isAnyArray } from '../common/window.util.es6';
 import { AssetDataSource } from '../data/data.asset.es6';
 import { openOKCancelAlert } from '../dialogs/dialogs.alert.es6';
+import '../dialogs/widgets.basedialog.es6';
+// import './widgets.vectordrawing'; // <--- too complicated
 
 const { FileList } = window;
 const {
@@ -58,19 +59,20 @@ const NS = '.kendoAssetManager';
 const WIDGET_CLASS = 'k-widget m-assetmanager';
 const WINDOW_SELECTOR = '.m-assetmanager-window';
 const TOOLBAR_TMPL =
-    '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
+    '<div class="k-widget k-filebrowser-toolbar k-toolbar k-floatwrap">' +
     '<div class="k-toolbar-wrap">' +
     '<label class="k-label" style="display:none">#=messages.toolbar.collections#<select data-role="dropdownlist"></select></label>' +
-    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' +
-    '<span class="k-icon k-i-plus"></span>#:messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple />' +
+    '<div class="k-widget k-upload"><div class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button">' +
+    '<span class="k-button-icon k-icon k-i-plus"></span><span class="k-button-text">#:messages.toolbar.upload#</span><input type="file" name="file" accept="#=accept#" multiple autocomplete="off" />' +
     '</div></div>' +
-    '<button type="button" class="k-button k-button-icon" title="#:messages.toolbar.create#"><span class="k-icon k-i-file-add"></span></button>' +
-    '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.edit#"><span class="k-icon k-i-track-changes-enable"></span></button>' +
-    '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.delete#"><span class="k-icon k-i-delete"></span></button>' +
+    '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button" title="#:messages.toolbar.create#"><span class="k-i-button-icon k-icon k-i-file-add"></span></button>' +
+    '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-disabled" title="#:messages.toolbar.edit#"><span class="k-i-button-icon k-icon k-i-track-changes-enable"></span></button>' +
+    '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-disabled" title="#:messages.toolbar.delete#"><span class="k-i-button-icon k-icon k-i-delete"></span></button>' +
     '</div>' +
+    // '<span class="k-toolbar-spacer"></span>' +
     '<div class="k-tiles-arrange">' +
     '<div class="k-progressbar"></div>' + // TODO Review progressbar
-    '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-zoom k-search"></a></div>' +
+    '<div class="k-widget k-search-wrap"><span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input data-role="searchbox" placeholder="#=messages.toolbar.search#" class="k-input-inner"><span class="k-input-suffix"><a href="\\#" class="k-icon k-i-zoom k-search"></a></span></span></div>' +
     '</div>' +
     '</div>';
 const ITEM_TMPL =
@@ -192,16 +194,15 @@ const AssetManager = Widget.extend({
         messages: {
             dialogs: {
                 cancel: {
-                    // TODO: Not great to have here as this is part of our application configuration
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                    // imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                    imageUrl: iconUri('close'),
                     text: 'Cancel',
                 },
                 confirm: 'Confirm',
                 newFile: 'New file',
                 ok: {
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                    // imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                    imageUrl: iconUri('ok'),
                     text: 'OK',
                 },
                 warningOverwrite:
@@ -521,7 +522,7 @@ const AssetManager = Widget.extend({
         });
 
         // Search
-        this.searchInput = this.toolbar.find('input.k-input');
+        this.searchInput = this.toolbar.find('input.k-input-inner');
 
         // Other events
         this.toolbar
@@ -532,12 +533,12 @@ const AssetManager = Widget.extend({
             )
             .on(
                 `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
-                'button:not(.k-state-disabled)',
+                'button:not(.k-disabled)',
                 this._onButtonClick.bind(this)
             )
             .on(
                 `${CONSTANTS.CHANGE}${NS}`,
-                'input.k-input',
+                'input.k-input-inner',
                 this._onSearchInputChange.bind(this)
             )
             .on(
@@ -1526,11 +1527,11 @@ const AssetManager = Widget.extend({
             this.toolbar
                 .find('.k-i-track-changes-enable')
                 .parent()
-                .removeClass('k-state-disabled');
+                .removeClass('k-disabled');
             this.toolbar
                 .find('.k-i-delete')
                 .parent()
-                .removeClass('k-state-disabled');
+                .removeClass('k-disabled');
             this.trigger(CONSTANTS.CHANGE);
         }
     },
@@ -1771,7 +1772,7 @@ const AssetManager = Widget.extend({
                 that.dropZone,
                 () => {
                     if (
-                        !that.wrapper.hasClass('k-state-disabled') &&
+                        !that.wrapper.hasClass('k-disabled') &&
                         !that.dropZone.hasClass('k-state-nodrop')
                     ) {
                         that.dropZone.addClass('k-dropzone-hovered');
@@ -1785,7 +1786,7 @@ const AssetManager = Widget.extend({
                 $(document),
                 () => {
                     if (
-                        !that.wrapper.hasClass('k-state-disabled') &&
+                        !that.wrapper.hasClass('k-disabled') &&
                         !that.dropZone.hasClass('k-state-nodrop')
                     ) {
                         that.dropZone.addClass('k-dropzone-active');

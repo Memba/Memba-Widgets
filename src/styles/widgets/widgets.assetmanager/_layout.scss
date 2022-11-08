@@ -6,6 +6,7 @@
             // Tabs on the left
             .k-tabstrip-items {
                 // TODO add background color
+                min-width: 7.5rem;
                 li.k-first {
                     top: 0.5em;
                 }
@@ -20,7 +21,8 @@
                     padding: 0.5em;
 
                     .k-filebrowser-toolbar {
-                        align-items: start;
+                        // align-items: start;
+                        justify-content: space-between;
                         margin: 0;
                         // left
                         .k-toolbar-wrap {
@@ -67,7 +69,6 @@
                     }
 
                     .k-listview.k-tiles {
-                        border-top-width: 1px;
                         height: 400px;
                         margin: 0;
                         overflow: auto;

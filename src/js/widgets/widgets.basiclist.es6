@@ -11,6 +11,8 @@
 // 3. pass that array with a schema model to the listview datasource
 
 // TODO: New items are not added to ds._pristineData. As a result canceling editing removes new items (but not old ones).
+// TODO: options to match solid and radius
+// TODO: aria controls
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved

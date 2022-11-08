@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: options to match solid and radius
+// TODO: aria controls
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';

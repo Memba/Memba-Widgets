@@ -77,7 +77,7 @@ describe('widgets.bitflags', () => {
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-bitflags');
+            expect(wrapper).to.have.class(`m-${ROLE}`);
         });
 
         it('from code with options', () => {
@@ -98,7 +98,7 @@ describe('widgets.bitflags', () => {
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-bitflags');
+            expect(wrapper).to.have.class(`m-${ROLE}`);
         });
 
         it('from code with options and dataSource', () => {
@@ -122,7 +122,7 @@ describe('widgets.bitflags', () => {
                 .that.is.an.instanceof(DataSource);
             const { wrapper } = widget;
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-bitflags');
+            expect(wrapper).to.have.class(`m-${ROLE}`);
         });
 
         it('from markup', () => {
@@ -140,7 +140,7 @@ describe('widgets.bitflags', () => {
                 .that.is.an.instanceof(DataSource);
             const { wrapper } = widget;
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-bitflags');
+            expect(wrapper).to.have.class(`m-${ROLE}`);
         });
 
         it('from markup with attributes', () => {
@@ -161,7 +161,7 @@ describe('widgets.bitflags', () => {
                 .that.is.an.instanceof(DataSource);
             const { wrapper } = widget;
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-bitflags');
+            expect(wrapper).to.have.class(`m-${ROLE}`);
         });
     });
 

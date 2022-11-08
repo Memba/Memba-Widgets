@@ -57,8 +57,8 @@ describe('widgets.buttonbox', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(ButtonBox);
-            expect(widget.wrapper).to.have.class('k-widget');
-            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
+            // expect(widget.wrapper).to.have.class('k-widget');
+            expect(widget.wrapper).to.have.class(`m-${ROLE}`);
         });
 
         it('from code with options', () => {
@@ -66,8 +66,8 @@ describe('widgets.buttonbox', () => {
             const options = {};
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(ButtonBox);
-            expect(widget.wrapper).to.have.class('k-widget');
-            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
+            // expect(widget.wrapper).to.have.class('k-widget');
+            expect(widget.wrapper).to.have.class(`m-${ROLE}`);
         });
 
         it('from markup', () => {
@@ -80,8 +80,8 @@ describe('widgets.buttonbox', () => {
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(ButtonBox);
-            expect(widget.wrapper).to.have.class('k-widget');
-            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
+            // expect(widget.wrapper).to.have.class('k-widget');
+            expect(widget.wrapper).to.have.class(`m-${ROLE}`);
         });
 
         xit('from markup with attributes', () => {

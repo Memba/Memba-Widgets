@@ -17,7 +17,7 @@ const {
     ui: { plugin, DataBoundWidget, MultiSelect },
 } = window.kendo;
 const logger = new Logger('widgets.bitflags');
-const WIDGET_CLASS = 'kj-bitflags';
+const WIDGET_CLASS = 'm-bitflags';
 
 /**
  * BitFlags
@@ -233,7 +233,7 @@ const BitFlags = DataBoundWidget.extend({
         const { dataSource, tagList } = e.sender;
         const data = dataSource.data();
         // Reorder tags
-        const tags = tagList.find('> li').sort((a, b) => {
+        const tags = tagList.children('span.k-chip').sort((a, b) => {
             const aText = $(a).text();
             const aNum = (data.find(
                 (item) => item[dataTextField || CONSTANTS.TEXT] === aText
@@ -244,7 +244,8 @@ const BitFlags = DataBoundWidget.extend({
             ) || {})[dataValueField || CONSTANTS.VALUE];
             return aNum - bNum;
         });
-        tagList.empty().append(tags);
+        tagList.children('span.k-chip').remove();
+        tagList.prepend(tags);
         // Update input value
         this.element.val(this._convertBitArrayAsValue(e.sender.value() || 0));
         this.trigger(CONSTANTS.CHANGE);

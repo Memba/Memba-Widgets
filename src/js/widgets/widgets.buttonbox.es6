@@ -4,6 +4,8 @@
  */
 
 // TODO Consider triggering change with data-value-update="keyup"
+// TODO: options to match solid and radius
+// TODO: aria controls
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
@@ -19,7 +21,7 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.buttonbox');
 const NS = '.kendoButtonBox';
-const WIDGET_CLASS = /* 'k-widget */ 'kj-buttonbox';
+const WIDGET_CLASS = /* 'k-widget */ 'm-buttonbox';
 
 /**
  * ButtonBox
@@ -108,20 +110,17 @@ const ButtonBox = Widget.extend({
         this._inputWrapper = element
             .wrap(`<${CONSTANTS.SPAN}/>`)
             .parent()
-            .addClass('k-picker-wrap')
-            .addClass(CONSTANTS.DEFAULT_CLASS);
-        this.wrapper = this._inputWrapper
-            .wrap(`<${CONSTANTS.SPAN}/>`)
-            .parent()
-            .addClass('k-widget k-datepicker')
+            .addClass('k-input k-input-solid k-input-md k-rounded-md') // TODO: depends on options
             .addClass(WIDGET_CLASS)
             .addClass(element.attr('class'))
             .attr('style', element.attr('style'));
+        this.wrapper = this._inputWrapper;
+
         this._button = $(`<${CONSTANTS.SPAN}/>`)
-            .addClass(`k-icon ${options.iconClass}`)
-            .wrap(`<${CONSTANTS.SPAN}/>`)
+            .addClass(`k-icon ${options.iconClass} k-button-icon`)
+            .wrap(`<${CONSTANTS.BUTTON}/>`)
             .parent()
-            .addClass('k-select')
+            .addClass('k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button')
             .attr({
                 // ariaControls
                 ariaLabel: 'select',
@@ -131,7 +130,7 @@ const ButtonBox = Widget.extend({
             .appendTo(this._inputWrapper);
         element
             .removeAttr('class')
-            .addClass('k-input')
+            .addClass('k-input-inner')
             .removeAttr('style')
             .css({ width: '100%' }); // .width('100%');
     },

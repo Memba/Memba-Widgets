@@ -2,7 +2,7 @@
     .k-dialog {
         .m-dialog {
             .k-notification {
-                margin-bottom: 1em;
+                margin-bottom: 1rem;
 
                 .k-notification-wrap {
                     align-items: flex-end;
@@ -22,12 +22,12 @@
         }
 
         .k-dialog-buttongroup {
+            padding: 0.5rem 1rem;
+
             .k-button {
                 .k-image {
-                    height: 1.5em;
-                    margin-right: 0.25em;
-                    vertical-align: middle;
-                    width: 1.5em;
+                    height: 1.5rem;
+                    width: 1.5rem;
                 }
             }
         }

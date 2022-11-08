@@ -18,6 +18,10 @@ import $ from 'jquery';
 import 'kendo.data';
 import 'kendo.listview';
 import 'kendo.sortable';
+import 'kendo.checkbox';
+import 'kendo.datepicker';
+import 'kendo.numerictextbox';
+import 'kendo.textbox';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -43,18 +47,21 @@ const TOOLBAR_TMPL =
     '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-icon k-i-plus k-button-icon"></span><span class="k-button-text">{0}</span></a></div></div>';
 const ITEM_TMPL = `<li class="k-list-item">
         <div class="m-handle"><span class="k-icon k-i-handler-drag" /></div>
-        <div class="m-input-wrap"><input value="#: value$() #" class="k-textbox k-state-disabled" /></div>
-        <div class="m-buttons">
-            <a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>
-            <a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-delete"/></a>
-        </div>
+        <span class="k-input k-input-solid k-input-md k-rounded-md">
+            <input value="#: value$() #" class="k-input-inner k-disabled" />
+            <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-edit-button" href="\\#"><span class="k-icon k-i-edit k-button-icon"/></button>
+            <button class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-delete-button" href="\\#"><span class="k-icon k-i-delete k-button-icon"/></button>
+        </span>
     </li>`;
 const EDIT_TMPL = `<li class="k-list-item">
         <div class="m-handle"><span class="k-icon k-i-handler-drag"/></div>
-        <div class="m-input-wrap"><input data-${ns}bind="value: value" name="value" validationMessage="{0}"/><span data-${ns}for="value" class="k-invalid-msg"/></div>
+        <div class="m-input-wrap">
+            <input data-${ns}bind="value: value" name="value" validationMessage="{0}"/>
+            <span data-${ns}for="value" class="k-invalid-msg"/>
+        </div>
         <div class="m-buttons">
-            <a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"/></a>
-            <a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"/></a>
+            <a class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-update-button" href="\\#"><span class="k-icon k-i-check k-button-icon"/></a>
+            <a class="k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel k-button-icon"/></a>
         </div>
     </li>`;
 
@@ -72,14 +79,15 @@ const ATTRIBUTES = {
         type: 'number',
     },
     string: {
-        class: 'k-textbox',
-        required: 'required',
+        required: true,
         style: 'width:100%;',
         type: 'text',
     },
 };
+ATTRIBUTES.boolean[attr('role')] = 'checkbox';
 ATTRIBUTES.date[attr('role')] = 'datepicker';
 ATTRIBUTES.number[attr('role')] = 'numerictextbox';
+ATTRIBUTES.string[attr('role')] = 'textbox';
 
 /**
  * BasicList
@@ -182,7 +190,7 @@ const BasicList = Widget.extend({
                     // the change event might not be raised to induce data bindings
                     e.item
                         .find(
-                            'input:not(.k-state-disabled, .k-formatted-value)'
+                            'input:not(.k-disabled, .k-formatted-value)'
                         )
                         .change()
                         .blur();
@@ -362,11 +370,11 @@ const BasicList = Widget.extend({
         this.ul.children('li').each((index, li) => {
             // @see https://www.telerik.com/forums/disable-listview-template-edit-delete-buttons
             $(li)
-                .find('a.k-button')
+                .find('button.k-button')
                 .eq(0)
                 .toggleClass('k-edit-button', enabled);
             $(li)
-                .find('a.k-button')
+                .find('button.k-button')
                 .eq(1)
                 .toggleClass('k-delete-button', enabled);
         });
@@ -375,7 +383,7 @@ const BasicList = Widget.extend({
             // Add the delegated click event handler for item buttons
             this.ul.on(
                 `${CONSTANTS.CLICK}${NS}`,
-                'a.k-button',
+                'button.k-button',
                 this._onItemButtonClick.bind(this)
             );
         }
@@ -403,7 +411,7 @@ const BasicList = Widget.extend({
                         const hint = element
                             .clone()
                             .removeClass(CONSTANTS.SELECTED_CLASS);
-                        hint.find('a.k-button')
+                        hint.find('button.k-button')
                             .addClass(CONSTANTS.DISABLED_CLASS)
                             .removeClass(
                                 // Remove any handler from buttons

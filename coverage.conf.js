@@ -79,7 +79,7 @@ module.exports = (config) => {
             },
             // Kendo UI
             {
-                pattern: 'src/js/vendor/kendo/kendo.all.js',
+                pattern: 'src/js/vendor/kendo/kendo.all.min.js',
                 served: true,
                 included: true,
             },

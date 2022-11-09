@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.data',[ "kendo.core", "kendo.data.odata", "kendo.data.xml" ], f);
-})(function() {
+import "./kendo.core.js";
+import "./kendo.data.odata.js";
+import "./kendo.data.xml.js";
 
 var __meta__ = {
     id: "data",
@@ -971,7 +971,13 @@ var __meta__ = {
 
             proto.defaults[originalName !== name ? originalName : name] = value;
 
-            field.parse = field.parse || parsers[type];
+            if ($.isPlainObject(field)) {
+                field.parse = field.parse || parsers[type];
+            } else {
+                field = {
+                    parse: parsers[type]
+                };
+            }
         }
 
         if (functionFields.length > 0) {
@@ -2783,6 +2789,12 @@ var __meta__ = {
             return this._storage.getItem() || [];
         },
 
+        _isGrouped: function() {
+            var group = this.group() || [];
+
+            return group.length;
+        },
+
         _isServerGrouped: function() {
             var group = this.group() || [];
 
@@ -4128,7 +4140,7 @@ var __meta__ = {
                 });
 
                 if (!modelIsInView) {
-                    result.data.splice(model.index, 0, model);
+                    result.data.splice(model.index, 0, that._isGrouped() ? that._wrapInEmptyGroup(model) : model);
                     result.total++;
                 }
             }
@@ -6672,8 +6684,4 @@ var __meta__ = {
         BatchBuffer: BatchBuffer
     });
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

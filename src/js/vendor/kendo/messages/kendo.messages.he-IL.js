@@ -1,20 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
+
 /* Validator */
 if (kendo.ui.Validator) {
 kendo.ui.Validator.prototype.options.messages =
@@ -79,6 +72,20 @@ kendo.ui.NumericTextBox.prototype.options =
 $.extend(true, kendo.ui.NumericTextBox.prototype.options,{
   "upArrowText": "למעלה",
   "downArrowText": "למטה"
+});
+}
+
+/* MediaPlayer messages */
+
+if (kendo.ui.MediaPlayer) {
+kendo.ui.MediaPlayer.prototype.options.messages =
+$.extend(true, kendo.ui.MediaPlayer.prototype.options.messages,{
+  "pause": "עצירה",
+  "play": "נגן",
+  "mute": "השתקה",
+  "unmute": "בטל השתקה",
+  "quality": "איכות",
+  "fullscreen": "מסך מלא",
 });
 }
 
@@ -313,19 +320,22 @@ kendo.ui.Grid.prototype.options.messages =
 $.extend(true, kendo.ui.Grid.prototype.options.messages,{
   "commands": {
     "cancel": "בטל",
+    "pdf": "יצוא ל",
     "canceledit": "בטל עריכה",
     "create": "צור חדש",
     "destroy": "מחק",
     "edit": "עריכה",
     "save": "שמור",
     "select": "בחר",
-    "update": "עדכן"
+    "update": "עדכן",
+    "excel": "יצא לאקסל"
   },
   "editable": {
     "cancelDelete": "בטל מחיקה",
     "confirmation": "האם הנך בטוח שברונך לבצע זאת?",
     "confirmDelete": "אשר מחיקה"
-  }
+  },
+  "noRecords": "אין מידע",
 });
 }
 
@@ -334,7 +344,7 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
-  "allPages": "All",
+  "allPages": "הכל",
   "page": "עמוד",
   "display": "{0} - {1} מתוך {2} פריטים",
   "of": "מתוך {0}",
@@ -346,6 +356,58 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
   "next": "לעמוד הבא",
   "previous": "לעמוד הקודם",
   "morePages": "עמודים נוספים"
+});
+}
+
+/* PivotFieldMenu messages */
+
+if (kendo.ui.PivotFieldMenu) {
+kendo.ui.PivotFieldMenu.prototype.options.messages =
+$.extend(true, kendo.ui.PivotFieldMenu.prototype.options.messages,{
+  "info": "תצוגת פריטים עם ערך זה:",
+  "filterFields": "סינון שדות",
+  "filter": "סנן",
+  "include": "כלול שדות...",
+  "title": "שדות להוספה",
+  "clear": "נקה",
+  "ok": "בסדר",
+  "cancel": "בטל",
+  "operators": {
+    "contains": "Contains",
+    "doesnotcontain": "Does not contain",
+    "startswith": "Starts with",
+    "endswith": "Ends with",
+    "eq": "Is equal to",
+    "neq": "Is not equal to"
+  }
+});
+}
+
+/* PivotGrid messages */
+
+if (kendo.ui.PivotGrid) {
+  kendo.ui.PivotGrid.prototype.options.messages =
+  $.extend(true, kendo.ui.PivotGrid.prototype.options.messages,{
+    "measureFields": "שחרר שדות נתונים כאן",
+    "columnFields": "שחרר שדות עמודה כאן",
+    "rowFields": "שחרר שדות שורה כאן"
+  });
+  }
+
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+  "noRows": "אין מידע",
+  "commands": {
+      "edit": "ערוך",
+      "update": "עדכן",
+      "create": "הוסף רשומה",
+      "destroy": "מחק",
+      "excel": "יצא לאקסל",
+      "pdf": "יצוא ל PDF"
+  }
 });
 }
 
@@ -410,6 +472,7 @@ $.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
   "checkAll": "בחר הכל",
   "clear": "נקה",
   "filter": "סנן",
+  "selectedItemsFormat": "{0} נבחרו",
   "search": "חפש"
 });
 }
@@ -438,8 +501,8 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
     "indent": "Indent",
     "insertHtml": "הכנסת HTML",
     "insertImage": "הכנסת תמונה",
-    "insertOrderedList": "Insert ordered list",
-  "insertUnorderedList": "Insert unordered list",
+    "insertOrderedList": "הוסף רשימה מסודרת",
+  "insertUnorderedList": "הוסף רשימה לא מסודרת",
   "italic": "נטוי",
   "justifyCenter": "ממורכז",
   "justifyFull": "מיושר",
@@ -452,6 +515,8 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "superscript": "ציון עילי",
   "underline": "קו תחתון",
   "unlink": "הסרת קישור",
+  "print": "הדפסה",
+  "cleanFormatting": "ללא עיצוב",
   "deleteFile": 'האם בוודאות ברצונך למחוק "{0}"?',
   "directoryNotFound": "תיקייה בשם זה כבר קיימת.",
   "emptyFolder": "תיקייה ריקה",
@@ -466,12 +531,12 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "dialogButtonSeparator": "או",
   "dialogCancel": "ביטול",
   "dialogInsert": "הכנסה",
-  "imageAltText": "Alternate text",
+  "imageAltText": "מלל חלופי",
   "imageWebAddress": "כתובת אינטרנט",
-  "linkOpenInNewWindow": "Open link in new window",
-  "linkText": "Text",
+  "linkOpenInNewWindow": "פתח קישור בעמוד חדש",
+  "linkText": "טקסט",
   "linkToolTip": "ToolTip",
-  "linkWebAddress": "Web address",
+  "linkWebAddress": "כתובת URL",
   "search": "חפש",
   "createTable": "צור טבלה",
   "dropFilesHere": "גרור לכאן קבצים",
@@ -525,14 +590,14 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "description": "תיאור",
     "editorTitle": "אירוע",
     "end": "סיום",
-    "endTimezone": "After timezone",
+    "endTimezone": "אזור זמן",
     "repeat": "ארוע חוזר",
-    "separateTimezones": "Use different time zones start and end",
+    "separateTimezones": "השתמש באזורי זמן להתחלה וסיום נפרדים",
     "start": "התחלה",
     "startTimezone": "זמן מקומי",
     "timezone": " ",
-    "timezoneEditorButton": "Classes zone",
-    "timezoneEditorTitle": "Classes zone",
+    "timezoneEditorButton": "איזור זמן",
+    "timezoneEditorTitle": "אזורי זמן",
     "title": "כותרת",
     "noTimezone": "No hours zone"
   },
@@ -601,4 +666,3 @@ $.extend(true, kendo.ui.Prompt.prototype.options.localization, {
 }
 
 })(window.kendo.jQuery);
-}));

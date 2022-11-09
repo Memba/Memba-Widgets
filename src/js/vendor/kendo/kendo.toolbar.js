@@ -1,14 +1,17 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.toolbar',[ "kendo.core", "kendo.userevents", "kendo.popup", "kendo.html.button", "kendo.splitbutton", "kendo.dropdownbutton" ], f);
-})(function() {
+import "./kendo.core.js";
+import "./kendo.userevents.js";
+import "./kendo.popup.js";
+import "./kendo.html.button.js";
+import "./kendo.splitbutton.js";
+import "./kendo.dropdownbutton.js";
 
 var __meta__ = {
     id: "toolbar",
@@ -1754,7 +1757,9 @@ var __meta__ = {
                     item, handler, eventData, urlTarget,
                     templateFocusable;
 
-                e.preventDefault();
+                if (target.closest(DOT + TEMPLATE_ITEM).length === 0) {
+                    e.preventDefault();
+                }
 
                 if (target.hasClass(MENU_BUTTON) || target.hasClass(OVERFLOW_ANCHOR)) {
                     that._resetTabIndex(target);
@@ -1916,18 +1921,24 @@ var __meta__ = {
                     this._resetTabIndex(last);
                     last.trigger(FOCUS);
                     e.preventDefault();
-                } else if (!this.options.navigateOnTab && keyCode === keys.RIGHT && !target.is(INPUT + ":not([type=file])" + COMMA + SELECT + COMMA + DOT + DROPDOWNLIST + COMMA + DOT + COLORPICKER) && this._getNextElement(e.target, 1 * direction)) {
-                    next = $(this._getNextElement(e.target, 1 * direction));
-                    this._resetTabIndex(next);
-                    next.trigger(FOCUS);
+                } else if (!this.options.navigateOnTab &&
+                    keyCode === keys.RIGHT &&
+                    !target.is(INPUT + ":not([type=file])" + COMMA + SELECT + COMMA + DOT + DROPDOWNLIST + COMMA + DOT + COLORPICKER) &&
+                    this._getNextElement(e.target, 1 * direction)) {
+                        next = $(this._getNextElement(e.target, 1 * direction));
+                        this._resetTabIndex(next);
+                        next.trigger(FOCUS);
 
-                    e.preventDefault();
-                } else if (!this.options.navigateOnTab && keyCode === keys.LEFT && !target.is(INPUT + ":not([type=file])" + COMMA + SELECT + COMMA + EMPTY + DOT + DROPDOWNLIST + COMMA + DOT + COLORPICKER) && this._getNextElement(e.target, -1 * direction)) {
-                    next = $(this._getNextElement(e.target, -1 * direction));
-                    this._resetTabIndex(next);
-                    next.trigger(FOCUS);
+                        e.preventDefault();
+                } else if (!this.options.navigateOnTab &&
+                    keyCode === keys.LEFT &&
+                    !target.is(INPUT + ":not([type=file])" + COMMA + SELECT + COMMA + EMPTY + DOT + DROPDOWNLIST + COMMA + DOT + COLORPICKER) &&
+                    this._getNextElement(e.target, -1 * direction)) {
+                        next = $(this._getNextElement(e.target, -1 * direction));
+                        this._resetTabIndex(next);
+                        next.trigger(FOCUS);
 
-                    e.preventDefault();
+                        e.preventDefault();
                 }
             },
 
@@ -1955,7 +1966,7 @@ var __meta__ = {
                         return false;
                     } else if (current.hasClass(OVERFLOW_ANCHOR) && current.css("visibility") === HIDDEN) {
                         return false;
-                    } else if (current.hasClass(TEMPLATE_ITEM) && current.find(DOT + "k-picker" + COMMA + DOT + "k-input").length === 0) {
+                    } else if (current.hasClass(TEMPLATE_ITEM) && current.find("input:visible" + COMMA + DOT + "k-picker" + COMMA + DOT + "k-input").length === 0) {
                         return false;
                     } else if (!current.hasClass(TEMPLATE_ITEM) && current.closest(DOT + TEMPLATE_ITEM).length > 0) {
                         return false;
@@ -2124,8 +2135,4 @@ var __meta__ = {
 
     kendo.ui.plugin(ToolBar);
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

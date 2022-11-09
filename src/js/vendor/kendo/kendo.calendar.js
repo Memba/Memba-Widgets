@@ -1,14 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.calendar',[ "kendo.core", "kendo.selectable" ], f);
-})(function() {
+import "./kendo.core.js";
+import "./kendo.selectable.js";
 
 var __meta__ = {
     id: "calendar",
@@ -1484,7 +1483,7 @@ var __meta__ = {
                     cells: 42,
                     perRow: 7,
                     html: html += '</tr></thead><tbody class="k-calendar-tbody"><tr role="row" class="k-calendar-tr">',
-                    start: start,
+                    start: createDate(start.getFullYear(), start.getMonth(), start.getDate()),
                     isWeekColumnVisible: isWeekColumnVisible,
                     weekNumber: options.weekNumber,
                     min: createDate(min.getFullYear(), min.getMonth(), min.getDate()),
@@ -2122,8 +2121,4 @@ var __meta__ = {
 
     kendo.calendar = calendar;
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

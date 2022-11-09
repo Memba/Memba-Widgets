@@ -1,14 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.mobile.application',[ "kendo.mobile.pane", "kendo.router" ], f);
-})(function() {
+import "./kendo.mobile.pane.js";
+import "./kendo.router.js";
 
 var __meta__ = {
     id: "mobile.application",
@@ -506,8 +505,4 @@ var __meta__ = {
     kendo.mobile.Application = Application;
     kendo.ui.plugin(Application, kendo.mobile, 'Mobile');
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

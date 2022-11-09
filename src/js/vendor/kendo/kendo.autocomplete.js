@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.autocomplete',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist" ], f);
-})(function() {
+import "./kendo.list.js";
+import "./kendo.mobile.scroller.js";
+import "./kendo.virtuallist.js";
 
 var __meta__ = {
     id: "autocomplete",
@@ -131,8 +131,6 @@ var __meta__ = {
 
             that._old = that._accessor();
 
-            that._aria();
-
             that._placeholder();
 
             that._initList();
@@ -150,6 +148,12 @@ var __meta__ = {
             kendo.notify(that);
             that._toggleCloseVisibility();
             that._applyCssClasses();
+
+            if (options.label) {
+                that._label();
+            }
+
+            that._aria();
         },
 
         options: {
@@ -177,7 +181,8 @@ var __meta__ = {
             popup: null,
             size: "medium",
             fillMode: "solid",
-            rounded: "medium"
+            rounded: "medium",
+            label: null
         },
 
         _dataSource: function() {
@@ -402,6 +407,7 @@ var __meta__ = {
                 return this._accessor();
             }
             this._toggleCloseVisibility();
+            this._refreshFloatingLabel();
         },
 
         _click: function(e) {
@@ -846,8 +852,4 @@ var __meta__ = {
         values: kendo.cssProperties.roundedValues.concat([['full', 'full']])
     }]);
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

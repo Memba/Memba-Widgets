@@ -1,15 +1,11 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.core',['jquery'], f);
-})(function() {
-
 var __meta__ = {
     id: "core",
     name: "Core",
@@ -22,7 +18,7 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
-    version: '',
+    version: '2022.3.1109'.replace(/^\s+|\s+$/g, ''),
     licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
@@ -131,7 +127,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2022.3.913".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.3.1109".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -1944,6 +1940,10 @@ function pad(number, digits, end) {
     }
 
     function isScrollable(element) {
+        if (element.dataset[kendo.ns + "scrollable"] === "false") {
+            return false;
+        }
+
         if (element && element.className && typeof(element.className) === "string" && element.className.indexOf("k-auto-scrollable") > -1) {
             return true;
         }
@@ -5227,8 +5227,4 @@ function pad(number, digits, end) {
     }
 
 })(jQuery, window);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

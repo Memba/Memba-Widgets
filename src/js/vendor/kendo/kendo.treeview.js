@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.treeview',[ "kendo.data", "kendo.treeview.draganddrop", "kendo.html.input" ], f);
-})(function() {
+import "./kendo.data.js";
+import "./kendo.treeview.draganddrop.js";
+import "./kendo.html.input.js";
 
 var __meta__ = {
     id: "treeview",
@@ -62,10 +62,12 @@ var __meta__ = {
         VISIBLE = ":visible",
         NODE = ".k-item",
         STRING = "string",
-        ARIACHECKED = "aria-checked",
-        ARIASELECTED = "aria-selected",
-        ARIADISABLED = "aria-disabled",
-        ARIAEXPANDED = "aria-expanded",
+        ARIA_CHECKED = "aria-checked",
+        ARIA_SELECTED = "aria-selected",
+        ARIA_DISABLED = "aria-disabled",
+        ARIA_EXPANDED = "aria-expanded",
+        ARIA_ACTIVEDESCENDANT = "aria-activedescendant",
+        ARIA_BUSY = "aria-busy",
         DISABLED = "k-disabled",
         TreeView,
         subGroup, nodeContents, nodeIcon,
@@ -173,6 +175,7 @@ var __meta__ = {
         } else if (!group.length || !group.children().length) {
             toggleButton.parent().remove();
             group.remove();
+            node.removeAttr(ARIA_EXPANDED);
         }
 
         if (checkbox.length) {
@@ -330,15 +333,21 @@ var __meta__ = {
                 item = items.eq(i);
                 item.attr("role", "treeitem")
                     .attr(uidAttr, uid)
-                    .attr(ARIASELECTED, item.hasClass("k-selected"));
+                    .attr(ARIA_SELECTED, item.hasClass("k-selected"));
 
                 dataItem.expanded = item.attr(expandedAttr) === "true";
+
+                if (dataItem.hasChildren) {
+                    item.attr(ARIA_EXPANDED, dataItem.expanded);
+                }
 
                 if (checkboxesEnabled) {
                     itemCheckbox = checkboxes(item);
                     dataItem.checked = itemCheckbox.prop(CHECKED);
                     itemCheckbox.attr("id", "_" + uid);
                     itemCheckbox.next(".k-checkbox-label").attr("for", "_" + uid);
+
+                    item.attr(ARIA_CHECKED, item.checked);
                 }
 
                 this._syncHtmlAndDataSource(item.children("ul"), dataItem.children);
@@ -400,6 +409,7 @@ var __meta__ = {
                         return dropHint.prevAll(".k-in").length > 0 ? "after" : "before";
                     },
                     dragstart: function(source) {
+                        widget.wrapper.attr(kendo.attr("scrollable"), false);
                         return widget.trigger(DRAGSTART, { sourceNode: source[0] });
                     },
                     drag: function(options) {
@@ -438,6 +448,8 @@ var __meta__ = {
                         var source = options.source;
                         var destination = options.destination;
                         var position = options.position;
+
+                        widget.wrapper.removeAttr(kendo.attr("scrollable"));
 
                         function triggerDragEnd(source) {
                             if (widget.options.checkboxes && widget.options.checkboxes.checkChildren) {
@@ -657,7 +669,9 @@ var __meta__ = {
                         "# } #" +
                         "aria-selected='#= item.selected ? \"true\" : \"false\" #' " +
                         "#=item.enabled === false ? \"aria-disabled='true'\" : ''#" +
-                        "aria-expanded='#= item.expanded ? \"true\" : \"false\" #' " +
+                        "# if (item.hasChildren) { #" +
+                            "aria-expanded='#= item.expanded ? \"true\" : \"false\" #' " +
+                        "# } #" +
                         "data-expanded='#= item.expanded ? \"true\" : \"false\" #' " +
                     ">" +
                         "#= r.itemElement(data) #" +
@@ -955,7 +969,7 @@ var __meta__ = {
                 all = !siblings[0].indeterminate;
             }
 
-            node.attr(ARIACHECKED, all ? siblings[0].checked : "mixed");
+            node.attr(ARIA_CHECKED, all ? siblings[0].checked : "mixed");
 
             return checkboxes(node)
                 .data(INDETERMINATE, !all)
@@ -1041,7 +1055,7 @@ var __meta__ = {
 
             if (dataItem.checked != isChecked) {
                 dataItem.set(CHECKED, isChecked);
-                node.attr(ARIACHECKED, isChecked);
+                node.attr(ARIA_CHECKED, isChecked);
                 this._trigger(CHECK, node);
             }
 
@@ -1584,6 +1598,8 @@ var __meta__ = {
                 group = $(that._renderGroup({
                     group: groupData
                 })).appendTo(parentNode);
+
+                parentNode.attr(ARIA_EXPANDED, true);
             }
 
             insertCallback(node, group);
@@ -1617,13 +1633,13 @@ var __meta__ = {
 
         _updateNodes: function(items, field) {
             var that = this;
-            var i, node, nodeWrapper, item, isChecked, isCollapsed;
+            var i, node, nodeWrapper, item, isChecked, isCollapsed, kin;
             var context = { treeview: that.options, item: item };
             var render = field != "expanded" && field != "checked";
 
             function setCheckedState(root, state) {
                 if (root.is(".k-group")) {
-                    root.find(".k-item:not([aria-disabled])").attr(ARIACHECKED, state);
+                    root.find(".k-item:not([aria-disabled])").attr(ARIA_CHECKED, state);
                 }
 
                 root.find(".k-checkbox-wrapper input[type=checkbox]:not([disabled])")
@@ -1635,9 +1651,10 @@ var __meta__ = {
             if (field == "selected") {
                 item = items[0];
 
-                node = that.findByUid(item.uid).find(".k-in").first();
+                node = that.findByUid(item.uid);
+                kin = node.find(".k-in").first();
 
-                node.removeClass("k-hover")
+                kin.removeClass("k-hover")
                     .toggleClass("k-selected", item[field])
                     .end();
 
@@ -1645,7 +1662,7 @@ var __meta__ = {
                     that.current(node);
                 }
 
-                node.attr(ARIASELECTED, !!item[field]);
+                node.attr(ARIA_SELECTED, !!item[field]);
             } else {
                 var elements = $.map(items, function(item) {
                     return that.findByUid(item.uid).children("div");
@@ -1673,7 +1690,7 @@ var __meta__ = {
 
                         setCheckedState(nodeWrapper, isChecked);
 
-                        node.attr(ARIACHECKED, isChecked);
+                        node.attr(ARIA_CHECKED, isChecked);
 
                         if (that.options.checkboxes.checkChildren) {
                             setCheckedState(node.children(".k-group"), isChecked);
@@ -1689,7 +1706,7 @@ var __meta__ = {
 
                         isCollapsed = !nodeContents(node).is(VISIBLE);
 
-                        node.removeAttr(ARIADISABLED);
+                        node.removeAttr(ARIA_DISABLED);
 
                         if (!item[field]) {
                             if (item.selected) {
@@ -1701,8 +1718,8 @@ var __meta__ = {
                             }
 
                             isCollapsed = true;
-                            node.attr(ARIASELECTED, false)
-                                .attr(ARIADISABLED, true);
+                            node.attr(ARIA_SELECTED, false)
+                                .attr(ARIA_DISABLED, true);
                         }
 
                         that._updateNodeClasses(node, {}, { enabled: item[field], expanded: !isCollapsed });
@@ -1879,7 +1896,7 @@ var __meta__ = {
                 this._refreshChildren(parentNode, items, e.index);
             } else {
                 this._refreshRoot(items);
-                this.element.attr("aria-busy", false);
+                this.element.attr(ARIA_BUSY, false);
             }
 
             if (action != "remove") {
@@ -1892,29 +1909,11 @@ var __meta__ = {
 
             this.wrapper.find(">ul").attr("role", "none");
 
-            this._ariaItems(this.wrapper.find(">.k-group>.k-item"), 1);
 
             this.trigger(DATABOUND, { node: node ? parentNode : undefined });
             if (this.dataSource.filter() && this.options.checkboxes.checkChildren) {
                 this.updateIndeterminate(parentNode);
             }
-        },
-
-        _ariaItems: function(items, level) {
-            var that = this;
-
-            items.attr({
-                "aria-setsize": items.length,
-                "aria-level": level
-            });
-
-            items.each(function(i, item) {
-                var nested = $(item).find(">.k-group>.k-item");
-
-                if (nested.length > 0) {
-                    that._ariaItems(nested, level + 1);
-                }
-            });
         },
 
         _error: function(e) {
@@ -1997,9 +1996,9 @@ var __meta__ = {
                 prev.removeAttr("id");
             }
 
-            this.wrapper.removeAttr("aria-activedescendant");
+            this.wrapper.removeAttr(ARIA_ACTIVEDESCENDANT);
             current.attr("id", id);
-            this.wrapper.attr("aria-activedescendant", id);
+            this.wrapper.attr(ARIA_ACTIVEDESCENDANT, id);
         },
 
         select: function(node) {
@@ -2127,10 +2126,10 @@ var __meta__ = {
             if (force || !this._trigger(direction, node)) {
                 if (expanded) {
                     node.attr(expandedAttr, "true");
-                    node.attr(ARIAEXPANDED, "true");
+                    node.attr(ARIA_EXPANDED, "true");
                 } else {
                     node.removeAttr(expandedAttr);
-                    node.attr(ARIAEXPANDED, "false");
+                    node.attr(ARIA_EXPANDED, "false");
                 }
 
                 if (dataItem) {
@@ -2154,10 +2153,10 @@ var __meta__ = {
                     element.empty();
                 }
 
-                element.attr("aria-busy", showProgress);
+                element.attr(ARIA_BUSY, showProgress);
             } else {
                 nodeIcon(node).toggleClass("k-i-loading", showProgress).removeClass("k-i-reload");
-                node.attr("aria-busy", showProgress);
+                node.attr(ARIA_BUSY, showProgress);
             }
         },
 
@@ -2296,8 +2295,8 @@ var __meta__ = {
 
             node = $(node, that.element);
 
-            if (node.attr("id") === that.element.attr("aria-activedescendant")) {
-                that.element.removeAttr("aria-activedescendant");
+            if (node.attr("id") === that.element.attr(ARIA_ACTIVEDESCENDANT)) {
+                that.element.removeAttr(ARIA_ACTIVEDESCENDANT);
             }
 
             this.angular("cleanup", function() {
@@ -2380,7 +2379,7 @@ var __meta__ = {
                     if (node.loaded()) {
                         node.set("expanded", true);
                         nodeElement.attr(expandedAttr, true);
-                        nodeElement.attr(ARIAEXPANDED, true);
+                        nodeElement.attr(ARIA_EXPANDED, true);
                         result.resolve();
                     } else {
                         // manually show progress of the node
@@ -2391,7 +2390,7 @@ var __meta__ = {
                         node.load().then(function() {
                             node.set("expanded", true);
                             nodeElement.attr(expandedAttr, true);
-                            nodeElement.attr(ARIAEXPANDED, true);
+                            nodeElement.attr(ARIA_EXPANDED, true);
                             result.resolve();
                         });
                     }
@@ -2471,8 +2470,4 @@ var __meta__ = {
 
     ui.plugin(TreeView);
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,29 +1,25 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.treelist',[
-        "kendo.dom",
-        "kendo.data",
-        "kendo.columnsorter",
-        "kendo.editable",
-        "kendo.window",
-        "kendo.filtermenu",
-        "kendo.columnmenu",
-        "kendo.selectable",
-        "kendo.resizable",
-        "kendo.treeview.draganddrop",
-        "kendo.pager",
-        'kendo.filtercell',
-        'kendo.textbox',
-        'kendo.form'
-    ], f);
-})(function() {
+import "./kendo.dom.js";
+import "./kendo.data.js";
+import "./kendo.columnsorter.js";
+import "./kendo.editable.js";
+import "./kendo.window.js";
+import "./kendo.filtermenu.js";
+import "./kendo.columnmenu.js";
+import "./kendo.selectable.js";
+import "./kendo.resizable.js";
+import "./kendo.treeview.draganddrop.js";
+import "./kendo.pager.js";
+import "./kendo.filtercell.js";
+import "./kendo.textbox.js";
+import "./kendo.form.js";
 
 var __meta__ = {
     id: "treelist",
@@ -128,7 +124,6 @@ var __meta__ = {
     var PAGE_CHANGE = "pageChange";
     var SAVE = "save";
     var SAVE_CHANGES = "saveChanges";
-    var SORT = "sort";
     var EXPAND = "expand";
     var COLLAPSE = "collapse";
     var CELL_CLOSE = "cellClose";
@@ -150,6 +145,9 @@ var __meta__ = {
     var COLUMNMENUOPEN = "columnMenuOpen";
     var COLUMNLOCK = "columnLock";
     var COLUMNUNLOCK = "columnUnlock";
+    var FILTER = "filter";
+    var NAVIGATE = "navigate";
+    var SORT = "sort";
     var PARENTIDFIELD = "parentId";
     var DRAGSTART = "dragstart";
     var DRAG = "drag";
@@ -2970,7 +2968,10 @@ var __meta__ = {
             COLUMNMENUINIT,
             COLUMNMENUOPEN,
             COLUMNLOCK,
-            COLUMNUNLOCK
+            COLUMNUNLOCK,
+            FILTER,
+            NAVIGATE,
+            SORT
         ],
 
         getOptions: function() {
@@ -3259,7 +3260,7 @@ var __meta__ = {
             }
 
             if (isCurrentInHeader) {
-                this.current(this.thead.find("th").eq(currentIndex));
+                this._setCurrent(this.thead.find("th").eq(currentIndex));
             } else {
                 rowIndex = 0;
                 currentIndex = 0;
@@ -3274,7 +3275,7 @@ var __meta__ = {
                 td = row.find(">td:visible")
                     .eq(currentIndex);
 
-                this.current(td);
+                this._setCurrent(td);
             }
 
             if (this._current) {
@@ -3283,30 +3284,42 @@ var __meta__ = {
         },
 
         current: function(newCurrent) {
-            var current = this._current;
-            newCurrent = $(newCurrent);
-
-            if (newCurrent.length && (!current || current[0] !== newCurrent[0])) {
-                this._updateCurrentAttr(current, newCurrent);
-
-                this._scrollCurrent();
-            }
-
-            if (newCurrent && newCurrent.length) {
-                this._lastCellIndex = newCurrent.parent().children(DATA_CELL).index(newCurrent);
-            }
-
-            return this._current;
+            return this._setCurrent(newCurrent, true);
         },
 
-        _setCurrent: function(newCurrent) {
+        _setCurrent: function(newCurrent, preventTrigger, isIncellEditable) {
             var that = this;
+            var current = that._current;
             newCurrent = $(newCurrent);
 
-            if (newCurrent[0]) {
-                that._current = newCurrent;
-                that._updateCurrentAttr(that._current, newCurrent);
-                that._scrollCurrent();
+            if (isIncellEditable) {
+                if (newCurrent[0]) {
+                    that._current = newCurrent;
+                    that._updateCurrentAttr(that._current, newCurrent);
+                    that._scrollCurrent();
+
+                    if (!preventTrigger) {
+                        this.trigger(NAVIGATE, {
+                            element: newCurrent
+                        });
+                    }
+                }
+            } else {
+                if (newCurrent.length && (!current || current[0] !== newCurrent[0])) {
+                    this._updateCurrentAttr(current, newCurrent);
+
+                    this._scrollCurrent();
+
+                    if (!preventTrigger) {
+                        this.trigger(NAVIGATE, {
+                            element: newCurrent
+                        });
+                    }
+                }
+
+                if (newCurrent && newCurrent.length) {
+                    this._lastCellIndex = newCurrent.parent().children(DATA_CELL).index(newCurrent);
+                }
             }
 
             return that._current;
@@ -3668,7 +3681,7 @@ var __meta__ = {
             }
 
             if (prev && prev.length) {
-                this.current(prev);
+                this._setCurrent(prev);
                 return true;
             }
         },
@@ -3690,7 +3703,7 @@ var __meta__ = {
             }
 
             if (next && next.length) {
-                this.current(next);
+                this._setCurrent(next);
                 return true;
             }
         },
@@ -3751,7 +3764,7 @@ var __meta__ = {
                 // refresh the current element as the DOM element reference can be changed after render()
                 // moving this to closeCell() causes flickering when clicking on a cell and then on another
                 // as 'k-focused' is shown for the closing cell and then added to the newly edited cell
-                that._setCurrent(tbody.children().eq(rowIndex).children().eq(cellIndex));
+                that._setCurrent(tbody.children().eq(rowIndex).children().eq(cellIndex), false, true);
             } else {
                 currentIndex = $(current).parent().index();
                 if (active) {
@@ -3759,7 +3772,7 @@ var __meta__ = {
                 }
                 this.cancelRow();
                 if (currentIndex >= 0) {
-                    this.current(this.items().eq(currentIndex).children(NAVCELL).first());
+                    this._setCurrent(this.items().eq(currentIndex).children(NAVCELL).first());
                 }
             }
 
@@ -3909,7 +3922,7 @@ var __meta__ = {
                         that._preventPageSizeRestore = false;
 
                         if ($(that.table).add(that.lockedTable).find(DOT + classNames.editCell).length === 0) {
-                            that.current(table.find("tbody").children().eq(currentFocusedCellRowIndex).children().eq(currentFocusedCellIndex));
+                            that._setCurrent(table.find("tbody").children().eq(currentFocusedCellRowIndex).children().eq(currentFocusedCellIndex));
                         }
                     } else {
                         that.saveRow();
@@ -3917,9 +3930,9 @@ var __meta__ = {
                     }
                 } else {
                     if (incellEditing) {
-                        that.current(editContainer);
+                        that._setCurrent(editContainer);
                     } else {
-                        that.current(editContainer.children().filter(NAVCELL).first());
+                        that._setCurrent(editContainer.children().filter(NAVCELL).first());
                     }
 
                     focusable = editContainer.find(":kendoFocusable").first()[0];
@@ -3934,7 +3947,7 @@ var __meta__ = {
             next = $(next).length && table.find(next).length === 0 ? table.find("tbody").children().eq(nextFocusableCellRowIndex).children().eq(nextFocusableCellIndex) : next;
 
             if (next) {
-                that.current(next);
+                that._setCurrent(next);
             }
 
             focusTable(table, true);
@@ -3954,11 +3967,11 @@ var __meta__ = {
                     if (editedCell) {
                         that._current = $(editedCell);
                     } else {
-                        that.current(that._findCurrentCell());
+                        that._setCurrent(that._findCurrentCell());
                     }
                 } else {
                     that.editRow(that.current().parent());
-                    that.current(that.editor.wrapper.children().eq(currentIndex));
+                    that._setCurrent(that.editor.wrapper.children().eq(currentIndex));
                     that.current().removeClass("k-focus");
                 }
             } else {
@@ -3986,7 +3999,7 @@ var __meta__ = {
                 focusTable(next.closest("table"), true);
             }
 
-            this.current(next);
+            this._setCurrent(next);
 
             return true;
         },
@@ -4011,7 +4024,7 @@ var __meta__ = {
                 focusTable(prev.closest("table"), true);
             }
 
-            this.current(prev);
+            this._setCurrent(prev);
 
             return true;
         },
@@ -4039,7 +4052,7 @@ var __meta__ = {
             }
 
             var tmp = this._lastCellIndex || 0;
-            this.current(prev);
+            this._setCurrent(prev);
             this._lastCellIndex = tmp;
 
             return true;
@@ -4066,7 +4079,7 @@ var __meta__ = {
                 }
             }
             var tmp = this._lastCellIndex || 0;
-            this.current(next);
+            this._setCurrent(next);
             this._lastCellIndex = tmp;
             return true;
         },
@@ -4088,7 +4101,7 @@ var __meta__ = {
             }
 
             if (this.options.navigatable) {
-                this.current(currentTarget);
+                this._setCurrent(currentTarget);
             }
 
             if (isHeader || !isInput) {
@@ -4117,7 +4130,7 @@ var __meta__ = {
             if (current && current.is(":visible")) {
                 current.addClass(classNames.focused);
             } else {
-                this.current(table.find(NAVROW + " > td:visible").first());
+                this._setCurrent(table.find(NAVROW + " > td:visible").first());
             }
 
             this._setTabIndex(table);
@@ -6129,6 +6142,7 @@ var __meta__ = {
             var hasMultiColumnHeaders = grep(this.columns, function(item) {
                 return item.columns !== undefined;
             }).length > 0;
+            var sortHandler = this._sort.bind(this);
 
             if (!sortable) {
                 return;
@@ -6158,7 +6172,8 @@ var __meta__ = {
 
                     cell.kendoColumnSorter(
                             extend({}, sortable, column.sortable, {
-                                dataSource: this.dataSource
+                                dataSource: this.dataSource,
+                                change: sortHandler
                             })
                         );
                 }
@@ -6189,6 +6204,8 @@ var __meta__ = {
             var filterOpen = (function(e) {
                 this.trigger(FILTERMENUOPEN, { field: e.field, container: e.container });
             }).bind(this);
+
+            var filterHandler = this._filter.bind(this);
 
             if (hasMultiColumnHeaders) {
                 if (this.lockedHeader) {
@@ -6226,6 +6243,7 @@ var __meta__ = {
                     dataSource: this.dataSource,
                     init: filterInit,
                     open: filterOpen,
+                    change: filterHandler,
                     appendTo: DOT + classNames.headerCellInner
                 }));
             }
@@ -6242,11 +6260,7 @@ var __meta__ = {
             var uidAttr = kendo.attr('uid');
             var columns = leafColumns(that.columns),
                 filterable = that.options.filterable,
-                filterHandler = function(e) {
-                    if (that.trigger("filter", { filter: e.filter, field: e.field })) {
-                        e.preventDefault();
-                    }
-                },
+                filterHandler = this._filter.bind(this),
                 existingInstance;
 
             for (var i = 0; i < columns.length; i++) {
@@ -6801,7 +6815,7 @@ var __meta__ = {
             this.cancelRow();
 
             if (this.options.navigatable) {
-                this.current(this.items().eq(currentIndex).children().filter(NAVCELL).first());
+                this._setCurrent(this.items().eq(currentIndex).children().filter(NAVCELL).first());
                 focusTable(this.table, true);
             }
         },
@@ -7234,7 +7248,7 @@ var __meta__ = {
             }
 
             var scrollable = this.options.scrollable === true;
-            var selector = (scrollable ? ".k-grid-header:first " : "table:first>.k-grid-header ") + HEADERCELLS;
+            var selector = (scrollable ? ".k-grid-header " : "table>.k-grid-header ") + HEADERCELLS;
             var that = this;
 
             this._draggableInstance = new ui.Draggable(this.wrapper, {
@@ -7566,6 +7580,8 @@ var __meta__ = {
             var column, menu, menuOptions, sortable, filterable;
             var initHandler = this._columnMenuInit.bind(this);
             var openHandler = this._columnMenuOpen.bind(this);
+            var sortHandler = this._sort.bind(this);
+            var filterHandler = this._filter.bind(this);
             var hasLockableColumns = grep(this.columns, function(item) {
                 return item.lockable !== false;
             }).length > 0;
@@ -7624,6 +7640,8 @@ var __meta__ = {
                     closeCallback: closeCallback,
                     init: initHandler,
                     open: openHandler,
+                    sort: sortHandler,
+                    filtering: filterHandler,
                     pane: this.pane,
                     hasLockableColumns: lockedColumns(columns).length > 0 && hasLockableColumns && !hasMultiColumnHeaders,
                     appendTo: DOT + classNames.headerCellInner
@@ -7643,6 +7661,18 @@ var __meta__ = {
 
         _columnMenuOpen: function(e) {
             this.trigger(COLUMNMENUOPEN, { field: e.field, container: e.container });
+        },
+
+        _filter: function(e) {
+            if (this.trigger(FILTER, { filter: e.filter, field: e.field })) {
+                e.preventDefault();
+            }
+        },
+
+        _sort: function(e) {
+            if (this.trigger(SORT, { sort: e.sort })) {
+                e.preventDefault();
+            }
         },
 
         _pageable: function() {
@@ -8348,8 +8378,4 @@ var __meta__ = {
     ui.plugin(TreeListPager);
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

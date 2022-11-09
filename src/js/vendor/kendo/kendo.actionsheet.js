@@ -1,14 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.actionsheet',["kendo.core", "kendo.popup"], f);
-})(function() {
+import "./kendo.core.js";
+import "./kendo.popup.js";
 
 var __meta__ = {
     id: "ActionSheet",
@@ -24,6 +23,7 @@ var __meta__ = {
     var ui = kendo.ui;
     var ns = ".kendoActionSheet";
     var Popup = ui.Popup;
+    var TabKeyTrap = Popup.TabKeyTrap;
     var DOCUMENT_ELEMENT = $(document.documentElement);
     var MOUSEDOWN = "down";
     var OPEN = "open";
@@ -31,20 +31,21 @@ var __meta__ = {
     var ACTIVATE = "activate";
     var ACTION_SHEET_CONTAINER = "k-actionsheet-container";
     var OVERLAY = "k-overlay";
-    var ACTION_SHEET = "k-actionsheet";
+    var ACTION_SHEET = "k-actionsheet k-actionsheet-jq";
     var ACTION_SHEET_BOTTOM = "k-actionsheet-bottom";
     var STATEDISABLED = "k-disabled";
     var HIDDEN = "k-hidden";
+    var HEADER_ID = "actionsheet-header";
     var extend = $.extend;
     var template = kendo.template;
     var CLICK = "click";
     var KEYDOWN = "keydown";
     var hexColor = /^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/;
-    var HEADER_TEMPLATE = '<div class="k-actionsheet-header">' +
+    var HEADER_TEMPLATE = '<div id="' + HEADER_ID + '" class="k-actionsheet-header">' +
                                 "#=title#" +
                             '</div>';
     var ITEM_TEMPLATE = '<li role="none" class="k-actionsheet-item #= disabled ? "' + STATEDISABLED + '" : "" #">' +
-                            '<a href="\\#" class="k-actionsheet-action">' +
+                            '<a href="\\#" role="button" class="k-actionsheet-action">' +
                                 '#if(icon){# #=icon# #}#' +
                                 '<span class="k-actionsheet-item-text">' +
                                     '<span class="k-actionsheet-item-title">#:text#</span>' +
@@ -112,6 +113,8 @@ var __meta__ = {
             that._items();
             that._footer();
 
+            that._tabKeyTrap = new TabKeyTrap(that.wrapper);
+
             that.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
             that._mousedownProxy = that._mousedown.bind(that);
             that.wrapper.on(KEYDOWN + ns, that, that._keydown.bind(that));
@@ -147,6 +150,12 @@ var __meta__ = {
             element.addClass(ACTION_SHEET + " " + ACTION_SHEET_BOTTOM + " k-popup");
             that.wrapper = wrapper = element.wrap("<div class='" + ACTION_SHEET_CONTAINER + " " + HIDDEN + "'></div>").parent();
             wrapper.prepend($('<div></div>').addClass(OVERLAY));
+
+            element.attr({
+                role: "dialog",
+                "aria-modal": true,
+                "aria-labelledby": HEADER_ID
+            });
         },
 
         _popup: function() {
@@ -245,6 +254,8 @@ var __meta__ = {
             that.popup.open((that.wrapper.outerWidth() - that.element.outerWidth()) / 2, that.wrapper.outerHeight() - that._elementHeight);
             DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy)
                 .on(that.downEvent, that._mousedownProxy);
+
+            that._tabKeyTrap.trap();
         },
 
         close: function() {
@@ -299,8 +310,3 @@ var __meta__ = {
 
 })(window.kendo.jQuery);
 
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) {
-    (a3 || a2)();
-});

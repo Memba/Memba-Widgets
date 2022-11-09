@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -165,6 +165,7 @@
 @disabled-gradient: none;
 @header-background-color: @accent;
 @header-text-color: contrast(@accent);
+@footer-background-color: @widget-background-color;
 @inputs-border-radius: 3px;
 @input-validation-error: darken(@error, 25%);
 @column-highlight-background-color: darken(@background, 4%);
@@ -494,6 +495,7 @@
 @tooltip-text: @normal-text-color;
 @tooltip-border: @widget-border-color;
 
+@tooltip-callout-s-border: inherit;
 
 // ScrollView
 
@@ -1626,6 +1628,7 @@
 
 .k-block,
 .k-widget,
+.k-popup,
 .k-group,
 .k-content,
 .k-header,

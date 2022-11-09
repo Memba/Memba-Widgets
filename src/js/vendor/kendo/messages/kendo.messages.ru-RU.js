@@ -1,21 +1,14 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
-/* Filter menu operator messages */
+
+/* Filter menu operator messages  */
 
 if (kendo.ui.FilterCell) {
 kendo.ui.FilterCell.prototype.options.operators =
@@ -215,6 +208,28 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
 });
 }
 
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+    "noRows": "Нет записей доступны.",
+    "loading": "Loading...",
+    "requestFailed": "Request failed.",
+    "retry": "Retry",
+    "commands": {
+        "edit": "Изменить",
+        "update": "Обновить",
+        "canceledit": "Отмена",
+        "create": "Добавить",
+        "createchild": "Добавить ребенка",
+        "destroy": "Удалить",
+        "excel": "Экспорт в Excel",
+        "pdf": "Экспорт в PDF"
+    }
+});
+}
+
 /* TreeListPager messages */
 
 if (kendo.ui.TreeListPager) {
@@ -311,7 +326,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "justifyRight": "Вправо",
   "outdent": "Уменьшить отступ",
   "strikethrough": "Зачеркнутый",
-  "styles": "Стиль",
+  "style": "Стиль",
   "subscript": "Под строкой",
   "superscript": "Над строкой",
   "underline": "Подчеркнутый",
@@ -956,4 +971,3 @@ $.extend(true, kendo.spreadsheet.messages.view,{
 }
 
 })(window.kendo.jQuery);
-}));

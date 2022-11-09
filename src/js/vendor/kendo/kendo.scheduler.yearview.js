@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.scheduler.yearview',[ "kendo.scheduler.view", "kendo.multiviewcalendar", "kendo.tooltip" ], f);
-})(function() {
+import "./kendo.scheduler.view.js";
+import "./kendo.multiviewcalendar.js";
+import "./kendo.tooltip.js";
 
 var __meta__ = {
     id: "scheduler.yearview",
@@ -28,7 +28,6 @@ var __meta__ = {
         firstDayOfYear = kendo.date.firstDayOfYear,
         firstDayOfMonth = kendo.date.firstDayOfMonth,
         lastDayOfMonth = kendo.date.lastDayOfMonth,
-        TABINDEX = "tabindex",
         DAY = "day",
         NAVIGATE = "navigate",
         KEYDOWN = "keydown",
@@ -170,8 +169,6 @@ var __meta__ = {
 
             calEl.on(CLICK + NS, "td[role='gridcell']", that._calendarCellClick.bind(that));
             calEl.on(KEYDOWN + NS, DOT + YearViewStyles.calendarView, that._calendarKeydown.bind(that));
-            calEl.find( DOT + YearViewStyles.calendarView).removeAttr(TABINDEX);
-
             calendar.bind(NAVIGATE, that._calendarNavigate.bind(that));
         },
 
@@ -194,10 +191,6 @@ var __meta__ = {
                 ev.preventDefault();
 
                 that._displayTooltip(that.calendar.selectable.value().first());
-            } else if (keyCode === keys.TAB && ev.shiftKey) {
-                this._preventCalendarFocus = true;
-                this.calendar.element.find( DOT + YearViewStyles.calendarView).removeAttr(TABINDEX);
-                this.element.closest(DOT + YearViewStyles.scheduler).trigger(FOCUS);
             }
         },
 
@@ -317,11 +310,13 @@ var __meta__ = {
         },
 
         _tooltipHide: function() {
-            if (!this.calendar) {
+            var calendar = this.calendar;
+
+            if (!calendar) {
                 return;
             }
 
-            this.calendar.focus();
+            calendar.focus();
         },
 
         _tooltipTitleClick: function() {
@@ -424,6 +419,10 @@ var __meta__ = {
                 .toArray();
 
             return eventsByDate;
+        },
+
+        _resourceBySlot: function() {
+            return {};
         },
 
         lastDateInRange: function() {
@@ -538,8 +537,4 @@ var __meta__ = {
     });
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

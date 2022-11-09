@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,9 +12,7 @@
  * `kendo-drawing` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define) {
-    define('kendo.color',[ "kendo.core" ], f);
-})(function() {
+ import "./kendo.core.js";
 /* eslint-disable space-before-blocks, space-before-function-paren, no-multi-spaces */
 
     var __meta__ = {
@@ -587,4 +585,3 @@ kendo.deepExtend(kendo, {
     Color: Color
 });
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

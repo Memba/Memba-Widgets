@@ -1,14 +1,12 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.panelbar',[ "kendo.data" ], f);
-})(function() {
+import "./kendo.data.js";
 
 var __meta__ = {
     id: "panelbar",
@@ -402,7 +400,7 @@ var __meta__ = {
                 ),
 
                 item: template(
-                    "<li role='treeitem' #=aria(item)#class='#= wrapperCssClass(group, item) #'" +
+                    "<li aria-selected='false' role='treeitem' #=aria(item)#class='#= wrapperCssClass(group, item) #'" +
                          kendo.attr("uid") + "='#= item.uid #'>" +
                         "#= itemWrapper(data) #" +
                         "# if (item.items && item.items.length > 0) { #" +
@@ -1339,7 +1337,12 @@ var __meta__ = {
                 root = this.element[0],
                 wrapElement, link;
 
-            item = $(item).addClass("k-item").attr("role", "treeitem");
+            item = $(item)
+                .addClass("k-item")
+                .attr({
+                    role: "treeitem",
+                    "aria-selected": false
+                });
 
             if (kendo.support.browser.msie) { // IE10 doesn't apply list-style: none on invisible items otherwise.
                 item.css("list-style-position", "inside")
@@ -1378,7 +1381,7 @@ var __meta__ = {
             link = item.children(SELECTEDSELECTOR);
             if (link[0]) {
                 if (selected) {
-                    selected.removeAttr(ARIA_SELECTED)
+                    selected.attr(ARIA_SELECTED, false)
                             .children(SELECTEDSELECTOR)
                             .removeClass(SELECTEDCLASS);
                 }
@@ -1695,7 +1698,7 @@ var __meta__ = {
                 dataItem = that.dataItem(item);
 
             if (selected) {
-                selected.removeAttr(ARIA_SELECTED);
+                selected.attr(ARIA_SELECTED, false);
             }
 
             that._selected = item.attr(ARIA_SELECTED, true);
@@ -1768,8 +1771,4 @@ var __meta__ = {
 kendo.ui.plugin(PanelBar);
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

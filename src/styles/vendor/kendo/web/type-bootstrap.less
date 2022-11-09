@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -161,6 +161,7 @@
 @link-text-color: @accent;
 @header-text-color: @normal-text-color;
 @header-background-color: lighten(@base, 4%);
+@footer-background-color: @header-background-color;
 @group-background-color: lighten(@base, 4%);
 @group-border-color: rgba(0, 0, 0, 0.2);
 @content-background-color: @background;
@@ -215,6 +216,7 @@
 @tooltip-text: @background;
 @tooltip-border: contrast(@base);
 
+@tooltip-callout-s-border: inherit;
 
 @validation-text-color: contrast(@validation-background-color, lighten(@warning, 80%), darken(@warning, 60%), 0.5);
 @validation-background-color: @warning;
@@ -480,7 +482,7 @@
 @chat-text: @component-text;
 @chat-border: @component-border;
 
-@chat-bubble-bg: @button-background-color;
+@chat-bubble-bg: @header-background-color;
 @chat-bubble-text: @button-text-color;
 @chat-bubble-border: @chat-bubble-bg;
 
@@ -1702,6 +1704,7 @@
 
 .k-block,
 .k-widget,
+.k-popup,
 .k-group,
 .k-content,
 .k-header,

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.tooltip',[ "kendo.core", "kendo.popup", "kendo.fx" ], f);
-})(function() {
+import "./kendo.core.js";
+import "./kendo.popup.js";
+import "./kendo.fx.js";
 
 var __meta__ = {
     id: "tooltip",
@@ -150,6 +150,10 @@ var __meta__ = {
             }
 
             that.element.on(that.options.showOn + NS, that.options.filter, that._showOn.bind(that));
+
+            if (that.options.showOn === "click") {
+                that.element.on("keydown" + NS, that.options.filter, that._keydown.bind(that));
+            }
         },
 
         options: {
@@ -204,6 +208,14 @@ var __meta__ = {
                 return this.popup.options.anchor;
             }
             return null;
+        },
+
+        _keydown: function(e) {
+            var currentTarget = $(e.currentTarget);
+
+            if (e.keyCode == kendo.keys.ENTER) {
+                this._show(currentTarget);
+            }
         },
 
         _showOn: function(e) {
@@ -600,8 +612,4 @@ var __meta__ = {
 
     kendo.ui.plugin(Tooltip);
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

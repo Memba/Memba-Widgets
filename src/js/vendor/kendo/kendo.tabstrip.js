@@ -1,14 +1,12 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.tabstrip',[ "kendo.data" ], f);
-})(function() {
+import "./kendo.data.js";
 
 var __meta__ = {
     id: "tabstrip",
@@ -180,7 +178,7 @@ var __meta__ = {
     }
 
     function scrollButtonHtml(buttonClass, iconClass) {
-        return "<span class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-tabstrip-" + buttonClass + "' unselectable='on'><span class='k-button-icon k-icon " + iconClass + "'></span></span>";
+        return "<span aria-hidden='true' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-tabstrip-" + buttonClass + "' unselectable='on'><span class='k-button-icon k-icon " + iconClass + "'></span></span>";
     }
 
     var TabStrip = Widget.extend({
@@ -1586,8 +1584,4 @@ var __meta__ = {
     kendo.ui.plugin(TabStrip);
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

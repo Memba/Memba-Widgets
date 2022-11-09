@@ -1,20 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
+
 /* Validator */
 if (kendo.ui.Validator) {
 kendo.ui.Validator.prototype.options.messages =
@@ -910,6 +903,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "fontSizeInherit": "(наследен размер)",
   "formatBlock": "Избери формат",
   "indent": "Добави отстъп",
+  "cleanFormatting": "Изчисти формата",
   "insertHtml": "Вмъкни HTML",
   "insertImage": "Вмъкни картина",
   "insertOrderedList": "Вмъкни номериран списък",
@@ -938,26 +932,26 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "backColor": "Цвят на фона",
   "foreColor": "Цвят",
   "dialogButtonSeparator": "or",
-  "dialogCancel": "Cancel",
-  "dialogInsert": "Insert",
+  "dialogCancel": "Откажи",
+  "dialogInsert": "Добави",
   "dialogOk": "Ok",
-  "imageAltText": "Alternate text",
-  "imageWebAddress": "Web address",
-  "linkOpenInNewWindow": "Open link in new window",
-  "linkText": "Text",
+  "imageAltText": "Алтернативен текст",
+  "imageWebAddress": "Интернет адрес",
+  "linkOpenInNewWindow": "Отвори връзката в нов прозорец",
+  "linkText": "Текст",
   "linkToolTip": "ToolTip",
-  "linkWebAddress": "Web address",
+  "linkWebAddress": "Интернет адрес",
   "search": "Търси",
   "createTable": "Създай таблица",
   "dropFilesHere": "преместете с мишката файлове тук за да ги качите",
-  "addColumnLeft": "Add column on the left",
-  "addColumnRight": "Add column on the right",
-  "addRowAbove": "Add row above",
-  "addRowBelow": "Add row below",
-  "deleteColumn": "Delete column",
-  "deleteRow": "Delete row",
+  "addColumnLeft": "Добави колона от ляво",
+  "addColumnRight": "Добави колона от дясно",
+  "addRowAbove": "Добави ред отгоре",
+  "addRowBelow": "Добави ред отдолу",
+  "deleteColumn": "Изтрий колоната",
+  "deleteRow": "Изтрий реда",
   "styles": "Стилове",
-  "formatting": "Format",
+  "formatting": "Форматиране",
   "viewHtml": "Виж HTML-а",
   "dialogUpdate": "Обнови",
   "insertFile": "Вмъкни файл",
@@ -1052,7 +1046,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "separateTimezones": "Използвай различни часови зони за начало и край",
     "start": "Начало",
     "startTimezone": "Начална часова зона",
-    "timezone": " ",
+    "timezone": "Часова зона",
     "timezoneEditorButton": "Часовa зона",
     "timezoneEditorTitle": "Часови зони",
     "title": "Заглавие",
@@ -1377,4 +1371,3 @@ if (kendo.ui.OrgChart) {
 }
 
 })(window.kendo.jQuery);
-}));

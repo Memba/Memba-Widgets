@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -467,13 +467,28 @@
     overflow: hidden;
     cursor: default;
     min-height: 1.3em;
+    line-height: @line-height;
     white-space: nowrap;
+
+    .k-task-actions .k-link {
+        color: inherit;
+
+        .k-icon {
+            opacity: .5;
+        }
+
+        &:hover .k-icon {
+            opacity: 1;
+        }
+    }
 }
 
 .k-task-template
 {
     padding: .2em 1.4em .2em .6em;
     line-height: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .k-task-actions,

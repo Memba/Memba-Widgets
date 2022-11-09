@@ -1,20 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -574,5 +567,70 @@ $.extend(true, kendo.ui.Prompt.prototype.options.localization, {
 });
 }
 
+  /* PDFViewer */
+
+  if (kendo.ui.PDFViewer) {
+    kendo.ui.PDFViewer.prototype.options.messages =
+        $.extend(true, kendo.ui.PDFViewer.prototype.options.messages, {
+            defaultFileName: "Mein Dokument",
+            toolbar: {
+                zoom: {
+                    zoomOut: "Herauszoomen",
+                    zoomIn: "Hineinzoomen",
+                    actualWidth: "Tatsächliche Breite",
+                    autoWidth: "Automatische Breite",
+                    fitToWidth: "An Breite anpassen",
+                    fitToPage: "An Seite anpassen"
+                },
+                open: "Öffnen",
+                exportAs: "Exportieren",
+                download: "Herunterladen",
+                pager: {
+                    first: "Zur ersten Seite",
+                    previous: "Zur vorherigen Seite",
+                    next: "Zur nächsten Seite",
+                    last: "Zur letzten Seite",
+                    of: " von {0} ",
+                    page: "Seite",
+                    pages: "Seiten"
+                },
+                print: "Drucken",
+                toggleSelection: "Markierungsmodus",
+                togglePan: "Schwenkmodus",
+                search: "Suchen"
+            },
+            errorMessages: {
+                notSupported: "Dateityp nicht unterstützt.",
+                parseError: "Fehler beim Verarbeiten der Datei.",
+                notFound: "Datei konnte nicht gefunden werden.",
+                popupBlocked: "Popups sind blockiert."
+            },
+            dialogs: {
+                exportAsDialog: {
+                    title: "Exportieren...",
+                    defaultFileName: "Dokument",
+                    pdf: "Portable Document Format (.pdf)",
+                    png: "Portable Network Graphics (.png)",
+                    svg: "Scalable Vector Graphics (.svg)",
+                    labels: {
+                        fileName: "Dateiname",
+                        saveAsType: "Speichern als",
+                        page: "Seite"
+                    }
+                },
+                okText: "OK",
+                save: "Speichern",
+                cancel: "Abbrechen",
+                search: {
+                    inputLabel: "Suchtext",
+                    matchCase: "Groß-/Kleinschreibung beachten",
+                    next: "Nächster Treffer",
+                    previous: "Vorheriger Treffer",
+                    close: "Schließen",
+                    of: "von"
+                }
+            }
+        });
+  }
+
 })(window.kendo.jQuery);
-}));

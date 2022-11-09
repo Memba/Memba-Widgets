@@ -1,14 +1,12 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.upload',[ "kendo.core" ], f);
-})(function() {
+import "./kendo.core.js";
 
 var __meta__ = {
     id: "upload",
@@ -791,7 +789,7 @@ var __meta__ = {
                 "</span>" +
                 "<span class='k-file-name-size-wrapper'>" +
                     "<span class='k-file-name k-file-name-invalid' title='" + file.name + "'>" + file.name + "</span>" +
-                    "<span class='k-file-validation-message k-text-error'>" + that.localization[errors[0]] + "</span>" +
+                    "<span class='k-file-validation-message !k-text-error'>" + that.localization[errors[0]] + "</span>" +
                 "</span>";
             } else {
                 template += "<li class='k-file'><div class='k-progressbar k-hidden'><span class='k-progress'></span></div>" +
@@ -851,7 +849,7 @@ var __meta__ = {
             }
 
             if (filesHaveValidationErrors) {
-                template += "<span class='k-file-validation-message k-text-error'>" + that.localization.invalidFiles + "</span>";
+                template += "<span class='k-file-validation-message !k-text-error'>" + that.localization.invalidFiles + "</span>";
             } else {
                 template += "<span class='k-file-information'>Total: " + files.length + " files, " + totalFileSize + "</span>";
             }
@@ -1154,10 +1152,10 @@ var __meta__ = {
 
                 if (fileInfo.length > 0) {
                     fileInfo.addClass('k-hidden')
-                        .after('<span class="k-file-validation-message k-text-success">' + files.length + ' ' + that.localization.uploadSuccess + '</span>');
+                        .after('<span class="k-file-validation-message !k-text-success">' + files.length + ' ' + that.localization.uploadSuccess + '</span>');
                 } else if (fileSize.length > 0) {
                     fileSize.addClass('k-hidden')
-                        .after('<span class="k-file-validation-message k-text-success">' + that.localization.uploadSuccess + '</span>');
+                        .after('<span class="k-file-validation-message !k-text-success">' + that.localization.uploadSuccess + '</span>');
                 }
 
                 that._updateHeaderUploadStatus();
@@ -1235,10 +1233,10 @@ var __meta__ = {
 
             if (fileInfo.length > 0) {
                 fileInfo.addClass('k-hidden')
-                    .after('<span class="k-file-validation-message k-text-error">' + files.length + ' ' + that.localization.uploadFail + '</span>');
+                    .after('<span class="k-file-validation-message !k-text-error">' + files.length + ' ' + that.localization.uploadFail + '</span>');
             } else if (fileSize.length > 0) {
                 fileSize.addClass('k-hidden')
-                    .after('<span class="k-file-validation-message k-text-error">' + that.localization.uploadFail + '</span>');
+                    .after('<span class="k-file-validation-message !k-text-error">' + that.localization.uploadFail + '</span>');
             }
 
             that._updateUploadProgress(fileEntry);
@@ -2714,8 +2712,4 @@ var __meta__ = {
 
     kendo.ui.plugin(Upload);
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

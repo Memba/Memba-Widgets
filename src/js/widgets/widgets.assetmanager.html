@@ -17,53 +17,49 @@
     <script>
         (function () {
             'use strict';
-            SystemJS.import('kendo.dataviz.diagram') // This is a workaround to force the correct load order
-                .then(function () {
-                    return Promise.all([
-                        SystemJS.import('../helpers/helpers.assets.es6'),
-                        // SystemJS.import('./widgets.vectordrawing.js'),
-                        SystemJS.import('./widgets.assetmanager.es6')]);
-                })
-                .then(function (modules) {
-                    var kendo = window.kendo;
-                    var COLLECTIONS = [
-                        // modules[0].default.SIMPLE_PROJECT,
-                        // modules[0].default.COMPLEX_PROJECT,
-                        modules[0].default.G_COLLECTION,
-                        modules[0].default.V_COLLECTION,
-                        modules[0].default.X_COLLECTION,
-                        modules[0].default.GOOGLE_SEARCH
-                    ];
-                    var EXTENSIONS = modules[0].default.IMAGE_EXT;
-                    var SCHEMES = modules[0].default.SCHEMES;
-                    var assetManager;
-                    var viewModel = kendo.observable({
-                            url: undefined,
-                            visible: true,
-                            enabled: true,
-                            hook: function (e) {
-                                // assetManager.unbind('beforeOpen');
-                                assetManager.unbind('click');
-                                if ($(e.currentTarget).prop('checked')) {
-                                    assetManager.bind('click', function(e) {
-                                        e.preventDefault();
-                                        window.alert('You just clicked action ' + e.action);
-                                    });
-                                }
+            Promise.all([
+                SystemJS.import('../helpers/helpers.assets.es6'),
+                SystemJS.import('./widgets.assetmanager.es6')
+            ]).then(function (modules) {
+                var kendo = window.kendo;
+                var COLLECTIONS = [
+                    // modules[0].default.SIMPLE_PROJECT,
+                    // modules[0].default.COMPLEX_PROJECT,
+                    modules[0].default.G_COLLECTION,
+                    modules[0].default.V_COLLECTION,
+                    modules[0].default.X_COLLECTION,
+                    modules[0].default.GOOGLE_SEARCH
+                ];
+                var EXTENSIONS = modules[0].default.IMAGE_EXT;
+                var SCHEMES = modules[0].default.SCHEMES;
+                var assetManager;
+                var viewModel = kendo.observable({
+                        url: undefined,
+                        visible: true,
+                        enabled: true,
+                        hook: function (e) {
+                            // assetManager.unbind('beforeOpen');
+                            assetManager.unbind('click');
+                            if ($(e.currentTarget).prop('checked')) {
+                                assetManager.bind('click', function(e) {
+                                    e.preventDefault();
+                                    window.alert('You just clicked action ' + e.action);
+                                });
                             }
-                        });
-                    $(function(){
-                        assetManager = $('#assets').kendoAssetManager({
-                            change: function(e) {
-                                viewModel.set('url', e.sender.value());
-                            },
-                            collections: COLLECTIONS,
-                            extensions: EXTENSIONS,
-                            schemes: SCHEMES
-                        }).data('kendoAssetManager');
-                        kendo.bind('body', viewModel);
+                        }
                     });
+                $(function(){
+                    assetManager = $('#assets').kendoAssetManager({
+                        change: function(e) {
+                            viewModel.set('url', e.sender.value());
+                        },
+                        collections: COLLECTIONS,
+                        extensions: EXTENSIONS,
+                        schemes: SCHEMES
+                    }).data('kendoAssetManager');
+                    kendo.bind('body', viewModel);
                 });
+            });
         }());
     </script>
 </head>

@@ -1,14 +1,15 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.numerictextbox',[ "kendo.core", "kendo.userevents", "kendo.floatinglabel", "kendo.html.button" ], f);
-})(function() {
+import "./kendo.core.js";
+import "./kendo.userevents.js";
+import "./kendo.floatinglabel.js";
+import "./kendo.html.button.js";
 
 var __meta__ = {
     id: "numerictextbox",
@@ -282,11 +283,32 @@ var __meta__ = {
 
             that.options.format = extractFormat(that.options.format);
             that._upArrowEventHandler.destroy();
+            that._upArrowEventHandler = null;
             that._downArrowEventHandler.destroy();
+            that._downArrowEventHandler = null;
             that._arrowsWrap.remove();
             that._arrows();
 
             that._applyCssClasses();
+
+            if (that._inputLabel) {
+                that._inputLabel.off(ns);
+                that._inputLabel.remove();
+
+                if (that.floatingLabel) {
+                    that.floatingLabel.destroy();
+                    if (that._floatingLabelContainer) {
+                        that.wrapper.unwrap();
+                    }
+                }
+            }
+
+            that._label();
+
+            that._editable({
+                readonly: that.options.readonly,
+                disable: !that.options.enable
+            });
 
             if (options.value !== undefined) {
                 that.value(options.value);
@@ -348,6 +370,10 @@ var __meta__ = {
 
             that._update(value);
             that._old = that._value;
+
+            if (that.floatingLabel) {
+                that.floatingLabel.refresh();
+            }
         },
 
         focus: function() {
@@ -966,8 +992,4 @@ var __meta__ = {
 
     ui.plugin(NumericTextBox);
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

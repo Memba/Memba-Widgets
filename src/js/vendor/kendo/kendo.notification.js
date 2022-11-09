@@ -1,14 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.notification',[ "kendo.core", "kendo.popup" ], f);
-})(function() {
+import "./kendo.core.js";
+import "./kendo.popup.js";
 
 var __meta__ = {
     id: "notification",
@@ -323,6 +322,10 @@ var __meta__ = {
                 insertionMethod = options.stacking == UP || options.stacking == LEFT ? "prependTo" : "appendTo",
                 initializedNotifications;
 
+            if (!that._hideTimeouts) {
+                that._hideTimeouts = [];
+            }
+
             wrapper
                 .removeClass("k-popup")
                 .addClass(that._guid)
@@ -334,10 +337,12 @@ var __meta__ = {
             initializedNotifications.each(function(idx, element) {
                 that._attachStaticEvents(options, $(element));
 
-                if (autoHideAfter > 0) {
-                    setTimeout(function() {
+                if (autoHideAfter > 0 && !$(element).attr(kendo.attr("has-hidetimeout"))) {
+                    $(element).attr(kendo.attr("has-hidetimeout"), true);
+                    that._hideTimeouts.push(
+                        setTimeout(function() {
                         that._hideStatic($(element));
-                    }, autoHideAfter);
+                    }, autoHideAfter));
                 }
             });
         },
@@ -442,6 +447,10 @@ var __meta__ = {
                 openedNotifications = that.getNotifications();
 
             if (that.options.appendTo) {
+                if (that._hideTimeouts) {
+                    that._hideTimeouts.forEach(clearTimeout);
+                }
+                that._hideTimeouts = [];
                 openedNotifications.each(function(idx, element) {
                     that._hideStatic($(element));
                 });
@@ -494,8 +503,4 @@ var __meta__ = {
     kendo.ui.plugin(Notification);
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

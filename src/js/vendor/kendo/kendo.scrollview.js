@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.scrollview',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
-})(function() {
+import "./kendo.fx.js";
+import "./kendo.data.js";
+import "./kendo.draganddrop.js";
 
 var __meta__ = {
     id: "scrollview",
@@ -162,7 +162,7 @@ var __meta__ = {
     var Pager = kendo.Class.extend({
         init: function(scrollView) {
             var that = this,
-                element = $("<ul class='" + className("scrollview-nav") + "'/>"),
+                element = $("<div class='" + className("scrollview-nav") + "'/>"),
                 navigationWrapElement = $("<div class='" + className("scrollview-nav-wrap") + "'></div>");
 
             navigationWrapElement.append(element);
@@ -172,7 +172,7 @@ var __meta__ = {
             this._refreshProxy = that._refresh.bind(that);
             scrollView.bind(CHANGE, this._changeProxy);
             scrollView.bind(REFRESH, this._refreshProxy);
-            element.on(CLICK + NS, "li.k-link", this._click.bind(scrollView));
+            element.on(CLICK + NS, ".k-link", this._click.bind(scrollView));
 
             $.extend(that, { element: element, scrollView: scrollView });
 
@@ -211,7 +211,7 @@ var __meta__ = {
 
             if (key == keys.LEFT) {
                 handled = true;
-                next = current.prev("li.k-link");
+                next = current.prev(".k-link");
 
                 if (next.length) {
                     that._setCurrent(next);
@@ -220,7 +220,7 @@ var __meta__ = {
 
             if (key == keys.RIGHT) {
                 handled = true;
-                next = current.next("li.k-link");
+                next = current.next(".k-link");
 
                 if (next.length) {
                     that._setCurrent(next);
@@ -268,16 +268,21 @@ var __meta__ = {
             var that = this;
             var pageable = that.scrollView.options.pageable || {};
 
+            that.element.attr({
+                tabindex: 0,
+                "aria-label": that.scrollView.options.messages.pagerLabel,
+                role: "group"
+            });
+
+            if (that.scrollView.itemsWrapper) {
+                that.element.attr("aria-controls", that.scrollView.itemsWrapper.attr("id"));
+            }
+
+            that._ariaTemplate = kendo.template(pageable.ARIATemplate || "Item #=data.index + 1#");
+
             if (!that.scrollView.options.navigatable) {
                 return;
             }
-
-            that.element
-                .attr(TABINDEX, 0)
-                .attr("aria-label", that.scrollView.options.messages.pagerLabel)
-                .attr("role", "listbox");
-
-            that._ariaTemplate = kendo.template(pageable.ARIATemplate || "Item #=data.index#");
 
             that.element.on(KEYDOWN + NS, that, that._keyDown.bind(that));
             that.element.on(FOCUS + NS, that._focus.bind(that));
@@ -286,24 +291,17 @@ var __meta__ = {
 
         _refresh: function(e) {
             var pageHTML = "";
-            var navigatable = this.scrollView.options.navigatable;
             var current;
 
             for (var idx = 0; idx < e.pageCount; idx ++) {
-                if (navigatable) {
-                    pageHTML += '<li class="k-link" role="option" aria-label="' + this._ariaTemplate({ index: idx }) + '" aria-selected="false"></li>';
-                } else {
-                    pageHTML += '<li class="k-link"></li>';
-                }
+                pageHTML += '<span class="k-link" role="button" aria-label="' + this._ariaTemplate({ index: idx }) + '" aria-pressed="false"></span>';
             }
 
             this.element.html(pageHTML);
             current = this.items().eq(e.page);
             current.addClass(className(CURRENT_PAGE_CLASS));
 
-            if (navigatable) {
-                current.attr("aria-selected", true);
-            }
+            current.attr("aria-pressed", true);
 
             this.scrollView._toggleNavigation({ currentPage: e.page });
         },
@@ -316,25 +314,22 @@ var __meta__ = {
             var innerNavigationContainer = this.scrollView._navigationContainer.find(".k-scrollview-nav");
             var scrollViewWidth = this.scrollView.element.width();
             var containerOffset = (scrollViewWidth - innerNavigationContainer.width()) / 2;
-            var pageWidth = innerNavigationContainer.find("li.k-link").eq(0).outerWidth(true) / 2;
+            var pageWidth = innerNavigationContainer.find(".k-link").eq(0).outerWidth(true) / 2;
             var items = this.items();
-            var navigatable = this.scrollView.options.navigatable;
             var current;
 
             items.removeClass(className(CURRENT_PAGE_CLASS));
 
             current = items.eq(e.nextPage).addClass(className(CURRENT_PAGE_CLASS));
-            if (navigatable) {
-                items.attr("aria-selected", false);
-                this._setCurrent(current);
-                current.attr("aria-selected", true);
-            }
+            items.attr("aria-pressed", false);
+            this._setCurrent(current);
+            current.attr("aria-pressed", true);
 
             var itemOffset = this.items().eq(e.nextPage).length > 0 ? this.items().eq(e.nextPage).position().left : 0;
 
             if (itemOffset > scrollViewWidth / 2 || itemOffset < kendo.scrollLeft(innerNavigationContainer) + scrollViewWidth / 2) {
-
                 var translate = 0;
+
                 if (itemOffset > scrollViewWidth / 2) {
                     translate = kendo.scrollLeft(innerNavigationContainer) + itemOffset - scrollViewWidth / 2;
                 }
@@ -1141,9 +1136,7 @@ var __meta__ = {
             this.itemsWrapper.off(NS);
             this.itemsWrapper = null;
 
-            if (this.options.navigatable) {
-                this.ariaLiveEl = this._current = null;
-            }
+            this.ariaLiveEl = this._current = null;
 
             this.inner = null;
             kendo.destroy(this.element);
@@ -1244,9 +1237,8 @@ var __meta__ = {
 
         _updateAria: function() {
             var content = this._content;
-            if (this.options.navigatable) {
-                this.ariaLiveEl.html(this._ariaTemplate({ index: (content.page + 1), total: content.pageCount }));
-            }
+
+            this.ariaLiveEl.html(this._ariaTemplate({ index: (content.page + 1), total: content.pageCount }));
         },
 
         _setCurrent: function(current) {
@@ -1273,14 +1265,8 @@ var __meta__ = {
                 children.attr("aria-hidden", true);
             }
 
-            next
-                .attr("id", id)
-                .removeAttr("aria-hidden")
-                .addClass(FOCUSED);
-
-            that.itemsWrapper.attr("aria-activedescendant", id);
+            next.addClass(FOCUSED);
             that._updateAria();
-
             that._current = next;
         },
 
@@ -1308,9 +1294,7 @@ var __meta__ = {
 
         _transitionEnd: function() {
             this._content.updatePage();
-            if (this.options.navigatable) {
-                this._setCurrent();
-            }
+            this._setCurrent();
         },
 
         _initNavigation: function() {
@@ -1319,14 +1303,13 @@ var __meta__ = {
             var nextArrow;
             var messages = that.options.messages;
             var navigationContainer = that._navigationContainer = $("<div class='k-scrollview-elements'></div>");
+            var itemsWrapper = that.itemsWrapper;
+            var itemsWrapperId = itemsWrapper.attr("id") || kendo.guid();
 
-            if (that.options.navigatable) {
-                prevArrow = $('<a class="k-scrollview-prev" role="button" aria-label="' + messages.previousButtonLabel + '"><span class="k-icon k-i-arrowhead-w"></span></a>');
-                nextArrow = $('<a class="k-scrollview-next" role="button" aria-label="' + messages.nextButtonLabel + '"><span class="k-icon k-i-arrowhead-e"></span></a>');
-            } else {
-                prevArrow = $('<a class="k-scrollview-prev"><span class="k-icon k-i-arrowhead-w"></span></a>');
-                nextArrow = $('<a class="k-scrollview-next"><span class="k-icon k-i-arrowhead-e"></span></a>');
-            }
+            itemsWrapper.attr("id", itemsWrapperId);
+
+            prevArrow = $('<a class="k-scrollview-prev" role="button" aria-label="' + messages.previousButtonLabel + '" aria-controls="' + itemsWrapperId + '"><span class="k-icon k-i-arrowhead-w"></span></a>');
+            nextArrow = $('<a class="k-scrollview-next" role="button" aria-label="' + messages.nextButtonLabel + '" aria-controls="' + itemsWrapperId + '"><span class="k-icon k-i-arrowhead-e"></span></a>');
 
             prevArrow.hide();
             nextArrow.hide();
@@ -1335,10 +1318,8 @@ var __meta__ = {
             navigationContainer.append(nextArrow);
             that.element.append(navigationContainer);
 
-            if (that.options.navigatable) {
-                that.ariaLiveEl = $("<div aria-live='polite' aria-atomic='true' class='k-sr-only'></div>");
-                that.element.append(that.ariaLiveEl);
-            }
+            that.ariaLiveEl = $("<div aria-live='polite' aria-atomic='true' class='k-sr-only'></div>");
+            that.element.append(that.ariaLiveEl);
 
             navigationContainer.on(CLICK + NS, "a.k-scrollview-prev", that.prev.bind(that));
             navigationContainer.on(CLICK + NS, "a.k-scrollview-next", that.next.bind(that));
@@ -1348,14 +1329,7 @@ var __meta__ = {
             var that = this;
             var navigationContainer = that._navigationContainer;
 
-            if (!that.options.navigatable) {
-                return;
-            }
-
             that._ariaTemplate = kendo.template(that.options.ARIATemplate);
-
-            navigationContainer.find(">a.k-scrollview-prev").attr(TABINDEX, 0);
-            navigationContainer.find(">a.k-scrollview-next").attr(TABINDEX, 0);
 
             navigationContainer.on(KEYDOWN + NS, that, function(e) {
                 var target = $(e.target);
@@ -1365,13 +1339,29 @@ var __meta__ = {
                 }
             });
 
-            that.itemsWrapper
-                .attr("aria-roledescription", "carousel")
-                .attr(TABINDEX, 0);
+            that.element.attr({
+                tabindex: 0,
+                role: "application",
+                "aria-roledescription": "carousel"
+            });
 
-            that.itemsWrapper.on(KEYDOWN + NS, that, that._keyDown.bind(that));
-            that.itemsWrapper.on(FOCUS + NS, that._focus.bind(that));
-            that.itemsWrapper.on(FOCUSOUT + NS, that._blur.bind(that));
+            that.itemsWrapper
+                .attr("role", "list")
+                .children().attr({
+                    "role": "listitem",
+                    "aria-roledescription": "slide"
+                });
+
+            if (!that.options.navigatable) {
+                return;
+            }
+
+            navigationContainer.find(">a.k-scrollview-prev").attr(TABINDEX, 0);
+            navigationContainer.find(">a.k-scrollview-next").attr(TABINDEX, 0);
+
+            that.element.on(KEYDOWN + NS, that, that._keyDown.bind(that));
+            that.element.on(FOCUS + NS, that._focus.bind(that));
+            that.element.on(FOCUSOUT + NS, that._blur.bind(that));
         },
 
         _focus: function() {
@@ -1383,8 +1373,6 @@ var __meta__ = {
         _blur: function() {
             if (this._current) {
                 this._current.removeClass(FOCUSED);
-                this._current.removeAttr("id");
-                this.itemsWrapper.removeAttr("aria-activedescendant");
             }
         },
 
@@ -1432,8 +1420,4 @@ var __meta__ = {
     ui.plugin(ScrollView);
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

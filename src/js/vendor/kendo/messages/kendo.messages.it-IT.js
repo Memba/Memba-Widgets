@@ -1,20 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -311,6 +304,26 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
 });
 }
 
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+    "noRows": "No records to display",
+    "loading": "Loading...",
+    "requestFailed": "Request failed.",
+    "retry": "Riprova",
+    "commands": {
+        "edit": "Edit",
+        "update": "Aggiorna",
+        "canceledit": "Cancel",
+        "create": "Aggiungi nuovo elemento",
+        "createchild": "Add child record",
+        "destroy": "Rimuovi",
+        "excel": "Export to Excel",
+        "pdf": "Export to PDF"
+    }
+});
+}
+
 /* TreeListPager messages */
 
 if (kendo.ui.TreeListPager) {
@@ -349,6 +362,16 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
 });
 }
 
+/* FileBrowser messages */
+
+if (kendo.ui.FileBrowser) {
+kendo.ui.FileBrowser.prototype.options.messages =
+$.extend(true, kendo.ui.FileBrowser.prototype.options.messages,{
+  "dropFilesHere": "rilascia qui i files per l'upload",
+  "search": "Cerca"
+});
+}
+
 /* Editor messages */
 
 if (kendo.ui.Editor) {
@@ -373,7 +396,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "justifyRight": "Allinea il testo a destra",
   "outdent": "Riduci rientro",
   "strikethrough": "Barrato",
-  "styles": "Stili",
+  "style": "Stili",
   "subscript": "A pedice",
   "superscript": "In apice",
   "underline": "Sottolineato",
@@ -926,4 +949,3 @@ if (kendo.ui.OrgChart) {
 }
 
 })(window.kendo.jQuery);
-}));

@@ -1,14 +1,27 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define) {
-    define('kendo.scheduler',[ "kendo.dropdownlist", "kendo.editable", "kendo.multiselect", "kendo.window", "kendo.datetimepicker", "kendo.scheduler.recurrence", "kendo.scheduler.view", "kendo.scheduler.dayview", "kendo.scheduler.agendaview", "kendo.scheduler.monthview", "kendo.scheduler.timelineview", "kendo.scheduler.yearview", "kendo.dialog", "kendo.pane", "kendo.pdf", "kendo.switch" ], f);
-})(function() {
+import "./kendo.dropdownlist.js";
+import "./kendo.editable.js";
+import "./kendo.multiselect.js";
+import "./kendo.window.js";
+import "./kendo.datetimepicker.js";
+import "./kendo.scheduler.recurrence.js";
+import "./kendo.scheduler.view.js";
+import "./kendo.scheduler.dayview.js";
+import "./kendo.scheduler.agendaview.js";
+import "./kendo.scheduler.monthview.js";
+import "./kendo.scheduler.timelineview.js";
+import "./kendo.scheduler.yearview.js";
+import "./kendo.dialog.js";
+import "./kendo.pane.js";
+import "./kendo.pdf.js";
+import "./kendo.switch.js";
 
 var __meta__ = {
     id: "scheduler",
@@ -2132,6 +2145,10 @@ var __meta__ = {
 
             that._wrapper();
 
+            if (that.options.selectable) {
+                that._tabindex();
+            }
+
             that._views();
 
             that._toolbar();
@@ -2160,10 +2177,6 @@ var __meta__ = {
 
             if (that.options.messages && that.options.messages.recurrence) {
                 recurrence.options = that.options.messages.recurrence;
-            }
-
-            if (that.options.selectable) {
-                that._tabindex();
             }
 
             that._navigation();
@@ -2619,17 +2632,9 @@ var __meta__ = {
         },
 
         _initialFocus: function() {
-            var firstEvent = this._firstEvent(),
-                view = this.view();
+            var firstEvent = this._firstEvent();
 
-            if (view.name === "year") {
-                if (!view._preventCalendarFocus) {
-                    view.calendar.element.find(".k-calendar-view").attr("tabindex", 0);
-                    view.calendar.focus();
-                } else {
-                    view._preventCalendarFocus = false;
-                }
-            } else if (this.options.selectable) {
+            if (this.options.selectable) {
                 if (firstEvent && firstEvent.length > 0) {
                     this._createSelection(firstEvent);
                     this._selection.eventElement = firstEvent[0];
@@ -2865,7 +2870,6 @@ var __meta__ = {
                 this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
 
                 if (this._selectedViewName === "year") {
-                    this.view().calendar.element.find(".k-calendar-view").attr("tabindex", 0);
                     this.view().calendar.focus();
                 } else if (document.activeElement !== this.element[0]) {
                     this.element.focus();
@@ -2968,12 +2972,10 @@ var __meta__ = {
             }
 
             if (key === keys.F10) {
-                view.calendar.element.find(".k-calendar-view").removeAttr("tabindex");
                 this._focusToolbar();
                 e.preventDefault();
             } else {
                 this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                view.calendar.element.find(".k-calendar-view").attr("tabindex", 0);
                 view.calendar.focus();
             }
 
@@ -4540,6 +4542,12 @@ var __meta__ = {
             var that = this;
 
             if (name) {
+                if (name === "year") {
+                    that.wrapper.removeAttr("tabindex");
+                } else {
+                    that.wrapper.attr("tabindex", 0);
+                }
+
                 that._selectView(name);
                 that.rebind();
 
@@ -4658,12 +4666,12 @@ var __meta__ = {
                     }
                 } else {
                     type = name = view;
+                    view = {};
                 }
 
                 defaultView = defaultViews[name];
 
                 if (defaultView && !hasType) {
-
                     view.type = defaultView.type;
                     defaultView.title = this.options.messages.views[name];
                     if (defaultView.type === "day") {
@@ -5138,8 +5146,15 @@ var __meta__ = {
         },
 
         slotByElement: function(element) {
-            var offset = $(element).offset();
-            return this.slotByPosition(offset.left, offset.top);
+            var el = $(element),
+                offset = el.offset(),
+                width = el.width(),
+                height = el.height(),
+                centerX = offset.left + width / 2,
+                centerY = offset.top + height / 2,
+                offset = $(element).offset();
+
+            return this.slotByPosition(centerX, centerY);
         },
 
         resourcesBySlot: function(slot) {
@@ -5481,8 +5496,4 @@ var __meta__ = {
     ui.plugin(MobileTimezoneEditor);
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -159,6 +159,7 @@
 @link-text-color: @base;
 @header-text-color: @normal-text-color;
 @header-background-color: @background;
+@footer-background-color: @header-background-color;
 @group-background-color: @background;
 @group-border-color: darken(@background, 21%);
 @content-background-color: @background;
@@ -213,6 +214,7 @@
 @tooltip-text: @normal-text-color;
 @tooltip-border: darken(@background, 21%);
 
+@tooltip-callout-s-border: inherit;
 
 @validation-text-color: contrast(@validation-background-color, lighten(@warning, 80%), darken(@warning, 60%), 0.5);
 @validation-background-color: @warning;
@@ -235,7 +237,7 @@
 @event-background-color: lighten(@base, 28%);
 @event-text-color: contrast( @event-background-color );
 @event-inverse-text-color: contrast( @event-text-color );
-@scheduler-nonwork-background-color: @background;
+@scheduler-nonwork-background-color: lighten(@selected-background-color, 5%);
 @resize-background-color: @background;
 @upload-progress-background-color: @info;
 @upload-progress-text-color: @normal-text-color;
@@ -1708,6 +1710,7 @@
 
 .k-block,
 .k-widget,
+.k-popup,
 .k-group,
 .k-content,
 .k-header,
@@ -2080,6 +2083,7 @@ td.k-group-cell,
 }
 
 .k-state-selected,
+.k-selected,
 .k-state-selected:link,
 .k-selected:link,
 .k-state-selected:visited,
@@ -2928,10 +2932,6 @@ div.k-splitbar.k-focus .k-icon,
         background-color: @widget-background-color;
         border-color: transparent;
     }
-}
-
-.k-scheduler .k-nonwork-hour {
-    background-color: lighten(@selected-background-color, 5%);
 }
 
 .k-scheduler-content .k-event {

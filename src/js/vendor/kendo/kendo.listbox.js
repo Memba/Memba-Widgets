@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,9 +7,9 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 
-(function(f, define) {
-    define('kendo.listbox',[ "kendo.draganddrop", "kendo.data", "kendo.selectable" ], f);
-})(function() {
+import "./kendo.draganddrop.js";
+import "./kendo.data.js";
+import "./kendo.selectable.js";
 
 var __meta__ = {
     id: "listbox",
@@ -45,7 +45,8 @@ var __meta__ = {
     var ENABLED_ITEM_SELECTOR = ".k-list-item:not(.k-disabled)";
     var ENABLED_ITEMS_SELECTOR = ".k-list-ul:not(.k-disabled) >" + ENABLED_ITEM_SELECTOR;
     var TOOLBAR_CLASS = "k-listbox-toolbar";
-    var TOOL_SELECTOR = "li > a.k-button:not(.k-disabled)";
+    var TOOL_SELECTOR = ".k-button";
+    var ENABLED_TOOL_SELECTOR = "li > a.k-button:not(.k-disabled)";
     var FOCUSED_CLASS = "k-focus";
     var DRAG_CLUE_CLASS = "k-drag-clue";
     var DROP_HINT_CLASS = "k-drop-hint";
@@ -84,6 +85,13 @@ var __meta__ = {
 
     var RIGHT = "right";
     var BOTTOM = "bottom";
+
+    var ARIA_ACTIVEDESCENDENT = "aria-activedescendant";
+    var ARIA_BUSY = "aria-busy";
+    var ARIA_CONTROLS = "aria-controls";
+    var ARIA_LABEL = "aria-label";
+    var ARIA_LABELLEDBY = "aria-labelledby";
+    var ARIA_MULTISELECTABLE = "aria-multiselectable";
 
     var TOOLBAR_POSITION_CLASS_NAMES = [
         TOOLBAR_CLASS + DASH + "left",
@@ -295,7 +303,7 @@ var __meta__ = {
         _blur: function() {
             if (this._target) {
                 this._target.removeClass(FOCUSED_CLASS);
-                this._getList().removeAttr("aria-activedescendant");
+                this._getList().removeAttr(ARIA_ACTIVEDESCENDENT);
             }
             this._target = null;
         },
@@ -304,8 +312,9 @@ var __meta__ = {
             var that = this;
             var target = $(e.currentTarget);
             var oldTarget = that._target;
+            var list = that._getList();
             var activeEl = kendo._activeElement();
-            var isContained = $.contains(that.wrapper[0], activeEl);
+            var isContained = $.contains(list, activeEl);
 
             if (oldTarget) {
                 oldTarget.removeClass(FOCUSED_CLASS);
@@ -313,9 +322,9 @@ var __meta__ = {
 
             that._target = target;
             target.addClass(FOCUSED_CLASS);
-            that._getList().attr("aria-activedescendant", target.attr(ID));
+            list.attr(ARIA_ACTIVEDESCENDENT, target.attr(ID));
 
-            if (that._getList()[0] !== kendo._activeElement() && (!isContained || !isInputElement(activeEl))) {
+            if (list[0] !== activeEl && (!isContained || !isInputElement(activeEl))) {
                 that.focus();
             }
         },
@@ -371,10 +380,6 @@ var __meta__ = {
             var current = that._getNavigatableItem(key);
             var shouldPreventDefault;
 
-            if (that._target) {
-                that._target.removeClass(FOCUSED_CLASS);
-            }
-
             if (!(e.shiftKey && !e.ctrlKey && (key === keys.DOWN || key === keys.UP))) {
                 that._shiftSelecting = false;
             }
@@ -383,7 +388,7 @@ var __meta__ = {
                 that._executeCommand(REMOVE);
                 if (that._target) {
                     that._target.removeClass(FOCUSED_CLASS);
-                    that._getList().removeAttr("aria-activedescendant");
+                    that._getList().removeAttr(ARIA_ACTIVEDESCENDENT);
                     that._target = null;
                 }
                 shouldPreventDefault = true;
@@ -392,7 +397,12 @@ var __meta__ = {
                     e.preventDefault();
                     return;
                 }
+
                 if (e.shiftKey && !e.ctrlKey) {
+                    if (that._target) {
+                        that._target.removeClass(FOCUSED_CLASS);
+                    }
+
                     if (!that._shiftSelecting) {
                         that.clearSelection();
                         that._shiftSelecting = true;
@@ -400,10 +410,13 @@ var __meta__ = {
                     if (that._target && current.hasClass("k-selected")) {
                         that._target.removeClass(SELECTED_STATE_CLASS);
                     } else if (that.options.selectable == "single") {
-                       that.select(current);
+                        that.select(current);
                     } else {
-                       that.select(current.add(that._target));
+                        that.select(current.add(that._target));
                     }
+
+                    that._updateToolbar();
+                    that._updateAllToolbars();
                     that.trigger(CHANGE);
                 } else if (e.shiftKey && e.ctrlKey) {
                     that._executeCommand(key === keys.DOWN ? MOVE_DOWN : MOVE_UP);
@@ -411,35 +424,51 @@ var __meta__ = {
                     e.preventDefault();
                     return;
                 } else if (!e.shiftKey && !e.ctrlKey) {
+                    if (that._target) {
+                        that._target.removeClass(FOCUSED_CLASS);
+                    }
+
                     if (that.options.selectable === "multiple") {
                         that.clearSelection();
                     }
+
                     that.select(current);
+                    that._updateToolbar();
+                    that._updateAllToolbars();
                     that.trigger(CHANGE);
                 }
 
+                if (current && that._target && that._target[0] !== current[0]) {
+                    that._target.removeClass(FOCUSED_CLASS);
+                }
+
                 that._target = current;
+
                 if (that._target) {
                     that._target.addClass(FOCUSED_CLASS);
                     that._scrollIntoView(that._target);
-                    that._getList().attr("aria-activedescendant", that._target.attr(ID));
+                    that._getList().attr(ARIA_ACTIVEDESCENDENT, that._target.attr(ID));
                 } else {
-                    that._getList().removeAttr("aria-activedescendant");
+                    that._getList().removeAttr(ARIA_ACTIVEDESCENDENT);
                 }
                 shouldPreventDefault = true;
             } else if (key == keys.SPACEBAR) {
                 if (e.ctrlKey && that._target) {
-                   if (that._target.hasClass(SELECTED_STATE_CLASS)) {
-                       that._target.removeClass(SELECTED_STATE_CLASS);
-                   } else {
-                       that.select(that._target);
-                   }
+                    if (that._target.hasClass(SELECTED_STATE_CLASS)) {
+                        that._target.removeClass(SELECTED_STATE_CLASS);
+                    } else {
+                        that.select(that._target);
+                    }
+
                     that.trigger(CHANGE);
                 } else {
                    that.clearSelection();
                    that.select(that._target);
                    that.trigger(CHANGE);
                 }
+
+                that._updateToolbar();
+                that._updateAllToolbars();
                 shouldPreventDefault = true;
             } else if (e.ctrlKey && key == keys.RIGHT) {
                 if (e.shiftKey) {
@@ -447,6 +476,7 @@ var __meta__ = {
                 } else {
                    that._executeCommand(TRANSFER_TO);
                 }
+
                 that._target = that.select().length ? that.select() : null;
                 shouldPreventDefault = true;
             } else if (e.ctrlKey && key == keys.LEFT) {
@@ -456,6 +486,12 @@ var __meta__ = {
                    that._executeCommand(TRANSFER_FROM);
                 }
                 shouldPreventDefault = true;
+            } else if (key === keys.F10) {
+                if (that.toolbar) {
+                    that.toolbar.element.find(TOOL_SELECTOR).not("[tabindex=-1]").trigger("focus");
+
+                    shouldPreventDefault = true;
+                }
             }
 
             if (shouldPreventDefault) {
@@ -899,7 +935,7 @@ var __meta__ = {
             that._bindDataSource();
 
             if (that.options.autoBind) {
-                that.wrapper.attr("aria-busy", true);
+                that.wrapper.attr(ARIA_BUSY, true);
                 that.dataSource.fetch();
             }
         },
@@ -962,7 +998,7 @@ var __meta__ = {
                 selectableOptions = Selectable.parseOptions(selectable);
 
             if (selectableOptions.multiple) {
-                list.attr("aria-multiselectable", "true");
+                list.attr(ARIA_MULTISELECTABLE, "true");
             }
 
             list.appendTo(that.wrapper.find(".k-list-content"));
@@ -988,7 +1024,7 @@ var __meta__ = {
             that.templates = {
                 itemTemplate: kendo.template("# var item = data.item, r = data.r; # <li class='k-list-item' role='option' aria-selected='false'><span class='k-list-item-text'>#=r(item)#</span></li>", { useWithBlock: false }),
                 itemContent: template,
-                toolbar: "<div class='" + TOOLBAR_CLASS + "'></div>"
+                toolbar: "<div role='toolbar' class='" + TOOLBAR_CLASS + "'></div>"
             };
         },
 
@@ -1009,7 +1045,7 @@ var __meta__ = {
             that._updateAllToolbars();
             that.trigger(DATABOUND);
 
-            that.wrapper.attr("aria-busy", false);
+            that.wrapper.attr(ARIA_BUSY, false);
         },
 
         _syncElement: function() {
@@ -1467,6 +1503,8 @@ var __meta__ = {
             that._createTools();
             that._updateToolStates();
             that._attachEventHandlers();
+            that._aria();
+            that._tabindex();
         },
 
         destroy: function() {
@@ -1483,15 +1521,30 @@ var __meta__ = {
             tools: []
         },
 
-        _initTemplates: function() {
-            this.templates = {
-                tool: kendoTemplate(
-                    "<li>" +
-                        "<a href='\\\\#' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' data-command='#= command #' title='#= text #' aria-label='#= text #' role='button'>" +
-                            "<span class='k-button-icon k-icon #= iconClass #'></span>" +
-                        "</a>" +
-                    "</li>")
-            };
+        _aria: function() {
+            var listEl = this.listBox._getList(),
+                listBoxLabelledby = listEl.attr(ARIA_LABELLEDBY),
+                listBoxLabel = listBoxLabelledby ? $("#" + listBoxLabelledby).text() : listEl.attr(ARIA_LABEL),
+                listElId = listEl.attr("id") || kendo.guid();
+
+            listEl.attr("id", listElId);
+            this.element.attr(ARIA_CONTROLS, listElId);
+
+            if (listBoxLabel) {
+                this.element.attr(ARIA_LABEL, listBoxLabel + " toolbar.");
+            }
+        },
+
+        _attachEventHandlers: function() {
+            var that = this;
+
+            that.element
+                .on(CLICK, ENABLED_TOOL_SELECTOR, that._onToolClick.bind(that))
+                .on(KEYDOWN, that._keyDown.bind(that));
+        },
+
+        _createToolList: function() {
+            return $("<ul class='k-reset' />");
         },
 
         _createTools: function() {
@@ -1514,24 +1567,8 @@ var __meta__ = {
             that.element.append(toolList);
         },
 
-        _createToolList: function() {
-            return $("<ul class='k-reset' />");
-        },
-
-        _attachEventHandlers: function() {
-            var that = this;
-
-            that.element.on(CLICK, TOOL_SELECTOR, that._onToolClick.bind(that));
-        },
-
         _detachEventHandlers: function() {
             this.element.off(NS).find("*").off(NS);
-        },
-
-        _onToolClick: function(e) {
-            e.preventDefault();
-
-            this._executeToolCommand($(e.currentTarget).data(COMMAND));
         },
 
         _executeToolCommand: function(command) {
@@ -1543,15 +1580,73 @@ var __meta__ = {
             }
         },
 
+        _focusTool: function() {
+            this.element.find(TOOL_SELECTOR).not("[tabindex=-1]").trigger("focus");
+        },
+
+        _initTemplates: function() {
+            this.templates = {
+                tool: kendoTemplate(
+                    "<li>" +
+                        "<a href='\\\\#' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' data-command='#= command #' title='#= text #' aria-label='#= text #' role='button'>" +
+                            "<span class='k-button-icon k-icon #= iconClass #'></span>" +
+                        "</a>" +
+                    "</li>")
+            };
+        },
+
+        _keyDown: function(e) {
+            var key = e.keyCode,
+                targetTool = $(e.target).closest("li");
+
+            if (key === kendo.keys.UP || key === kendo.keys.LEFT) {
+                e.preventDefault();
+                if (targetTool.prev().length) {
+                    this._tabindex(targetTool.prev().find(TOOL_SELECTOR));
+                }
+                this._focusTool();
+            } else if (key === kendo.keys.DOWN || key === kendo.keys.RIGHT) {
+                e.preventDefault();
+                if (targetTool.next()) {
+                    this._tabindex(targetTool.next().find(TOOL_SELECTOR));
+                }
+                this._focusTool();
+            }
+        },
+
+        _onToolClick: function(e) {
+            e.preventDefault();
+
+            this._executeToolCommand($(e.currentTarget).data(COMMAND));
+            this._focusTool();
+        },
+
+        _tabindex: function(candidate) {
+            var buttons = this.element.find(TOOL_SELECTOR),
+                focusable;
+
+            if (candidate && candidate.length) {
+                focusable = candidate;
+            } else {
+                focusable = buttons.first();
+            }
+
+            buttons.attr(TABINDEX, -1);
+            focusable.removeAttr(TABINDEX);
+        },
+
         _updateToolStates: function() {
             var that = this;
             var tools = that.options.tools;
             var toolsLength = tools.length;
             var i;
+            var focusable = that.element.find(TOOL_SELECTOR).not("[tabindex=-1]");
 
             for (i = 0; i < toolsLength; i++) {
                 that._updateToolState(tools[i]);
             }
+
+            that._tabindex(focusable);
         },
 
         _updateToolState: function(toolName) {
@@ -1610,8 +1705,4 @@ var __meta__ = {
     }
 
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

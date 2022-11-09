@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,9 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 
-(function(f, define) {
-    define('kendo.sortable',[ "kendo.draganddrop" ], f);
-})(function() {
+import "./kendo.draganddrop.js";
 
 var __meta__ = {
     id: "sortable",
@@ -526,8 +524,4 @@ var __meta__ = {
 
     kendo.ui.plugin(Sortable);
 })(window.kendo.jQuery);
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

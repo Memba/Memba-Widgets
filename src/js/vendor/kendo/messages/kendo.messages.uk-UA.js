@@ -1,20 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -203,6 +196,28 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
 });
 }
 
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+  "noRows": "No records to display",
+  "loading": "Loading...",
+  "requestFailed": "Request failed.",
+  "retry": "Retry",
+  "commands": {
+      "edit": "Редагувати",
+      "update": "Оновити",
+      "canceledit": "Cancel",
+      "create": "Додати",
+      "createchild": "Add child record",
+      "destroy": "Видалити",
+      "excel": "Export to Excel",
+      "pdf": "Export to PDF"
+  }
+});
+}
+
 /* TreeListPager messages */
 
 if (kendo.ui.TreeListPager) {
@@ -289,7 +304,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "justifyRight": "По правому краю",
   "outdent": "Зменшити відступ",
   "strikethrough": "Закреслений",
-  "styles": "Стиль",
+  "style": "Стиль",
   "subscript": "Subscript",
   "superscript": "Superscript",
   "underline": "Підкреслений",
@@ -446,4 +461,3 @@ $.extend(true, kendo.ui.Prompt.prototype.options.localization, {
 }
 
 })(window.kendo.jQuery);
-}));

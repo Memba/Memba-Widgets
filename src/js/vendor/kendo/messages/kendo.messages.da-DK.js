@@ -1,20 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -259,9 +252,26 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "isFalse": "er falskt",
   "isTrue": "er sandt",
   "cancel": "Annuller",
-  "operator": "Operator",
+  "operator": "Operatør",
   "value": "Value",
   "or": "Eller"
+});
+}
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+    "requestFailed": "Request failed.",
+    "retry": "Forsøg igen",
+    "commands": {
+        "edit": "Redigér",
+        "update": "Opdatér",
+        "canceledit": "Fortryd",
+        "cancel": "Fortryd",
+        "create": "Indsæt",
+        "createchild": "Add child record",
+        "destroy": "Slet"
+    }
 });
 }
 
@@ -298,7 +308,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "justifyRight": "Højrejustér tekst",
   "outdent": "Ryk ud",
   "strikethrough": "Gennemstreget",
-  "styles": "Stilarter",
+  "style": "Stilarter",
   "subscript": "Sænket skrift",
   "superscript": "Hævet skrift",
   "underline": "Understreget",
@@ -452,4 +462,3 @@ $.extend(true, kendo.ui.Prompt.prototype.options.localization,{
 }
 
 })(window.kendo.jQuery);
-}));

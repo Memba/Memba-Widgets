@@ -1,20 +1,13 @@
 /**
- * Kendo UI v2022.3.913 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-
-(function(f){
-    if (typeof define === 'function' && define.amd) {
-        define(["kendo.core"], f);
-    } else {
-        f();
-    }
-}(function(){
 (function($, undefined) {
+
   /* FlatColorPicker messages */
 
   if (kendo.ui.FlatColorPicker) {
@@ -63,6 +56,7 @@
         "bold": "Έντονα",
         "italic": "Πλάγια",
         "underline": "Υπογράμμιση",
+        "print": "Εκτύπωση",
         "strikethrough": "Διακριτή Διαγραφή",
         "superscript": "Εκθέτης",
         "subscript": "Δείκτης",
@@ -106,7 +100,7 @@
         "fileTitle": "Τίτλος",
         "linkWebAddress": "Ηλεκτρονική Διεύθυνση",
         "linkText": "Κείμενο",
-        "linkToolTip": "ToolTip",
+        "linkToolTip": "αναγγελία",
         "linkOpenInNewWindow": "Άνοιγμα συνδέσμου σε νέα καρτέλα.",
         "dialogUpdate": "Ανανέωση",
         "dialogInsert": "Εισαγωγή",
@@ -312,6 +306,7 @@
         "checkAll": "Επιλογή όλων",
         "clear": "Εκκαθάριση",
         "filter": "Φίλτρο",
+        "selectedItemsFormat": "{0} επιλεγμένα στοιχεία",
         "search": "Αναζήτηση"
       });
   }
@@ -378,7 +373,9 @@
           "confirmation": "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την εγγραφή;",
           "confirmDelete": "Διαγραφή"
         },
-        "noRecords": "Δεν υπάρχουν εγγραφές."
+        "noRecords": "Δεν υπάρχουν εγγραφές.",
+        "groupHeader": "Πατήστε ctrl + space για να ομαδοποιήσετε",
+        "ungroupHeader": "Πατήστε ctrl + space για να την αποκλείσετε"
       });
   }
 
@@ -582,6 +579,9 @@
         "date": "Ημερομηνία",
         "event": "Γεγονός",
         "time": "Ώρα",
+        "next": "Επόμενο",
+        "previous": "προηγούμενος",
+        "resetSeries": "Επαναφορά σειράς",
         "showFullDay": "Δείξε ολόκληρη ημέρα",
         "showWorkDay": "Δείξε εργάσιμες ώρες",
         "today": "Σήμερα",
@@ -604,6 +604,7 @@
         "recurrenceMessages": {
           "deleteWindowTitle": "Διαγραφή επαναλαμβανόμενων αντικειμένων",
           "deleteWindowOccurrence": "Διαγραφή τρέχουσας εμφάνισης",
+          "resetSeriesWindowTitle": "Επαναφορά σειράς",
           "deleteWindowSeries": "Διαγραφή της σειράς",
           "editWindowTitle": "Επεξεργασία επαναλαμβανόμενου αντικειμένου",
           "editWindowOccurrence": "Επεξεργασία τρέχουσας εμφάνισης",
@@ -1072,4 +1073,3 @@
   }
 
 })(window.kendo.jQuery);
-}));

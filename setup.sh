@@ -4,50 +4,50 @@
 cd "$(dirname "$0")"
 # call "%ProgramFiles%\nodejs\nodevars.bat"
 
-# update npm, which is a requirement for some modules
-npm install -g npm
+# update sudo npm, which is a requirement for some modules
+sudo npm install -g npm
 
 # appium
-npm install -g appium-doctor
-npm install -g appium
+sudo npm install -g appium-doctor
+sudo npm install -g appium
 
 # aws
-npm install -g aws-cdk
+sudo npm install -g aws-cdk
 
 # cordova
-npm install -g cordova-simulate
-npm install -g cordova
+sudo npm install -g cordova-simulate
+sudo npm install -g cordova
 
 # expo cli
-# npm install -g expo-cli
+# sudo npm install -g expo-cli
 
 # forever -> pm2
-npm install -g forever
+sudo npm install -g forever
 
 # grunt cli
-npm install -g grunt-cli
+sudo npm install -g grunt-cli
 
 # karma cli
-npm install -g karma-cli
+sudo npm install -g karma-cli
 
 # ncu
-npm install -g npm-check-updates
+sudo npm install -g npm-check-updates
 
 # sass
-npm install -g sass
+sudo npm install -g sass
 
 # selenium
-npm install -g selenium-standalone
-selenium-standalone install
+sudo npm install -g selenium-standalone
+sudo selenium-standalone install --version 4.6.0
 
 # sloc
-npm install -g sloc
+sudo npm install -g sloc
 
 # Typescript
-npm install -g typescript
+sudo npm install -g typescript
 
 # weinre
-# npm install -g weinre
+# sudo npm install -g weinre
 
 # install all local modules in package.json
 NODE_ENV=development

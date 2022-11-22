@@ -48,7 +48,7 @@
     "grunt-mocha": "^1.0.4",
     "grunt-mocha-test": "^0.13.3",
     "grunt-stylelint": "^0.10.0",
-    "karma": "^2.0.0",
+    "karma": "^6.4.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.1",

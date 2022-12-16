@@ -56,23 +56,24 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.codeeditor');
 const NS = '.kendoCodeEditor';
-const WIDGET_CLASS = 'k-widget kj-codeeditor';
-const EDITOR_CLASS = 'kj-codeeditor-editor';
-const MESSAGE_CLASS = 'kj-codeeditor-message';
-const NOTIFICATION_CLASS = 'kj-codeeditor-notification';
-const PANEL_CLASS = 'kj-codeeditor-panel';
+const WIDGET_CLASS = 'k-widget m-codeeditor';
+const EDITOR_CLASS = 'm-codeeditor-editor';
+const MESSAGE_CLASS = 'm-codeeditor-message';
+const NOTIFICATION_CLASS = 'm-codeeditor-notification';
+const PANEL_CLASS = 'm-codeeditor-panel';
 const LABEL_TMPL =
     '<div class="k-edit-label"><label for="{0}">{1}</label></div>';
 const CODE_TMPL = '<span class="k-icon k-i-js"/>';
 const FIELD_TMPL = '<div class="k-edit-field" data-container-for="{0}"/>';
 const BUTTON_TMPL =
-    '<button class="k-button k-primary"><span class="k-icon k-i-{0}"></span>&nbsp;{1}</button>';
+    '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary">' +
+    '<span class="k-icon k-i-{0} k-button-icon"></span><span class="k-button-text">&nbsp;{1}</span></button>';
 const NOTIFICATION_TMPL =
     '<div class="k-widget k-notification k-notification-#: type #" data-role="alert">' +
     '<div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div>' +
     '</div>';
 const MESSAGE_TMPL = '<div class="k-block k-error-colored">#: message #</div>';
-const TOOLTIP_TMPL = '<pre class="kj-codeeditor-json">{0}</pre>';
+const TOOLTIP_TMPL = '<pre class="m-codeeditor-json">{0}</pre>';
 const SOLUTION_PROP = 'properties.solution';
 const VALIDATION_PROP = 'properties.validation';
 
@@ -235,13 +236,13 @@ const CodeEditor = DataBoundWidget.extend({
         $(format(FIELD_TMPL, 'value')).appendTo(panel);
 
         // Add test button and notification
-        const wrapper = $(`<${CONSTANTS.DIV}/>`)
-            .addClass('k-edit-buttons')
+        const buttons = $(`<${CONSTANTS.DIV}/>`)
+            .addClass('k-py-3') // 'k-edit-buttons')
             .appendTo(panel);
         this.testButton = $(
             format(BUTTON_TMPL, 'play', messages.test)
-        ).appendTo(wrapper);
-        $(`<${CONSTANTS.DIV}/>`).addClass(NOTIFICATION_CLASS).appendTo(wrapper);
+        ).appendTo(buttons);
+        $(`<${CONSTANTS.DIV}/>`).addClass(NOTIFICATION_CLASS).appendTo(panel);
         $(`<${CONSTANTS.DIV}/>`).addClass(MESSAGE_CLASS).appendTo(panel);
 
         this.tooltip = panel.kendoTooltip({

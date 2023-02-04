@@ -1,5 +1,5 @@
 /**
- * FingerprintJS v3.3.4 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
+ * FingerprintJS v3.4.0 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  *
  * This software contains code from open-source projects:
@@ -9,7 +9,7 @@
 var FingerprintJS = (function (exports) {
     'use strict';
 
-    /*! *****************************************************************************
+    /******************************************************************************
     Copyright (c) Microsoft Corporation.
 
     Permission to use, copy, modify, and/or distribute this software for any
@@ -51,7 +51,7 @@ var FingerprintJS = (function (exports) {
         function verb(n) { return function (v) { return step([n, v]); }; }
         function step(op) {
             if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
+            while (g && (g = 0, op[0] && (_ = 0)), _) try {
                 if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
                 if (y = 0, t) op = [op[0] & 2, t.value];
                 switch (op[0]) {
@@ -73,15 +73,17 @@ var FingerprintJS = (function (exports) {
         }
     }
 
-    function __spreadArrays() {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
+    function __spreadArray(to, from, pack) {
+        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+            if (ar || !(i in from)) {
+                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+                ar[i] = from[i];
+            }
+        }
+        return to.concat(ar || Array.prototype.slice.call(from));
     }
 
-    var version = "3.3.4";
+    var version = "3.4.0";
 
     function wait(durationMs, resolveWith) {
         return new Promise(function (resolve) { return setTimeout(resolve, durationMs, resolveWith); });
@@ -100,7 +102,7 @@ var FingerprintJS = (function (exports) {
         }
     }
     function isPromise(value) {
-        return value && typeof value.then === 'function';
+        return !!value && typeof value.then === 'function';
     }
     /**
      * Calls a maybe asynchronous function without creating microtasks when the function is synchronous.
@@ -473,7 +475,7 @@ var FingerprintJS = (function (exports) {
      */
     function parseSimpleCssSelector(selector) {
         var _a, _b;
-        var errorMessage = "Unexpected syntax '" + selector + "'";
+        var errorMessage = "Unexpected syntax '".concat(selector, "'");
         var tagMatch = /^\s*([a-z-]*)(.*)$/i.exec(selector);
         var tag = tagMatch[1] || undefined;
         var attributes = {};
@@ -601,8 +603,8 @@ var FingerprintJS = (function (exports) {
                             componentPromises = Array(includedSources.length);
                             _loop_1 = function () {
                                 var hasAllComponentPromises;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
+                                return __generator(this, function (_b) {
+                                    switch (_b.label) {
                                         case 0:
                                             hasAllComponentPromises = true;
                                             return [4 /*yield*/, forEachWithBreaks(includedSources, function (sourceKey, index) {
@@ -619,13 +621,13 @@ var FingerprintJS = (function (exports) {
                                                     }
                                                 })];
                                         case 1:
-                                            _a.sent();
+                                            _b.sent();
                                             if (hasAllComponentPromises) {
                                                 return [2 /*return*/, "break"];
                                             }
                                             return [4 /*yield*/, wait(1)]; // Lets the source load loop continue
                                         case 2:
-                                            _a.sent(); // Lets the source load loop continue
+                                            _b.sent(); // Lets the source load loop continue
                                             return [2 /*return*/];
                                     }
                                 });
@@ -883,14 +885,14 @@ var FingerprintJS = (function (exports) {
         var w = window;
         var AudioContext = w.OfflineAudioContext || w.webkitOfflineAudioContext;
         if (!AudioContext) {
-            return -2 /* NotSupported */;
+            return -2 /* SpecialFingerprint.NotSupported */;
         }
         // In some browsers, audio context always stays suspended unless the context is started in response to a user action
         // (e.g. a click or a tap). It prevents audio fingerprint from being taken at an arbitrary moment of time.
         // Such browsers are old and unpopular, so the audio fingerprinting is just skipped in them.
         // See a similar case explanation at https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
         if (doesCurrentBrowserSuspendAudioContext()) {
-            return -1 /* KnownToSuspend */;
+            return -1 /* SpecialFingerprint.KnownToSuspend */;
         }
         var hashFromIndex = 4500;
         var hashToIndex = 5000;
@@ -909,8 +911,8 @@ var FingerprintJS = (function (exports) {
         oscillator.start(0);
         var _a = startRenderingAudio(context), renderPromise = _a[0], finishRendering = _a[1];
         var fingerprintPromise = renderPromise.then(function (buffer) { return getHash(buffer.getChannelData(0).subarray(hashFromIndex)); }, function (error) {
-            if (error.name === "timeout" /* Timeout */ || error.name === "suspended" /* Suspended */) {
-                return -3 /* Timeout */;
+            if (error.name === "timeout" /* InnerErrorName.Timeout */ || error.name === "suspended" /* InnerErrorName.Suspended */) {
+                return -3 /* SpecialFingerprint.Timeout */;
             }
             throw error;
         });
@@ -943,7 +945,7 @@ var FingerprintJS = (function (exports) {
             var startedRunningAt = 0;
             context.oncomplete = function (event) { return resolve(event.renderedBuffer); };
             var startRunningTimeout = function () {
-                setTimeout(function () { return reject(makeInnerError("timeout" /* Timeout */)); }, Math.min(runningMaxAwaitTime, startedRunningAt + runningSufficientTime - Date.now()));
+                setTimeout(function () { return reject(makeInnerError("timeout" /* InnerErrorName.Timeout */)); }, Math.min(runningMaxAwaitTime, startedRunningAt + runningSufficientTime - Date.now()));
             };
             var tryRender = function () {
                 try {
@@ -967,7 +969,7 @@ var FingerprintJS = (function (exports) {
                                 renderTryCount++;
                             }
                             if (isFinalized && renderTryCount >= renderTryMaxCount) {
-                                reject(makeInnerError("suspended" /* Suspended */));
+                                reject(makeInnerError("suspended" /* InnerErrorName.Suspended */));
                             }
                             else {
                                 setTimeout(tryRender, renderRetryDelay);
@@ -1228,7 +1230,7 @@ var FingerprintJS = (function (exports) {
             };
             // creates a span and load the font to detect and a base font for fallback
             var createSpanWithFonts = function (fontToDetect, baseFont) {
-                return createSpan("'" + fontToDetect + "'," + baseFont);
+                return createSpan("'".concat(fontToDetect, "',").concat(baseFont));
             };
             // creates spans for the base fonts and adds them to baseFontsDiv
             var initializeBaseFontsSpans = function () {
@@ -1301,19 +1303,34 @@ var FingerprintJS = (function (exports) {
 
     // https://www.browserleaks.com/canvas#how-does-it-work
     function getCanvasFingerprint() {
+        var winding = false;
+        var geometry;
+        var text;
         var _a = makeCanvasContext(), canvas = _a[0], context = _a[1];
         if (!isSupported(canvas, context)) {
-            return { winding: false, geometry: '', text: '' };
+            geometry = text = ''; // The value will be 'unsupported' in v3.4
         }
-        return {
-            winding: doesSupportWinding(context),
-            geometry: makeGeometryImage(canvas, context),
-            // Text is unstable:
-            // https://github.com/fingerprintjs/fingerprintjs/issues/583
-            // https://github.com/fingerprintjs/fingerprintjs/issues/103
-            // Therefore it's extracted into a separate image.
-            text: makeTextImage(canvas, context),
-        };
+        else {
+            winding = doesSupportWinding(context);
+            renderTextImage(canvas, context);
+            var textImage1 = canvasToString(canvas);
+            var textImage2 = canvasToString(canvas); // It's slightly faster to double-encode the text image
+            // Some browsers add a noise to the canvas: https://github.com/fingerprintjs/fingerprintjs/issues/791
+            // The canvas is excluded from the fingerprint in this case
+            if (textImage1 !== textImage2) {
+                geometry = text = 'unstable';
+            }
+            else {
+                text = textImage1;
+                // Text is unstable:
+                // https://github.com/fingerprintjs/fingerprintjs/issues/583
+                // https://github.com/fingerprintjs/fingerprintjs/issues/103
+                // Therefore it's extracted into a separate image.
+                renderGeometryImage(canvas, context);
+                geometry = canvasToString(canvas);
+            }
+        }
+        return { winding: winding, geometry: geometry, text: text };
     }
     function makeCanvasContext() {
         var canvas = document.createElement('canvas');
@@ -1322,7 +1339,6 @@ var FingerprintJS = (function (exports) {
         return [canvas, canvas.getContext('2d')];
     }
     function isSupported(canvas, context) {
-        // TODO: look into: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
         return !!(context && canvas.toDataURL);
     }
     function doesSupportWinding(context) {
@@ -1332,7 +1348,7 @@ var FingerprintJS = (function (exports) {
         context.rect(2, 2, 6, 6);
         return !context.isPointInPath(5, 5, 'evenodd');
     }
-    function makeTextImage(canvas, context) {
+    function renderTextImage(canvas, context) {
         // Resizing the canvas cleans it
         canvas.width = 240;
         canvas.height = 60;
@@ -1349,14 +1365,13 @@ var FingerprintJS = (function (exports) {
         // A bare emoji shouldn't be used because the canvas will change depending on the script encoding:
         // https://github.com/fingerprintjs/fingerprintjs/issues/66
         // Escape sequence shouldn't be used too because Terser will turn it into a bare unicode.
-        var printedText = "Cwm fjordbank gly " + String.fromCharCode(55357, 56835) /* 😃 */;
+        var printedText = "Cwm fjordbank gly ".concat(String.fromCharCode(55357, 56835) /* 😃 */);
         context.fillText(printedText, 2, 15);
         context.fillStyle = 'rgba(102, 204, 0, 0.2)';
         context.font = '18pt Arial';
         context.fillText(printedText, 4, 45);
-        return save(canvas);
     }
-    function makeGeometryImage(canvas, context) {
+    function renderGeometryImage(canvas, context) {
         // Resizing the canvas cleans it
         canvas.width = 122;
         canvas.height = 110;
@@ -1383,10 +1398,8 @@ var FingerprintJS = (function (exports) {
         context.arc(60, 60, 60, 0, Math.PI * 2, true);
         context.arc(60, 60, 20, 0, Math.PI * 2, true);
         context.fill('evenodd');
-        return save(canvas);
     }
-    function save(canvas) {
-        // TODO: look into: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
+    function canvasToString(canvas) {
         return canvas.toDataURL();
     }
 
@@ -1508,7 +1521,7 @@ var FingerprintJS = (function (exports) {
                         frameSize = getCurrentScreenFrame();
                         if (!isFrameSizeNull(frameSize)) return [3 /*break*/, 2];
                         if (screenFrameBackup) {
-                            return [2 /*return*/, __spreadArrays(screenFrameBackup)];
+                            return [2 /*return*/, __spreadArray([], screenFrameBackup, true)];
                         }
                         if (!getFullscreenElement()) return [3 /*break*/, 2];
                         // Some browsers set the screen frame to zero when programmatic fullscreen is on.
@@ -1593,7 +1606,7 @@ var FingerprintJS = (function (exports) {
         // For browsers that don't support timezone names
         // The minus is intentional because the JS offset is opposite to the real offset
         var offset = -getTimezoneOffset();
-        return "UTC" + (offset >= 0 ? '+' : '') + Math.abs(offset);
+        return "UTC".concat(offset >= 0 ? '+' : '').concat(Math.abs(offset));
     }
     function getTimezoneOffset() {
         var currentYear = new Date().getFullYear();
@@ -1702,6 +1715,8 @@ var FingerprintJS = (function (exports) {
             'UCShellJava',
             // Puffin on Android (checked in 9.0)
             'puffinDevice',
+            // UC on iOS and Opera on Android have no specific global variables
+            // Edge for Android isn't checked
         ]; _i < _a.length; _i++) {
             var key = _a[_i];
             var value = window[key];
@@ -1746,250 +1761,306 @@ var FingerprintJS = (function (exports) {
      * `embed` and `position: fixed;` will be considered as blocked anyway because it always has no offsetParent.
      * Avoid `iframe` and anything with `[src=]` because they produce excess HTTP requests.
      *
-     * See docs/content_blockers.md to learn how to make the list
+     * The "inappropriate" selectors are obfuscated. See https://github.com/fingerprintjs/fingerprintjs/issues/734.
+     * A function is used instead of a plain object to help tree-shaking.
+     *
+     * The function code is generated automatically. See docs/content_blockers.md to learn how to make the list.
      */
-    var filters = {
-        abpIndo: [
-            '#Iklan-Melayang',
-            '#Kolom-Iklan-728',
-            '#SidebarIklan-wrapper',
-            'a[title="7naga poker" i]',
-            '[title="ALIENBOLA" i]',
-        ],
-        abpvn: [
-            '#quangcaomb',
-            '.iosAdsiosAds-layout',
-            '.quangcao',
-            '[href^="https://r88.vn/"]',
-            '[href^="https://zbet.vn/"]',
-        ],
-        adBlockFinland: [
-            '.mainostila',
-            '.sponsorit',
-            '.ylamainos',
-            'a[href*="/clickthrgh.asp?"]',
-            'a[href^="https://app.readpeak.com/ads"]',
-        ],
-        adBlockPersian: ['#navbar_notice_50', '.kadr', 'TABLE[width="140px"]', '#divAgahi', '#ad2_inline'],
-        adBlockWarningRemoval: [
-            '#adblock-honeypot',
-            '.adblocker-root',
-            '.wp_adblock_detect',
-            '.header-blocked-ad',
-            '#ad_blocker',
-        ],
-        adGuardAnnoyances: ['amp-embed[type="zen"]', '.hs-sosyal', '#cookieconsentdiv', 'div[class^="app_gdpr"]', '.as-oil'],
-        adGuardBase: ['.BetterJsPopOverlay', '#ad_300X250', '#bannerfloat22', '#ad-banner', '#campaign-banner'],
-        adGuardChinese: ['.Zi_ad_a_H', 'a[href*="/od005.com"]', 'a[href*=".hthbet34.com"]', '.qq_nr_lad', '#widget-quan'],
-        adGuardFrench: [
-            '#block-views-ads-sidebar-block-block',
-            '#pavePub',
-            '.ad-desktop-rectangle',
-            '.mobile_adhesion',
-            '.widgetadv',
-        ],
-        adGuardGerman: [
-            '.banneritemwerbung_head_1',
-            '.boxstartwerbung',
-            '.werbung3',
-            'a[href^="http://www.eis.de/index.phtml?refid="]',
-            'a[href^="https://www.tipico.com/?affiliateId="]',
-        ],
-        adGuardJapanese: [
-            '#kauli_yad_1',
-            'a[href^="http://ad2.trafficgate.net/"]',
-            '._popIn_infinite_ad',
-            '.adgoogle',
-            '.ad_regular3',
-        ],
-        adGuardMobile: ['amp-auto-ads', '.amp_ad', 'amp-embed[type="24smi"]', '#mgid_iframe1', '#ad_inview_area'],
-        adGuardRussian: [
-            'a[href^="https://ad.letmeads.com/"]',
-            '.reclama',
-            'div[id^="smi2adblock"]',
-            'div[id^="AdFox_banner_"]',
-            '#ad_square',
-        ],
-        adGuardSocial: [
-            'a[href^="//www.stumbleupon.com/submit?url="]',
-            'a[href^="//telegram.me/share/url?"]',
-            '.etsy-tweet',
-            '#inlineShare',
-            '.popup-social',
-        ],
-        adGuardSpanishPortuguese: [
-            '#barraPublicidade',
-            '#Publicidade',
-            '#publiEspecial',
-            '#queTooltip',
-            '[href^="http://ads.glispa.com/"]',
-        ],
-        adGuardTrackingProtection: [
-            '#qoo-counter',
-            'a[href^="http://click.hotlog.ru/"]',
-            'a[href^="http://hitcounter.ru/top/stat.php"]',
-            'a[href^="http://top.mail.ru/jump"]',
-            '#top100counter',
-        ],
-        adGuardTurkish: [
-            '#backkapat',
-            '#reklami',
-            'a[href^="http://adserv.ontek.com.tr/"]',
-            'a[href^="http://izlenzi.com/campaign/"]',
-            'a[href^="http://www.installads.net/"]',
-        ],
-        bulgarian: ['td#freenet_table_ads', '#ea_intext_div', '.lapni-pop-over', '#xenium_hot_offers', '#newAd'],
-        easyList: [
-            '#AD_CONTROL_28',
-            '.second-post-ads-wrapper',
-            '.universalboxADVBOX03',
-            '.advertisement-728x90',
-            '.square_ads',
-        ],
-        easyListChina: [
-            'a[href*=".wensixuetang.com/"]',
-            '.appguide-wrap[onclick*="bcebos.com"]',
-            '.frontpageAdvM',
-            '#taotaole',
-            '#aafoot.top_box',
-        ],
-        easyListCookie: [
-            '#AdaCompliance.app-notice',
-            '.text-center.rgpd',
-            '.panel--cookie',
-            '.js-cookies-andromeda',
-            '.elxtr-consent',
-        ],
-        easyListCzechSlovak: ['#onlajny-stickers', '#reklamni-box', '.reklama-megaboard', '.sklik', '[id^="sklikReklama"]'],
-        easyListDutch: [
-            '#advertentie',
-            '#vipAdmarktBannerBlock',
-            '.adstekst',
-            'a[href^="https://xltube.nl/click/"]',
-            '#semilo-lrectangle',
-        ],
-        easyListGermany: [
-            '#Ad_Win2day',
-            '#werbungsbox300',
-            'a[href^="http://www.rotlichtkartei.com/?sc="]',
-            '#werbung_wideskyscraper_screen',
-            'a[href^="http://landing.parkplatzkartei.com/?ag="]',
-        ],
-        easyListItaly: [
-            '.box_adv_annunci',
-            '.sb-box-pubbliredazionale',
-            'a[href^="http://affiliazioniads.snai.it/"]',
-            'a[href^="https://adserver.html.it/"]',
-            'a[href^="https://affiliazioniads.snai.it/"]',
-        ],
-        easyListLithuania: [
-            '.reklamos_tarpas',
-            '.reklamos_nuorodos',
-            'img[alt="Reklaminis skydelis"]',
-            'img[alt="Dedikuoti.lt serveriai"]',
-            'img[alt="Hostingas Serveriai.lt"]',
-        ],
-        estonian: ['A[href*="http://pay4results24.eu"]'],
-        fanboyAnnoyances: [
-            '#feedback-tab',
-            '#taboola-below-article',
-            '.feedburnerFeedBlock',
-            '.widget-feedburner-counter',
-            '[title="Subscribe to our blog"]',
-        ],
-        fanboyAntiFacebook: ['.util-bar-module-firefly-visible'],
-        fanboyEnhancedTrackers: [
-            '.open.pushModal',
-            '#issuem-leaky-paywall-articles-zero-remaining-nag',
-            '#sovrn_container',
-            'div[class$="-hide"][zoompage-fontsize][style="display: block;"]',
-            '.BlockNag__Card',
-        ],
-        fanboySocial: [
-            '.td-tags-and-social-wrapper-box',
-            '.twitterContainer',
-            '.youtube-social',
-            'a[title^="Like us on Facebook"]',
-            'img[alt^="Share on Digg"]',
-        ],
-        frellwitSwedish: [
-            'a[href*="casinopro.se"][target="_blank"]',
-            'a[href*="doktor-se.onelink.me"]',
-            'article.category-samarbete',
-            'div.holidAds',
-            'ul.adsmodern',
-        ],
-        greekAdBlock: [
-            'A[href*="adman.otenet.gr/click?"]',
-            'A[href*="http://axiabanners.exodus.gr/"]',
-            'A[href*="http://interactive.forthnet.gr/click?"]',
-            'DIV.agores300',
-            'TABLE.advright',
-        ],
-        hungarian: ['#cemp_doboz', '.optimonk-iframe-container', '.ad__main', '[class*="GoogleAds"]', '#hirdetesek_box'],
-        iDontCareAboutCookies: [
-            '.alert-info[data-block-track*="CookieNotice"]',
-            '.ModuleTemplateCookieIndicator',
-            '.o--cookies--container',
-            '.cookie-msg-info-container',
-            '#cookies-policy-sticky',
-        ],
-        icelandicAbp: ['A[href^="/framework/resources/forms/ads.aspx"]'],
-        latvian: [
-            'a[href="http://www.salidzini.lv/"][style="display: block; width: 120px; height: 40px; overflow: hidden; position: relative;"]',
-            'a[href="http://www.salidzini.lv/"][style="display: block; width: 88px; height: 31px; overflow: hidden; position: relative;"]',
-        ],
-        listKr: [
-            'a[href*="//ad.planbplus.co.kr/"]',
-            '#livereAdWrapper',
-            'a[href*="//adv.imadrep.co.kr/"]',
-            'ins.fastview-ad',
-            '.revenue_unit_item.dable',
-        ],
-        listeAr: [
-            '.geminiLB1Ad',
-            '.right-and-left-sponsers',
-            'a[href*=".aflam.info"]',
-            'a[href*="booraq.org"]',
-            'a[href*="dubizzle.com/ar/?utm_source="]',
-        ],
-        listeFr: [
-            'a[href^="http://promo.vador.com/"]',
-            '#adcontainer_recherche',
-            'a[href*="weborama.fr/fcgi-bin/"]',
-            '.site-pub-interstitiel',
-            'div[id^="crt-"][data-criteo-id]',
-        ],
-        officialPolish: [
-            '#ceneo-placeholder-ceneo-12',
-            '[href^="https://aff.sendhub.pl/"]',
-            'a[href^="http://advmanager.techfun.pl/redirect/"]',
-            'a[href^="http://www.trizer.pl/?utm_source"]',
-            'div#skapiec_ad',
-        ],
-        ro: [
-            'a[href^="//afftrk.altex.ro/Counter/Click"]',
-            'a[href^="/magazin/"]',
-            'a[href^="https://blackfridaysales.ro/trk/shop/"]',
-            'a[href^="https://event.2performant.com/events/click"]',
-            'a[href^="https://l.profitshare.ro/"]',
-        ],
-        ruAd: [
-            'a[href*="//febrare.ru/"]',
-            'a[href*="//utimg.ru/"]',
-            'a[href*="://chikidiki.ru"]',
-            '#pgeldiz',
-            '.yandex-rtb-block',
-        ],
-        thaiAds: ['a[href*=macau-uta-popup]', '#ads-google-middle_rectangle-group', '.ads300s', '.bumq', '.img-kosana'],
-        webAnnoyancesUltralist: [
-            '#mod-social-share-2',
-            '#social-tools',
-            '.ctpl-fullbanner',
-            '.zergnet-recommend',
-            '.yt.btn-link.btn-md.btn',
-        ],
-    };
+    function getFilters() {
+        var fromB64 = atob; // Just for better minification
+        return {
+            abpIndo: [
+                '#Iklan-Melayang',
+                '#Kolom-Iklan-728',
+                '#SidebarIklan-wrapper',
+                fromB64('YVt0aXRsZT0iN25hZ2EgcG9rZXIiIGld'),
+                '[title="ALIENBOLA" i]',
+            ],
+            abpvn: [
+                '#quangcaomb',
+                fromB64('Lmlvc0Fkc2lvc0Fkcy1sYXlvdXQ='),
+                '.quangcao',
+                fromB64('W2hyZWZePSJodHRwczovL3I4OC52bi8iXQ=='),
+                fromB64('W2hyZWZePSJodHRwczovL3piZXQudm4vIl0='),
+            ],
+            adBlockFinland: [
+                '.mainostila',
+                fromB64('LnNwb25zb3JpdA=='),
+                '.ylamainos',
+                fromB64('YVtocmVmKj0iL2NsaWNrdGhyZ2guYXNwPyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hcHAucmVhZHBlYWsuY29tL2FkcyJd'),
+            ],
+            adBlockPersian: ['#navbar_notice_50', '.kadr', 'TABLE[width="140px"]', '#divAgahi', fromB64('I2FkMl9pbmxpbmU=')],
+            adBlockWarningRemoval: [
+                '#adblock-honeypot',
+                '.adblocker-root',
+                '.wp_adblock_detect',
+                fromB64('LmhlYWRlci1ibG9ja2VkLWFk'),
+                fromB64('I2FkX2Jsb2NrZXI='),
+            ],
+            adGuardAnnoyances: [
+                'amp-embed[type="zen"]',
+                '.hs-sosyal',
+                '#cookieconsentdiv',
+                'div[class^="app_gdpr"]',
+                '.as-oil',
+            ],
+            adGuardBase: [
+                '.BetterJsPopOverlay',
+                fromB64('I2FkXzMwMFgyNTA='),
+                fromB64('I2Jhbm5lcmZsb2F0MjI='),
+                fromB64('I2FkLWJhbm5lcg=='),
+                fromB64('I2NhbXBhaWduLWJhbm5lcg=='),
+            ],
+            adGuardChinese: [
+                fromB64('LlppX2FkX2FfSA=='),
+                fromB64('YVtocmVmKj0iL29kMDA1LmNvbSJd'),
+                fromB64('YVtocmVmKj0iLmh0aGJldDM0LmNvbSJd'),
+                '.qq_nr_lad',
+                '#widget-quan',
+            ],
+            adGuardFrench: [
+                fromB64('I2Jsb2NrLXZpZXdzLWFkcy1zaWRlYmFyLWJsb2NrLWJsb2Nr'),
+                '#pavePub',
+                fromB64('LmFkLWRlc2t0b3AtcmVjdGFuZ2xl'),
+                '.mobile_adhesion',
+                '.widgetadv',
+            ],
+            adGuardGerman: [
+                fromB64('LmJhbm5lcml0ZW13ZXJidW5nX2hlYWRfMQ=='),
+                fromB64('LmJveHN0YXJ0d2VyYnVuZw=='),
+                fromB64('LndlcmJ1bmcz'),
+                fromB64('YVtocmVmXj0iaHR0cDovL3d3dy5laXMuZGUvaW5kZXgucGh0bWw/cmVmaWQ9Il0='),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly93d3cudGlwaWNvLmNvbS8/YWZmaWxpYXRlSWQ9Il0='),
+            ],
+            adGuardJapanese: [
+                '#kauli_yad_1',
+                fromB64('YVtocmVmXj0iaHR0cDovL2FkMi50cmFmZmljZ2F0ZS5uZXQvIl0='),
+                fromB64('Ll9wb3BJbl9pbmZpbml0ZV9hZA=='),
+                fromB64('LmFkZ29vZ2xl'),
+                fromB64('LmFkX3JlZ3VsYXIz'),
+            ],
+            adGuardMobile: [
+                fromB64('YW1wLWF1dG8tYWRz'),
+                fromB64('LmFtcF9hZA=='),
+                'amp-embed[type="24smi"]',
+                '#mgid_iframe1',
+                fromB64('I2FkX2ludmlld19hcmVh'),
+            ],
+            adGuardRussian: [
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hZC5sZXRtZWFkcy5jb20vIl0='),
+                fromB64('LnJlY2xhbWE='),
+                'div[id^="smi2adblock"]',
+                fromB64('ZGl2W2lkXj0iQWRGb3hfYmFubmVyXyJd'),
+                fromB64('I2FkX3NxdWFyZQ=='),
+            ],
+            adGuardSocial: [
+                fromB64('YVtocmVmXj0iLy93d3cuc3R1bWJsZXVwb24uY29tL3N1Ym1pdD91cmw9Il0='),
+                fromB64('YVtocmVmXj0iLy90ZWxlZ3JhbS5tZS9zaGFyZS91cmw/Il0='),
+                '.etsy-tweet',
+                '#inlineShare',
+                '.popup-social',
+            ],
+            adGuardSpanishPortuguese: [
+                '#barraPublicidade',
+                '#Publicidade',
+                '#publiEspecial',
+                '#queTooltip',
+                fromB64('W2hyZWZePSJodHRwOi8vYWRzLmdsaXNwYS5jb20vIl0='),
+            ],
+            adGuardTrackingProtection: [
+                '#qoo-counter',
+                fromB64('YVtocmVmXj0iaHR0cDovL2NsaWNrLmhvdGxvZy5ydS8iXQ=='),
+                fromB64('YVtocmVmXj0iaHR0cDovL2hpdGNvdW50ZXIucnUvdG9wL3N0YXQucGhwIl0='),
+                fromB64('YVtocmVmXj0iaHR0cDovL3RvcC5tYWlsLnJ1L2p1bXAiXQ=='),
+                '#top100counter',
+            ],
+            adGuardTurkish: [
+                '#backkapat',
+                fromB64('I3Jla2xhbWk='),
+                fromB64('YVtocmVmXj0iaHR0cDovL2Fkc2Vydi5vbnRlay5jb20udHIvIl0='),
+                fromB64('YVtocmVmXj0iaHR0cDovL2l6bGVuemkuY29tL2NhbXBhaWduLyJd'),
+                fromB64('YVtocmVmXj0iaHR0cDovL3d3dy5pbnN0YWxsYWRzLm5ldC8iXQ=='),
+            ],
+            bulgarian: [
+                fromB64('dGQjZnJlZW5ldF90YWJsZV9hZHM='),
+                '#ea_intext_div',
+                '.lapni-pop-over',
+                '#xenium_hot_offers',
+                fromB64('I25ld0Fk'),
+            ],
+            easyList: [
+                fromB64('I0FEX0NPTlRST0xfMjg='),
+                fromB64('LnNlY29uZC1wb3N0LWFkcy13cmFwcGVy'),
+                '.universalboxADVBOX03',
+                fromB64('LmFkdmVydGlzZW1lbnQtNzI4eDkw'),
+                fromB64('LnNxdWFyZV9hZHM='),
+            ],
+            easyListChina: [
+                fromB64('YVtocmVmKj0iLndlbnNpeHVldGFuZy5jb20vIl0='),
+                fromB64('LmFwcGd1aWRlLXdyYXBbb25jbGljayo9ImJjZWJvcy5jb20iXQ=='),
+                fromB64('LmZyb250cGFnZUFkdk0='),
+                '#taotaole',
+                '#aafoot.top_box',
+            ],
+            easyListCookie: [
+                '#AdaCompliance.app-notice',
+                '.text-center.rgpd',
+                '.panel--cookie',
+                '.js-cookies-andromeda',
+                '.elxtr-consent',
+            ],
+            easyListCzechSlovak: [
+                '#onlajny-stickers',
+                fromB64('I3Jla2xhbW5pLWJveA=='),
+                fromB64('LnJla2xhbWEtbWVnYWJvYXJk'),
+                '.sklik',
+                fromB64('W2lkXj0ic2tsaWtSZWtsYW1hIl0='),
+            ],
+            easyListDutch: [
+                fromB64('I2FkdmVydGVudGll'),
+                fromB64('I3ZpcEFkbWFya3RCYW5uZXJCbG9jaw=='),
+                '.adstekst',
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly94bHR1YmUubmwvY2xpY2svIl0='),
+                '#semilo-lrectangle',
+            ],
+            easyListGermany: [
+                fromB64('I0FkX1dpbjJkYXk='),
+                fromB64('I3dlcmJ1bmdzYm94MzAw'),
+                fromB64('YVtocmVmXj0iaHR0cDovL3d3dy5yb3RsaWNodGthcnRlaS5jb20vP3NjPSJd'),
+                fromB64('I3dlcmJ1bmdfd2lkZXNreXNjcmFwZXJfc2NyZWVu'),
+                fromB64('YVtocmVmXj0iaHR0cDovL2xhbmRpbmcucGFya3BsYXR6a2FydGVpLmNvbS8/YWc9Il0='),
+            ],
+            easyListItaly: [
+                fromB64('LmJveF9hZHZfYW5udW5jaQ=='),
+                '.sb-box-pubbliredazionale',
+                fromB64('YVtocmVmXj0iaHR0cDovL2FmZmlsaWF6aW9uaWFkcy5zbmFpLml0LyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hZHNlcnZlci5odG1sLml0LyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hZmZpbGlhemlvbmlhZHMuc25haS5pdC8iXQ=='),
+            ],
+            easyListLithuania: [
+                fromB64('LnJla2xhbW9zX3RhcnBhcw=='),
+                fromB64('LnJla2xhbW9zX251b3JvZG9z'),
+                fromB64('aW1nW2FsdD0iUmVrbGFtaW5pcyBza3lkZWxpcyJd'),
+                fromB64('aW1nW2FsdD0iRGVkaWt1b3RpLmx0IHNlcnZlcmlhaSJd'),
+                fromB64('aW1nW2FsdD0iSG9zdGluZ2FzIFNlcnZlcmlhaS5sdCJd'),
+            ],
+            estonian: [fromB64('QVtocmVmKj0iaHR0cDovL3BheTRyZXN1bHRzMjQuZXUiXQ==')],
+            fanboyAnnoyances: [
+                '#feedback-tab',
+                '#taboola-below-article',
+                '.feedburnerFeedBlock',
+                '.widget-feedburner-counter',
+                '[title="Subscribe to our blog"]',
+            ],
+            fanboyAntiFacebook: ['.util-bar-module-firefly-visible'],
+            fanboyEnhancedTrackers: [
+                '.open.pushModal',
+                '#issuem-leaky-paywall-articles-zero-remaining-nag',
+                '#sovrn_container',
+                'div[class$="-hide"][zoompage-fontsize][style="display: block;"]',
+                '.BlockNag__Card',
+            ],
+            fanboySocial: [
+                '.td-tags-and-social-wrapper-box',
+                '.twitterContainer',
+                '.youtube-social',
+                'a[title^="Like us on Facebook"]',
+                'img[alt^="Share on Digg"]',
+            ],
+            frellwitSwedish: [
+                fromB64('YVtocmVmKj0iY2FzaW5vcHJvLnNlIl1bdGFyZ2V0PSJfYmxhbmsiXQ=='),
+                fromB64('YVtocmVmKj0iZG9rdG9yLXNlLm9uZWxpbmsubWUiXQ=='),
+                'article.category-samarbete',
+                fromB64('ZGl2LmhvbGlkQWRz'),
+                'ul.adsmodern',
+            ],
+            greekAdBlock: [
+                fromB64('QVtocmVmKj0iYWRtYW4ub3RlbmV0LmdyL2NsaWNrPyJd'),
+                fromB64('QVtocmVmKj0iaHR0cDovL2F4aWFiYW5uZXJzLmV4b2R1cy5nci8iXQ=='),
+                fromB64('QVtocmVmKj0iaHR0cDovL2ludGVyYWN0aXZlLmZvcnRobmV0LmdyL2NsaWNrPyJd'),
+                'DIV.agores300',
+                'TABLE.advright',
+            ],
+            hungarian: [
+                '#cemp_doboz',
+                '.optimonk-iframe-container',
+                fromB64('LmFkX19tYWlu'),
+                fromB64('W2NsYXNzKj0iR29vZ2xlQWRzIl0='),
+                '#hirdetesek_box',
+            ],
+            iDontCareAboutCookies: [
+                '.alert-info[data-block-track*="CookieNotice"]',
+                '.ModuleTemplateCookieIndicator',
+                '.o--cookies--container',
+                '.cookie-msg-info-container',
+                '#cookies-policy-sticky',
+            ],
+            icelandicAbp: [fromB64('QVtocmVmXj0iL2ZyYW1ld29yay9yZXNvdXJjZXMvZm9ybXMvYWRzLmFzcHgiXQ==')],
+            latvian: [
+                fromB64('YVtocmVmPSJodHRwOi8vd3d3LnNhbGlkemluaS5sdi8iXVtzdHlsZT0iZGlzcGxheTogYmxvY2s7IHdpZHRoOiAxMjBweDsgaGVpZ2h0O' +
+                    'iA0MHB4OyBvdmVyZmxvdzogaGlkZGVuOyBwb3NpdGlvbjogcmVsYXRpdmU7Il0='),
+                fromB64('YVtocmVmPSJodHRwOi8vd3d3LnNhbGlkemluaS5sdi8iXVtzdHlsZT0iZGlzcGxheTogYmxvY2s7IHdpZHRoOiA4OHB4OyBoZWlnaHQ6I' +
+                    'DMxcHg7IG92ZXJmbG93OiBoaWRkZW47IHBvc2l0aW9uOiByZWxhdGl2ZTsiXQ=='),
+            ],
+            listKr: [
+                fromB64('YVtocmVmKj0iLy9hZC5wbGFuYnBsdXMuY28ua3IvIl0='),
+                fromB64('I2xpdmVyZUFkV3JhcHBlcg=='),
+                fromB64('YVtocmVmKj0iLy9hZHYuaW1hZHJlcC5jby5rci8iXQ=='),
+                fromB64('aW5zLmZhc3R2aWV3LWFk'),
+                '.revenue_unit_item.dable',
+            ],
+            listeAr: [
+                fromB64('LmdlbWluaUxCMUFk'),
+                '.right-and-left-sponsers',
+                fromB64('YVtocmVmKj0iLmFmbGFtLmluZm8iXQ=='),
+                fromB64('YVtocmVmKj0iYm9vcmFxLm9yZyJd'),
+                fromB64('YVtocmVmKj0iZHViaXp6bGUuY29tL2FyLz91dG1fc291cmNlPSJd'),
+            ],
+            listeFr: [
+                fromB64('YVtocmVmXj0iaHR0cDovL3Byb21vLnZhZG9yLmNvbS8iXQ=='),
+                fromB64('I2FkY29udGFpbmVyX3JlY2hlcmNoZQ=='),
+                fromB64('YVtocmVmKj0id2Vib3JhbWEuZnIvZmNnaS1iaW4vIl0='),
+                '.site-pub-interstitiel',
+                'div[id^="crt-"][data-criteo-id]',
+            ],
+            officialPolish: [
+                '#ceneo-placeholder-ceneo-12',
+                fromB64('W2hyZWZePSJodHRwczovL2FmZi5zZW5kaHViLnBsLyJd'),
+                fromB64('YVtocmVmXj0iaHR0cDovL2Fkdm1hbmFnZXIudGVjaGZ1bi5wbC9yZWRpcmVjdC8iXQ=='),
+                fromB64('YVtocmVmXj0iaHR0cDovL3d3dy50cml6ZXIucGwvP3V0bV9zb3VyY2UiXQ=='),
+                fromB64('ZGl2I3NrYXBpZWNfYWQ='),
+            ],
+            ro: [
+                fromB64('YVtocmVmXj0iLy9hZmZ0cmsuYWx0ZXgucm8vQ291bnRlci9DbGljayJd'),
+                'a[href^="/magazin/"]',
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9ibGFja2ZyaWRheXNhbGVzLnJvL3Ryay9zaG9wLyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9ldmVudC4ycGVyZm9ybWFudC5jb20vZXZlbnRzL2NsaWNrIl0='),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9sLnByb2ZpdHNoYXJlLnJvLyJd'),
+            ],
+            ruAd: [
+                fromB64('YVtocmVmKj0iLy9mZWJyYXJlLnJ1LyJd'),
+                fromB64('YVtocmVmKj0iLy91dGltZy5ydS8iXQ=='),
+                fromB64('YVtocmVmKj0iOi8vY2hpa2lkaWtpLnJ1Il0='),
+                '#pgeldiz',
+                '.yandex-rtb-block',
+            ],
+            thaiAds: [
+                'a[href*=macau-uta-popup]',
+                fromB64('I2Fkcy1nb29nbGUtbWlkZGxlX3JlY3RhbmdsZS1ncm91cA=='),
+                fromB64('LmFkczMwMHM='),
+                '.bumq',
+                '.img-kosana',
+            ],
+            webAnnoyancesUltralist: [
+                '#mod-social-share-2',
+                '#social-tools',
+                fromB64('LmN0cGwtZnVsbGJhbm5lcg=='),
+                '.zergnet-recommend',
+                '.yt.btn-link.btn-md.btn',
+            ],
+        };
+    }
     /**
      * The order of the returned array means nothing (it's always sorted alphabetically).
      *
@@ -2000,23 +2071,24 @@ var FingerprintJS = (function (exports) {
      * If you are a website owner, don't make your visitors want to disable content blockers.
      */
     function getDomBlockers(_a) {
-        var debug = (_a === void 0 ? {} : _a).debug;
+        var _b = _a === void 0 ? {} : _a, debug = _b.debug;
         return __awaiter(this, void 0, void 0, function () {
-            var filterNames, allSelectors, blockedSelectors, activeBlockers;
-            var _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var filters, filterNames, allSelectors, blockedSelectors, activeBlockers;
+            var _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         if (!isApplicable()) {
                             return [2 /*return*/, undefined];
                         }
+                        filters = getFilters();
                         filterNames = Object.keys(filters);
-                        allSelectors = (_b = []).concat.apply(_b, filterNames.map(function (filterName) { return filters[filterName]; }));
+                        allSelectors = (_c = []).concat.apply(_c, filterNames.map(function (filterName) { return filters[filterName]; }));
                         return [4 /*yield*/, getBlockedSelectors(allSelectors)];
                     case 1:
-                        blockedSelectors = _c.sent();
+                        blockedSelectors = _d.sent();
                         if (debug) {
-                            printDebug(blockedSelectors);
+                            printDebug(filters, blockedSelectors);
                         }
                         activeBlockers = filterNames.filter(function (filterName) {
                             var selectors = filters[filterName];
@@ -2086,19 +2158,19 @@ var FingerprintJS = (function (exports) {
     function forceShow(element) {
         element.style.setProperty('display', 'block', 'important');
     }
-    function printDebug(blockedSelectors) {
+    function printDebug(filters, blockedSelectors) {
         var message = 'DOM blockers debug:\n```';
         for (var _i = 0, _a = Object.keys(filters); _i < _a.length; _i++) {
             var filterName = _a[_i];
-            message += "\n" + filterName + ":";
+            message += "\n".concat(filterName, ":");
             for (var _b = 0, _c = filters[filterName]; _b < _c.length; _b++) {
                 var selector = _c[_b];
-                message += "\n  " + selector + " " + (blockedSelectors[selector] ? '🚫' : '➡️');
+                message += "\n  ".concat(blockedSelectors[selector] ? '🚫' : '➡️', " ").concat(selector);
             }
         }
         // console.log is ok here because it's under a debug clause
         // eslint-disable-next-line no-console
-        console.log(message + "\n```");
+        console.log("".concat(message, "\n```"));
     }
 
     /**
@@ -2108,7 +2180,7 @@ var FingerprintJS = (function (exports) {
         // rec2020 includes p3 and p3 includes srgb
         for (var _i = 0, _a = ['rec2020', 'p3', 'srgb']; _i < _a.length; _i++) {
             var gamut = _a[_i];
-            if (matchMedia("(color-gamut: " + gamut + ")").matches) {
+            if (matchMedia("(color-gamut: ".concat(gamut, ")")).matches) {
                 return gamut;
             }
         }
@@ -2128,7 +2200,7 @@ var FingerprintJS = (function (exports) {
         return undefined;
     }
     function doesMatch$4(value) {
-        return matchMedia("(inverted-colors: " + value + ")").matches;
+        return matchMedia("(inverted-colors: ".concat(value, ")")).matches;
     }
 
     /**
@@ -2144,7 +2216,7 @@ var FingerprintJS = (function (exports) {
         return undefined;
     }
     function doesMatch$3(value) {
-        return matchMedia("(forced-colors: " + value + ")").matches;
+        return matchMedia("(forced-colors: ".concat(value, ")")).matches;
     }
 
     var maxValueToCheck = 100;
@@ -2163,7 +2235,7 @@ var FingerprintJS = (function (exports) {
         // A variation of binary search algorithm can be used here.
         // But since expected values are very small (≤10), there is no sense in adding the complexity.
         for (var i = 0; i <= maxValueToCheck; ++i) {
-            if (matchMedia("(max-monochrome: " + i + ")").matches) {
+            if (matchMedia("(max-monochrome: ".concat(i, ")")).matches) {
                 return i;
             }
         }
@@ -2176,23 +2248,23 @@ var FingerprintJS = (function (exports) {
      */
     function getContrastPreference() {
         if (doesMatch$2('no-preference')) {
-            return 0 /* None */;
+            return 0 /* ContrastPreference.None */;
         }
         // The sources contradict on the keywords. Probably 'high' and 'low' will never be implemented.
         // Need to check it when all browsers implement the feature.
         if (doesMatch$2('high') || doesMatch$2('more')) {
-            return 1 /* More */;
+            return 1 /* ContrastPreference.More */;
         }
         if (doesMatch$2('low') || doesMatch$2('less')) {
-            return -1 /* Less */;
+            return -1 /* ContrastPreference.Less */;
         }
         if (doesMatch$2('forced')) {
-            return 10 /* ForcedColors */;
+            return 10 /* ContrastPreference.ForcedColors */;
         }
         return undefined;
     }
     function doesMatch$2(value) {
-        return matchMedia("(prefers-contrast: " + value + ")").matches;
+        return matchMedia("(prefers-contrast: ".concat(value, ")")).matches;
     }
 
     /**
@@ -2208,7 +2280,7 @@ var FingerprintJS = (function (exports) {
         return undefined;
     }
     function doesMatch$1(value) {
-        return matchMedia("(prefers-reduced-motion: " + value + ")").matches;
+        return matchMedia("(prefers-reduced-motion: ".concat(value, ")")).matches;
     }
 
     /**
@@ -2224,7 +2296,7 @@ var FingerprintJS = (function (exports) {
         return undefined;
     }
     function doesMatch(value) {
-        return matchMedia("(dynamic-range: " + value + ")").matches;
+        return matchMedia("(dynamic-range: ".concat(value, ")")).matches;
     }
 
     var M = Math; // To reduce the minified code size
@@ -2414,21 +2486,60 @@ var FingerprintJS = (function (exports) {
             var iframeDocument = iframeWindow.document;
             var iframeBody = iframeDocument.body;
             var bodyStyle = iframeBody.style;
-            bodyStyle.width = containerWidthPx + "px";
+            bodyStyle.width = "".concat(containerWidthPx, "px");
             bodyStyle.webkitTextSizeAdjust = bodyStyle.textSizeAdjust = 'none';
             // See the big comment above
             if (isChromium()) {
-                iframeBody.style.zoom = "" + 1 / iframeWindow.devicePixelRatio;
+                iframeBody.style.zoom = "".concat(1 / iframeWindow.devicePixelRatio);
             }
             else if (isWebKit()) {
                 iframeBody.style.zoom = 'reset';
             }
             // See the big comment above
             var linesOfText = iframeDocument.createElement('div');
-            linesOfText.textContent = __spreadArrays(Array((containerWidthPx / 20) << 0)).map(function () { return 'word'; }).join(' ');
+            linesOfText.textContent = __spreadArray([], Array((containerWidthPx / 20) << 0), true).map(function () { return 'word'; }).join(' ');
             iframeBody.appendChild(linesOfText);
             return action(iframeDocument, iframeBody);
         }, '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">');
+    }
+
+    /**
+     * @see Credits: https://stackoverflow.com/a/49267844
+     */
+    function getVideoCard() {
+        var _a;
+        var canvas = document.createElement('canvas');
+        var gl = (_a = canvas.getContext('webgl')) !== null && _a !== void 0 ? _a : canvas.getContext('experimental-webgl');
+        if (gl && 'getExtension' in gl) {
+            var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugInfo) {
+                return {
+                    vendor: (gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || '').toString(),
+                    renderer: (gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '').toString(),
+                };
+            }
+        }
+        return undefined;
+    }
+
+    function isPdfViewerEnabled() {
+        return navigator.pdfViewerEnabled;
+    }
+
+    /**
+     * Unlike most other architectures, on x86/x86-64 when floating-point instructions
+     * have no NaN arguments, but produce NaN output, the output NaN has sign bit set.
+     * We use it to distinguish x86/x86-64 from other architectures, by doing subtraction
+     * of two infinities (must produce NaN per IEEE 754 standard).
+     *
+     * See https://codebrowser.bddppq.com/pytorch/pytorch/third_party/XNNPACK/src/init.c.html#79
+     */
+    function getArchitecture() {
+        var f = new Float32Array(1);
+        var u8 = new Uint8Array(f.buffer);
+        f[0] = Infinity;
+        f[0] = f[0] - f[0];
+        return u8[3];
     }
 
     /**
@@ -2478,6 +2589,9 @@ var FingerprintJS = (function (exports) {
         reducedMotion: isMotionReduced,
         hdr: isHDR,
         math: getMathFingerprint,
+        videoCard: getVideoCard,
+        pdfViewerEnabled: isPdfViewerEnabled,
+        architecture: getArchitecture,
     };
     /**
      * Loads the built-in entropy sources.
@@ -2491,7 +2605,7 @@ var FingerprintJS = (function (exports) {
     function getConfidence(components) {
         var openConfidenceScore = getOpenConfidenceScore(components);
         var proConfidenceScore = deriveProConfidenceScore(openConfidenceScore);
-        return { score: openConfidenceScore, comment: commentTemplate.replace(/\$/g, "" + proConfidenceScore) };
+        return { score: openConfidenceScore, comment: commentTemplate.replace(/\$/g, "".concat(proConfidenceScore)) };
     }
     function getOpenConfidenceScore(components) {
         // In order to calculate the true probability of the visitor identifier being correct, we need to know the number of
@@ -2534,7 +2648,7 @@ var FingerprintJS = (function (exports) {
             var componentKey = _a[_i];
             var component = components[componentKey];
             var value = component.error ? 'error' : JSON.stringify(component.value);
-            result += "" + (result ? '|' : '') + componentKey.replace(/([:|\\])/g, '\\$1') + ":" + value;
+            result += "".concat(result ? '|' : '').concat(componentKey.replace(/([:|\\])/g, '\\$1'), ":").concat(value);
         }
         return result;
     }
@@ -2608,7 +2722,7 @@ var FingerprintJS = (function (exports) {
                                 if (debug || (options === null || options === void 0 ? void 0 : options.debug)) {
                                     // console.log is ok here because it's under a debug clause
                                     // eslint-disable-next-line no-console
-                                    console.log("Copy the text below to get the debug data:\n\n```\nversion: " + result.version + "\nuserAgent: " + navigator.userAgent + "\ntimeBetweenLoadAndGet: " + (startTime - creationTime) + "\nvisitorId: " + result.visitorId + "\ncomponents: " + componentsToDebugString(components) + "\n```");
+                                    console.log("Copy the text below to get the debug data:\n\n```\nversion: ".concat(result.version, "\nuserAgent: ").concat(navigator.userAgent, "\ntimeBetweenLoadAndGet: ").concat(startTime - creationTime, "\nvisitorId: ").concat(result.visitorId, "\ncomponents: ").concat(componentsToDebugString(components), "\n```"));
                                 }
                                 return [2 /*return*/, result];
                         }
@@ -2627,7 +2741,7 @@ var FingerprintJS = (function (exports) {
         }
         try {
             var request = new XMLHttpRequest();
-            request.open('get', "https://m1.openfpcdn.io/fingerprintjs/v" + version + "/npm-monitoring", true);
+            request.open('get', "https://m1.openfpcdn.io/fingerprintjs/v".concat(version, "/npm-monitoring"), true);
             request.send();
         }
         catch (error) {
@@ -2667,7 +2781,7 @@ var FingerprintJS = (function (exports) {
     var murmurX64Hash128 = x64hash128;
 
     exports.componentsToDebugString = componentsToDebugString;
-    exports["default"] = index;
+    exports.default = index;
     exports.getFullscreenElement = getFullscreenElement;
     exports.getScreenFrame = getScreenFrame;
     exports.hashComponents = hashComponents;

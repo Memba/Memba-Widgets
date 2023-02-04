@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -36,6 +36,7 @@ var __meta__ = {
     var kendo = window.kendo,
         ui = kendo.ui,
         List = ui.List,
+        encode = kendo.htmlEncode,
         html = kendo.html,
         keys = $.extend({ A: 65 }, kendo.keys),
         activeElement = kendo._activeElement,
@@ -189,8 +190,8 @@ var __meta__ = {
             virtual: false,
             itemTemplate: "",
             tagTemplate: "",
-            groupTemplate: "#:data#",
-            fixedGroupTemplate: "#:data#",
+            groupTemplate: (data) => encode(data),
+            fixedGroupTemplate: (data) => encode(data),
             clearButton: true,
             autoWidth: false,
             popup: null,
@@ -323,7 +324,7 @@ var __meta__ = {
             var template = listOptions.itemTemplate || itemTemplate || listOptions.template;
 
             if (!template) {
-                template = "#:" + kendo.expr(listOptions.dataTextField, "data") + "#";
+                template = data => encode(kendo.getter(listOptions.dataTextField)(data));
             }
 
             listOptions.template = template;
@@ -1541,13 +1542,18 @@ var __meta__ = {
             var isMultiple = options.tagMode === "multiple";
             var singleTag = options.messages.singleTag;
             var defaultTemplate;
+            var multipleTemplateFunc;
+            var singleTemplateFunc;
 
             if (that.element[0].length && !hasDataSource) {
                 options.dataTextField = options.dataTextField || "text";
                 options.dataValueField = options.dataValueField || "value";
             }
 
-            defaultTemplate = isMultiple ? kendo.template("#:" + kendo.expr(options.dataTextField, "data") + "#", { useWithBlock: false }) : kendo.template("#:values.length# " + singleTag);
+            multipleTemplateFunc = data => encode(kendo.getter(options.dataTextField)(data));
+            singleTemplateFunc = ({ values }) => `${values.length} ${singleTag}`;
+
+            defaultTemplate = isMultiple ? multipleTemplateFunc : singleTemplateFunc;
 
             that.tagTextTemplate = tagTemplate = tagTemplate ? kendo.template(tagTemplate) : defaultTemplate;
 

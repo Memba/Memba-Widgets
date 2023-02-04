@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -6453,9 +6453,12 @@ var Surface$3 = (function (BaseSurface) {
             rtl: elementStyles(element, 'direction').direction === RTL
         }, this.options));
 
-        renderSVG$1(this.element, this._template());
+        renderSVG$1(this.element, this._template(''));
 
         this._rootElement = this.element.firstElementChild;
+        this._rootElement.style.width = '100%';
+        this._rootElement.style.height = '100%';
+        this._rootElement.style.overflow = 'hidden';
 
         alignToScreen(this._rootElement);
 
@@ -6545,8 +6548,10 @@ var Surface$3 = (function (BaseSurface) {
         }
     };
 
-    Surface.prototype._template = function _template () {
-        return ("<svg style='width: 100%; height: 100%; overflow: hidden;' xmlns='" + SVG_NS + "' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1'>" + (this._root.render()) + "</svg>");
+    Surface.prototype._template = function _template (svgStyles) {
+        var styles = typeof svgStyles === 'string' ? svgStyles :
+            "style='width: 100%; height: 100%; overflow: hidden;' ";
+        return ("<svg " + styles + "xmlns='" + SVG_NS + "' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1'>" + (this._root.render()) + "</svg>");
     };
 
     Object.defineProperties( Surface.prototype, prototypeAccessors );
@@ -7595,6 +7600,9 @@ var Surface$4 = (function (BaseSurface) {
         this.element.innerHTML = this._template(this);
 
         var canvas = this.element.firstElementChild;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+
         var size = elementSize(element);
 
         canvas.width = size.width;
@@ -7738,7 +7746,7 @@ var Surface$4 = (function (BaseSurface) {
     };
 
     Surface.prototype._template = function _template () {
-        return "<canvas style='width: 100%; height: 100%;'></canvas>";
+        return "<canvas></canvas>";
     };
 
     Surface.prototype._enableTracking = function _enableTracking () {

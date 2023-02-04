@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -49,16 +49,16 @@ var __meta__ = {
         LABELIDPART = "_label",
         DOT = ".";
 
-    var SWITCH_TEMPLATE = kendo.template('<span class="#=styles.widget#" role="switch"></span>');
+    var SWITCH_TEMPLATE = kendo.template(({ styles }) => `<span class="${styles.widget}" role="switch"></span>`);
 
-    var SWITCH_TRACK_TEMPLATE = kendo.template("<span class='#=styles.track#'>" +
-        "<span class='#=styles.checkedLabel#'>#=checked#</span>" +
-        "<span class='#=styles.uncheckedLabel#'>#=unchecked#</span>" +
-        "</span>");
+    var SWITCH_TRACK_TEMPLATE = kendo.template(({ styles, checked, unchecked }) => `<span class='${styles.track}'>` +
+        `<span class='${styles.checkedLabel}'>${checked}</span>` +
+        `<span class='${styles.uncheckedLabel}'>${unchecked}</span>` +
+        `</span>`);
 
-    var SWITCH_THUMB_TEMPLATE = kendo.template("<span class='#=styles.thumbWrapper#'>" +
-        "<span class='#=styles.thumb#'></span>" +
-        "</span>");
+    var SWITCH_THUMB_TEMPLATE = kendo.template(({ styles }) => `<span class='${styles.thumbWrapper}'>` +
+        `<span class='${styles.thumb}'></span>` +
+        `</span>`);
 
     var Switch = Widget.extend({
         init: function(element, options) {
@@ -379,6 +379,13 @@ var __meta__ = {
 
         _click: function(e) {
             if (!this._isTouch(e) && e.which === 1) {
+                if (e.target === this.element[0]) {
+                    // In this case the input has been clicked directly
+                    // even if hidden that is possible via <label for= >
+                    // thus we should revert its checked state to trigger the change
+                    this.element[0].checked = !this.element[0].checked;
+                }
+
                 this._check();
             }
         },

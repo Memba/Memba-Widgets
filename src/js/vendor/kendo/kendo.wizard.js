@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -43,6 +43,7 @@ var __meta__ = {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         extend = $.extend,
+        encode = kendo.htmlEncode,
 
         WIZARD = ".kendoWizard",
 
@@ -134,11 +135,12 @@ var __meta__ = {
             last: [RESET,PREVIOUS,DONE]
         },
 
-        _pagerTemplate: '<span class="k-wizard-pager">' +
-            '#: step # ' +
-            '#: currentStep # ' +
-            '#: of # ' +
-            '#: totalSteps #' +
+        _pagerTemplate: ({ step, currentStep, of, totalSteps }) =>
+        '<span class="k-wizard-pager">' +
+            `${encode(step)} ` +
+            `${encode(currentStep)} ` +
+            `${encode(of)} ` +
+            `${encode(totalSteps)}` +
         '</span>',
 
         buttons: function() {
@@ -311,7 +313,7 @@ var __meta__ = {
             $("body").append(formElement);
             this.element.prepend(contentElement);
 
-            formOptions.buttonsTemplate = formOptions.buttonsTemplate || "";
+            formOptions.buttonsTemplate = formOptions.buttonsTemplate || (() =>"");
             this.form = formElement.kendoForm(formOptions).getKendoForm();
 
             contentElement.append(formElement.show());

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -47,7 +47,7 @@ import "../kendo.validator.js";
         alignmentDialog: {
             title: "Alignment",
             buttons: {
-                justtifyLeft: "Align left",
+                justifyLeft: "Align left",
                 justifyCenter: "Center",
                 justifyRight: "Align right",
                 justifyFull: "Justify",
@@ -751,8 +751,8 @@ import "../kendo.validator.js";
         },
         _list: function() {
             var ul = this.dialog().element.find("ul");
-            var fonts = this.options.fonts;
-            var defaultFont = this.options.defaultFont;
+            var fonts = this.options.options;
+            var defaultFont = this.options.default;
 
             this.list = new kendo.ui.StaticList(ul, {
                 dataSource: new kendo.data.DataSource({ data: fonts }),
@@ -791,8 +791,8 @@ import "../kendo.validator.js";
         },
         _list: function() {
             var ul = this.dialog().element.find("ul");
-            var sizes = this.options.sizes;
-            var defaultSize = this.options.defaultSize;
+            var sizes = this.options.options;
+            var defaultSize = this.options.default;
 
             this.list = new kendo.ui.StaticList(ul, {
                 dataSource: new kendo.data.DataSource({ data: sizes }),
@@ -835,7 +835,6 @@ import "../kendo.validator.js";
             kendo.bind(this.element.find(".k-action-buttons"), this.viewModel);
         },
         options: {
-            width: 177,
             template:   "<div></div>" +
                         "<div class='k-action-buttons'>" +
                             "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: apply'><span class='k-button-text'>#: messages.apply #</span></button>" +
@@ -845,15 +844,17 @@ import "../kendo.validator.js";
         apply: function() {
             SpreadsheetDialog.fn.apply.call(this);
 
-            var state = this.value();
+            var state = this.borderPalette.value();
 
-            this.trigger("action", {
-                command: "BorderChangeCommand",
-                options: {
-                    border: state.type,
-                    style: { size: 1, color: state.color }
-                }
-            });
+            if (state.color && state.type) {
+                this.trigger("action", {
+                    command: "BorderChangeCommand",
+                    options: {
+                        border: state.type,
+                        style: { size: 1, color: state.color }
+                    }
+                });
+            }
         },
         _borderPalette: function() {
             var element = this.dialog().element.find("div").first();
@@ -962,7 +963,7 @@ import "../kendo.validator.js";
             var defaultOptions = {
                 title: messages.title,
                 buttons: [
-                    { property: "textAlign",     value: "left",    iconClass: "align-left",   text: messages.buttons.justtifyLeft },
+                    { property: "textAlign",     value: "left",    iconClass: "align-left",   text: messages.buttons.justifyLeft },
                     { property: "textAlign",     value: "center",  iconClass: "align-center", text: messages.buttons.justifyCenter },
                     { property: "textAlign",     value: "right",   iconClass: "align-right",  text: messages.buttons.justifyRight },
                     { property: "textAlign",     value: "justify", iconClass: "align-justify",   text: messages.buttons.justifyFull },

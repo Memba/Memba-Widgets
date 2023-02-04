@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -684,7 +684,7 @@
         "alignmentDialog": {
           "title": "Στοίχιση",
           "buttons": {
-            "justtifyLeft": "Στοίχιση Αριστερά",
+            "justifyLeft": "Στοίχιση Αριστερά",
             "justifyCenter": "Κέντρο",
             "justifyRight": "Στοίχιση Δεξιά",
             "justifyFull": "Justify",
@@ -852,7 +852,7 @@
         "addRowBelow": "Προσθήκη γραμμής κάτω",
         "alignment": "Ευθυγράμμιση",
         "alignmentButtons": {
-          "justtifyLeft": "Ευθυγράμμιση Αριστερά",
+          "justifyLeft": "Ευθυγράμμιση Αριστερά",
           "justifyCenter": "Κέντρο",
           "justifyRight": "Ευθυγράμμιση Δεξιά",
           "justifyFull": "Ισάζω",

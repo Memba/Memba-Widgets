@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -709,7 +709,7 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
   "alignmentDialog": {
     "title": "Wyrównanie",
     "buttons": {
-      "justtifyLeft": "Wyrównaj w lewo",
+      "justifyLeft": "Wyrównaj w lewo",
       "justifyCenter": "Centruj",
       "justifyRight": "Wyrównaj w prawo",
       "justifyFull": "Dostosuj",
@@ -899,7 +899,7 @@ $.extend(true, kendo.spreadsheet.messages.toolbar,{
   "addRowBelow": "Dodaj wiersz poniżej",
   "alignment": "Wyrównanie",
   "alignmentButtons": {
-    "justtifyLeft": "Wyrównaj w lewo",
+    "justifyLeft": "Wyrównaj w lewo",
     "justifyCenter": "Centruj",
     "justifyRight": "Wyrównaj w prawo",
     "justifyFull": "Dostosuj",

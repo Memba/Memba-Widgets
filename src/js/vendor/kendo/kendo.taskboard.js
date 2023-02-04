@@ -1,12 +1,11 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-import "./taskboard/toolbar.js";
 import "./taskboard/column.js";
 import "./taskboard/card.js";
 import "./taskboard/cardmenu.js";
@@ -14,13 +13,15 @@ import "./taskboard/commands.js";
 import "./taskboard/pane.js";
 import "./taskboard/keyboard.js";
 import "./kendo.data.js";
+import "./kendo.toolbar.js";
+import "./kendo.textbox.js";
 
     var __meta__ = {
         id: "taskboard",
         name: "TaskBoard",
         category: "web",
         description: "The TaskBoard widget displays cards.",
-        depends: ["data", "sortable", "dialog", "form", "menu", "toolbar"]
+        depends: ["data", "sortable", "dialog", "form", "menu", "toolbar", "textbox"]
     };
 
     var TaskBoardStyles = {
@@ -58,6 +59,7 @@ import "./kendo.data.js";
             EXECUTE = "execute",
             ACTION = "action",
             CHANGE = "change",
+            CLICK = "click",
             ERROR = "change",
             DATABINDING = "dataBinding",
             DATABOUND = "dataBound",
@@ -163,6 +165,25 @@ import "./kendo.data.js";
                     newColumn: "New column",
                     deleteColumnConfirm: "Are you sure you want to delete this column?",
                     deleteCardConfirm: "Are you sure you want to delete this card?"
+                }
+            },
+
+            defaultTools: {
+                addColumn: { type: "button", name: "addColumn", command: "AddColumnCommand", icon: "plus", rules: "isEditable" },
+                spacer: { type: "spacer" },
+                search: {
+                    type: "component",
+                    name: "search",
+                    command: "SearchCommand",
+                    options: "{ \"field\": \"name\", \"operator\": \"startswith\" }",
+                    rules: "isSearchable",
+                    overflow: "never",
+                    component: "TextBox",
+                    componentOptions: {
+                        placeholder: "Search",
+                        icon: "search",
+                        commandOn: "input"
+                    }
                 }
             },
 
@@ -535,21 +556,90 @@ import "./kendo.data.js";
                     styles = TaskBoard.styles,
                     options = that.options,
                     toolbarElm = $("<div class='" + styles.toolbar + "'></div>"),
-                    toolbarOptions = isArray(options.toolbar) ? { items: options.toolbar } : options.toolbar;
+                    toolbarOptions = isArray(options.toolbar) ? { items: options.toolbar } : options.toolbar,
+                    tools;
 
                 if (options.toolbar === false) {
                     return;
+                } else if (toolbarOptions === true) {
+                    toolbarOptions = {};
                 }
 
-                toolbarOptions = extend({}, toolbarOptions, {
-                    taskboard: this,
-                    messages: options.messages,
-                    action: that.executeCommand.bind(that),
-                    states: that._buildStates()
-                });
+                tools = toolbarOptions.items ? toolbarOptions.items : Object.keys(that.defaultTools);
+                tools = that._processTools(tools);
+                toolbarOptions.tools = tools;
+                toolbarOptions.defaultTools = that.defaultTools;
+                toolbarOptions.parentMessages = that.options.messages;
 
                 that.header.append(toolbarElm);
-                that.toolbar = new ui.taskboard.ToolBar(toolbarElm, toolbarOptions);
+                that.toolbar = new kendo.ui.ToolBar(toolbarElm, toolbarOptions);
+                that.options.toolbar = that.toolbar.options;
+
+                that.toolbar.bind(CLICK, that._toolbarClick.bind(that));
+                that.toolbar.bind(CHANGE, that._toolbarClick.bind(that));
+            },
+
+            _processTools: function(tools) {
+                var that = this,
+                    states = that._buildStates();
+
+                tools.forEach(t => {
+                    var rules = t.rules || that.defaultTools[t] ? that.defaultTools[t].rules : null;
+
+                    if (!rules) {
+                        return;
+                    }
+
+                    rules = rules.split(";");
+
+                    if (!rules.length) {
+                        return;
+                    }
+
+                    for (var i = 0; i < rules.length; i++) {
+                        if (!states[rules[i]]) {
+                            if (t.rules) {
+                                t.hidden = true;
+                            } else {
+                                that.defaultTools[t].hidden = true;
+                            }
+                        }
+                    }
+                });
+
+                return tools;
+            },
+
+            _toolbarClick: function(ev) {
+                var command = $(ev.target).data("command"),
+                    options = $(ev.target).data("options");
+
+                options = extend({}, options, { value: $(ev.target).val() });
+
+                if (!command) {
+                    return;
+                }
+
+                this.executeCommand({
+                    command: command,
+                    options: options
+                });
+            },
+
+            _isToolEnabled: function(toolName) {
+                var that = this,
+                    options = that.options.toolbar,
+                    items = options.items || that.defaultTools,
+                    found = false;
+
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].name == toolName) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                return items[toolName] || found;
             },
 
             _buildStates: function() {

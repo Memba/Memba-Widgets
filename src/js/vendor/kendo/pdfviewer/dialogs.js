@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -14,6 +14,7 @@ import "../kendo.dropdownlist.js";
 
 (function($, undefined) {
     var kendo = window.kendo,
+        encode = kendo.htmlEncode,
         extend = $.extend,
         Class = kendo.Class,
         EXTENSIONS = {
@@ -65,13 +66,13 @@ import "../kendo.dropdownlist.js";
             },
             width: "90%",
             maxWidth: 520,
-            template:
-                "<div class='k-edit-label'><label>#: messages.exportAsDialog.labels.fileName #:</label></div>" +
+            template: ({ messages, total }) =>
+                `<div class='k-edit-label'><label>${encode(messages.exportAsDialog.labels.fileName)}:</label></div>` +
                 "<div class='k-edit-field'>" +
                     "<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input class='k-input-inner' data-bind='value: name' /></span>" +
                 "</div>" +
                 "<div>" +
-                    "<div class='k-edit-label'><label>#: messages.exportAsDialog.labels.saveAsType #:</label></div>" +
+                    `<div class='k-edit-label'><label>${encode(messages.exportAsDialog.labels.saveAsType)}:</label></div>` +
                     "<div class='k-edit-field'>" +
                     "<select data-role='dropdownlist' class='k-file-format' " +
                         "data-text-field='description' " +
@@ -79,13 +80,13 @@ import "../kendo.dropdownlist.js";
                         "data-bind='value: extension, source: fileFormats'></select>" +
                     "</div>" +
                 "</div>" +
-                "<div class='k-edit-label'><label>#: messages.exportAsDialog.labels.page #:</label></div>" +
+                `<div class='k-edit-label'><label>${encode(messages.exportAsDialog.labels.page)}:</label></div>` +
                 "<div class='k-edit-field'>" +
-                    "<input data-role='numerictextbox' data-format='n0' data-min='1' data-max='#: total #' data-bind='value: page' />" +
+                    `<input data-role='numerictextbox' data-format='n0' data-min='1' data-max='${encode(total)}' data-bind='value: page' />` +
                 "</div>" +
                 "<div class='k-action-buttons'>" +
-                    "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-bind='click: apply'><span class='k-button-text'>#: messages.save #</span></button>" +
-                    "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-bind='click: close'><span class='k-button-text'>#: messages.cancel #</span></button>" +
+                    `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-bind='click: apply'><span class='k-button-text'>${encode(messages.save)}</span></button>` +
+                    `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-bind='click: close'><span class='k-button-text'>${encode(messages.cancel)}</span></button>` +
                 "</div>"
         },
         _updateModel: function(options) {
@@ -146,16 +147,16 @@ import "../kendo.dropdownlist.js";
         },
         options: {
             resizable: false,
-            template: "<div class='k-search-container'>" +
-                          "<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-search-dialog-draghandle'><span class='k-button-icon k-icon k-i-handler-drag'></span></button>" +
+            template: ({ messages }) => "<div class='k-search-container'>" +
+                          `<button aria-label='${encode(messages.dragHandle)}' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-search-dialog-draghandle'><span class='k-button-icon k-icon k-i-handler-drag'></span></button>` +
                           "<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'>" +
-                              "<input class='k-search-dialog-input k-input-inner' data-bind='value: boundValue, events: { keyup: onKeyup, input: onInput }' aria-label='#: messages.inputLabel #' title='#: messages.inputLabel #' />" +
-                              "<span class='k-input-suffix'><button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-match-case-button k-match-case-button' data-bind='css: {k-selected: matchCase}, click: matchCaseClick' aria-label='#: messages.matchCase #' title='#: messages.matchCase #'><span class='k-icon k-i-convert-lowercase'></span></button></span>" +
+                              `<input class='k-search-dialog-input k-input-inner' data-bind='value: boundValue, events: { keyup: onKeyup, input: onInput }' aria-label='${encode( messages.inputLabel)}' title='${encode(messages.inputLabel)}' />` +
+                              `<span class='k-input-suffix'><button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-match-case-button k-match-case-button' data-bind='css: {k-selected: matchCase}, click: matchCaseClick' aria-label='${encode(messages.matchCase)}' title='${encode(messages.matchCase)}'><span class='k-icon k-i-convert-lowercase'></span></button></span>` +
                           "</span>" +
-                          "<span class='k-search-matches'><span data-bind='text: matchIndex'></span> #: messages.of # <span data-bind='text: matches'></span></span>" +
-                          "<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: prev' aria-label='#: messages.previous #' title='#: messages.previous #'><span class='k-button-icon k-icon k-i-arrow-up'></span></button>" +
-                          "<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: next' aria-label='#: messages.next #' title='#: messages.next #'><span class='k-button-icon k-icon k-i-arrow-down'></span></button>" +
-                          "<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: close' aria-label='#: messages.close #' title='#: messages.close #'><span class='k-button-icon k-icon k-i-close'></<span></button>" +
+                          `<span class='k-search-matches'><span data-bind='text: matchIndex'></span> ${encode(messages.of)} <span data-bind='text: matches'></span></span>` +
+                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: prev' aria-label='${encode(messages.previous)}' title='${encode(messages.previous)}'><span class='k-button-icon k-icon k-i-arrow-up'></span></button>` +
+                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: next' aria-label='${encode(messages.next)}' title='${encode(messages.next)}'><span class='k-button-icon k-icon k-i-arrow-down'></span></button>` +
+                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: close' aria-label='${encode(messages.close)}' title='${encode(messages.close)}'><span class='k-button-icon k-icon k-i-close'></<span></button>` +
                       "</div>"
         },
         open: function() {

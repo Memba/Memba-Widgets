@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -11,6 +11,7 @@ import "../kendo.core.js";
 (function($, undefined) {
     var kendo = window.kendo,
         keys = kendo.keys,
+        encode = kendo.htmlEncode,
         extend = $.extend,
 
         NS = ".kendoOrgChartView",
@@ -66,20 +67,27 @@ import "../kendo.core.js";
         hstack: "k-hstack"
     };
 
-    var ROOT_TEMPLATE = '<div role="tree" aria-orientation="horizontal" aria-label="#: label #" class="k-orgchart-group k-orgchart-level-1 k-pos-absolute k-hstack k-justify-content-center"></div>';
+    var ROOT_TEMPLATE = ({ label }) => `<div role="tree" aria-orientation="horizontal" aria-label="${encode(label)}" class="k-orgchart-group k-orgchart-level-1 k-pos-absolute k-hstack k-justify-content-center"></div>`;
 
-    var GROUP_TEMPLATE = '<div role="group" id="#: guid #" class="k-orgchart-level-#: level # k-orgchart-group k-pos-absolute k-justify-content-around"></div>';
+    var GROUP_TEMPLATE = ({ guid, level }) => `<div role="group" id="${encode(guid)}" class="k-orgchart-level-${encode(level)} k-orgchart-group k-pos-absolute k-justify-content-around"></div>`;
 
-    var NODE_GROUP_CONTAINER = '<div role="treeitem" ' +
-        '# if(data.hasChildren && data.guid) { #' +
-            'aria-owns="#: guid #" ' +
-            '# if(!!data.expanded) { #' +
-                'aria-expanded="true" ' +
-            '# } else { #' +
-                'aria-expanded="false" ' +
-            '# } #' +
-        '# } #' +
-    'aria-keyshortcuts="Enter" aria-level="#: level #" aria-selected="false" class="k-orgchart-node-group-container">';
+    var NODE_GROUP_CONTAINER = ({ hasChildren, guid, expanded, level }) => {
+        var result = '<div role="treeitem" ';
+
+        if (hasChildren && guid) {
+            result += `aria-owns=${encode(guid)} `;
+
+            if (!!expanded) {
+                result += 'aria-expanded="true" ';
+            } else {
+                result += 'aria-expanded="false" ';
+            }
+        }
+
+        result += `aria-keyshortcuts="Enter" aria-level="${encode(level)}" aria-selected="false" class="k-orgchart-node-group-container">`;
+
+        return result;
+    };
 
     var NODE_CONTAINER = '<div class="k-orgchart-node-container k-justify-content-around" style="width:100%"></div>';
 
@@ -87,56 +95,72 @@ import "../kendo.core.js";
 
     var ITEM_TEMPLATE = '<div class="k-orgchart-node k-vstack k-align-items-center"></div>';
 
-    var BUTTON_TEMPLATE = '<button aria-label="#: label #" tabindex="-1" class="k-orgchart-button k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button">' +
-            '<span class="k-button-icon k-icon k-i-#: buttonSign #"></span>' +
+    var BUTTON_TEMPLATE = ({ label, buttonSign }) => `<button aria-label="${encode(label)}" tabindex="-1" class="k-orgchart-button k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button">` +
+            `<span class="k-button-icon k-icon k-i-${encode(buttonSign)}"></span>` +
     '</button>';
 
-    var CARD_TEMPLATE = '<div class="k-card-body k-hstack" style="border-color:#: color #">' +
-        '# if(!!data.avatar) { #' +
-            '<div class="k-avatar k-avatar-solid-primary k-avatar-solid k-avatar-lg k-rounded-full">' +
+    var CARD_TEMPLATE = ({ color, avatar, name, title, editable, menuLabel }) => {
+        var result = `<div class="k-card-body k-hstack" style="border-color:${encode(color)}">`;
+
+        if (!!avatar) {
+            result += '<div class="k-avatar k-avatar-solid-primary k-avatar-solid k-avatar-lg k-rounded-full">' +
                 '<span class="k-avatar-image">' +
-                    '<img alt="#: name #" src="#: avatar #">' +
+                    `<img alt="${encode(name)}" src="${encode(avatar)}">` +
                 '</span>' +
-            '</div>' +
-        '# } #' +
-        '<div class="k-vstack k-card-title-wrap">' +
-            '<div class="k-card-title k-text-ellipsis">#: name #</div>' +
-            '# if(data.title) { #' +
-                '<span class="k-spacer"></span>' +
-                '<div class="k-card-subtitle k-text-ellipsis">#: title #</div>' +
-            '# } #' +
-        '</div>' +
-        '# if(editable) { #' +
-            '<span class="k-spacer"></span>' +
+            '</div>';
+        }
+
+        result += '<div class="k-vstack k-card-title-wrap">' +
+        `<div class="k-card-title k-text-ellipsis">${encode(name)}</div>`;
+
+        if (title) {
+            result += '<span class="k-spacer"></span>' +
+            `<div class="k-card-subtitle k-text-ellipsis">${encode(title)}</div>`;
+        }
+
+        result += '</div>';
+
+        if (editable) {
+            result += '<span class="k-spacer"></span>' +
             '<div class="k-card-body-actions">' +
-                '<button class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-orgchart-card-menu" role="button" aria-label="#: menuLabel #" tabindex="-1">' +
+                `<button class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-orgchart-card-menu" role="button" aria-label="${encode(menuLabel)}" tabindex="-1">` +
                     '<span class="k-button-icon k-icon k-i-more-vertical"></span>' +
                 '</button>' +
-            '</div>' +
-        '# } #' +
-    '</div>';
+            '</div>';
+        }
 
-    var CARD_WRAPPER = '<div role="treeitem" data-uid="#: uid #" ' +
-            '# if(data.hasChildren && data.guid) { #' +
-                'aria-owns="#: guid #" ' +
-                '# if(!!data.expanded) { #' +
-                    'aria-expanded="true" ' +
-                '# } else { #' +
-                    'aria-expanded="false" ' +
-                '# } #' +
-            '# } #' +
-        'class="k-orgchart-card k-card ' +
-            '# if(!!data.cssClass) { #' +
-                '#: data.cssClass #' +
-            '# } #' +
-        '" aria-keyshortcuts="Enter" aria-level="#: level #" aria-selected="false">' +
-    '</div>';
+        result += '</div>';
 
-    var GROUPED_CARD_WRAPPER = '<div role="treeitem" data-uid="#: uid #" aria-level="#: level #" aria-selected="false" aria-keyshortcuts="Enter" ' +
+        return result;
+    };
+
+    var CARD_WRAPPER = ({ uid, guid, hasChildren, expanded, cssClass, level }) => {
+        var result = `<div role="treeitem" data-uid="${encode(uid)}" `;
+
+        if (hasChildren && guid) {
+            result += `aria-owns=${encode(guid)} `;
+
+            if (!!expanded) {
+                result += 'aria-expanded="true" ';
+            } else {
+                result += 'aria-expanded="false" ';
+            }
+        }
+
+        result += 'class="k-orgchart-card k-card ';
+
+        if (!!cssClass) {
+            result += `${encode(cssClass)}`;
+        }
+
+        result += `" aria-keyshortcuts="Enter" aria-level="${encode(level)}" aria-selected="false"></div>`;
+
+        return result;
+    };
+
+    var GROUPED_CARD_WRAPPER = ({ uid, level, cssClass }) => `<div role="treeitem" data-uid="${encode(uid)}" aria-level="${encode(level)}" aria-selected="false" aria-keyshortcuts="Enter" ` +
     'class="k-orgchart-card k-card ' +
-        '# if(!!data.cssClass) { #' +
-            '#: data.cssClass #' +
-        '# } #' +
+    `${cssClass ? encode(cssClass) : ''}` +
     '"></div>';
 
     var View = kendo.Observable.extend({

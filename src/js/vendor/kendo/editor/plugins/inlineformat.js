@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -498,14 +498,15 @@ var ColorTool = Tool.extend({
             toolName = this.name,
             options = extend({}, ColorTool.fn.options, this.options),
             palette = options.palette,
-            columns = options.columns;
+            columns = options.columns,
+            view = palette !== undefined && !palette ? "gradient" : "palette";
 
         ui = this._widget = new kendo.ui.ColorPicker(ui, {
             closeOnSelect: true,
-            views: ["palette"],
-            preview: false,
-            input: false,
-            buttons: false,
+            views: [view],
+            preview: view === "gradient",
+            input: view === "gradient",
+            buttons: view === "gradient",
             toolIcon: "k-icon k-i-" + EditorUtils.getToolCssClass(options.name),
             palette: palette,
             columns: columns,

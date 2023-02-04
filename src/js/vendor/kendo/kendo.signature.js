@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -97,6 +97,8 @@ var __meta__ = {
             var path;
             var oldBtnClass = kendo.getValidCssClass("k-button-", "size", currentOptions.size);
             var btns = this.element.add(this._dialogPadEl).find("." + oldBtnClass);
+            var targets = $(this._pad.element).add(this._dialogPad.element);
+
             btns.removeClass(oldBtnClass);
             this._clearCssClasses(currentOptions);
             this.element.removeClass(kendo.getValidCssClass("k-signature-", "size", currentOptions.size));
@@ -121,6 +123,9 @@ var __meta__ = {
             this.element.removeClass(kendo.getValidCssClass("k-input-", "size", this.options.size));
             this.element.addClass(kendo.getValidCssClass("k-signature-", "size", this.options.size));
             btns.addClass(kendo.getValidCssClass("k-button-", "size", currentOptions.size));
+
+            targets.removeAttr("aria-label");
+            this._assignLabel();
         },
 
         close: function() {

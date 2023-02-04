@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -229,13 +229,13 @@ import "../util/main.js";
         if (!format && type == "number" && data != Math.floor(data)) {
             format = "0.##############";
         }
-        if (format && data != null) { 
+        if (format && data != null) {
             data = kendo.spreadsheet.formatting.format(data, format);
             if (data.__dataType) {
                 type = data.__dataType;
             }
-        } else if (data !== null && data !== undefined) {
-            if(cell.html){
+        } else if (data != null) {
+            if (cell.html) {
                 data = kendo.dom.html(data);
             } else {
                 data = kendo.dom.text(data);
@@ -269,6 +269,17 @@ import "../util/main.js";
         }
         if (cell.merged) {
             classNames.push("k-spreadsheet-merged-cell");
+            if (!cell.enable) {
+                collection.push(kendo.dom.element("div", {
+                    className: "k-spreadsheet-disabled-mask",
+                    style: {
+                        left: (cell.left + 1) + "px",
+                        top: (cell.top + 1) + "px",
+                        width: (cell.width - 1) + "px",
+                        height: (cell.height - 1) + "px"
+                    }
+                }));
+            }
         }
         if (cell.comment) {
             classNames.push("k-spreadsheet-has-comment");
@@ -365,12 +376,14 @@ import "../util/main.js";
         if (!format && type == "number" && data != Math.floor(data)) {
             format = "0.##############";
         }
-        if (format && data != null) { 
+        if (format && data != null) {
             data = kendo.spreadsheet.formatting.format(data, format);
             if (data.__dataType) {
                 type = data.__dataType;
             }
         }
+
+        var attrs = { style: style };
 
         if (!style.textAlign) {
             switch (type) {
@@ -386,13 +399,27 @@ import "../util/main.js";
             }
         }
 
+        if (!/^(?:string|undefined)$/.test(type)) {
+            // provide original value and number format for better
+            // interoperability with google sheets and libre office.
+            attrs.sdval = cell.value;
+            attrs["data-sheets-value"] = JSON.stringify({ 1: 3, 3: cell.value });
+            if (format) {
+                attrs.sdnum = format;
+                attrs["data-sheets-numberformat"] = JSON.stringify({ 1: 2, 2: format, 3: 1 });
+            }
+        }
+        if (cell.formula) {
+            attrs["data-sheets-formula"] = "=" + cell.formula.print();
+        }
+
         var className = null;
 
         if (cell.enable === false) {
             className = "k-disabled";
         }
 
-        var td = table.addCell(row, data, style, className, cell.validation);
+        var td = table.addCell(row, data, attrs, className, cell.validation);
 
         var border, sibling;
 
@@ -451,7 +478,7 @@ import "../util/main.js";
             this.trs.push(tr);
         },
 
-        addCell: function(rowIndex, text, style, className, validation) {
+        addCell: function(rowIndex, text, attrs, className, validation) {
             if (text === null || text === undefined) {
                 text = "";
             }
@@ -460,19 +487,18 @@ import "../util/main.js";
             }
 
             var children = [ text ];
-            var properties = { style: style };
 
             if (validation && !validation.value) {
                 children.push(kendo.dom.element("span", { className: "k-dirty" }));
 
                 className = (className || "") + (className ? " " : "") + "k-dirty-cell";
-                properties.title = validation.message;
+                attrs.title = validation.message;
             }
 
             if (className) {
-                properties.className = className;
+                attrs.className = className;
             }
-            var td = kendo.dom.element("td", properties, children);
+            var td = kendo.dom.element("td", attrs, children);
 
             this.trs[rowIndex].children.push(td);
             return td;
@@ -548,10 +574,9 @@ import "../util/main.js";
 
     kendo.spreadsheet.ContextMenu = kendo.ui.ContextMenu;
 
-    var VIEW_CONTENTS = kendo.template('<div class="#=classNames.view#"><div class="#=classNames.fixedContainer#"></div><div class="#=classNames.scroller#"><div class="#=classNames.viewSize#"></div></div>' +
+    var VIEW_CONTENTS = '<div class="#=classNames.view#"><div class="#=classNames.fixedContainer#"></div><div class="#=classNames.scroller#"><div class="#=classNames.viewSize#"></div></div>' +
         '<div tabindex="0" class="#=classNames.clipboard#" contenteditable=true></div><div class="#=classNames.cellEditor#"></div></div><div class="#=classNames.sheetsBar#"></div>' +
-        CELL_CONTEXT_MENU + ROW_HEADER_CONTEXT_MENU + COL_HEADER_CONTEXT_MENU + DRAWING_CONTEXT_MENU
-    );
+        CELL_CONTEXT_MENU + ROW_HEADER_CONTEXT_MENU + COL_HEADER_CONTEXT_MENU + DRAWING_CONTEXT_MENU;
 
     function within(value, min, max) {
         return value >= min && value <= max;
@@ -571,7 +596,7 @@ import "../util/main.js";
 
             this._dialogs = [];
 
-            element.append(VIEW_CONTENTS({
+            element.append(kendo.template(VIEW_CONTENTS)({
                 classNames: classNames,
                 messages: kendo.spreadsheet.messages.menus
             }));
@@ -1059,14 +1084,19 @@ import "../util/main.js";
         },
 
         openDialog: function(name, options) {
-            var sheet = this._sheet;
+            var that = this,
+                sheet = this._sheet;
+
             return sheet.withCultureDecimals(function(){
                 var dialog = kendo.spreadsheet.dialogs.create(name, options);
 
                 if (dialog) {
-                    dialog.bind("action", this._executeCommand.bind(this));
-                    dialog.bind("deactivate", this._destroyDialog.bind(this));
-                    this._dialogs.push(dialog);
+                    dialog.bind("action", that._executeCommand.bind(that));
+                    dialog.bind("deactivate", () => {
+                        dialog.destroy();
+                        that._destroyDialog();
+                    });
+                    that._dialogs.push(dialog);
 
                     var ref = sheet.activeCell();
                     var range = new kendo.spreadsheet.Range(ref, sheet);
@@ -1155,6 +1185,18 @@ import "../util/main.js";
             if (this.tabstrip) {
                 this.tabstrip.destroy();
                 this.tabstrip = null;
+            }
+
+            if (this.nameEditor) {
+                this.nameEditor.destroy();
+            }
+
+            if (this.formulaInput) {
+                this.formulaInput.destroy();
+            }
+
+            if (this.formulaBar) {
+                this.formulaBar.destroy();
             }
 
             this._destroyFilterMenu();

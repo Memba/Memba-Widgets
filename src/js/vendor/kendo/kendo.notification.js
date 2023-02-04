@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -27,6 +27,7 @@ var __meta__ = {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         extend = $.extend,
+        encode = kendo.htmlEncode,
         setTimeout = window.setTimeout,
         CLICK = "click",
         SHOW = "show",
@@ -45,12 +46,14 @@ var __meta__ = {
         UP = "up",
         NS = ".kendoNotification",
         WRAPPER = '<div role="alert" aria-live="polite" class="k-widget k-popup k-notification"></div>',
-        TEMPLATE = '<div class="k-notification-wrap">' +
-                '<span class="k-icon k-i-#:typeIcon#" title="#:typeIcon#"></span>' +
-                '<div class="k-notification-content">#=content#</div>' +
-                '<span aria-hidden="true" class="#: closeButton ? "" : "k-hidden"# k-icon k-i-close" title="Hide"></span>' +
+        GET_TEMPLATE_FUNC = (encodeContent) =>
+            ({ typeIcon, content, closeButton }) => '<div class="k-notification-wrap">' +
+                `<span class="k-icon k-i-${encode(typeIcon)}" title="${encode(typeIcon)}"></span>` +
+                `<div class="k-notification-content">${encodeContent ? encode(content) : content}</div>` +
+                `<span aria-hidden="true" class="${closeButton ? "" : "k-hidden"} k-icon k-i-close" title="Hide"></span>` +
             '</div>',
-        SAFE_TEMPLATE = TEMPLATE.replace("#=content#", "#:content#");
+        TEMPLATE = GET_TEMPLATE_FUNC(false),
+        SAFE_TEMPLATE = GET_TEMPLATE_FUNC(true);
 
     var Notification = Widget.extend({
         init: function(element, options) {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -27,590 +27,590 @@ import "./runtime.js";
     var daysInMonth = runtime.daysInMonth;
     var _days_360 = runtime._days_360;
 
-    /* -----[ Spreadsheet API ]----- */
-
-    defineFunction("ERF", function(ll, ul) {
-        if (ul == null) {
-            return ERF(ll);
-        }
-        return ERF(ul) - ERF(ll);
-    }).args([
-        [ "lower_limit", "number" ],
-        [ "upper_limit", [ "or", "number", "null" ] ]
-    ]);
-
-    defineFunction("ERFC", ERFC).args([
-        [ "x", "number" ]
-    ]);
-
-    defineFunction("GAMMALN", GAMMALN).args([
-        [ "x", "number++" ]
-    ]);
-
-    defineFunction("GAMMA", GAMMA).args([
-        [ "x", "number" ]
-    ]);
-
-    defineFunction("GAMMA.DIST", GAMMA_DIST).args([
-        [ "x", "number+" ],
-        [ "alpha", "number++" ],
-        [ "beta", "number++" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("GAMMA.INV", GAMMA_INV).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
-        [ "alpha", "number++" ],
-        [ "beta", "number++" ]
-    ]);
-
-    defineFunction("NORM.S.DIST", NORM_S_DIST).args([
-        [ "z", "number" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("NORM.S.INV", NORM_S_INV).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ]
-    ]);
-
-    defineFunction("NORM.DIST", NORM_DIST).args([
-        [ "x", "number" ],
-        [ "mean", "number" ],
-        [ "stddev", "number++" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("NORM.INV", NORM_INV).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
-        [ "mean", "number" ],
-        [ "stddev", "number++" ]
-    ]);
-
-    defineFunction("BETADIST", BETADIST).args([
-        [ "x", "number" ],
-        [ "alpha", "number++" ],
-        [ "beta", "number++" ],
-        [ "A", [ "or", "number", [ "null", 0 ] ] ],
-        [ "B", [ "or", "number", [ "null", 1 ] ] ],
-        [ "?", [ "assert", "$x >= $A", "NUM" ] ],
-        [ "?", [ "assert", "$x <= $B", "NUM" ] ],
-        [ "?", [ "assert", "$A < $B", "NUM" ] ]
-    ]);
-
-    defineFunction("BETA.DIST", BETA_DIST).args([
-        [ "x", "number" ],
-        [ "alpha", "number++" ],
-        [ "beta", "number++" ],
-        [ "cumulative", "logical" ],
-        [ "A", [ "or", "number", [ "null", 0 ] ] ],
-        [ "B", [ "or", "number", [ "null", 1 ] ] ],
-        [ "?", [ "assert", "$x >= $A", "NUM" ] ],
-        [ "?", [ "assert", "$x <= $B", "NUM" ] ],
-        [ "?", [ "assert", "$A < $B", "NUM" ] ]
-    ]);
-
-    defineFunction("BETA.INV", BETA_INV).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
-        [ "alpha", "number++" ],
-        [ "beta", "number++" ],
-        [ "A", [ "or", "number", [ "null", 0 ] ] ],
-        [ "B", [ "or", "number", [ "null", 1 ] ] ]
-    ]);
-
-    defineFunction("CHISQ.DIST", chisq_left).args([
-        [ "x", "number+" ],
-        [ "deg_freedom", "integer++" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("CHISQ.DIST.RT", chisq_right).args([
-        [ "x", "number+" ],
-        [ "deg_freedom", "integer++" ]
-    ]);
-
-    defineFunction("CHISQ.INV", chisq_left_inv).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
-        [ "deg_freedom", "integer++" ]
-    ]);
-
-    defineFunction("CHISQ.INV.RT", chisq_right_inv).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
-        [ "deg_freedom", "integer++" ]
-    ]);
-
-    defineFunction("CHISQ.TEST", function(ac, ex){
-        return chisq_test(ac.data, ex.data);
-    }).args([
-        [ "actual_range", "matrix" ],
-        [ "expected_range", "matrix" ],
-        [ "?", [ "assert", "$actual_range.width == $expected_range.width" ] ],
-        [ "?", [ "assert", "$actual_range.height == $expected_range.height" ] ]
-    ]);
-
-    defineFunction("EXPON.DIST", expon).args([
-        [ "x", "number+" ],
-        [ "lambda", "number++" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("POISSON.DIST", poisson).args([
-        [ "x", "integer+" ],
-        [ "mean", "number+" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("F.DIST", Fdist).args([
-        [ "x", "number+" ],
-        [ "deg_freedom1", "integer++" ],
-        [ "deg_freedom2", "integer++" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("F.DIST.RT", Fdist_right).args([
-        [ "x", "number+" ],
-        [ "deg_freedom1", "integer++" ],
-        [ "deg_freedom2", "integer++" ]
-    ]);
-
-    defineFunction("F.INV", Finv).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
-        [ "deg_freedom1", "integer++" ],
-        [ "deg_freedom2", "integer++" ]
-    ]);
-
-    defineFunction("F.INV.RT", Finv_right).args([
-        [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
-        [ "deg_freedom1", "integer++" ],
-        [ "deg_freedom2", "integer++" ]
-    ]);
-
-    defineFunction("F.TEST", Ftest).args([
-        [ "array1", [ "collect", "number", 1 ] ],
-        [ "array2", [ "collect", "number", 1 ] ],
-        [ "?", [ "assert", "$array1.length >= 2", "DIV/0" ] ],
-        [ "?", [ "assert", "$array2.length >= 2", "DIV/0" ] ]
-    ]);
-
-    defineFunction("FISHER", fisher).args([
-        [ "x", [ "and", "number", [ "(between)", -1, 1 ] ] ]
-    ]);
-
-    defineFunction("FISHERINV", fisherinv).args([
-        [ "y", "number" ]
-    ]);
-
-    defineFunction("T.DIST", Tdist).args([
-        [ "x", "number" ],
-        [ "deg_freedom", "integer++" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("T.DIST.RT", Tdist_right).args([
-        [ "x", "number" ],
-        [ "deg_freedom", "integer++" ]
-    ]);
-
-    defineFunction("T.DIST.2T", Tdist_2tail).args([
-        [ "x", "number+" ],
-        [ "deg_freedom", "integer++" ]
-    ]);
-
-    defineFunction("T.INV", Tdist_inv).args([
-        [ "p", [ "and", "number", [ "(between]", 0, 1 ] ] ],
-        [ "deg_freedom", "integer++" ]
-    ]);
-
-    defineFunction("T.INV.2T", Tdist_2tail_inv).args([
-        [ "p", [ "and", "number", [ "(between]", 0, 1 ] ] ],
-        [ "deg_freedom", "integer++" ]
-    ]);
-
-    defineFunction("T.TEST", Tdist_test).args([
-        [ "array1", [ "collect", "number", 1 ] ],
-        [ "array2", [ "collect", "number", 1 ] ],
-        [ "tails", [ "and", "integer", [ "values", 1, 2 ] ] ],
-        [ "type", [ "and", "integer", [ "values", 1, 2, 3 ] ] ],
-        [ "?", [ "assert", "$type != 1 || $array1.length == $array2.length", "N/A" ] ],
-        [ "?", [ "assert", "$array1.length >= 2", "DIV/0" ] ],
-        [ "?", [ "assert", "$array2.length >= 2", "DIV/0" ] ]
-    ]);
-
-    defineFunction("CONFIDENCE.T", confidence_t).args([
-        [ "alpha", [ "and", "number", [ "(between)", 0, 1 ] ] ],
-        [ "standard_dev", "number++" ],
-        [ "size", [ "and", "integer++",
-                    [ "assert", "$size != 1", "DIV/0" ] ] ]
-    ]);
-
-    defineFunction("CONFIDENCE.NORM", confidence_norm).args([
-        [ "alpha", [ "and", "number", [ "(between)", 0, 1 ] ] ],
-        [ "standard_dev", "number++" ],
-        [ "size", [ "and", "integer++" ] ]
-    ]);
-
-    defineFunction("GAUSS", gauss).args([
-        [ "z", "number" ]
-    ]);
-
-    defineFunction("PHI", phi).args([
-        [ "x", "number" ]
-    ]);
-
-    defineFunction("LOGNORM.DIST", lognorm_dist).args([
-        [ "x", "number++" ],
-        [ "mean", "number" ],
-        [ "standard_dev", "number++" ],
-        [ "cumulative", "logical" ]
-    ]);
-
-    defineFunction("LOGNORM.INV", lognorm_inv).args([
-        [ "probability", [ "and", "number", [ "(between)", 0, 1 ] ] ],
-        [ "mean", "number" ],
-        [ "standard_dev", "number++" ]
-    ]);
-
-    defineFunction("PROB", prob).args([
-        [ "x_range", [ "collect", "number", 1 ] ],
-        [ "prob_range", [ "collect", "number", 1 ] ],
-        [ "lower_limit", "number" ],
-        [ "upper_limit", [ "or", "number", [ "null", "$lower_limit" ] ] ],
-        [ "?", [ "assert", "$prob_range.length == $x_range.length", "N/A" ] ]
-    ]);
-
-    defineFunction("SLOPE", slope).args([
-        [ "known_y", [ "collect", "number", 1 ] ],
-        [ "known_x", [ "collect", "number", 1 ] ],
-        [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
-        [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ]
-    ]);
-
-    defineFunction("INTERCEPT", intercept).args([
-        [ "known_y", [ "collect", "number", 1 ] ],
-        [ "known_x", [ "collect", "number", 1 ] ],
-        [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
-        [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ]
-    ]);
-
-    defineFunction("PEARSON", pearson).args([
-        [ "array1", [ "collect!", "anything", 1 ] ],
-        [ "array2", [ "collect!", "anything", 1 ] ],
-        [ "?", [ "assert", "$array2.length == $array1.length", "N/A" ] ],
-        [ "?", [ "assert", "$array2.length > 0 && $array1.length > 0", "N/A" ] ]
-    ]);
-
-    defineFunction("RSQ", rsq).args([
-        [ "known_y", [ "collect", "number", 1 ] ],
-        [ "known_x", [ "collect", "number", 1 ] ],
-        [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
-        [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ],
-        [ "?", [ "assert", "$known_x.length != 1 && $known_y.length != 1", "N/A" ] ]
-    ]);
-
-    defineFunction("STEYX", steyx).args([
-        [ "known_y", [ "collect", "number", 1 ] ],
-        [ "known_x", [ "collect", "number", 1 ] ],
-        [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
-        [ "?", [ "assert", "$known_x.length >= 3 && $known_y.length >= 3", "DIV/0" ] ]
-    ]);
-
-    defineFunction("FORECAST", forecast).args([
-        [ "x", "number" ],
-        [ "known_y", [ "collect", "number", 1 ] ],
-        [ "known_x", [ "collect", "number", 1 ] ],
-        [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
-        [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ]
-    ]);
-
-    defineFunction("LINEST", linest).args([
-        [ "known_y", "matrix" ],
-        [ "known_x", [ "or", "matrix", "null" ] ],
-        [ "const", [ "or", "logical", [ "null", true ] ] ],
-        [ "stats", [ "or", "logical", [ "null", false ] ] ]
-    ]);
-
-    defineFunction("LOGEST", logest).args([
-        [ "known_y", "matrix" ],
-        [ "known_x", [ "or", "matrix", "null" ] ],
-        [ "const", [ "or", "logical", [ "null", true ] ] ],
-        [ "stats", [ "or", "logical", [ "null", false ] ] ]
-    ]);
-
-    defineFunction("TREND", trend).args([
-        [ "known_y", "matrix" ],
-        [ "known_x", [ "or", "matrix", "null" ] ],
-        [ "new_x", [ "or", "matrix", "null" ] ],
-        [ "const", [ "or", "logical", [ "null", true ] ] ]
-    ]);
-
-    defineFunction("GROWTH", growth).args([
-        [ "known_y", "matrix" ],
-        [ "known_x", [ "or", "matrix", "null" ] ],
-        [ "new_x", [ "or", "matrix", "null" ] ],
-        [ "const", [ "or", "logical", [ "null", true ] ] ]
-    ]);
-
-    defineFunction("FV", FV).args([
-        [ "rate", "number" ],
-        [ "nper", "number" ],
-        [ "pmt", [ "or", "number", [ "null", 0 ] ] ],
-        [ "pv", [ "or", "number", [ "null", 0 ] ] ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
-        [ "?", [ "assert", "$pmt || $pv" ] ]
-    ]);
-
-    defineFunction("PV", PV).args([
-        [ "rate", "number" ],
-        [ "nper", "number" ],
-        [ "pmt", [ "or", "number", [ "null", 0 ] ] ],
-        [ "fv", [ "or", "number", [ "null", 0 ] ] ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ]
-    ]);
-
-    defineFunction("PMT", PMT).args([
-        [ "rate", "number" ],
-        [ "nper", "number" ],
-        [ "pmt", "number" ],
-        [ "fv", [ "or", "number", [ "null", 0 ] ] ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ]
-    ]);
-
-    defineFunction("NPER", NPER).args([
-        [ "rate", "number" ],
-        [ "pmt", "number" ],
-        [ "pv", "number" ],
-        [ "fv", [ "or", "number", [ "null", 0 ] ] ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ]
-    ]);
-
-    defineFunction("RATE", RATE).args([
-        [ "nper", "number" ],
-        [ "pmt", [ "or", "number", [ "null", 0 ] ] ],
-        [ "pv", "number" ],
-        [ "fv", [ "or", "number", [ "null", 0 ] ] ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
-        [ "guess", [ "or", "number++", [ "null", 0.01 ] ] ],
-        [ "?", [ "assert", "$pmt || $fv" ] ]
-    ]);
-
-    defineFunction("IPMT", IPMT).args([
-        [ "rate", "number" ],
-        [ "per", "number++" ],
-        [ "nper", "number++" ],
-        [ "pv", "number" ],
-        [ "fv", [ "or", "number", [ "null", 0 ] ] ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
-        [ "?", [ "assert", "$per >= 1 && $per <= $nper" ] ]
-    ]);
-
-    defineFunction("PPMT", PPMT).args([
-        [ "rate", "number" ],
-        [ "per", "number++" ],
-        [ "nper", "number++" ],
-        [ "pv", "number" ],
-        [ "fv", [ "or", "number", [ "null", 0 ] ] ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
-        [ "?", [ "assert", "$per >= 1 && $per <= $nper" ] ]
-    ]);
-
-    defineFunction("CUMPRINC", CUMPRINC).args([
-        [ "rate", "number++" ],
-        [ "nper", "number++" ],
-        [ "pv", "number++" ],
-        [ "start_period", "number++" ],
-        [ "end_period", "number++" ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
-        [ "?", [ "assert", "$end_period >= $start_period", "NUM" ] ]
-    ]);
-
-    defineFunction("CUMIPMT", CUMIPMT).args([
-        [ "rate", "number++" ],
-        [ "nper", "number++" ],
-        [ "pv", "number++" ],
-        [ "start_period", "number++" ],
-        [ "end_period", "number++" ],
-        [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
-        [ "?", [ "assert", "$end_period >= $start_period", "NUM" ] ]
-    ]);
-
-    defineFunction("NPV", NPV).args([
-        [ "rate", "number" ],
-        [ "values", [ "collect", "number" ] ],
-        [ "?", [ "assert", "$values.length > 0", "N/A" ] ]
-    ]);
-
-    defineFunction("IRR", IRR).args([
-        [ "values", [ "collect", "number", 1 ] ],
-        [ "guess", [ "or", "number", [ "null", 0.1 ] ] ]
-    ]);
-
-    defineFunction("EFFECT", EFFECT).args([
-        [ "nominal_rate", "number++" ],
-        [ "npery", "integer++" ]
-    ]);
-
-    defineFunction("NOMINAL", NOMINAL).args([
-        [ "effect_rate", "number++" ],
-        [ "npery", "integer++" ]
-    ]);
-
-    defineFunction("XNPV", XNPV).args([
-        [ "rate", "number" ],
-        [ "values", [ "collect", "number", 1 ] ],
-        [ "dates", [ "collect", "date", 1 ] ],
-        [ "?", [ "assert", "$values.length == $dates.length", "NUM" ] ]
-    ]);
-
-    defineFunction("XIRR", XIRR).args([
-        [ "values", [ "collect", "number", 1 ] ],
-        [ "dates", [ "collect", "date", 1 ] ],
-        [ "guess", [ "or", "number", [ "null", 0.1 ] ] ],
-        [ "?", [ "assert", "$values.length == $dates.length", "NUM" ] ]
-    ]);
-
-    defineFunction("ISPMT", ISPMT).args([
-        [ "rate", "number" ],
-        [ "per", "number++" ],
-        [ "nper", "number++" ],
-        [ "pv", "number" ],
-        [ "?", [ "assert", "$per >= 1 && $per <= $nper" ] ]
-    ]);
-
-    defineFunction("DB", DB).args([
-        [ "cost", "number" ],
-        [ "salvage", "number" ],
-        [ "life", "number++" ],
-        [ "period", "number++" ],
-        [ "month", [ "or", "number", [ "null", 12 ] ] ]
-    ]);
-
-    defineFunction("DDB", DDB).args([
-        [ "cost", "number" ],
-        [ "salvage", "number" ],
-        [ "life", "number++" ],
-        [ "period", "number++" ],
-        [ "factor", [ "or", "number", [ "null", 2 ] ] ]
-    ]);
-
-    defineFunction("SLN", SLN).args([
-        [ "cost", "number" ],
-        [ "salvage", "number" ],
-        [ "life", "number++" ]
-    ]);
-
-    defineFunction("SYD", SYD).args([
-        [ "cost", "number" ],
-        [ "salvage", "number" ],
-        [ "life", "number++" ],
-        [ "per", "number++" ]
-    ]);
-
-    defineFunction("VDB", VDB).args([
-        [ "cost", "number+" ],
-        [ "salvage", "number+" ],
-        [ "life", "number++" ],
-        [ "start_period", "number+" ],
-        [ "end_period", "number+" ],
-        [ "factor", [ "or", "number+", [ "null", 2 ] ] ],
-        [ "no_switch", [ "or", "logical", [ "null", false ] ] ],
-        [ "?", [ "assert", "$end_period >= $start_period", "NUM" ] ]
-    ]);
-
-    var COUPS_ARGS = [
-        [ "settlement", "date" ],
-        [ "maturity", "date" ],
-        [ "frequency", [ "and", "integer", [ "values", 1, 2, 4 ] ] ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
-    ];
-
-    defineFunction("COUPDAYBS", COUPDAYBS).args(COUPS_ARGS);
-
-    defineFunction("COUPDAYS", COUPDAYS).args(COUPS_ARGS);
-
-    defineFunction("COUPDAYSNC", COUPDAYSNC).args(COUPS_ARGS);
-
-    defineFunction("COUPPCD", COUPPCD).args(COUPS_ARGS);
-
-    defineFunction("COUPNCD", COUPNCD).args(COUPS_ARGS);
-
-    defineFunction("COUPNUM", COUPNUM).args(COUPS_ARGS);
-
-    defineFunction("ACCRINTM", ACCRINTM).args([
-        [ "issue", "date" ],
-        [ "settlement", "date" ],
-        [ "rate", "number++" ],
-        [ "par", [ "or", [ "null", 1000 ], "number++" ] ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "?", [ "assert", "$issue < $settlement", "NUM" ] ]
-    ]);
-
-    defineFunction("ACCRINT", ACCRINT).args([
-        [ "issue", "date" ],
-        [ "first_interest", "date" ],
-        [ "settlement", "date" ],
-        [ "rate", "number++" ],
-        [ "par", [ "or", [ "null", 1000 ], "number++" ] ],
-        [ "frequency", [ "and", "integer", [ "values", 1, 2, 4 ] ] ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "calc_method", [ "or", "logical", [ "null", true ] ] ],
-        [ "?", [ "assert", "$issue < $settlement", "NUM" ] ]
-    ]);
-
-    defineFunction("DISC", DISC).args([
-        [ "settlement", "date" ],
-        [ "maturity", "date" ],
-        [ "pr", "number++" ],
-        [ "redemption", "number++" ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
-    ]);
-
-    defineFunction("INTRATE", INTRATE).args([
-        [ "settlement", "date" ],
-        [ "maturity", "date" ],
-        [ "investment", "number++" ],
-        [ "redemption", "number++" ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
-    ]);
-
-    defineFunction("RECEIVED", RECEIVED).args([
-        [ "settlement", "date" ],
-        [ "maturity", "date" ],
-        [ "investment", "number++" ],
-        [ "discount", "number++" ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
-    ]);
-
-    defineFunction("PRICE", PRICE).args([
-        [ "settlement", "date" ],
-        [ "maturity", "date" ],
-        [ "rate", "number++" ],
-        [ "yld", "number++" ],
-        [ "redemption", "number++" ],
-        [ "frequency", [ "and", "integer", [ "values", 1, 2, 4 ] ] ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
-    ]);
-
-    defineFunction("PRICEDISC", PRICEDISC).args([
-        [ "settlement", "date" ],
-        [ "maturity", "date" ],
-        [ "discount", "number++" ],
-        [ "redemption", "number++" ],
-        [ "basis", [ "or", [ "null", 0 ],
-                     [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
-        [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
-    ]);
-
+    runtime.deferInit(() => {
+        /* -----[ Spreadsheet API ]----- */
+        defineFunction("ERF", function(ll, ul) {
+            if (ul == null) {
+                return ERF(ll);
+            }
+            return ERF(ul) - ERF(ll);
+        }).args([
+            [ "lower_limit", "number" ],
+            [ "upper_limit", [ "or", "number", "null" ] ]
+        ]);
+
+        defineFunction("ERFC", ERFC).args([
+            [ "x", "number" ]
+        ]);
+
+        defineFunction("GAMMALN", GAMMALN).args([
+            [ "x", "number++" ]
+        ]);
+
+        defineFunction("GAMMA", GAMMA).args([
+            [ "x", "number" ]
+        ]);
+
+        defineFunction("GAMMA.DIST", GAMMA_DIST).args([
+            [ "x", "number+" ],
+            [ "alpha", "number++" ],
+            [ "beta", "number++" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("GAMMA.INV", GAMMA_INV).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
+            [ "alpha", "number++" ],
+            [ "beta", "number++" ]
+        ]);
+
+        defineFunction("NORM.S.DIST", NORM_S_DIST).args([
+            [ "z", "number" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("NORM.S.INV", NORM_S_INV).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ]
+        ]);
+
+        defineFunction("NORM.DIST", NORM_DIST).args([
+            [ "x", "number" ],
+            [ "mean", "number" ],
+            [ "stddev", "number++" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("NORM.INV", NORM_INV).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
+            [ "mean", "number" ],
+            [ "stddev", "number++" ]
+        ]);
+
+        defineFunction("BETADIST", BETADIST).args([
+            [ "x", "number" ],
+            [ "alpha", "number++" ],
+            [ "beta", "number++" ],
+            [ "A", [ "or", "number", [ "null", 0 ] ] ],
+            [ "B", [ "or", "number", [ "null", 1 ] ] ],
+            [ "?", [ "assert", "$x >= $A", "NUM" ] ],
+            [ "?", [ "assert", "$x <= $B", "NUM" ] ],
+            [ "?", [ "assert", "$A < $B", "NUM" ] ]
+        ]);
+
+        defineFunction("BETA.DIST", BETA_DIST).args([
+            [ "x", "number" ],
+            [ "alpha", "number++" ],
+            [ "beta", "number++" ],
+            [ "cumulative", "logical" ],
+            [ "A", [ "or", "number", [ "null", 0 ] ] ],
+            [ "B", [ "or", "number", [ "null", 1 ] ] ],
+            [ "?", [ "assert", "$x >= $A", "NUM" ] ],
+            [ "?", [ "assert", "$x <= $B", "NUM" ] ],
+            [ "?", [ "assert", "$A < $B", "NUM" ] ]
+        ]);
+
+        defineFunction("BETA.INV", BETA_INV).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
+            [ "alpha", "number++" ],
+            [ "beta", "number++" ],
+            [ "A", [ "or", "number", [ "null", 0 ] ] ],
+            [ "B", [ "or", "number", [ "null", 1 ] ] ]
+        ]);
+
+        defineFunction("CHISQ.DIST", chisq_left).args([
+            [ "x", "number+" ],
+            [ "deg_freedom", "integer++" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("CHISQ.DIST.RT", chisq_right).args([
+            [ "x", "number+" ],
+            [ "deg_freedom", "integer++" ]
+        ]);
+
+        defineFunction("CHISQ.INV", chisq_left_inv).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
+            [ "deg_freedom", "integer++" ]
+        ]);
+
+        defineFunction("CHISQ.INV.RT", chisq_right_inv).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
+            [ "deg_freedom", "integer++" ]
+        ]);
+
+        defineFunction("CHISQ.TEST", function(ac, ex){
+            return chisq_test(ac.data, ex.data);
+        }).args([
+            [ "actual_range", "matrix" ],
+            [ "expected_range", "matrix" ],
+            [ "?", [ "assert", "$actual_range.width == $expected_range.width" ] ],
+            [ "?", [ "assert", "$actual_range.height == $expected_range.height" ] ]
+        ]);
+
+        defineFunction("EXPON.DIST", expon).args([
+            [ "x", "number+" ],
+            [ "lambda", "number++" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("POISSON.DIST", poisson).args([
+            [ "x", "integer+" ],
+            [ "mean", "number+" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("F.DIST", Fdist).args([
+            [ "x", "number+" ],
+            [ "deg_freedom1", "integer++" ],
+            [ "deg_freedom2", "integer++" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("F.DIST.RT", Fdist_right).args([
+            [ "x", "number+" ],
+            [ "deg_freedom1", "integer++" ],
+            [ "deg_freedom2", "integer++" ]
+        ]);
+
+        defineFunction("F.INV", Finv).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
+            [ "deg_freedom1", "integer++" ],
+            [ "deg_freedom2", "integer++" ]
+        ]);
+
+        defineFunction("F.INV.RT", Finv_right).args([
+            [ "p", [ "and", "number", [ "[between]", 0, 1 ] ] ],
+            [ "deg_freedom1", "integer++" ],
+            [ "deg_freedom2", "integer++" ]
+        ]);
+
+        defineFunction("F.TEST", Ftest).args([
+            [ "array1", [ "collect", "number", 1 ] ],
+            [ "array2", [ "collect", "number", 1 ] ],
+            [ "?", [ "assert", "$array1.length >= 2", "DIV/0" ] ],
+            [ "?", [ "assert", "$array2.length >= 2", "DIV/0" ] ]
+        ]);
+
+        defineFunction("FISHER", fisher).args([
+            [ "x", [ "and", "number", [ "(between)", -1, 1 ] ] ]
+        ]);
+
+        defineFunction("FISHERINV", fisherinv).args([
+            [ "y", "number" ]
+        ]);
+
+        defineFunction("T.DIST", Tdist).args([
+            [ "x", "number" ],
+            [ "deg_freedom", "integer++" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("T.DIST.RT", Tdist_right).args([
+            [ "x", "number" ],
+            [ "deg_freedom", "integer++" ]
+        ]);
+
+        defineFunction("T.DIST.2T", Tdist_2tail).args([
+            [ "x", "number+" ],
+            [ "deg_freedom", "integer++" ]
+        ]);
+
+        defineFunction("T.INV", Tdist_inv).args([
+            [ "p", [ "and", "number", [ "(between]", 0, 1 ] ] ],
+            [ "deg_freedom", "integer++" ]
+        ]);
+
+        defineFunction("T.INV.2T", Tdist_2tail_inv).args([
+            [ "p", [ "and", "number", [ "(between]", 0, 1 ] ] ],
+            [ "deg_freedom", "integer++" ]
+        ]);
+
+        defineFunction("T.TEST", Tdist_test).args([
+            [ "array1", [ "collect", "number", 1 ] ],
+            [ "array2", [ "collect", "number", 1 ] ],
+            [ "tails", [ "and", "integer", [ "values", 1, 2 ] ] ],
+            [ "type", [ "and", "integer", [ "values", 1, 2, 3 ] ] ],
+            [ "?", [ "assert", "$type != 1 || $array1.length == $array2.length", "N/A" ] ],
+            [ "?", [ "assert", "$array1.length >= 2", "DIV/0" ] ],
+            [ "?", [ "assert", "$array2.length >= 2", "DIV/0" ] ]
+        ]);
+
+        defineFunction("CONFIDENCE.T", confidence_t).args([
+            [ "alpha", [ "and", "number", [ "(between)", 0, 1 ] ] ],
+            [ "standard_dev", "number++" ],
+            [ "size", [ "and", "integer++",
+                        [ "assert", "$size != 1", "DIV/0" ] ] ]
+        ]);
+
+        defineFunction("CONFIDENCE.NORM", confidence_norm).args([
+            [ "alpha", [ "and", "number", [ "(between)", 0, 1 ] ] ],
+            [ "standard_dev", "number++" ],
+            [ "size", [ "and", "integer++" ] ]
+        ]);
+
+        defineFunction("GAUSS", gauss).args([
+            [ "z", "number" ]
+        ]);
+
+        defineFunction("PHI", phi).args([
+            [ "x", "number" ]
+        ]);
+
+        defineFunction("LOGNORM.DIST", lognorm_dist).args([
+            [ "x", "number++" ],
+            [ "mean", "number" ],
+            [ "standard_dev", "number++" ],
+            [ "cumulative", "logical" ]
+        ]);
+
+        defineFunction("LOGNORM.INV", lognorm_inv).args([
+            [ "probability", [ "and", "number", [ "(between)", 0, 1 ] ] ],
+            [ "mean", "number" ],
+            [ "standard_dev", "number++" ]
+        ]);
+
+        defineFunction("PROB", prob).args([
+            [ "x_range", [ "collect", "number", 1 ] ],
+            [ "prob_range", [ "collect", "number", 1 ] ],
+            [ "lower_limit", "number" ],
+            [ "upper_limit", [ "or", "number", [ "null", "$lower_limit" ] ] ],
+            [ "?", [ "assert", "$prob_range.length == $x_range.length", "N/A" ] ]
+        ]);
+
+        defineFunction("SLOPE", slope).args([
+            [ "known_y", [ "collect", "number", 1 ] ],
+            [ "known_x", [ "collect", "number", 1 ] ],
+            [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
+            [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ]
+        ]);
+
+        defineFunction("INTERCEPT", intercept).args([
+            [ "known_y", [ "collect", "number", 1 ] ],
+            [ "known_x", [ "collect", "number", 1 ] ],
+            [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
+            [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ]
+        ]);
+
+        defineFunction("PEARSON", pearson).args([
+            [ "array1", [ "collect!", "anything", 1 ] ],
+            [ "array2", [ "collect!", "anything", 1 ] ],
+            [ "?", [ "assert", "$array2.length == $array1.length", "N/A" ] ],
+            [ "?", [ "assert", "$array2.length > 0 && $array1.length > 0", "N/A" ] ]
+        ]);
+
+        defineFunction("RSQ", rsq).args([
+            [ "known_y", [ "collect", "number", 1 ] ],
+            [ "known_x", [ "collect", "number", 1 ] ],
+            [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
+            [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ],
+            [ "?", [ "assert", "$known_x.length != 1 && $known_y.length != 1", "N/A" ] ]
+        ]);
+
+        defineFunction("STEYX", steyx).args([
+            [ "known_y", [ "collect", "number", 1 ] ],
+            [ "known_x", [ "collect", "number", 1 ] ],
+            [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
+            [ "?", [ "assert", "$known_x.length >= 3 && $known_y.length >= 3", "DIV/0" ] ]
+        ]);
+
+        defineFunction("FORECAST", forecast).args([
+            [ "x", "number" ],
+            [ "known_y", [ "collect", "number", 1 ] ],
+            [ "known_x", [ "collect", "number", 1 ] ],
+            [ "?", [ "assert", "$known_x.length == $known_y.length", "N/A" ] ],
+            [ "?", [ "assert", "$known_x.length > 0 && $known_y.length > 0", "N/A" ] ]
+        ]);
+
+        defineFunction("LINEST", linest).args([
+            [ "known_y", "matrix" ],
+            [ "known_x", [ "or", "matrix", "null" ] ],
+            [ "const", [ "or", "logical", [ "null", true ] ] ],
+            [ "stats", [ "or", "logical", [ "null", false ] ] ]
+        ]);
+
+        defineFunction("LOGEST", logest).args([
+            [ "known_y", "matrix" ],
+            [ "known_x", [ "or", "matrix", "null" ] ],
+            [ "const", [ "or", "logical", [ "null", true ] ] ],
+            [ "stats", [ "or", "logical", [ "null", false ] ] ]
+        ]);
+
+        defineFunction("TREND", trend).args([
+            [ "known_y", "matrix" ],
+            [ "known_x", [ "or", "matrix", "null" ] ],
+            [ "new_x", [ "or", "matrix", "null" ] ],
+            [ "const", [ "or", "logical", [ "null", true ] ] ]
+        ]);
+
+        defineFunction("GROWTH", growth).args([
+            [ "known_y", "matrix" ],
+            [ "known_x", [ "or", "matrix", "null" ] ],
+            [ "new_x", [ "or", "matrix", "null" ] ],
+            [ "const", [ "or", "logical", [ "null", true ] ] ]
+        ]);
+
+        defineFunction("FV", FV).args([
+            [ "rate", "number" ],
+            [ "nper", "number" ],
+            [ "pmt", [ "or", "number", [ "null", 0 ] ] ],
+            [ "pv", [ "or", "number", [ "null", 0 ] ] ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
+            [ "?", [ "assert", "$pmt || $pv" ] ]
+        ]);
+
+        defineFunction("PV", PV).args([
+            [ "rate", "number" ],
+            [ "nper", "number" ],
+            [ "pmt", [ "or", "number", [ "null", 0 ] ] ],
+            [ "fv", [ "or", "number", [ "null", 0 ] ] ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ]
+        ]);
+
+        defineFunction("PMT", PMT).args([
+            [ "rate", "number" ],
+            [ "nper", "number" ],
+            [ "pmt", "number" ],
+            [ "fv", [ "or", "number", [ "null", 0 ] ] ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ]
+        ]);
+
+        defineFunction("NPER", NPER).args([
+            [ "rate", "number" ],
+            [ "pmt", "number" ],
+            [ "pv", "number" ],
+            [ "fv", [ "or", "number", [ "null", 0 ] ] ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ]
+        ]);
+
+        defineFunction("RATE", RATE).args([
+            [ "nper", "number" ],
+            [ "pmt", [ "or", "number", [ "null", 0 ] ] ],
+            [ "pv", "number" ],
+            [ "fv", [ "or", "number", [ "null", 0 ] ] ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
+            [ "guess", [ "or", "number++", [ "null", 0.01 ] ] ],
+            [ "?", [ "assert", "$pmt || $fv" ] ]
+        ]);
+
+        defineFunction("IPMT", IPMT).args([
+            [ "rate", "number" ],
+            [ "per", "number++" ],
+            [ "nper", "number++" ],
+            [ "pv", "number" ],
+            [ "fv", [ "or", "number", [ "null", 0 ] ] ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
+            [ "?", [ "assert", "$per >= 1 && $per <= $nper" ] ]
+        ]);
+
+        defineFunction("PPMT", PPMT).args([
+            [ "rate", "number" ],
+            [ "per", "number++" ],
+            [ "nper", "number++" ],
+            [ "pv", "number" ],
+            [ "fv", [ "or", "number", [ "null", 0 ] ] ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
+            [ "?", [ "assert", "$per >= 1 && $per <= $nper" ] ]
+        ]);
+
+        defineFunction("CUMPRINC", CUMPRINC).args([
+            [ "rate", "number++" ],
+            [ "nper", "number++" ],
+            [ "pv", "number++" ],
+            [ "start_period", "number++" ],
+            [ "end_period", "number++" ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
+            [ "?", [ "assert", "$end_period >= $start_period", "NUM" ] ]
+        ]);
+
+        defineFunction("CUMIPMT", CUMIPMT).args([
+            [ "rate", "number++" ],
+            [ "nper", "number++" ],
+            [ "pv", "number++" ],
+            [ "start_period", "number++" ],
+            [ "end_period", "number++" ],
+            [ "type", [ "or", [ "values", 0, 1 ], [ "null", 0 ] ] ],
+            [ "?", [ "assert", "$end_period >= $start_period", "NUM" ] ]
+        ]);
+
+        defineFunction("NPV", NPV).args([
+            [ "rate", "number" ],
+            [ "values", [ "collect", "number" ] ],
+            [ "?", [ "assert", "$values.length > 0", "N/A" ] ]
+        ]);
+
+        defineFunction("IRR", IRR).args([
+            [ "values", [ "collect", "number", 1 ] ],
+            [ "guess", [ "or", "number", [ "null", 0.1 ] ] ]
+        ]);
+
+        defineFunction("EFFECT", EFFECT).args([
+            [ "nominal_rate", "number++" ],
+            [ "npery", "integer++" ]
+        ]);
+
+        defineFunction("NOMINAL", NOMINAL).args([
+            [ "effect_rate", "number++" ],
+            [ "npery", "integer++" ]
+        ]);
+
+        defineFunction("XNPV", XNPV).args([
+            [ "rate", "number" ],
+            [ "values", [ "collect", "number", 1 ] ],
+            [ "dates", [ "collect", "date", 1 ] ],
+            [ "?", [ "assert", "$values.length == $dates.length", "NUM" ] ]
+        ]);
+
+        defineFunction("XIRR", XIRR).args([
+            [ "values", [ "collect", "number", 1 ] ],
+            [ "dates", [ "collect", "date", 1 ] ],
+            [ "guess", [ "or", "number", [ "null", 0.1 ] ] ],
+            [ "?", [ "assert", "$values.length == $dates.length", "NUM" ] ]
+        ]);
+
+        defineFunction("ISPMT", ISPMT).args([
+            [ "rate", "number" ],
+            [ "per", "number++" ],
+            [ "nper", "number++" ],
+            [ "pv", "number" ],
+            [ "?", [ "assert", "$per >= 1 && $per <= $nper" ] ]
+        ]);
+
+        defineFunction("DB", DB).args([
+            [ "cost", "number" ],
+            [ "salvage", "number" ],
+            [ "life", "number++" ],
+            [ "period", "number++" ],
+            [ "month", [ "or", "number", [ "null", 12 ] ] ]
+        ]);
+
+        defineFunction("DDB", DDB).args([
+            [ "cost", "number" ],
+            [ "salvage", "number" ],
+            [ "life", "number++" ],
+            [ "period", "number++" ],
+            [ "factor", [ "or", "number", [ "null", 2 ] ] ]
+        ]);
+
+        defineFunction("SLN", SLN).args([
+            [ "cost", "number" ],
+            [ "salvage", "number" ],
+            [ "life", "number++" ]
+        ]);
+
+        defineFunction("SYD", SYD).args([
+            [ "cost", "number" ],
+            [ "salvage", "number" ],
+            [ "life", "number++" ],
+            [ "per", "number++" ]
+        ]);
+
+        defineFunction("VDB", VDB).args([
+            [ "cost", "number+" ],
+            [ "salvage", "number+" ],
+            [ "life", "number++" ],
+            [ "start_period", "number+" ],
+            [ "end_period", "number+" ],
+            [ "factor", [ "or", "number+", [ "null", 2 ] ] ],
+            [ "no_switch", [ "or", "logical", [ "null", false ] ] ],
+            [ "?", [ "assert", "$end_period >= $start_period", "NUM" ] ]
+        ]);
+
+        var COUPS_ARGS = [
+            [ "settlement", "date" ],
+            [ "maturity", "date" ],
+            [ "frequency", [ "and", "integer", [ "values", 1, 2, 4 ] ] ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
+        ];
+
+        defineFunction("COUPDAYBS", COUPDAYBS).args(COUPS_ARGS);
+
+        defineFunction("COUPDAYS", COUPDAYS).args(COUPS_ARGS);
+
+        defineFunction("COUPDAYSNC", COUPDAYSNC).args(COUPS_ARGS);
+
+        defineFunction("COUPPCD", COUPPCD).args(COUPS_ARGS);
+
+        defineFunction("COUPNCD", COUPNCD).args(COUPS_ARGS);
+
+        defineFunction("COUPNUM", COUPNUM).args(COUPS_ARGS);
+
+        defineFunction("ACCRINTM", ACCRINTM).args([
+            [ "issue", "date" ],
+            [ "settlement", "date" ],
+            [ "rate", "number++" ],
+            [ "par", [ "or", [ "null", 1000 ], "number++" ] ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "?", [ "assert", "$issue < $settlement", "NUM" ] ]
+        ]);
+
+        defineFunction("ACCRINT", ACCRINT).args([
+            [ "issue", "date" ],
+            [ "first_interest", "date" ],
+            [ "settlement", "date" ],
+            [ "rate", "number++" ],
+            [ "par", [ "or", [ "null", 1000 ], "number++" ] ],
+            [ "frequency", [ "and", "integer", [ "values", 1, 2, 4 ] ] ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "calc_method", [ "or", "logical", [ "null", true ] ] ],
+            [ "?", [ "assert", "$issue < $settlement", "NUM" ] ]
+        ]);
+
+        defineFunction("DISC", DISC).args([
+            [ "settlement", "date" ],
+            [ "maturity", "date" ],
+            [ "pr", "number++" ],
+            [ "redemption", "number++" ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
+        ]);
+
+        defineFunction("INTRATE", INTRATE).args([
+            [ "settlement", "date" ],
+            [ "maturity", "date" ],
+            [ "investment", "number++" ],
+            [ "redemption", "number++" ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
+        ]);
+
+        defineFunction("RECEIVED", RECEIVED).args([
+            [ "settlement", "date" ],
+            [ "maturity", "date" ],
+            [ "investment", "number++" ],
+            [ "discount", "number++" ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
+        ]);
+
+        defineFunction("PRICE", PRICE).args([
+            [ "settlement", "date" ],
+            [ "maturity", "date" ],
+            [ "rate", "number++" ],
+            [ "yld", "number++" ],
+            [ "redemption", "number++" ],
+            [ "frequency", [ "and", "integer", [ "values", 1, 2, 4 ] ] ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
+        ]);
+
+        defineFunction("PRICEDISC", PRICEDISC).args([
+            [ "settlement", "date" ],
+            [ "maturity", "date" ],
+            [ "discount", "number++" ],
+            [ "redemption", "number++" ],
+            [ "basis", [ "or", [ "null", 0 ],
+                        [ "and", "integer", [ "values", 0, 1, 2, 3, 4 ] ] ] ],
+            [ "?", [ "assert", "$settlement < $maturity", "NUM" ] ]
+        ]);
+    });
     /* -----[ utils ]----- */
 
     // function resultAsMatrix(f) {

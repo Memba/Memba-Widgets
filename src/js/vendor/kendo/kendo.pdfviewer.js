@@ -1,15 +1,17 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.mobile.scroller.js";
+import "./kendo.toolbar.js";
+import "./kendo.combobox.js";
+import "./kendo.textbox.js";
 import "./pdfviewer/processors/pdfjs-processor.js";
 import "./pdfviewer/processors/dpl-processor.js";
-import "./pdfviewer/toolbar.js";
 import "./pdfviewer/page.js";
 import "./pdfviewer/search.js";
 import "./pdfviewer/dialogs.js";
@@ -20,7 +22,7 @@ var __meta__ = {
     name: "PDFViewer",
     category: "web",
     description: "PDFViewer to display pdfs in the browser",
-    depends: ["core", "window", "dialog", "toolbar", "mobile.scroller", "upload", "combobox", "drawing", "binder", "dropdownlist", "numerictextbox"]
+    depends: ["core", "window", "dialog", "toolbar", "mobile.scroller", "upload", "combobox", "drawing", "binder", "dropdownlist", "numerictextbox", "textbox"]
 };
 
 (function($, undefined) {
@@ -37,7 +39,6 @@ var __meta__ = {
         RENDER = "render",
         OPEN = "open",
         ERROR = "error",
-        FOCUS = "focus" + NS,
         KEYDOWN = "keydown" + NS,
         MOUSEWHEEL = "DOMMouseScroll" + NS + " mousewheel" + NS,
         UPDATE = "update",
@@ -48,6 +49,9 @@ var __meta__ = {
         ZOOMCOMMAND = "ZoomCommand",
         WHITECOLOR = "#ffffff",
         TABINDEX = "tabindex",
+        CLICK = "click",
+        CHANGE = "change",
+        TOGGLE = "toggle",
         PROCESSORS = {
             pdfjs: "pdfjs",
             dpl: "dpl"
@@ -59,6 +63,12 @@ var __meta__ = {
             enablePanning: "k-enable-panning",
             highlightClass: "k-search-highlight",
             charClass: "k-text-char"
+        },
+        PREDEFINED_ZOOM_VALUES = {
+            auto: "auto",
+            actual: "actual",
+            fitToWidth: "fitToWidth",
+            fitToPage: "fitToPage"
         };
 
     var PDFViewer = Widget.extend({
@@ -66,6 +76,8 @@ var __meta__ = {
             var that = this;
 
             Widget.fn.init.call(that, element, kendo.deepExtend({}, this.options, options));
+
+            that._processMessages();
 
             that._wrapper();
 
@@ -77,7 +89,6 @@ var __meta__ = {
             that._renderPageContainer();
             that._loadDocument();
 
-            that._tabindex();
             kendo.notify(that, kendo.ui);
         },
 
@@ -184,9 +195,161 @@ var __meta__ = {
                         next: "Next Match",
                         previous: "Previous Match",
                         close: "Close",
-                        of: "of"
+                        of: "of",
+                        dragHandle: "Drag search"
                     }
                 }
+            }
+        },
+
+        defaultTools: {
+            pager: {
+                name: "pager",
+                command: "PageChangeCommand"
+            },
+            spacer: { type: "spacer" },
+            zoomInOut: {
+                type: "buttonGroup",
+                attributes: { "class": "k-zoom-in-out-group" },
+                buttons: [
+                    { type: "button", icon: "zoom-out", name: "zoomOut", command: "ZoomCommand", showText: "overflow", options: "{ \"zoomOut\": true, \"updateComboBox\": true }", fillMode: "flat" },
+                    { type: "button", icon: "zoom-in", name: "zoomIn", command: "ZoomCommand", showText: "overflow", options: "{ \"zoomIn\": true, \"updateComboBox\": true }", fillMode: "flat" },
+                ]
+            },
+            zoom: {
+                type: "component",
+                name: "zoom",
+                command: "ZoomCommand",
+                overflow: "never",
+                component: "ComboBox",
+                data: [50, 100, 150, 200, 300, 400],
+                componentOptions: {
+                    enable: false,
+                    dataTextField: "text",
+                    dataValueField: "percent",
+                    valuePrimitive: true,
+                    clearOnEscape: false,
+                    commandOn: "change"
+                }
+            },
+            toggleSelection: {
+                type: "buttonGroup",
+                attributes: { "class": "k-toggle-selection-group" },
+                buttons: [
+                    {
+                        togglable: true,
+                        command: "EnableSelectionCommand",
+                        icon: "cursor",
+                        showText: "overflow",
+                        name: "toggleSelection",
+                        group: "toggle-pan",
+                        fillMode: "flat"
+                    }, {
+                        togglable: true,
+                        command: "EnablePanCommand",
+                        icon: "hand",
+                        showText: "overflow",
+                        name: "togglePan",
+                        group: "toggle-pan",
+                        selected: true,
+                        fillMode: "flat"
+                    }
+                ]
+            },
+            spacer2: { type: "spacer" },
+            search: {
+                type: "button",
+                command: "OpenSearchCommand",
+                icon: "search",
+                name: "search",
+                showText: "overflow",
+                enable: false,
+                fillMode: "flat"
+            },
+            open: {
+                type: "button",
+                showText: "overflow",
+                name: "open",
+                icon: "folder-open",
+                command: "OpenCommand",
+                fillMode: "flat"
+            },
+            download: {
+                type: "button",
+                showText: "overflow",
+                name: "download",
+                icon: "download",
+                command: "DownloadCommand",
+                enable: false,
+                fillMode: "flat"
+            },
+            print: {
+                type: "button",
+                showText: "overflow",
+                name: "print",
+                icon: "print",
+                command: "PrintCommand",
+                enable: false,
+                fillMode: "flat"
+            }
+        },
+
+        exportAsTool: {
+            exportAs: { type: "button", showText: "overflow", name: "exportAs", icon: "image-export", command: "ExportCommand", fillMode: "flat" }
+        },
+
+        pagerTools: [
+            {
+                type: "buttonGroup",
+                buttons: [
+                    { type: "button", icon: "arrow-end-left", name: "first", showText: "overflow", options: "{ \"value\": \"first\" }", fillMode: "flat", attributes: { class: "k-first-link" } },
+                    { type: "button", icon: "arrow-60-left", name: "previous", showText: "overflow", options: "{ \"value\": \"prev\" }", fillMode: "flat", attributes: { class: "k-prev-link" }, rounded: "none" },
+                ]
+            },
+            {
+                type: "component",
+                component: "TextBox",
+                name: "page",
+                attributes: { class: "k-viewer-pager-input" },
+                element: "<input id='page-input'/>",
+                overflow: "never",
+                componentOptions: {
+                    commandOn: "change"
+                }
+            },
+            {
+                overflow: "never",
+                template: function(data) {
+                    return "<label for='page-input'>" + data.componentOptions.messages.of + " <span id='total-page'></span> " + data.componentOptions.messages.pages + "</label>";
+                },
+                componentOptions: {
+                    messages: {
+                        of: "of",
+                        pages: "pages"
+                    }
+                }
+            },
+            {
+                type: "buttonGroup",
+                buttons: [
+                    { type: "button", icon: "arrow-60-right", name: "next", showText: "overflow", options: "{ \"value\": \"next\" }", fillMode: "flat", attributes: { class: "k-next-link" }, rounded: "none" },
+                    { type: "button", icon: "arrow-end-right", name: "last", showText: "overflow", options: "{ \"value\": \"last\" }", fillMode: "flat", attributes: { class: "k-last-link" } }
+                ]
+            },
+        ],
+
+        _processMessages: function() {
+            var messages = this.options.messages.toolbar,
+                zoom = messages.zoom,
+                pager = messages.pager;
+
+            if ($.isPlainObject(zoom)) {
+                this.options.messages.toolbar = $.extend({}, this.options.messages.toolbar, zoom);
+                this.options.messages.toolbar.zoom = zoom.zoomLevel || this.options.messages.toolbar.zoom;
+            }
+
+            if ($.isPlainObject(pager)) {
+                this.options.messages.toolbar = $.extend({}, this.options.messages.toolbar, pager);
             }
         },
 
@@ -200,7 +363,6 @@ var __meta__ = {
                     .width(options.width)
                     .height(options.height)
                     .addClass(styles.viewer)
-                    .on(FOCUS, that._focus.bind(that))
                     .on(KEYDOWN, that._keydown.bind(that));
 
             that._allowResize = that.options.scale === null;
@@ -212,15 +374,6 @@ var __meta__ = {
             });
 
             that._pageNum = that.options.page;
-        },
-
-        _focus: function(e) {
-            if (this.toolbar) {
-                this.toolbar.wrapper.trigger("focus");
-            } else {
-                this.pageContainer.trigger("focus");
-            }
-            e.preventDefault();
         },
 
         _keydown: function(e) {
@@ -244,7 +397,7 @@ var __meta__ = {
                 args.options.zoomOut = true;
                 shouldExecute = true;
             } else if (zeroShortcuts.includes(e.keyCode)) {
-                args.options.scale = ZOOM_SCALE;
+                args.options.value = ZOOM_SCALE;
                 shouldExecute = true;
             }
 
@@ -267,24 +420,207 @@ var __meta__ = {
 
         _renderToolbar: function() {
             var that = this,
-                options = that.options;
+                options = that.options,
+                toolbarOptions = extend({}, options.toolbar),
+                tools = toolbarOptions.items && toolbarOptions.items.length ? toolbarOptions.items : Object.keys(that.defaultTools);
 
-            var toolbarOptions = {
-                pager: {
-                    messages: options.messages.toolbar.pager
-                },
-                scale: options.scale,
-                resizable: true,
-                items: options.toolbar.items,
-                width: options.width,
-                action: that.execute.bind(that),
-                messages: options.messages.toolbar,
-                viewer: this
+            tools = that._processTools(tools);
+
+            toolbarOptions = {
+                defaultTools: $.extend({}, that.defaultTools, that.exportAsTool),
+                parentMessages: options.messages.toolbar,
+                tools: tools,
+                resizable: true
             };
 
             var toolbarElement = $("<div />");
             toolbarElement.appendTo(that.element);
-            that.toolbar = new kendo.pdfviewer.Toolbar(toolbarElement, toolbarOptions);
+            that.toolbar = new kendo.ui.ToolBar(toolbarElement, toolbarOptions);
+            that.options.toolbar = that.toolbar.options;
+
+            that.toolbar.bind(TOGGLE, that._toolbarClick.bind(that));
+            that.toolbar.bind(CLICK, that._toolbarClick.bind(that));
+            that.toolbar.bind(CHANGE, that._toolbarClick.bind(that));
+
+            that.bind({
+                update: that._updateToolbar.bind(that)
+            });
+
+            return that.toolbar;
+        },
+
+        _processTools: function(tools) {
+            var that = this,
+                messages = that.options.messages.toolbar;
+
+            tools = tools.flatMap(t => {
+                if (t === "zoom") {
+                    t = that.defaultTools.zoom;
+                } else if (t === "pager") {
+                    t = that.defaultTools.pager;
+                }
+
+                if (t.name === "zoom") {
+                    t = $.extend({}, that.defaultTools.zoom, t);
+
+                    var zoomLevels = [{
+                        percent: PREDEFINED_ZOOM_VALUES.auto,
+                        text: messages.autoWidth
+                    }, {
+                        percent: PREDEFINED_ZOOM_VALUES.actual,
+                        text: messages.actualWidth
+                    }, {
+                        percent: PREDEFINED_ZOOM_VALUES.fitToWidth,
+                        text: messages.fitToWidth
+                    }, {
+                        percent: PREDEFINED_ZOOM_VALUES.fitToPage,
+                        text: messages.fitToPage
+                    }];
+
+                    // eslint-disable-next-line
+                    var comboOptions = t.data.map(i => { return { percent: i, text: i + "%" } });
+                    var value = that.options.scale ? that.options.scale * 100 + "%" : "auto";
+
+                    zoomLevels = zoomLevels.concat(comboOptions);
+                    t.componentOptions.dataSource = zoomLevels;
+                    t.componentOptions.value = value;
+                } else if (t.name === "pager") {
+                    var pagerTools = that.pagerTools;
+
+                    that.pager = true;
+
+                    t = pagerTools.map(p => {
+                        if (p.buttons) {
+                            p.buttons = p.buttons.map((b) => {
+                                b.command = t.command;
+                                return b;
+                            });
+                        } else {
+                            p.command = t.command;
+                        }
+
+                        return p;
+                    });
+                }
+
+                return t;
+            });
+
+            return tools;
+        },
+
+        _updateToolbar: function(e) {
+            var pageOptions = {
+                    page: e.page || 1,
+                    total: e.total || 1
+                },
+                toolbar = this.toolbar,
+                toolbarEl = toolbar.element,
+                zoomCombo = toolbarEl.find("[data-command=ZoomCommand][data-role=combobox]").data("kendoComboBox"),
+                toFocus = toolbarEl.find(".k-focus");
+
+            if (toFocus.length === 0) {
+                toFocus = toolbarEl.find("[tabindex=0]").first();
+
+                if (toFocus.length === 0) {
+                    toFocus = toolbar._getAllItems().first();
+                }
+            }
+
+            if (zoomCombo) {
+                zoomCombo.enable(!e.isBlank);
+                if (e.action === "zoom") {
+                    this._updateZoomComboBox(e.zoom);
+                }
+            }
+
+            if ((e.action === "pagechange" || e.isBlank) && this.pager) {
+                this._updatePager(pageOptions);
+            }
+
+            this._updateOnBlank(e.isBlank);
+
+            toolbar._resetTabIndex(toFocus);
+        },
+
+        _updateOnBlank: function(isBlank) {
+            var toolbar = this.toolbar,
+                toolbarEl = toolbar.element;
+
+            toolbar.enable(toolbarEl.find(".k-toggle-selection-group"), !isBlank);
+            toolbar.enable(toolbarEl.find(".k-zoom-in-out-group"), !isBlank);
+
+            toolbar.enable(toolbarEl.find("[data-command='OpenSearchCommand']"), !isBlank);
+            toolbar.enable(toolbarEl.find("[data-command='DownloadCommand']"), !isBlank);
+            toolbar.enable(toolbarEl.find("[data-command='PrintCommand']"), !isBlank);
+        },
+
+        _updatePager: function(options) {
+            var toolbarEl = this.toolbar.element,
+                textBox = toolbarEl.find("#page-input").data("kendoTextBox"),
+                totalPagesSpan = toolbarEl.find("#total-page");
+
+            if (textBox && options.page) {
+                textBox.value(options.page);
+            }
+
+            if (totalPagesSpan.length && options.total) {
+                totalPagesSpan.text(options.total);
+            }
+
+            this._togglePagerDisabledClass(options);
+        },
+
+        _togglePagerDisabledClass: function(options) {
+            var toolbar = this.toolbar,
+                toolbarEl = toolbar.element,
+                total = !options.total,
+                prevFirst = toolbarEl.find(".k-prev-link").closest(".k-button-group"),
+                nextLast = toolbarEl.find(".k-next-link").closest(".k-button-group"),
+                textBox = toolbarEl.find("#page-input").data("kendoTextBox");
+
+            if (prevFirst.length) {
+                toolbar.enable(prevFirst, total || options.page !== 1);
+            }
+            if (nextLast.length) {
+                toolbar.enable(nextLast, total || options.page !== options.total);
+            }
+
+            if (textBox) {
+                textBox.enable(options.total > 1);
+            }
+        },
+
+        _updateZoomComboBox: function(value) {
+            var isPredefined = value === PREDEFINED_ZOOM_VALUES.auto ||
+                value === PREDEFINED_ZOOM_VALUES.actual ||
+                value === PREDEFINED_ZOOM_VALUES.fitToPage ||
+                value === PREDEFINED_ZOOM_VALUES.fitToWidth,
+                zoomCombo = this.toolbar.element.find("[data-command=ZoomCommand][data-role=combobox]").data("kendoComboBox");
+
+            if (!isPredefined) {
+                value = Math.round(value * 100) + '%';
+            }
+
+            if (zoomCombo) {
+                zoomCombo.value(value);
+            }
+        },
+
+        _toolbarClick: function(ev) {
+            var command = $(ev.target).data("command"),
+                options = $(ev.target).data("options");
+
+            options = extend({}, { value: $(ev.target).val() }, options);
+
+            if (!command) {
+                return;
+            }
+
+            this.execute({
+                command: command,
+                options: options
+            });
         },
 
         _initErrorDialog: function(options) {
@@ -537,7 +873,7 @@ var __meta__ = {
             return that.execute({
                 command: ZOOMCOMMAND,
                 options: {
-                    scale: scale,
+                    value: scale,
                     updateComboBox: !preventComboBoxChange
                 }
             });

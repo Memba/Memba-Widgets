@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -23,6 +23,7 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        encode = kendo.htmlEncode,
         Widget = ui.Widget,
         common = window.kendo.pivotgrid.common,
         fetchDiscover = common.fetchDiscover,
@@ -30,19 +31,19 @@ var __meta__ = {
         PIVOT_CONFIGURATOR_ACTION = common.PIVOT_CONFIGURATOR_ACTION,
         ns = ".kendoPivotConfigurator",
         HOVER_EVENTS = "mouseenter" + ns + " mouseleave" + ns,
-        SETTINGS_TEMPLATE = kendo.template('<div class="k-pivotgrid-configurator-header">' +
-                                            '<div class="k-pivotgrid-configurator-header-text">#:title#</div>' +
-                                          '</div>'),
-        CONTENT_TEMPLATE = kendo.template('<div class="k-pivotgrid-configurator-content">' +
-            '<form class="#:formClass#">' +
-                '#if (horizontal) {# <div class="k-form-field-wrapper"> #}#' +
+        SETTINGS_TEMPLATE = ({ title }) => '<div class="k-pivotgrid-configurator-header">' +
+                                            `<div class="k-pivotgrid-configurator-header-text">${encode(title)}</div>` +
+                                          '</div>',
+        CONTENT_TEMPLATE = ({ formClass, horizontal }) => '<div class="k-pivotgrid-configurator-content">' +
+            `<form class="${encode(formClass)}">` +
+                `${horizontal ? '<div class="k-form-field-wrapper">' : ''}` +
                 '<div class="k-form-field">' +
                     '<label class="k-label">Fields</label>' +
                 '</div>' +
                 '<div class="k-form-field">' +
                   '<div class="k-fields-list-wrapper"></div>' +
                 '</div>' +
-                '#if (horizontal) {# </div><div class="k-form-field-wrapper"> #}#' +
+                `${horizontal ? '</div><div class="k-form-field-wrapper">' : ''}` +
                 '<div class="k-form-field">' +
                     '<label class="k-label">Columns</label>' +
                 '</div>' +
@@ -51,28 +52,28 @@ var __meta__ = {
                     '<label class="k-label">Rows</label>' +
                 '</div>' +
                 '<div class="k-chip-list k-row-fields"></div>' +
-                '#if (horizontal) {# </div><div class="k-form-field-wrapper"> #}#' +
+                `${horizontal ? '</div><div class="k-form-field-wrapper">' : ''}` +
                 '<div class="k-form-field">' +
                     '<label class="k-label">Values</label>' +
                 '</div>' +
                 '<div class="k-chip-list k-column-fields"></div>' +
-                '#if (horizontal) {# </div> #}#' +
+                `${horizontal ? '</div>' : ''}` +
             '</form>' +
-        '</div>'),
-        TARGET_ITEM_TEMPLATE = '<span>' +
-                '<span class="k-chip-label">#:name#</span>' +
-                '#if (menuenabled) {# <span class="k-icon k-i-more-vertical"></span> #}#' +
+        '</div>',
+        TARGET_ITEM_TEMPLATE = ({ name, menuenabled }) => '<span>' +
+                `<span class="k-chip-label">${encode(name)}</span>` +
+                `${menuenabled ? '<span class="k-icon k-i-more-vertical"></span>' : ''}` +
             '</span>',
-        ACTIONS_TEMPLATE = kendo.template(
+        ACTIONS_TEMPLATE = ({ cancelText, applyText }) =>
                 '<div class="k-pivotgrid-configurator-actions k-actions k-hstack k-justify-content-end">' +
                   '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">' +
-                    '<span class="k-button-text">#:cancelText#</span>' +
+                    `<span class="k-button-text">${encode(cancelText)}</span>` +
                   '</button>' +
                   '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary">' +
-                    '<span class="k-button-text">#:applyText#</span>' +
+                    `<span class="k-button-text">${encode(applyText)}</span>` +
                   '</button>' +
-                '</div>'),
-        SETTING_CONTAINER_TEMPLATE = kendo.template('<div class="k-pivotgrid-target k-pivotgrid-configurator-section"><strong>${name}</strong><div class="k-pivotgrid-target-wrap"></div>');
+                '</div>',
+        SETTING_CONTAINER_TEMPLATE = ({ name }) => `<div class="k-pivotgrid-target k-pivotgrid-configurator-section"><strong>${name}</strong><div class="k-pivotgrid-target-wrap"></div>`;
 
     function addKPI(data) {
         var found;
@@ -119,6 +120,23 @@ var __meta__ = {
             return target.data("kendoPivotSettingTarget");
         }
         return null;
+    }
+
+    function getIcons(sortIcon, options) {
+        var sortable = options.sortable;
+        var result = '';
+
+        if (sortable) {
+            result += `${sortIcon ? '<span class="k-chip-action"><span class="k-icon ' + sortIcon + '-sm"></span></span>' : ''}`;
+        }
+
+        if (options.filterable || sortable) {
+            result += '<span class="k-setting-fieldmenu k-chip-action"><span class="k-icon k-i-more-vertical"></span></span>';
+        }
+
+        result += '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
+
+        return result;
     }
 
     var PivotConfiguratorV2 = Widget.extend({
@@ -250,7 +268,7 @@ var __meta__ = {
             var measures = that.panel.find(".k-chip-list").last();
             var options = this.options;
 
-            var targetItemTemplate = kendo.html.renderChip(TARGET_ITEM_TEMPLATE, $.extend({}, options, {
+            var targetItemTemplate = ({ name, menuenabled }) => kendo.html.renderChip(TARGET_ITEM_TEMPLATE({ name, menuenabled }), $.extend({}, options, {
                 fillMode: "solid",
                 themeColor: "base",
                 rounded: "full",
@@ -319,7 +337,15 @@ var __meta__ = {
                 .kendoTreeView({
                     checkboxes: {
                         checkChildren: true,
-                        template: '#if ((item.hasChildren || item.aggregator || item.local) && item.uniqueName !== "[KPIs]" && item.uniqueName !== "[Measures]" && item.uniqueName !== "Measures") {# <input type="checkbox" data-name="#:item.uniqueName#" #= item.checked ? "checked" : "" # class="k-checkbox k-checkbox-md k-rounded-md" id="#:item.uid#" tabindex="-1"> #}#'
+                        template: ({ item }) => {
+                            var result = '';
+
+                            if ((item.hasChildren || item.aggregator || item.local) && item.uniqueName !== "[KPIs]" && item.uniqueName !== "[Measures]" && item.uniqueName !== "Measures") {
+                                result += `<input type="checkbox" data-name="${encode(item.uniqueName)}" ${item.checked ? "checked" : ""} class="k-checkbox k-checkbox-md k-rounded-md" id="${encode(item.uid)}" tabindex="-1">`;
+                            }
+
+                            return result;
+                        }
                     },
                     dataTextField: "caption",
                     autoBind: false,
@@ -715,12 +741,19 @@ var __meta__ = {
         _fields: function() {
             var container = $('<div class="k-pivotgrid-fields k-pivotgrid-configurator-section"><strong>' + this.options.messages.fieldsLabel + '</strong><div class="k-fields-list-wrapper"></div></div>').appendTo(this.form);
 
-            var template = '# if (item.type == 2 || item.uniqueName == "[KPIs]") { #' +
-                           '<span class="k-icon k-i-#= (item.type == 2 ? \"sum\" : \"kpi\") #"></span>' +
-                           '# } else if (item.type && item.type !== "kpi") { #' +
-                           '<span class="k-icon k-i-arrows-dimensions"></span>' +
-                           '# } #' +
-                           '#: item.caption || item.name #';
+            var template = ({ item }) => {
+                var result = '';
+
+                if (item.type == 2 || item.uniqueName == "[KPIs]") {
+                    result += `<span class="k-icon k-i-${(item.type == 2 ? "sum" : "kpi")}"></span>`;
+                } else if (item.type && item.type !== "kpi") {
+                    result += `<span class="k-icon k-i-arrows-dimensions"></span>`;
+                }
+
+                result += `${encode(item.caption || item.name)}`;
+
+                return result;
+            };
 
             this.treeView = $("<div/>").appendTo(container.find('.k-fields-list-wrapper'))
                 .kendoTreeView({
@@ -777,34 +810,22 @@ var __meta__ = {
         },
 
         _createTarget: function(element, options) {
-            var template = '';
-            var sortable = options.sortable;
-            var icons = '';
+            var template;
 
-            if (sortable) {
-                icons += '#if (data.sortIcon) {#';
-                icons += '<span class="k-chip-action"><span class="k-icon ${data.sortIcon}-sm"></span></span>';
-                icons += '#}#';
-            }
-
-            if (options.filterable || sortable) {
-                icons += '<span class="k-setting-fieldmenu k-chip-action"><span class="k-icon k-i-more-vertical"></span></span>';
-            }
-
-            icons += '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
-
-            template = ''
-                + '<span class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" data-' + kendo.ns + 'name="${data.name}">'
+            template = ({ name, sortIcon }) => ''
+                + `<div class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" data-${kendo.ns}name="${name}">`
                     + '<span class="k-chip-content">'
-                        + '<span class="k-chip-text">${data.name}</span>'
+                        + `<span class="k-chip-label">${name}</span>`
                     + '</span>'
-                    + '<span class="k-chip-actions k-field-actions">' + icons + '</span>'
-                + '</span>';
+                    + '<span class="k-chip-actions k-field-actions">'
+                    + getIcons(sortIcon, options)
+                    + '</span>'
+                + '</div>';
 
             return new kendo.ui.PivotSettingTarget(element, $.extend({
                 dataSource: this.dataSource,
                 template: template,
-                emptyTemplate: '<span class="k-empty">${data}</span>'
+                emptyTemplate: (data) => `<span class="k-empty">${data}</span>`
             }, options));
         },
 

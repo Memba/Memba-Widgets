@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -139,11 +139,15 @@ var __meta__ = {
         return true;
     }
 
-    var SUMMARYTEMPLATE = '<ul>' +
-        '#for(var i = 0; i < errors.length; i += 1){#' +
-            '<li><a data-field="#=errors[i].field#" href="\\#">#= errors[i].message #</a></li>' +
-        '# } #' +
-    '</ul>';
+    var SUMMARYTEMPLATE = ({ errors }) => {
+        let result = '<ul>';
+        for (var i = 0; i < errors.length; i += 1) {
+            result += `<li><a data-field="${errors[i].field}" href="#">${errors[i].message}</a></li>`;
+        }
+
+        result += '</ul>';
+        return result;
+    };
 
     var Validator = Widget.extend({
         init: function(element, options) {
@@ -181,7 +185,7 @@ var __meta__ = {
 
         options: {
             name: "Validator",
-            errorTemplate: '<span class="k-form-error">#= message #</span>',
+            errorTemplate: ({ message }) => `<span class="k-form-error">${message}</span>`,
             messages: {
                 required: "{0} is required",
                 pattern: "{0} is not valid",

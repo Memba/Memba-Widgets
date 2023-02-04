@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -267,6 +267,7 @@ var __meta__ = {
         _navigatable: function() {
             var that = this;
             var pageable = that.scrollView.options.pageable || {};
+            var defaultAriaTemplate = ({ index }) => `Item ${index + 1}`;
 
             that.element.attr({
                 tabindex: 0,
@@ -278,7 +279,7 @@ var __meta__ = {
                 that.element.attr("aria-controls", that.scrollView.itemsWrapper.attr("id"));
             }
 
-            that._ariaTemplate = kendo.template(pageable.ARIATemplate || "Item #=data.index + 1#");
+            that._ariaTemplate = kendo.template(pageable.ARIATemplate || defaultAriaTemplate);
 
             if (!that.scrollView.options.navigatable) {
                 return;
@@ -665,14 +666,14 @@ var __meta__ = {
 
             if (typeof template === FUNCTION) {
                 templateProxy.template = template;
-                template = "#=this.template(data)#";
+                template = (data) => templateProxy.template(data);
             }
 
             this.template = kendo.template(template).bind(templateProxy);
 
             if (typeof emptyTemplate === FUNCTION) {
                 emptyTemplateProxy.emptyTemplate = emptyTemplate;
-                emptyTemplate = "#=this.emptyTemplate(data)#";
+                emptyTemplate = (data) => emptyTemplateProxy.emptyTemplate(data);
             }
 
             this.emptyTemplate = kendo.template(emptyTemplate).bind(emptyTemplateProxy);
@@ -1094,7 +1095,7 @@ var __meta__ = {
 
         options: {
             name: "ScrollView",
-            ARIATemplate: "Item #=data.index# of #=data.total#",
+            ARIATemplate: ({ index, total }) => `Item ${index} of ${total}`,
             page: 0,
             duration: 400,
             velocityThreshold: 0.8,
@@ -1107,8 +1108,8 @@ var __meta__ = {
             navigatable: false,
             autoBind: true,
             pageable: false,
-            template: "",
-            emptyTemplate: "",
+            template: () => "",
+            emptyTemplate: () => "",
             messages: {
                 previousButtonLabel: "Previous",
                 nextButtonLabel: "Next",

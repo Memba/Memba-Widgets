@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -82,6 +82,7 @@ var __meta__ = {
 
 (function($, undefined) {
     var data = kendo.data;
+    var encode = kendo.htmlEncode;
     var kendoDom = kendo.dom;
     var kendoDomElement = kendoDom.element;
     var kendoTextElement = kendoDom.text;
@@ -271,11 +272,11 @@ var __meta__ = {
             methodName: "saveAsPDF"
         },
         search: {
-            template:
+            template: ({ message }) =>
             "<span class='k-spacer'></span>" +
             "<span class='k-searchbox k-input k-input-md k-rounded-md k-input-solid k-grid-search'>" +
                 "<span class='k-input-icon k-icon k-i-search'></span>" +
-                "<input autocomplete='off' placeholder='" + "#= message #" + "' title='" + "#= message #" + "' class='k-input-inner' />" +
+                `<input autocomplete='off' placeholder='${message}' title='${message}' class='k-input-inner' />` +
             "</span>"
         }
     };
@@ -2005,7 +2006,7 @@ var __meta__ = {
             if (options.renderForm) {
                 this.form = new ui.Form(this.wrapper.find(".k-treelist-form"), {
                     items: this.fields,
-                    buttonsTemplate: "",
+                    buttonsTemplate: () => '',
                     formData: this.model,
                     change: options.change
                 });
@@ -2559,7 +2560,7 @@ var __meta__ = {
             if (!this.tbody.find("tr").length) {
                 this._showStatus(
                     kendo.template(
-                        "<span class='#= className #'></span> #: messages.loading #"
+                        ({ className, messages }) => `<span class='${className}'></span> ${encode(messages.loading)}`
                     )({
                         className: classNames.icon + " " + classNames.loading,
                         messages: messages
@@ -2689,7 +2690,7 @@ var __meta__ = {
 
             template = kendo.format(defaultTemplate, this.options.messages.noRows, scrollableNoGridHeightStyles);
 
-            $(kendo.template(kendo.format(wrapper, NORECORDSCLASS, template))({})).insertAfter(this.table);
+            $(kendo.template(() => kendo.format(wrapper, NORECORDSCLASS, template))({})).insertAfter(this.table);
         },
 
         _showStatus: function(message) {
@@ -2936,8 +2937,8 @@ var __meta__ = {
             reorderable: false,
             pageable: false,
             renderAllRows: true,
-            rowTemplate: "",
-            altRowTemplate: ""
+            rowTemplate: null,
+            altRowTemplate: null
         },
 
         events: [
@@ -4464,62 +4465,67 @@ var __meta__ = {
         },
 
         _layout: function() {
+            var that = this;
             var columns = this.columns;
             var element = this.element;
-            var layout = "";
 
             this.wrapper = element.addClass(classNames.wrapper);
 
-            layout = "<div class='#= gridHeader #'>";
+            var layoutTemplateFunction = ({ gridHeader, gridHeaderWrap, gridContentWrap, toolbar, gridToolbar }) => {
+                var layout = `<div class='${gridHeader}'>`;
+                if (this._hasLockedColumns) {
+                    layout += "<div class='k-grid-header-locked'>" +
+                                    "<table role='grid'>" +
+                                        "<colgroup></colgroup>" +
+                                        "<thead role='rowgroup'></thead>" +
+                                    "</table>" +
+                                "</div>";
+                }
 
-            if (this._hasLockedColumns) {
-                layout += "<div class='k-grid-header-locked'>" +
+                layout += `<div class='${gridHeaderWrap}'>` +
                                 "<table role='grid'>" +
                                     "<colgroup></colgroup>" +
                                     "<thead role='rowgroup'></thead>" +
                                 "</table>" +
-                            "</div>";
-            }
-
-            layout += "<div class='#= gridHeaderWrap #'>" +
-                            "<table role='grid'>" +
-                                "<colgroup></colgroup>" +
-                                "<thead role='rowgroup'></thead>" +
-                            "</table>" +
-                        "</div>" +
+                            "</div>" +
                         "</div>";
 
-            if (this._hasLockedColumns) {
-                layout += "<div class='k-grid-content-locked'>" +
+                if (this._hasLockedColumns) {
+                    layout += "<div class='k-grid-content-locked'>" +
+                                    "<table role='treegrid' tabindex='0'>" +
+                                        "<colgroup></colgroup>" +
+                                        "<tbody></tbody>" +
+                                    "</table>" +
+                                "</div>";
+                }
+
+                layout += `<div class='${gridContentWrap} k-auto-scrollable'>` +
                                 "<table role='treegrid' tabindex='0'>" +
                                     "<colgroup></colgroup>" +
                                     "<tbody></tbody>" +
                                 "</table>" +
                             "</div>";
-            }
 
-            layout += "<div class='#= gridContentWrap # k-auto-scrollable'>" +
-                            "<table role='treegrid' tabindex='0'>" +
-                                "<colgroup></colgroup>" +
-                                "<tbody></tbody>" +
-                            "</table>" +
-                        "</div>";
+                if (!this.options.scrollable) {
+                    layout =
+                        "<table role='treegrid' tabindex='0'>" +
+                            "<colgroup></colgroup>" +
+                            `<thead class='${gridHeader}' role='rowgroup'></thead>` +
+                            "<tbody></tbody>" +
+                        "</table>";
+                }
 
-            if (!this.options.scrollable) {
-                layout =
-                    "<table role='treegrid' tabindex='0'>" +
-                        "<colgroup></colgroup>" +
-                        "<thead class='#= gridHeader #' role='rowgroup'></thead>" +
-                        "<tbody></tbody>" +
-                    "</table>";
-            }
+                if (this.options.toolbar) {
+                    layout = `<div class='${toolbar} ${gridToolbar}'></div>` + layout;
+                }
 
-            if (this.options.toolbar) {
-                layout = "<div class='#= toolbar # #= gridToolbar #'></div>" + layout;
-            }
+                return layout;
+            };
+
+            layoutTemplateFunction = layoutTemplateFunction.bind(that);
 
             element.append(
-                kendo.template(layout)(classNames) +
+                kendo.template(layoutTemplateFunction)(classNames) +
                 "<div class='k-status' role='alert' aria-live='polite'></div>"
             );
 
@@ -4656,8 +4662,9 @@ var __meta__ = {
             if (options.error) {
                 // root-level error message
                 this._showStatus(kendo.template(
-                    "#: messages.requestFailed # " +
-                    "<button class='#= buttonClass # k-button-md k-rounded-md k-button-solid k-button-solid-base'><span class='k-button-text'>#: messages.retry #</span></button>"
+                    ({ messages, buttonClass }) =>
+                    `${encode(messages.requestFailed)} ` +
+                    `<button class='${buttonClass} k-button-md k-rounded-md k-button-solid k-button-solid-base'><span class='k-button-text'>${encode(messages.retry)}</span></button>`
                 )({
                     buttonClass: [classNames.button, classNames.retry].join(" "),
                     messages: messages
@@ -4927,7 +4934,7 @@ var __meta__ = {
                         title = column.headerTemplate({});
                     }
 
-                    title = column.headerTemplate ? title : kendo.template(SELECTCOLUMNHEADERTMPL)({});
+                    title = column.headerTemplate ? title : kendo.template( () => SELECTCOLUMNHEADERTMPL)({});
 
 
                     if (rowSpan && !column.colSpan) {
@@ -5722,12 +5729,11 @@ var __meta__ = {
         _createDirtyColumnTemplate: function(column) {
             var that = this;
             var templateSettings = that._customTemplateSettings();
-            var columnTemplateAlias = "#=this.columnTemplate(" + templateSettings.paramName + ")#";
+            var templateFunction = function(data) {
+                return (that._dirtyIndicatorTemplate(column.field)(data) + this.columnTemplate(data));
+            };
 
-            var templateString = that._dirtyIndicatorTemplate(column.field) + columnTemplateAlias;
-            var templateFunction = kendoTemplate(templateString, templateSettings).bind({ columnTemplate: column.template });
-
-            return templateFunction;
+            return kendoTemplate(templateFunction, templateSettings).bind({ columnTemplate: column.template });
         },
 
         _createIndicatorTemplate: function(column) {
@@ -5743,13 +5749,11 @@ var __meta__ = {
             var paramName = templateSettings.paramName;
 
             if (field && paramName) {
-                dirtyField = field.charAt(0) === "[" ? kendo.expr(field, paramName + ".dirtyFields") : paramName + ".dirtyFields['" + field + "']";
-
-                return "#= " + paramName + " && " + paramName + ".dirty && " + paramName + ".dirtyFields && " + dirtyField +
-                        " ? '<span class=\"k-dirty\"></span>' : '' #";
+                dirtyField = field.charAt(0) === "[" ? kendo.expr(field, paramName + ".dirtyFields") : paramName + `.dirtyFields['${field}']`;
+                return ({ dirty, dirtyFields }) => (dirty && dirtyFields && dirtyField ? '<span class="k-dirty"></span>' : '');
             }
 
-            return "";
+            return () => "";
         },
 
         _customTemplateSettings: function() {

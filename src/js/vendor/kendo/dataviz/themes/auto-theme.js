@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -36,8 +36,8 @@ import "../../kendo.dataviz.core.js";
         var theme = { chart: kendo.dataviz.chartBaseTheme() };
         var hook = $(
             '<div style="display: none">' +
-            '  <div class="k-var--accent"></div>' +
-            '  <div class="k-var--accent-contrast"></div>' +
+            '  <div class="k-var--primary"></div>' +
+            '  <div class="k-var--primary-contrast"></div>' +
             '  <div class="k-var--base"></div>' +
             '  <div class="k-var--background"></div>' +
             '  <div class="k-var--normal-background"></div>' +
@@ -118,8 +118,8 @@ import "../../kendo.dataviz.core.js";
             mapColor("chart.seriesDefaults.boxPlot.downColor", "chart-major-lines");
             mapColor("chart.seriesDefaults.boxPlot.mean.color", "base");
             mapColor("chart.seriesDefaults.boxPlot.median.color", "base");
-            mapColor("chart.seriesDefaults.boxPlot.whiskers.color", "accent");
-            mapColor("chart.seriesDefaults.bullet.target.color", "accent");
+            mapColor("chart.seriesDefaults.boxPlot.whiskers.color", "primary");
+            mapColor("chart.seriesDefaults.bullet.target.color", "primary");
             mapColor("chart.seriesDefaults.candlestick.downColor", "normal-text-color");
             mapColor("chart.seriesDefaults.candlestick.line.color", "normal-text-color");
             mapColor("chart.seriesDefaults.errorBars.color", "chart-error-bars-background");
@@ -133,17 +133,17 @@ import "../../kendo.dataviz.core.js";
             mapColor("chart.seriesDefaults.verticalBoxPlot.downColor", "chart-major-lines");
             mapColor("chart.seriesDefaults.verticalBoxPlot.mean.color", "base");
             mapColor("chart.seriesDefaults.verticalBoxPlot.median.color", "base");
-            mapColor("chart.seriesDefaults.verticalBoxPlot.whiskers.color", "accent");
-            mapColor("chart.seriesDefaults.verticalBullet.target.color", "accent");
+            mapColor("chart.seriesDefaults.verticalBoxPlot.whiskers.color", "primary");
+            mapColor("chart.seriesDefaults.verticalBullet.target.color", "primary");
             mapColor("chart.seriesDefaults.waterfall.line.color", "chart-major-lines");
             mapColor("chart.title.color", "normal-text-color");
             mapColor("chart.subtitle.color", "normal-text-color");
 
-            mapColor("diagram.shapeDefaults.fill.color", "accent");
-            mapColor("diagram.shapeDefaults.content.color", "accent-contrast");
+            mapColor("diagram.shapeDefaults.fill.color", "primary");
+            mapColor("diagram.shapeDefaults.content.color", "primary-contrast");
             mapColor("diagram.shapeDefaults.connectorDefaults.fill.color", "normal-text-color");
-            mapColor("diagram.shapeDefaults.connectorDefaults.stroke.color", "accent-contrast");
-            mapColor("diagram.shapeDefaults.connectorDefaults.hover.fill.color", "accent-contrast");
+            mapColor("diagram.shapeDefaults.connectorDefaults.stroke.color", "primary-contrast");
+            mapColor("diagram.shapeDefaults.connectorDefaults.hover.fill.color", "primary-contrast");
             mapColor("diagram.shapeDefaults.connectorDefaults.hover.stroke.color", "normal-text-color");
             mapColor("diagram.editable.resize.handles.stroke.color", "normal-text-color");
             mapColor("diagram.editable.resize.handles.fill.color", "normal-background");
@@ -152,7 +152,7 @@ import "../../kendo.dataviz.core.js";
             mapColor("diagram.selectable.stroke.color", "normal-text-color");
             mapColor("diagram.connectionDefaults.stroke.color", "normal-text-color");
             mapColor("diagram.connectionDefaults.content.color", "normal-text-color");
-            mapColor("diagram.connectionDefaults.selection.handles.fill.color", "accent-contrast");
+            mapColor("diagram.connectionDefaults.selection.handles.fill.color", "primary-contrast");
             mapColor("diagram.connectionDefaults.selection.handles.stroke.color", "normal-text-color");
             mapColor("diagram.connectionDefaults.selection.stroke.color", "normal-text-color");
 

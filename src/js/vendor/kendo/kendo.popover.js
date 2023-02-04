@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -30,17 +30,17 @@ var __meta__ = {
         DOCUMENT = $(document),
         NS = ".kendoPopover",
         ARROWWIDTH = 28,
-        TEXTBUTTONTEMPLATE = '<button #=index# class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary"><span class="k-button-text">#=text#</span></button>',
-        ICONTEXTBUTTONTEMPLATE = '<button #=index# class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">' +
-            '<span class="k-button-icon #=iconClass#"></span>' +
-            '<span class="k-button-text">#=text#</span>' +
+        TEXTBUTTONTEMPLATE = ({ index, text }) => `<button ${index} class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary"><span class="k-button-text">${text}</span></button>`,
+        ICONTEXTBUTTONTEMPLATE = ({ index, text, iconClass }) => `<button ${index} class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">` +
+            `<span class="k-button-icon ${iconClass}"></span>` +
+            `<span class="k-button-text">${text}</span>` +
         '</button>',
-        ICONBUTTON = '<button #=index# class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button"><span class="k-button-icon #=iconClass#"></span></button>',
-        CARDTEMPLATE = '#if (header) {# <div class="k-popover-header">#=header#</div> #}#' +
-        '<div class="k-popover-body">#=body#</div>' +
-        '#if (actions){ #<div class="k-popover-actions k-actions k-hstack k-justify-content-#=positioning#">#=actions#</div>#}#',
-        TEMPLATE = '<div role="tooltip" class="k-popover k-widget">' +
-        '#if (callout){ #<div class="k-popover-callout k-callout-#=dir#"></div><div class="k-popover-inner"></div>#}#' +
+        ICONBUTTON = ({ index, iconClass }) => `<button ${index} class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button"><span class="k-button-icon ${iconClass}"></span></button>`,
+        CARDTEMPLATE = ({ header, actions, body, positioning }) => `${header ? '<div class="k-popover-header">' + header + '</div>' : ''}` +
+        `<div class="k-popover-body">${body}</div>` +
+        `${actions ? '<div class="k-popover-actions k-actions k-hstack k-justify-content-' + positioning + '">' + actions + '</div>' : ''}`,
+        TEMPLATE = ({ callout, dir }) => '<div role="tooltip" class="k-popover k-widget">' +
+        `${callout ? '<div class="k-popover-callout k-callout-' + dir + '"></div><div class="k-popover-inner"></div>' : ''}` +
         '</div>',
         SHOW = "show",
         HIDE = "hide",
@@ -171,7 +171,8 @@ var __meta__ = {
             var that = this,
                 options = that.options,
                 element = that.wrapper.find(".k-popover-inner"),
-                template = that.options.template;
+                template = that.options.template,
+                emptyResult = () => "";
 
             if (element.length) {
                 element.children().remove();
@@ -184,9 +185,9 @@ var __meta__ = {
             if (template) {
                 element.append(kendo.template(template)({ target: target }));
             } else {
-                element.append(kendo.template(CARDTEMPLATE)({
-                    header: kendo.template(options.header || "")({ target: target }),
-                    body: kendo.template(options.body || "")({ target: target }),
+                element.append(CARDTEMPLATE({
+                    header: kendo.template(options.header || emptyResult)({ target: target }),
+                    body: kendo.template(options.body || emptyResult)({ target: target }),
                     actions: that._buildActions(options.actions),
                     positioning: options.actionsLayout
                 }));

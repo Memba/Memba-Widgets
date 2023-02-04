@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -58,15 +58,15 @@ import "./kendo.tooltip.js";
             template = kendo.template,
             keys = kendo.keys,
             templates = {
-                htmlPlayer: "<video class='" + MEDIA + "'> </video>",
-                titleBar: template("<div class='" + TITLEBAR + "'><span class='" + TITLE + "'>Video Title</span></div>"),
-                toolBar: "<div class='" + TOOLBARWRAP + "'><div class='" + TOOLBAR + "'></div></div>",
-                youtubePlayer: "<div class='" + YTPLAYER + "'> </div>",
-                toolBarTime: "<span class='k-mediaplayer-currenttime'>00:00:00</span> / <span class='k-mediaplayer-duration'>00:00:00</span>",
-                slider: "<input class='" + SLIDER + "' value='0' title='seekbar' />",
-                volumeSlider: "<input class='" + VOLUME_SLIDER + "' title='volume'/>",
-                qualityDropDown: "<input class='" + VIDEO_QUALITY + "' title='video quality' />",
-                toolTip: "#= kendo.toString(new Date(value), 'HH:mm:ss') #"
+                htmlPlayer: () => "<video class='" + MEDIA + "'> </video>",
+                titleBar: template(() => "<div class='" + TITLEBAR + "'><span class='" + TITLE + "'>Video Title</span></div>"),
+                toolBar: () => "<div class='" + TOOLBARWRAP + "'><div class='" + TOOLBAR + "'></div></div>",
+                youtubePlayer: () => "<div class='" + YTPLAYER + "'> </div>",
+                toolBarTime: () => "<span class='k-mediaplayer-currenttime'>00:00:00</span> / <span class='k-mediaplayer-duration'>00:00:00</span>",
+                slider: () => "<input class='" + SLIDER + "' value='0' title='seekbar' />",
+                volumeSlider: () => "<input class='" + VOLUME_SLIDER + "' title='volume'/>",
+                qualityDropDown: () => "<input class='" + VIDEO_QUALITY + "' title='video quality' />",
+                toolTip: ({ value }) => `${kendo.toString(new Date(value), 'HH:mm:ss')}`
             };
 
         var MediaPlayer = Widget.extend({

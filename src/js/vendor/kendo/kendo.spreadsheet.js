@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -91,6 +91,8 @@ import "./spreadsheet/print.js";
             init: function(element, options) {
                 Widget.fn.init.call(this, element, options);
 
+                kendo.spreadsheet.loadDeferred();
+
                 this.element.addClass(Spreadsheet.classNames.wrapper);
                 this.element.attr("role", "application");
 
@@ -129,13 +131,13 @@ import "./spreadsheet/print.js";
                     return;
                 } else if (e.altKey && key === keys.PAGEDOWN) {
                     this._view.sheetsbar.trigger("select", {
-                                    name: this._view.sheetsbar._sheets[this._view.sheetsbar._selectedIndex + 1].name(),
-                                    isAddButton: false
+                        name: this._view.sheetsbar._sheets[this._view.sheetsbar._selectedIndex + 1].name(),
+                        isAddButton: false
                     });
                 } else if (e.altKey && key === keys.PAGEUP) {
                     this._view.sheetsbar.trigger("select", {
-                                    name: this._view.sheetsbar._sheets[this._view.sheetsbar._selectedIndex - 1].name(),
-                                    isAddButton: false
+                        name: this._view.sheetsbar._sheets[this._view.sheetsbar._selectedIndex - 1].name(),
+                        isAddButton: false
                     });
                 } else if (e.altKey && key === keys.DELETE) {
                     var closeCallback = function(e) {
@@ -156,11 +158,11 @@ import "./spreadsheet/print.js";
                     e.preventDefault();
                     return;
                 } else if (e.ctrlKey && key === keys.B) {
-                    $("[data-tool=bold]")[0].click();
+                    $("[data-property=bold]")[0].click();
                 } else if (e.ctrlKey && key === keys.I) {
-                    $("[data-tool=italic]")[0].click();
+                    $("[data-property=italic]")[0].click();
                 } else if (e.ctrlKey && key === keys.U) {
-                    $("[data-tool=underline]")[0].click();
+                    $("[data-property=underline]")[0].click();
                 } else if (e.altKey && key === keys.H) {
                     this._view.tabstrip.select(0);
                     e.preventDefault();
@@ -173,6 +175,9 @@ import "./spreadsheet/print.js";
                     this._view.tabstrip.select(2);
                     e.preventDefault();
                     return;
+                } else if (key === keys.F10) {
+                    e.preventDefault();
+                    this._view.tabstrip.wrapper.find(".k-tabstrip-content.k-active .k-toolbar [tabindex=0]").trigger("focus");
                 }
             },
 

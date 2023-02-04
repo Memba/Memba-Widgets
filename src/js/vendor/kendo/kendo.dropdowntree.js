@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -27,6 +27,7 @@ var __meta__ = {
     var kendo = window.kendo,
         ui = kendo.ui,
         html = kendo.html,
+        encode = kendo.htmlEncode,
         Widget = ui.Widget,
         TreeView = ui._dropdowntree,
         ObservableArray = kendo.data.ObservableArray,
@@ -264,21 +265,21 @@ var __meta__ = {
                 "singleTag": "item(s) selected",
                 "clear": "clear",
                 "deleteTag": "delete",
-                "noData": "No data found."
+                "noData": () => "No data found."
             },
             minLength: 1,
             checkboxes: false,
             noDataTemplate: true,
             placeholder: "",
             checkAll: false,
-            checkAllTemplate: "Check all",
+            checkAllTemplate: () => "Check all",
             tagMode: "multiple",
             template: null,
             text: null,
             treeview: {},
             valuePrimitive: false,
-            footerTemplate: "",
-            headerTemplate: "",
+            footerTemplate: () => "",
+            headerTemplate: () => "",
             value: null,
             valueTemplate: null,
             popup: null,
@@ -987,7 +988,7 @@ var __meta__ = {
             var template = this.options.valueTemplate;
 
             if (!template) {
-                template = kendo.template('#:this._text(data)#', { useWithBlock: false }).bind(this);
+                template = (data) => encode(this._text(data));
             } else {
                 template = kendo.template(template);
             }
@@ -1625,7 +1626,7 @@ var __meta__ = {
                 that.wrapper.on(CLICK + ns, that._wrapperClick.bind(that));
 
                 if (this._isMultipleSelection()) {
-                    that.tagList.on(CLICK + ns, "span.k-chip", function(e) {
+                    that.tagList.on(CLICK + ns, "div.k-chip", function(e) {
                         $(e.currentTarget).addClass(FOCUSED);
                     });
 

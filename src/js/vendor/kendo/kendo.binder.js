@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -20,6 +20,7 @@ var __meta__ = {
 
 (function($, undefined) {
     var kendo = window.kendo,
+        encode = kendo.htmlEncode,
         Observable = kendo.Observable,
         ObservableObject = kendo.data.ObservableObject,
         ObservableArray = kendo.data.ObservableArray,
@@ -543,17 +544,20 @@ var __meta__ = {
             if (!template) {
                 if (nodeName == "select") {
                     if (options.valueField || options.textField) {
-                        template = kendo.format('<option value="#:{0}#">#:{1}#</option>',
-                            options.valueField || options.textField, options.textField || options.valueField);
+                        template = (data) => {
+                            const valueAttr = kendo.getter(options.valueField || options.textField)(data);
+                            const innerText = kendo.getter(options.textField || options.valueField)(data);
+                            return `<option value="${encode(valueAttr)}">${encode(innerText)}</option>`;
+                        };
                     } else {
-                        template = "<option>#:data#</option>";
+                        template = (data) => `<option>${encode(data)}</option>`;
                     }
                 } else if (nodeName == "tbody") {
-                    template = "<tr><td>#:data#</td></tr>";
+                    template = (data) => `<tr><td>${encode(data)}</td></tr>`;
                 } else if (nodeName == "ul" || nodeName == "ol") {
-                    template = "<li>#:data#</li>";
+                    template = (data) => `<li>${encode(data)}</li>`;
                 } else {
-                    template = "#:data#";
+                    template = (data) => `${encode(data)}`;
                 }
                 template = kendo.template(template);
             }

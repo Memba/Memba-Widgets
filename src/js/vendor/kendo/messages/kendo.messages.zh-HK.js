@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -981,7 +981,7 @@
                 "alignmentDialog": {
                     "title": "對齊",
                     "buttons": {
-                        "justtifyLeft": "左對齊",
+                        "justifyLeft": "左對齊",
                         "justifyCenter": "水準居中",
                         "justifyRight": "右對齊",
                         "justifyFull": "兩端對齊",
@@ -1235,7 +1235,7 @@
                 "addRowBelow": "在下麵插入行",
                 "alignment": "對齊",
                 "alignmentButtons": {
-                    "justtifyLeft": "左對齊",
+                    "justifyLeft": "左對齊",
                     "justifyCenter": "水準居中",
                     "justifyRight": "右對齊",
                     "justifyFull": "兩端對齊",

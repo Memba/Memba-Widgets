@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -15,6 +15,7 @@ import "../kendo.treeview.js";
         ui = kendo.ui,
         Observable = kendo.Observable,
         extend = $.extend,
+        encode = kendo.htmlEncode,
         keys = kendo.keys,
 
         NAVIGATE = "navigate",
@@ -206,14 +207,16 @@ import "../kendo.treeview.js";
                 wrap: "wrap"
             },
             selectable: kendo.support.mobileOS ? "row" : "multiple",
-            template: "<div class='k-listview-item' title='#:name##:extension#'>" +
-                            "<div class='k-file-preview'><span class='k-file-icon k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : 'folder' #'></span></div>" +
-                            "<div class='k-file-name file-name'>#:name##:extension#</div>" +
-                      "</div>",
-            editTemplate: "<div class='k-listview-item'>" +
-                                "<div class='k-file-preview'><span class='k-file-icon k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : 'folder' #'></span></div>" +
-                                "<div class='k-file-name'><span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input type='text' class='k-input-inner' data-bind='value:name' name='name' required='required' /><span></div>" +
-                          "</div>",
+            template: ({ name, extension, isDirectory }) =>
+                    `<div class='k-listview-item' title='${encode(name)}${encode(extension)}'>` +
+                        `<div class='k-file-preview'><span class='k-file-icon k-icon k-i-${ !isDirectory ? kendo.getFileGroup(extension, true) : 'folder'}'></span></div>` +
+                        `<div class='k-file-name file-name'>${encode(name)}${encode(extension)}</div>` +
+                    "</div>",
+            editTemplate: ({ extension, isDirectory }) =>
+                        "<div class='k-listview-item'>" +
+                            `<div class='k-file-preview'><span class='k-file-icon k-icon k-i-${ !isDirectory ? kendo.getFileGroup(extension, true) : 'folder' }'></span></div>` +
+                            "<div class='k-file-name'><span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input type='text' class='k-input-inner' data-bind='value:name' name='name' required='required' /><span></div>" +
+                        "</div>",
             dropFilter: ".k-listview-item",
             navigatable: true
         },

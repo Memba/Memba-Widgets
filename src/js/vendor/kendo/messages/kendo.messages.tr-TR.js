@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -494,7 +494,7 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
   "alignmentDialog": {
     "title": "hizalama",
     "buttons": {
-      "justtifyLeft": "Sola hizalamak",
+      "justifyLeft": "Sola hizalamak",
       "justifyCenter": "merkez",
       "justifyRight": "Sağa hizala",
       "justifyFull": "Savunmak",
@@ -684,7 +684,7 @@ $.extend(true, kendo.spreadsheet.messages.toolbar,{
   "addRowBelow": "Aşağıya satır ekle",
   "alignment": "hizalama",
   "alignmentButtons": {
-    "justtifyLeft": "Sola hizalamak",
+    "justifyLeft": "Sola hizalamak",
     "justifyCenter": "merkez",
     "justifyRight": "Sağa hizala",
     "justifyFull": "Savunmak",

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -493,14 +493,19 @@ import "../kendo.tabstrip.js";
         init: function(options) {
             options.property = "border";
             Command.fn.init.call(this, options);
-            this._type = options.border;
-            this._style = options.style;
+            this._type = options.border || options.value.type;
+            this._style = options.style || { color: options.value.color, size: 1 };
         },
         _batch: function(f) {
             return this.range().sheet().batch(f, {});
         },
         exec: function() {
             var self = this;
+
+            if (!self._type) {
+                return;
+            }
+
             self.getState();
             self._batch(function(){
                 self[self._type](self._style);
@@ -1269,13 +1274,13 @@ import "../kendo.tabstrip.js";
     kendo.spreadsheet.OpenCommand = Command.extend({
         cannotUndo: true,
         exec: function() {
-            var file = this.options.file;
+            var file = this.options.value;
             if (file.name.match(/.xlsx$/i) === null) {
                 return { reason: "error", type: "openUnsupported" };
             }
 
             var workbook = this.options.workbook;
-            workbook.fromFile(this.options.file).then(function(){
+            workbook.fromFile(this.options.value).then(function(){
                 var errors = workbook.excelImportErrors;
                 if (errors && errors.length) {
                     workbook._view.openDialog("importError", {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -35,6 +35,7 @@ import "../../kendo.userevents.js";
     var isArray = Array.isArray;
     var extend = $.extend;
     var template = kendo.template;
+    var encode = kendo.htmlEncode;
 
     var MOUSELEAVE_NS = "mouseleave" + NS;
     var AXIS_LABEL_CLICK = constants.AXIS_LABEL_CLICK;
@@ -738,7 +739,8 @@ import "../../kendo.userevents.js";
             legacyTemplate = series.groupNameTemplate,
             groupIx,
             dataLength = data.length,
-            seriesClone;
+            seriesClone,
+            defaultNameTemplate = ({ group }) => `${defined(series.name) ? group.value + ": " + series.name : group.value}`;
 
         if (dataLength === 0) {
             seriesClone = deepExtend({}, series);
@@ -756,13 +758,7 @@ import "../../kendo.userevents.js";
                 nameTemplate = template(legacyTemplate);
             }
         } else {
-            nameTemplate = template(series.name || "");
-            if (nameTemplate._slotCount === 0) {
-                nameTemplate = template(defined(series.name) ?
-                    "#= group.value #: #= series.name #" :
-                    "#= group.value #"
-                );
-            }
+            nameTemplate = template(series.name || defaultNameTemplate);
         }
 
         for (groupIx = 0; groupIx < dataLength; groupIx++) {
@@ -884,14 +880,14 @@ import "../../kendo.userevents.js";
 
             tooltip.template = Tooltip.template;
             if (!tooltip.template) {
-                tooltip.template = Tooltip.template = kendo.template(
-                    "<div class='k-tooltip #if (!d.autoHide) {# k-tooltip-closable#}# k-chart-tooltip#= d.rtl ? \" k-rtl\" : \"\"#' " +
-                    "style='display:none; position: absolute; font: #= d.font #;" +
-                    "#if (d.border) {# border: #= d.border.width #px solid; #}#" +
-                    "opacity: #= d.opacity #;'>" +
+                tooltip.template = Tooltip.template = ({ autoHide, rtl, font, border, opacity }) =>
+                    `<div class='k-tooltip ${autoHide ? "k-tooltip-closable" : ""} k-chart-tooltip ${rtl ? "k-rtl" : ""}' ` +
+                    `style='display:none; position: absolute; font: ${font};` +
+                    `${border ? "border:" + border.width + "px solid;" : ""}` +
+                    `opacity: ${opacity};'>` +
                     '<div class="k-tooltip-content"></div>' +
-                    '#if (!d.autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close" title="Close"></a></div> #}#' +
-                    "</div>", { useWithBlock: false, paramName: "d" });
+                    `${autoHide ? '' : '<div class="k-tooltip-button"><a href="#" class="k-icon k-i-close" title="Close"></a></div>'}` +
+                    "</div>";
             }
 
             tooltip.element = $(tooltip.template(tooltip.options));
@@ -925,21 +921,10 @@ import "../../kendo.userevents.js";
             animation: {
                 duration: TOOLTIP_ANIMATION_DURATION
             },
-            sharedTemplate:
+            sharedTemplate: ({ colspan, categoryText, points, content, colorMarker, nameColumn }) =>
                 "<table>" +
-                "<th colspan='#= colspan #'>#= categoryText #</th>" +
-                "# for(var i = 0; i < points.length; i++) { #" +
-                "# var point = points[i]; #" +
-                "<tr>" +
-                    "# if(colorMarker) { # " +
-                        "<td><span class='k-chart-shared-tooltip-marker' style='background-color:#:point.series.color#'></span></td>" +
-                    "# } #" +
-                    "# if(nameColumn) { # " +
-                        "<td> #if (point.series.name) {# #: point.series.name #: #} else {# &nbsp; #}#</td>" +
-                    "# } #" +
-                    "<td>#= content(point) #</td>" +
-                "</tr>" +
-                "# } #" +
+                `<th colspan='${colspan}'>${categoryText}</th>` +
+                    sharedTemplateIterator(points, colorMarker, nameColumn, content) +
                 "</table>",
             categoryFormat: "{0:d}",
             autoHide: true
@@ -1398,6 +1383,28 @@ import "../../kendo.userevents.js";
         for (var idx = 0; idx < panes.length; idx++) {
             panes[idx].notifyRender();
         }
+    }
+
+    function sharedTemplateIterator(points, colorMarker, nameColumn, content) {
+        var result = "";
+
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            result += "<tr>";
+
+            if (colorMarker) {
+                result += `<td><span class='k-chart-shared-tooltip-marker' style='background-color:${encode(point.series.color)}'></span></td>`;
+            }
+
+            if (nameColumn) {
+                result += `<td> ${point.series.name ? point.series.name + ":" : "&nbsp;"}</td>`;
+            }
+
+            result += `<td>${content(point)}</td>`;
+            result += "</tr>";
+        }
+
+        return result;
     }
 
     dataviz.Tooltip = Tooltip;

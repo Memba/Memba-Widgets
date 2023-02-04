@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -113,9 +113,10 @@ import "./layout.js";
             MOUSEWHEEL_NS = "DOMMouseScroll" + NS + " mousewheel" + NS,
             MOBILE_ZOOM_RATE = 0.05,
             MOBILE_PAN_DISTANCE = 5,
-            BUTTON_TEMPLATE = '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base #=className#" href="\\#">' +
-                '<span class="k-button-icon #=iconClass# #=imageClass#"></span>' +
-                '<span class="k-button-text">#=text#</span>' +
+            BUTTON_TEMPLATE = ({ className, iconClass, imageClass, text }) =>
+            `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base ${className}" href="#">` +
+                `<span class="k-button-icon ${iconClass} ${imageClass}"></span>` +
+                `<span class="k-button-text">${text}</span>` +
             '</a>',
             CONNECTION_CONTENT_OFFSET = 5;
 

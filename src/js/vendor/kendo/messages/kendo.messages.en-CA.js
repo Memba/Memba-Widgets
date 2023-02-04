@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -855,7 +855,7 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
   "alignmentDialog": {
     "title": "Alignment",
     "buttons": {
-     "justtifyLeft": "Align left",
+     "justifyLeft": "Align left",
      "justifyCenter": "Center",
      "justifyRight": "Align right",
      "justifyFull": "Justify",
@@ -1019,7 +1019,7 @@ $.extend(true, kendo.spreadsheet.messages.toolbar,{
   "addRowBelow": "Add row below",
   "alignment": "Alignment",
   "alignmentButtons": {
-    "justtifyLeft": "Align left",
+    "justifyLeft": "Align left",
     "justifyCenter": "Center",
     "justifyRight": "Align right",
     "justifyFull": "Justify",
@@ -1378,7 +1378,8 @@ if (kendo.ui.PDFViewer) {
                 next: "Next Match",
                 previous: "Previous Match",
                 close: "Close",
-                of: "of"
+                of: "of",
+                dragHandle: "Drag search"
             }
         }
     });

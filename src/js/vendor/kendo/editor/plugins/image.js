@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -13,6 +13,7 @@ import "../command.js";
 
 var kendo = window.kendo,
     extend = $.extend,
+    encode = kendo.htmlEncode,
     Editor = kendo.ui.editor,
     EditorUtils = Editor.EditorUtils,
     dom = Editor.Dom,
@@ -83,41 +84,39 @@ var ImageCommand = Command.extend({
     },
 
     _dialogTemplate: function(showBrowser) {
-        return kendo.template(
+        return kendo.template(({ messages }) =>
             '<div class="k-editor-dialog k-popup-edit-form">' +
                 '<div class="k-edit-form-container">' +
                     '<div class="k-edit-form-content">' +
-                        '# if (showBrowser) { #' +
-                            '<div class="k-filebrowser k-imagebrowser"></div>' +
-                        '# } #' +
-                        "<div class='k-edit-label'>" +
-                            '<label for="k-editor-image-url">#: messages.imageWebAddress #</label>' +
-                        "</div>" +
-                        "<div class='k-edit-field'>" +
+                        `${showBrowser ? '<div class="k-filebrowser k-imagebrowser"></div>' : ''}` +
+                        '<div class="k-edit-label">' +
+                            `<label for="k-editor-image-url">${encode( messages.imageWebAddress )}</label>` +
+                        '</div>' +
+                        '<div class="k-edit-field">' +
                             '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-url"></span>' +
-                        "</div>" +
-                        "<div class='k-edit-label'>" +
-                            '<label for="k-editor-image-title">#: messages.imageAltText #</label>' +
-                        "</div>" +
-                        "<div class='k-edit-field'>" +
+                        '</div>' +
+                        '<div class="k-edit-label">' +
+                            `<label for="k-editor-image-title">${encode( messages.imageAltText )}</label>` +
+                        '</div>' +
+                        '<div class="k-edit-field">' +
                             '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-title"></span>' +
-                        "</div>" +
-                        "<div class='k-edit-label'>" +
-                            '<label for="k-editor-image-width">#: messages.imageWidth #</label>' +
-                        "</div>" +
-                        "<div class='k-edit-field'>" +
+                        '</div>' +
+                        '<div class="k-edit-label">' +
+                            `<label for="k-editor-image-width">${encode( messages.imageWidth )}</label>` +
+                        '</div>' +
+                        '<div class="k-edit-field">' +
                             '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-width"></span>' +
-                        "</div>" +
-                        "<div class='k-edit-label'>" +
-                            '<label for="k-editor-image-height">#: messages.imageHeight #</label>' +
-                        "</div>" +
-                        "<div class='k-edit-field'>" +
+                        '</div>' +
+                        '<div class="k-edit-label">' +
+                            `<label for="k-editor-image-height">${encode( messages.imageHeight )}</label>` +
+                        '</div>' +
+                        '<div class="k-edit-field">' +
                             '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-height"></span>' +
-                        "</div>" +
+                        '</div>' +
                     '</div>' +
                     '<div class="k-edit-buttons">' +
-                        '<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">#: messages.dialogInsert #</span></button>' +
-                        '<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">#: messages.dialogCancel #</span></button>' +
+                        `<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${encode(messages.dialogInsert)}</span></button>` +
+                        `<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${encode(messages.dialogCancel)}</span></button>` +
                     '</div>' +
                 '</div>' +
             '</div>'

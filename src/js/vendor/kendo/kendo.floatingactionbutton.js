@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -26,6 +26,7 @@ var __meta__ = {
         keys = kendo.keys,
         support = kendo.support,
         extend = $.extend,
+        encode = kendo.htmlEncode,
 
         DOT = '.',
         ID = 'id',
@@ -75,14 +76,11 @@ var __meta__ = {
     };
 
     var templates = {
-        icon: '<span class="k-fab-icon k-icon k-i-#: icon #"></span>',
-        text: '<span class="k-fab-text">#:text#</span>',
-        item: '# if (text) { # ' +
-                    '<span class="k-fab-item-text" aria-hidden="true">#:text#</span>' +
-              '# } #' +
-              '# if (icon) { # ' +
-                    '<span class="k-fab-item-icon k-icon k-i-#: icon #"></span>' +
-              '# } #'
+        icon: ({ icon }) => `<span class="k-fab-icon k-icon k-i-${encode(icon)}"></span>`,
+        text: ({ text }) => `<span class="k-fab-text">${encode(text)}</span>`,
+        item: ({ text, icon }) =>
+                (text ? `<span class="k-fab-item-text" aria-hidden="true">${encode(text)}</span>` : '') +
+                (icon ? `<span class="k-fab-item-icon k-icon k-i-${encode(icon)}"></span>` : '')
     };
 
     var FloatingActionButton = Widget.extend({

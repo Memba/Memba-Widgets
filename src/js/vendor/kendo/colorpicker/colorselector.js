@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -47,7 +47,7 @@ import "../kendo.core.js";
         },
         options: {
             name: "ColorSelector",
-            ARIATemplate: 'Current selected color is #=data || "none"#',
+            ARIATemplate: (data) => `Current selected color is ${data || "none"}`,
             value: null,
             _standalone: true
         },
@@ -154,6 +154,10 @@ import "../kendo.core.js";
 
             if (!nohooks) {
                 if ((color && (!prev || !color.equals(prev))) || (color === null && color !== prev)) {
+                    if (color === null && this.element.val) {
+                        this.element.val(color);
+                    }
+
                     this.element.trigger("change");
                     this.trigger("change", { value: this.value() });
                 } else if (!this._standalone) {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -30,7 +30,7 @@ var __meta__ = {
         SIZEFIELD = "size",
         TYPEFIELD = "type",
         DEFAULTSORTORDER = { field: TYPEFIELD, dir: "asc" },
-        EMPTYTILE = kendo.template('<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${text}</span></div>');
+        EMPTYTILE = kendo.template(({ text }) => `<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${text}</span></div>`);
 
     extend(true, kendo.data, {
         schemas: {
@@ -351,24 +351,21 @@ var __meta__ = {
         },
 
         _itemTmpl: function() {
-            var that = this,
-                html = '<div class="k-listview-item" ' + kendo.attr("uid") + '="#=uid#" ';
+            var that = this;
 
-            html += kendo.attr("type") + '="${' + TYPEFIELD + '}">';
-            html += '#if(' + TYPEFIELD + ' == "d") { #';
-            html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-folder"></span></div>';
-            html += "#}else{#";
-            if (that.options.transport && that.options.transport.thumbnailUrl) {
-                html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-loading"></span></div>';
-            } else {
-                html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-file"></span></div>';
-            }
-            html += "#}#";
-            html += '<span class="k-file-name">${' + NAMEFIELD + '}</span>';
-            html += '#if(' + TYPEFIELD + ' == "f") { # <span class="k-file-size">${this.sizeFormatter(' + SIZEFIELD + ')}</span> #}#';
-            html += '</div>';
+            const result = (data) => {
+                const showLoading = that.options.transport && that.options.transport.thumbnailUrl;
 
-            return kendo.template(html).bind({ sizeFormatter: sizeFormatter });
+                return `<div class="k-listview-item" ${kendo.attr("uid")}="${data.uid}" ${kendo.attr("type")}="${data[TYPEFIELD]}">` +
+                    `${data[TYPEFIELD] === 'd' ?
+                        '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-folder"></span></div>' :
+                        `<div class="k-file-preview"><span class="k-file-icon k-icon ${showLoading ? 'k-i-loading' : 'k-i-file'}"></span></div>`}` +
+                    `<span class="k-file-name">${data[NAMEFIELD]}</span>` +
+                    `${data[TYPEFIELD] === 'f' ? `<span class="k-file-size">${sizeFormatter(data[SIZEFIELD])}</span>` : '' }` +
+                `</div>`;
+            };
+
+            return kendo.template(result);
         }
     });
 

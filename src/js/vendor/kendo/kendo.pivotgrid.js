@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -48,6 +48,7 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        encode = kendo.htmlEncode,
         Class = kendo.Class,
         Comparer = kendo.data.Comparer,
         Widget = ui.Widget,
@@ -92,16 +93,16 @@ var __meta__ = {
         DATABINDING = "dataBinding",
         DATABOUND = "dataBound",
         EXPANDMEMBER = "expandMember",
-        HEADERTEMPLATE = '<th data-key="#:key#" class="#:headerClass#" #if (colspan) {#colspan="#:colspan#"#}# #if (rowspan) {#rowspan="#:rowspan#"#}#>' +
-                                    '#if (expandable) {# <span class="k-icon k-i-arrow-chevron-#:iconClass# k-color-inherit" role="presentation"></span>#}#' +
+        HEADERTEMPLATE = ({ key, headerClass, colspan, rowspan, expandable, iconClass }) => `<th data-key="${encode(key)}" class="${encode(headerClass)}" ${colspan ? 'colspan="' + encode(colspan) + '"' : ''} ${rowspan ? 'rowspan="' + encode(rowspan) + '"' : ''}>` +
+                                    `${expandable ? '<span class="k-icon k-i-arrow-chevron-' + encode(iconClass) + ' k-color-inherit" role="presentation"></span>' : ''}` +
                                 '</th>',
         COLLAPSEMEMBER = "collapseMember",
         STATE_EXPANDED = "k-i-collapse",
         STATE_COLLAPSED = "k-i-expand",
-        HEADER_TEMPLATE = "<span>#: data.member.caption || data.member.name #</span>",
-        KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-status-#=data.dataItem.value > 0 ? \"open\" : data.dataItem.value < 0 ? \"deny\" : \"hold\"#" title="#:data.dataItem.value#"></span>',
-        KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-trend-#=data.dataItem.value > 0 ? \"increase\" : data.dataItem.value < 0 ? \"decrease\" : \"equal\"#" title="#:data.dataItem.value#"></span>',
-        DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #',
+        HEADER_TEMPLATE = ({ member }) => `<span>${encode(member.caption || member.name)}</span>`,
+        KPISTATUS_TEMPLATE = ({ dataItem }) => `<span class="k-icon k-i-kpi-status-${dataItem.value > 0 ? "open" : dataItem.value < 0 ? "deny" : "hold"}" title="${encode(dataItem.value)}"></span>`,
+        KPITREND_TEMPLATE = ({ dataItem }) => `<span class="k-icon k-i-kpi-trend-${dataItem.value > 0 ? "increase" : dataItem.value < 0 ? "decrease" : "equal"}" title="${encode(dataItem.value)}"></span>`,
+        DATACELL_TEMPLATE = ({ dataItem }) => `${dataItem ? encode(dataItem.fmtValue || dataItem.value) || "&nbsp;" : "&nbsp;"}`,
         LAYOUT_TABLE = '<table class="k-pivot-layout">' +
                             '<tr>' +
                                 '<td>' +
@@ -337,6 +338,25 @@ var __meta__ = {
         return measure;
     }
 
+    function getIcons(sortIcon, options, pivotOptions) {
+        var sortable = options.sortable,
+            filterable = options.filterable,
+            reorderable = pivotOptions.reorderable,
+            result = "";
+
+        if (sortable) {
+            result += `${sortIcon ? '<span class="k-chip-action"><span class="k-icon ' + sortIcon + '-sm"></span></span>' : ''}`;
+        }
+
+        if (filterable || sortable) {
+            result += '<span class="k-setting-fieldmenu k-chip-action"><span class="k-icon k-i-more-vertical"></span></span>';
+        }
+        if (reorderable) {
+            result += '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
+        }
+
+        return result;
+    }
 
     var functions = {
         sum: function(value, state) {
@@ -4002,10 +4022,10 @@ var __meta__ = {
                     actions = '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
                 }
 
-                that.options.template = ''
-                    + '<span class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" data-' + kendo.ns + 'name="${data.name || data}">'
+                that.options.template = (data) => ''
+                    + `<span class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" data-${kendo.ns}name="${data.name || data}">`
                         + '<span class="k-chip-content">'
-                            + '<span class="k-chip-text">${data.name || data}</span>'
+                            + `<span class="k-chip-text">${data.name || data}</span>`
                         + '</span>'
                         + '<span class="k-chip-actions">' + actions + '</span>'
                     + '</span>';
@@ -4063,7 +4083,7 @@ var __meta__ = {
             template: null,
             filterable: false,
             sortable: false,
-            emptyTemplate: "<div class='k-empty'>${data}</div>",
+            emptyTemplate: (data) => `<div class='k-empty'>${data}</div>`,
             setting: "columns",
             enabled: true,
             messages: {
@@ -5137,35 +5157,23 @@ var __meta__ = {
         },
 
         _createSettingTarget: function(element, options) {
-            var template;
-            var sortable = options.sortable;
-            var icons = '';
+            var template,
+                pivotOptions = this.options;
 
-            if (sortable) {
-                icons += '#if (data.sortIcon) {#';
-                icons += '<span class="k-chip-action"><span class="k-icon ${data.sortIcon}-sm"></span></span>';
-                icons += '#}#';
-            }
-
-            if (options.filterable || sortable) {
-                icons += '<span class="k-setting-fieldmenu k-chip-action"><span class="k-icon k-i-more-vertical"></span></span>';
-            }
-            if (this.options.reorderable) {
-                icons += '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
-            }
-
-            template = ''
-                + '<span class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" tabindex="0" data-' + kendo.ns + 'name="${data.name}">'
+            template = ({ sortIcon, name }) => ''
+                + `<span class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" tabindex="0" data-${kendo.ns}name="${name}">`
                     + '<span class="k-chip-content">'
-                        + '<span class="k-chip-text">${data.name}</span>'
+                        + `<span class="k-chip-text">${name}</span>`
                     + '</span>'
-                    + '<span class="k-chip-actions k-field-actions">' + icons + '</span>'
+                    + '<span class="k-chip-actions k-field-actions">'
+                        + getIcons(sortIcon, options, pivotOptions)
+                    + '</span>'
                 + '</span>';
 
             return new kendo.ui.PivotSettingTarget(element, $.extend({
                 dataSource: this.dataSource,
                 template: template,
-                emptyTemplate: '<span class="k-empty">${data}</span>',
+                emptyTemplate: (data) => `<span class="k-empty">${data}</span>`,
                 enabled: this.options.reorderable
             }, options));
         },

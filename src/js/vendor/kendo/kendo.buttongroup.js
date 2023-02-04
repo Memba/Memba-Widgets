@@ -1,84 +1,47 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.core.js";
-import "./kendo.badge.js";
+import "./kendo.togglebutton.js";
+import "./kendo.button.js";
 
 var __meta__ = {
     id: "buttongroup",
     name: "ButtonGroup",
     category: "web",
     description: "The Kendo ButtonGroup widget is a linear set of grouped buttons.",
-    depends: [ "core", "badge" ]
+    depends: [ "core", "togglebutton", "button" ]
 };
 
 (function($, undefined) {
     var kendo = window.kendo;
     var ui = kendo.ui;
     var Widget = ui.Widget;
+    var ToggleButton = ui.ToggleButton;
+    var Button = ui.Button;
     var keys = kendo.keys;
-    var template = kendo.template;
     var NS = ".kendoButtonGroup";
     var KWIDGET = "k-widget";
     var KBUTTONGROUP = "k-button-group";
     var KBUTTON = "k-button";
-    var KBUTTONDEFAULTS = "k-button-md k-rounded-md k-button-solid k-button-solid-base";
-    var KICONBUTTON = "k-icon-button";
     var SELECTED = "k-selected";
     var DISABLED = "k-disabled";
+    var KFOCUS = "k-focus";
     var SELECT = "select";
-    var CLICK = "click";
     var KEYDOWN = "keydown";
+    var ARIA_DISABLED = "aria-disabled";
+    var EMPTY = " ";
+    var DOT = ".";
+    var NONE = "none";
+    var SINGLE = "single";
+    var MULTIPLE = "multiple";
+    var TOGGLE = "toggle";
     var FOCUS = "focus";
-    var FOCUSOUT = "focusout";
-    var MOUSEDOWN = "mousedown";
-    var isIE = kendo.support.browser.msie;
-    var templates = {
-        item: template('<span ' +
-                        '#= item.enabled === false ? \"disabled\" : "" # ' +
-                        '>' +
-                        '#= icon(iconClass) #' +
-                        '#= image(item) #' +
-                        '# if(!!text) { #' +
-                            '<span class="k-button-text"> #= text # </span>' +
-                        '# } #' +
-                        '</span>'),
-        image: template('<img alt="icon" src="#=data.imageUrl#" class="k-button-icon"/>'),
-        icon: template('<span class="k-button-icon #=data#"></span>'),
-        empty: template("")
-    };
-
-    function createBadge(badgeOptions, item) {
-        var badgeEelement;
-
-        if (badgeOptions === null || badgeOptions === undefined) {
-            return;
-        }
-
-        if (badgeOptions.constructor !== Object) {
-            badgeOptions = { text: badgeOptions };
-        }
-
-        if (badgeOptions.position === undefined || badgeOptions.position === "") {
-            badgeOptions.position = "edge";
-
-            if (badgeOptions.align === undefined || badgeOptions.align === "") {
-                badgeOptions.align = "top end";
-            }
-        }
-
-        badgeOptions._classNames = ["k-button-badge"];
-
-        item.addClass("k-badge-container");
-
-        badgeEelement = $('<span />').appendTo(item);
-        item.badge = new ui.Badge(badgeEelement, badgeOptions);
-    }
 
     var ButtonGroup = Widget.extend({
         init: function(element, options) {
@@ -88,33 +51,31 @@ var __meta__ = {
 
             that.wrapper = that.element;
 
-            if (that.options.items) {
-                that._renderItems(that.options.items);
-            }
+
+            that._buttons = that._renderItems(that.options.items);
 
             that.selectedIndices = [];
 
             that.element
-                .addClass(KWIDGET + " " + KBUTTONGROUP)
-                .attr("role", "group")
-                .attr("tabindex", that.element.attr("tabindex") || "0")
-                .children().each(function() {
-                    var item = $(this);
-                    that._updateClasses.bind(that)(item);
-                });
+                .addClass(KWIDGET + EMPTY + KBUTTONGROUP)
+                .attr("role", "group");
 
             that._enable = true;
 
             if (!that.options.enable || !that.options.enabled) {
                 that._enable = false;
                 that.element
-                        .attr("aria-disabled", true)
+                        .attr(ARIA_DISABLED, true)
                         .addClass(DISABLED);
 
-                that.element.children().addClass(DISABLED);
+                that._buttons.forEach((b) => {
+                    b.enable(false);
+                });
             }
 
-            that.select(that.options.index);
+            if (that.options.selection !== NONE) {
+                that.select(that.options.index);
+            }
 
             that._attachEvents();
         },
@@ -125,200 +86,62 @@ var __meta__ = {
 
         options: {
             name: "ButtonGroup",
-            selection: "single",
+            selection: SINGLE,
             index: -1,
             enable: true,
-            enabled: true
-        },
-
-        current: function() {
-            return this.element.find("." + SELECTED);
-        },
-
-        _attachEvents: function() {
-            var that = this;
-
-            that.element
-                .on(CLICK + NS, "." + KBUTTON, that._click.bind(that))
-                .on(FOCUS + NS, that._focus.bind(that))
-                .on(FOCUSOUT + NS, that._focusout.bind(that))
-                .on(KEYDOWN + NS, that._keyDown.bind(that))
-                .on(MOUSEDOWN + NS, that._mouseDown.bind(that));
-        },
-
-        _renderItems: function(items) {
-            var that = this;
-
-            items.forEach(function(item) {
-                var renderedItem = $(templates.item({
-                    image: item.imageUrl ? templates.image : templates.empty,
-                    icon: !item.imageUrl && (item.iconClass || item.icon) ? templates.icon : templates.empty,
-                    iconClass: item.iconClass || "k-icon k-i-" + item.icon,
-                    item: item,
-                    text: item.text ? item.encoded === false ? item.text : kendo.htmlEncode(item.text) : ""
-                }));
-
-                if (item.attributes) {
-                    renderedItem.attr(item.attributes);
-                }
-
-                if (item.selected) {
-                    renderedItem.addClass(SELECTED);
-                }
-
-                if ((item.iconClass || item.icon || item.imageUrl) && !item.text) {
-                    renderedItem.addClass(KICONBUTTON);
-                }
-
-                if (item.badge) {
-                    createBadge(item.badge, renderedItem);
-                }
-
-                renderedItem.appendTo(that.element);
-            });
-        },
-
-        _mouseDown: function(e) {
-            var x = e.clientX,
-                y = e.clientY,
-                elementMouseIsOver = document.elementFromPoint(x, y);
-            // Prevent programmatic focusing when clicking enabled button
-            if (elementMouseIsOver !== this.element[0]) {
-                this.preventFocus = true;
-                this.preventFocusOut = true;
-            }
-            // Manually trigger focus in IE
-            if (isIE) {
-                this._focus();
-            }
-        },
-
-        _focus: function() {
-            var element = $(this.element);
-
-            element.removeAttr("tabindex");
-            element.find("[role='button']").attr("tabindex", "0");
-
-            if (this.preventFocus) {
-                this.preventFocus = false;
-                return;
-            }
-
-            if (element.find("." + SELECTED).length) {
-                element.find("." + SELECTED).first().trigger("focus");
-            } else {
-                element.children().first().trigger("focus");
-            }
-        },
-
-        _focusout: function() {
-            var that = this;
-            var wrapper = that.wrapper;
-
-            if (this.preventFocusOut) {
-                this.preventFocusOut = false;
-                return;
-            }
-
-            setTimeout(function() {
-                if (!wrapper[0].contains(document.activeElement)) {
-                    wrapper.attr("tabindex", "0");
-                    wrapper.find("[role='button']").removeAttr("tabindex");
-                }
-            });
-        },
-
-        _keyDown: function(e) {
-            var that = this;
-            var buttonGroup = $(that.element);
-            var focusableItems = buttonGroup.find("." + KBUTTON);
-            var focusedElement = buttonGroup.find(":focus");
-            var currentIndex = focusableItems.index(focusedElement);
-            var isRtl = kendo.support.isRtl(that.element);
-            var itemToFocus;
-
-            if ((e.keyCode === keys.LEFT && !isRtl) || (e.keyCode === keys.RIGHT && isRtl)) {
-                itemToFocus = currentIndex === 0 ? focusableItems.eq(focusableItems.length - 1) : $(focusableItems[currentIndex - 1]);
-                itemToFocus.trigger("focus");
-                e.preventDefault();
-            } else if ((e.keyCode === keys.LEFT && isRtl) || (e.keyCode === keys.RIGHT && !isRtl)) {
-                itemToFocus = currentIndex + 1 === focusableItems.length ? focusableItems.eq(0) : $(focusableItems[currentIndex + 1]);
-                itemToFocus.trigger("focus");
-                e.preventDefault();
-            } else if (e.keyCode === keys.ENTER || e.keyCode === keys.SPACEBAR) {
-                that._select(focusedElement);
-                e.preventDefault();
-            }
-        },
-
-        select: function(button) {
-            var that = this,
-                ariaPressed,
-                index = -1;
-
-            if (button === undefined || button === -1) {
-                return;
-            }
-
-            if (typeof button === "number") {
-                index = button;
-                button = that.element.children().eq(button);
-            } else if (button.nodeType) {
-                button = $(button);
-                index = button.index();
-            }
-
-            if (that.options.selection === "multiple") {
-                ariaPressed = button.attr("aria-pressed") === "true";
-                button
-                    .attr("aria-pressed", !ariaPressed)
-                    .toggleClass(SELECTED);
-
-                if (that.selectedIndices.indexOf(index) === -1) {
-                    that.selectedIndices.push(index);
-                } else {
-                    that.selectedIndices.splice(that.selectedIndices.indexOf(index), 1);
-                }
-
-            } else {
-                that.selectedIndices = [];
-                that.current()
-                        .attr("aria-pressed", false)
-                        .removeClass(SELECTED);
-
-                button
-                    .attr("aria-pressed", true)
-                    .addClass(SELECTED);
-
-                that.selectedIndices.push(index);
-            }
+            enabled: true,
+            preventKeyNav: false
         },
 
         badge: function(item, value) {
-            var buttongroup = this.element;
-            var button = !isNaN(item) ? buttongroup.children().eq(item) : buttongroup.find(item);
-            var validValue = value || value === 0;
-            var badge;
+            var that = this,
+                element = that.element,
+                button = !isNaN(item) ? that._buttons[item] : element.find(item).getKendoToggleButton() || element.find(item).getKendoButton(),
+                validValue = value || value === 0,
+                badge, badgeEl;
 
-            if (!button.length) {
+            if (!button) {
                 return;
             }
 
-            badge = button.children(".k-badge").eq(0).data('kendoBadge');
+            badge = button.badge;
+
             if (!badge && validValue) {
-                createBadge({ text: kendo.htmlEncode(value) }, button);
+                button._badge({ text: kendo.htmlEncode(value) });
                 return kendo.htmlEncode(value);
             }
 
             if (validValue) {
                 badge.text(kendo.htmlEncode(value));
             } else if (value === false) {
-                badge.element.empty().remove();
+                button.badge = null;
+                badgeEl = badge.element;
                 badge.destroy();
+                badgeEl.empty().remove();
                 return;
             }
 
             return badge ? badge.text() : null;
+        },
+
+        current: function() {
+            return this.element.find(DOT + SELECTED);
+        },
+
+        destroy: function() {
+            var that = this;
+
+            that.element.off(NS);
+
+            that.element.find(DOT + KBUTTON).each(function(i, el) {
+                var component = $(el).getKendoToggleButton() || $(el).getKendoButton();
+
+                if (component) {
+                    component.destroy();
+                }
+            });
+
+            Widget.fn.destroy.call(that);
         },
 
         enable: function(enable) {
@@ -327,96 +150,178 @@ var __meta__ = {
             }
 
             this.element
-                    .attr("aria-disabled", !enable)
+                    .attr(ARIA_DISABLED, !enable)
                     .toggleClass(DISABLED, !enable);
 
-            this.element.children().toggleClass(DISABLED, !enable);
+            this._buttons.forEach((b) => {
+                var focused = b.element.hasClass(KFOCUS) || b.element.is(":focus");
+
+                b.enable(enable);
+
+                if (focused) {
+                    b.element.removeAttr("disabled").addClass("k-focus").trigger("focus");
+                }
+            });
 
             this._enable = this.options.enable = enable;
         },
 
-        destroy: function() {
-            var that = this;
+        select: function(el) {
+            var that = this,
+                button,
+                index = -1;
 
-            that.element.off(NS);
-            that.element.find('.k-badge').each(function() {
-                $(this).data('kendoBadge').destroy();
+            if (this.options.selection === NONE || el === undefined || el === -1) {
+                return;
+            }
+
+            if (typeof el === "number") {
+                index = el;
+            } else if (el.nodeType) {
+                el = $(el);
+                index = el.index();
+            } else {
+                index = el.index();
+            }
+
+            button = that._buttons[index];
+
+            if (!button) {
+                return;
+            }
+
+            if (that.options.selection === MULTIPLE) {
+                if (el.length > 1) {
+                    el.each((i, element) => {
+                        var idx = $(element).index();
+
+                        that._buttons[idx].toggle();
+                        that._toggleIndex(idx);
+                    });
+                } else {
+                    that._buttons[index].toggle();
+                    that._toggleIndex(index);
+                }
+            } else {
+                that._resetIndexes(index);
+            }
+        },
+
+        _addButton: function(el, options) {
+            if (this.options.selection === NONE) {
+                delete options.selected;
+
+                return new Button(el, options);
+            } else {
+                var btn = new ToggleButton(el, options);
+
+                btn.bind(TOGGLE, this._select.bind(this, el));
+
+                return btn;
+            }
+        },
+
+        _attachEvents: function() {
+            if (!this.options.preventKeyNav) {
+                this.element.on(KEYDOWN + NS, this._keyDown.bind(this));
+            }
+        },
+
+        _keyDown: function(e) {
+            var that = this,
+                buttonGroup = $(that.element),
+                focusableItems = buttonGroup.find(DOT + KBUTTON),
+                focusedElement = buttonGroup.find(":focus"),
+                currentIndex = focusableItems.index(focusedElement),
+                isRtl = kendo.support.isRtl(that.element),
+                itemToFocus;
+
+            if ((e.keyCode === keys.LEFT && !isRtl) || (e.keyCode === keys.RIGHT && isRtl)) {
+                itemToFocus = currentIndex === 0 ? focusableItems.eq(focusableItems.length - 1) : $(focusableItems[currentIndex - 1]);
+                itemToFocus.trigger(FOCUS);
+                e.preventDefault();
+            } else if ((e.keyCode === keys.LEFT && isRtl) || (e.keyCode === keys.RIGHT && !isRtl)) {
+                itemToFocus = currentIndex + 1 === focusableItems.length ? focusableItems.eq(0) : $(focusableItems[currentIndex + 1]);
+                itemToFocus.trigger(FOCUS);
+                e.preventDefault();
+            }
+        },
+
+        _renderItems: function(items) {
+            var that = this,
+                children = that.element.children(),
+                buttons = [];
+
+            if (children.length > 0) {
+                children.each(function() {
+                    var el = $(this),
+                        image = el.find("img").addClass("k-image"),
+                        disabled = el.is("[disabled]") || el.hasClass(DISABLED),
+                        options = {
+                            badge: kendo.attrValue(el, "badge"),
+                            icon: !image[0] ? kendo.attrValue(el, "icon") : null,
+                            disabled: disabled,
+                            selected: !disabled ? el.is(DOT + SELECTED) : false
+                        };
+
+                    buttons.push(that._addButton(el, options));
+                });
+            }
+
+            if (!items) {
+                return buttons;
+            }
+
+            items.forEach(function(item) {
+                var text = item.text ? item.encoded === false ? item.text : kendo.htmlEncode(item.text) : "",
+                    el = item.url ? $("<a href=" + item.url + ">") : $("<button>");
+
+                el.text(text);
+
+                if (item.attributes) {
+                    el.attr(item.attributes);
+                }
+
+                el.appendTo(that.element);
+                buttons.push(that._addButton(el, item));
             });
 
-            Widget.fn.destroy.call(that);
+            return buttons;
         },
 
-        _updateClasses: function(button) {
-            var icon = kendo.attrValue(button, "icon");
-            var badge = kendo.attrValue(button, "badge");
-            var image = button.find("img").addClass("k-image");
-            var isEmpty = true;
+        _resetIndexes: function(index) {
+            this.selectedIndices = [];
+            this._buttons.forEach((b) => {
+                b.toggle(false);
+            });
 
-            button
-                .attr("aria-pressed", false)
-                .attr("role", "button")
-                .addClass(KBUTTON)
-                .addClass(KBUTTONDEFAULTS);
-
-            if (button.is("[disabled]") || button.hasClass(DISABLED)) {
-                button
-                    .addClass(DISABLED)
-                    .attr("aria-disabled", true)
-                    .removeAttr("disabled");
-            }
-
-            if (button.is("." + SELECTED)) {
-                button.removeClass(SELECTED);
-                if ((!button.hasClass(DISABLED) && this.options.selection === "single") ||
-                    this.options.selection === "multiple") {
-                    this.select(button[0]);
-                }
-            }
-
-            if (!image[0] && icon) {
-                button.prepend($(templates.icon("k-icon k-i-" + icon)));
-            }
-
-            button
-                .contents()
-                .filter(function() {
-                    return !$(this).hasClass("k-icon") && !$(this).hasClass("k-image");
-                }).each(function() {
-                    if (this.nodeType == 1 || this.nodeType == 3 && kendo.trim(this.nodeValue).length > 0) {
-                        isEmpty = false;
-                    }
-                });
-
-            if ((image[0] || icon) && isEmpty) {
-                button.addClass(KICONBUTTON);
-            }
-
-            if (badge || badge === 0) {
-                createBadge(badge, button);
-            }
+            this._buttons[index].toggle(true);
+            this.selectedIndices.push(index);
         },
 
-        _click: function(e) {
-            var target = $(e.target).closest("." + KBUTTON);
+        _select: function(button) {
+            var selection = this.options.selection,
+                index = button.index();
 
-            if (e.isDefaultPrevented()) {
+            if (!this._enable || button.is(DOT + DISABLED)) {
                 return;
             }
 
-            e.target.focus();
-
-            this._select(target);
-        },
-
-        _select: function(target) {
-            var button = target;
-
-            if (!this._enable || button.is("." + DISABLED)) {
-                return;
+            if (selection === MULTIPLE) {
+                this._toggleIndex(index);
+            } else if (selection === SINGLE) {
+                this._resetIndexes(index);
             }
 
-            this.select(target[0]);
-            this.trigger(SELECT, { indices: this.selectedIndices });
+            this.trigger(SELECT, { indices: this.selectedIndices, target: button });
+        },
+
+        _toggleIndex: function(index) {
+            if (this.selectedIndices.indexOf(index) === -1) {
+                this.selectedIndices.push(index);
+            } else {
+                this.selectedIndices.splice(this.selectedIndices.indexOf(index), 1);
+            }
         }
     });
 

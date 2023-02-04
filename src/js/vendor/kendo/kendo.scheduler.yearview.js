@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -22,6 +22,7 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        encode = kendo.htmlEncode,
         SchedulerView = ui.SchedulerView,
         extend = $.extend,
         template = kendo.template,
@@ -50,31 +51,25 @@ var __meta__ = {
         scheduler: "k-scheduler"
     };
 
-    var TOOLTIP_TEMPLATE = template(
+    var TOOLTIP_TEMPLATE = template(({ date, events, messages }) =>
         "<div class='k-tooltip-title k-text-center'>" +
-            "<div class='k-month'>#:kendo.format('{0:MMM}', date)#</div>" +
-            "<div tabindex='0' class='k-link k-day k-text-primary'>#:kendo.format('{0:dd}', date)#</div>" +
+            `<div class='k-month'>${encode(kendo.format('{0:MMM}', date))}</div>` +
+            `<div tabindex='0' class='k-link k-day k-text-primary'>${encode(kendo.format('{0:dd}', date))}</div>` +
         "</div>" +
-        "#if(events.length){#" +
+        (events.length ?
             "<div class='k-tooltip-events-container'>" +
                 "<div class='k-tooltip-events'>" +
-                    "#for(var i = 0; i < events.length; i+=1){#" +
-                        "#var event = events[i]#" +
-                        "<div class='k-tooltip-event k-event' title='#:event.title#'" +
-                            "# if (event.resources[0]) { #" +
-                                "style='background-color: #: event.resources[0].color #; border-color: #: event.resources[0].color #;'" +
-                            "#}#>" +
-                            "<div class='k-event-title k-text-ellipsis'>#:event.title#</div>" +
+                    events.map((event) =>
+                        `<div class="k-tooltip-event k-event" title="${encode(event.title)}" ${event.resources[0] ? `style="background-color: ${encode(event.resources[0].color)}; border-color: ${encode(event.resources[0].color)};"` : ''}` +
+                            `<div class='k-event-title k-text-ellipsis'>${encode(event.title)}</div>` +
                             "<span class='k-spacer'></span>" +
-                            "<span class='k-event-time'>#:kendo.format('{0:t}', event.start)#</span>" +
-                        "</div>" +
-                    "#}#" +
+                            `<span class='k-event-time'>${encode(kendo.format('{0:t}', event.start))}</span>` +
+                        "</div>"
+                    ).join('') +
                 "</div>" +
-            "</div>" +
-        "#} else {#" +
-            "<div class='k-no-data k-text-center'>#:messages.noData#</div>" +
-        "#}#"
-    );
+            "</div>" :
+            `<div class='k-no-data k-text-center'>${messages.noData}</div>`)
+        );
 
     var YearView = SchedulerView.extend({
         init: function(element, options) {

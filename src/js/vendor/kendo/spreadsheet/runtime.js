@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -112,7 +112,7 @@ import "./references.js";
             for (var pending = formulas.length, i = 0; i < formulas.length; ++i) {
                 fetch(formulas[i]);
             }
-            function fetch(formula) { 
+            function fetch(formula) {
                 formula.exec(context.ss, function(){
                     if (!--pending) {
                         f.call(context);
@@ -788,6 +788,7 @@ import "./references.js";
 
     // spreadsheet functions --------
     var FUNCS = Object.create(null);
+    var DEFER_INIT = [];
 
     FUNCS["if"] = function(callback, args) {
         var self = this;
@@ -1208,6 +1209,16 @@ import "./references.js";
         };
     }
 
+    function loadDeferred() {
+        while(DEFER_INIT.length) {
+            DEFER_INIT.shift()();
+        }
+    }
+
+    function deferInit(cb) {
+        DEFER_INIT.push(cb);
+    }
+
     function defineFunction(name, func) {
         name = name.toLowerCase();
         FUNCS[name] = func;
@@ -1419,9 +1430,13 @@ import "./references.js";
     spreadsheet.dateToNumber = dateToSerial;
     spreadsheet.numberToDate = serialToDate;
     spreadsheet.defineFunction = defineFunction;
+    spreadsheet.loadDeferred = loadDeferred;
+    spreadsheet.deferInit = deferInit;
     spreadsheet.CalcError = CalcError;
 
     exports.defineFunction = defineFunction;
+    exports.loadDeferred = loadDeferred;
+    exports.deferInit = deferInit;
     exports.defineAlias = function(alias, name) {
         var orig = FUNCS[name];
         if (!orig) {
@@ -1449,37 +1464,39 @@ import "./references.js";
         [ "*b", "forced" ]
     ];
 
-    defineFunction("binary+", function(a, b){
-        return a + b;
-    }).args(ARGS_NUMERIC);
+    deferInit(() => {
+        defineFunction("binary+", function(a, b){
+            return a + b;
+        }).args(ARGS_NUMERIC);
 
-    defineFunction("binary-", function(a, b){
-        return a - b;
-    }).args(ARGS_NUMERIC);
+        defineFunction("binary-", function(a, b){
+            return a - b;
+        }).args(ARGS_NUMERIC);
 
-    defineFunction("binary*", function(a, b){
-        return a * b;
-    }).args(ARGS_NUMERIC);
+        defineFunction("binary*", function(a, b){
+            return a * b;
+        }).args(ARGS_NUMERIC);
 
-    defineFunction("binary/", function(a, b){
-        return a / b;
-    }).args([
-        [ "*a", NUMBER_OR_ZERO ],
-        [ "*b", "divisor" ]
-    ]);
+        defineFunction("binary/", function(a, b){
+            return a / b;
+        }).args([
+            [ "*a", NUMBER_OR_ZERO ],
+            [ "*b", "divisor" ]
+        ]);
 
-    defineFunction("binary^", function(a, b){
-        return Math.pow(a, b);
-    }).args(ARGS_NUMERIC);
+        defineFunction("binary^", function(a, b){
+            return Math.pow(a, b);
+        }).args(ARGS_NUMERIC);
 
-    defineFunction("binary&", function(a, b){
-        if (a == null) { a = ""; }
-        if (b == null) { b = ""; }
-        return "" + a + b;
-    }).args([
-        [ "*a", [ "or", "number", "string", "boolean", "null" ] ],
-        [ "*b", [ "or", "number", "string", "boolean", "null" ] ]
-    ]);
+        defineFunction("binary&", function(a, b){
+            if (a == null) { a = ""; }
+            if (b == null) { b = ""; }
+            return "" + a + b;
+        }).args([
+            [ "*a", [ "or", "number", "string", "boolean", "null" ] ],
+            [ "*b", [ "or", "number", "string", "boolean", "null" ] ]
+        ]);
+    });
 
     function equals(a, b){
         a = typeof(a) === "string" ? a.toLowerCase() : a;
@@ -1496,139 +1513,141 @@ import "./references.js";
         return a === b;
     }
 
-    defineFunction("binary=", equals).args(ARGS_ANYVALUE);
+    deferInit(() => {
+        defineFunction("binary=", equals).args(ARGS_ANYVALUE);
 
-    defineFunction("binary<>", function(a, b){
-        return !equals(a, b);
-    }).args(ARGS_ANYVALUE);
+        defineFunction("binary<>", function(a, b){
+            return !equals(a, b);
+        }).args(ARGS_ANYVALUE);
 
-    defineFunction("binary<", binaryCompare(function(a, b){
-        return a < b;
-    })).args(ARGS_ANYVALUE);
+        defineFunction("binary<", binaryCompare(function(a, b){
+            return a < b;
+        })).args(ARGS_ANYVALUE);
 
-    defineFunction("binary<=", binaryCompare(function(a, b){
-        return a <= b;
-    })).args(ARGS_ANYVALUE);
+        defineFunction("binary<=", binaryCompare(function(a, b){
+            return a <= b;
+        })).args(ARGS_ANYVALUE);
 
-    defineFunction("binary>", binaryCompare(function(a, b){
-        return a > b;
-    })).args(ARGS_ANYVALUE);
+        defineFunction("binary>", binaryCompare(function(a, b){
+            return a > b;
+        })).args(ARGS_ANYVALUE);
 
-    defineFunction("binary>=", binaryCompare(function(a, b){
-        return a >= b;
-    })).args(ARGS_ANYVALUE);
+        defineFunction("binary>=", binaryCompare(function(a, b){
+            return a >= b;
+        })).args(ARGS_ANYVALUE);
 
-    defineFunction("unary+", function(a){
-        return a;
-    }).args([
-        [ "*a", NUMBER_OR_ZERO ]
-    ]);
+        defineFunction("unary+", function(a){
+            return a;
+        }).args([
+            [ "*a", NUMBER_OR_ZERO ]
+        ]);
 
-    defineFunction("unary-", function(a){
-        return -a;
-    }).args([
-        [ "*a", NUMBER_OR_ZERO ]
-    ]);
+        defineFunction("unary-", function(a){
+            return -a;
+        }).args([
+            [ "*a", NUMBER_OR_ZERO ]
+        ]);
 
-    defineFunction("unary%", function(a){
-        return a / 100;
-    }).args([
-        [ "*a", NUMBER_OR_ZERO ]
-    ]);
+        defineFunction("unary%", function(a){
+            return a / 100;
+        }).args([
+            [ "*a", NUMBER_OR_ZERO ]
+        ]);
 
-    // range operator
-    defineFunction("binary:", function(a, b){
-        return new RangeRef(a, b)
-            .setSheet(a.sheet || this.formula.sheet, a.hasSheet());
-    }).args([
-        [ "a", "cell" ],
-        [ "b", "cell" ]
-    ]);
+        // range operator
+        defineFunction("binary:", function(a, b){
+            return new RangeRef(a, b)
+                .setSheet(a.sheet || this.formula.sheet, a.hasSheet());
+        }).args([
+            [ "a", "cell" ],
+            [ "b", "cell" ]
+        ]);
 
-    // union operator
-    defineFunction("binary,", function(a, b){
-        return new UnionRef([ a, b ]);
-    }).args([
-        [ "a", "ref" ],
-        [ "b", "ref" ]
-    ]);
+        // union operator
+        defineFunction("binary,", function(a, b){
+            return new UnionRef([ a, b ]);
+        }).args([
+            [ "a", "ref" ],
+            [ "b", "ref" ]
+        ]);
 
-    // intersection operator
-    defineFunction("binary ", function(a, b){
-        return a.intersect(b);
-    }).args([
-        [ "a", "ref" ],
-        [ "b", "ref" ]
-    ]);
+        // intersection operator
+        defineFunction("binary ", function(a, b){
+            return a.intersect(b);
+        }).args([
+            [ "a", "ref" ],
+            [ "b", "ref" ]
+        ]);
 
-    /* -----[ conditionals ]----- */
+        /* -----[ conditionals ]----- */
 
-    defineFunction("not", function(a){
-        return !this.bool(a);
-    }).args([
-        [ "*a", [ "or", "anyvalue", [ "null", 0 ] ] ]
-    ]);
+        defineFunction("not", function(a){
+            return !this.bool(a);
+        }).args([
+            [ "*a", [ "or", "anyvalue", [ "null", 0 ] ] ]
+        ]);
 
-    /* -----[ the IS* functions ]----- */
+        /* -----[ the IS* functions ]----- */
 
-    defineFunction("isblank", function(val){
-        if (val instanceof CellRef) {
-            val = this.getRefData(val);
-            return val == null;
-        }
-        return false;
-    }).args([
-        [ "*value", "anything!" ]
-    ]);
+        defineFunction("isblank", function(val){
+            if (val instanceof CellRef) {
+                val = this.getRefData(val);
+                return val == null;
+            }
+            return false;
+        }).args([
+            [ "*value", "anything!" ]
+        ]);
 
-    defineFunction("iserror", function(val){
-        return val instanceof CalcError;
-    }).args([
-        [ "*value", "forced!" ]
-    ]);
+        defineFunction("iserror", function(val){
+            return val instanceof CalcError;
+        }).args([
+            [ "*value", "forced!" ]
+        ]);
 
-    defineFunction("iserr", function(val){
-        return val instanceof CalcError && val.code != "N/A";
-    }).args([
-        [ "*value", "forced!" ]
-    ]);
+        defineFunction("iserr", function(val){
+            return val instanceof CalcError && val.code != "N/A";
+        }).args([
+            [ "*value", "forced!" ]
+        ]);
 
-    defineFunction("isna", function(val){
-        return val instanceof CalcError && val.code == "N/A";
-    }).args([
-        [ "*value", "forced!" ]
-    ]);
+        defineFunction("isna", function(val){
+            return val instanceof CalcError && val.code == "N/A";
+        }).args([
+            [ "*value", "forced!" ]
+        ]);
 
-    defineFunction("islogical", function(val){
-        return typeof val == "boolean";
-    }).args([
-        [ "*value", "forced!" ]
-    ]);
+        defineFunction("islogical", function(val){
+            return typeof val == "boolean";
+        }).args([
+            [ "*value", "forced!" ]
+        ]);
 
-    defineFunction("isnontext", function(val){
-        return typeof val != "string";
-    }).args([
-        [ "*value", "forced!" ]
-    ]);
+        defineFunction("isnontext", function(val){
+            return typeof val != "string";
+        }).args([
+            [ "*value", "forced!" ]
+        ]);
 
-    defineFunction("istext", function(val){
-        return typeof val == "string";
-    }).args([
-        [ "*value", "forced!" ]
-    ]);
+        defineFunction("istext", function(val){
+            return typeof val == "string";
+        }).args([
+            [ "*value", "forced!" ]
+        ]);
 
-    defineFunction("isnumber", function(val){
-        return typeof val == "number";
-    }).args([
-        [ "*value", "forced!" ]
-    ]);
+        defineFunction("isnumber", function(val){
+            return typeof val == "number";
+        }).args([
+            [ "*value", "forced!" ]
+        ]);
 
-    defineFunction("isref", function(val){
-        // apparently should return true only for cell and range
-        return val instanceof CellRef || val instanceof RangeRef;
-    }).args([
-        [ "*value", "anything!" ]
-    ]);
+        defineFunction("isref", function(val){
+            // apparently should return true only for cell and range
+            return val instanceof CellRef || val instanceof RangeRef;
+        }).args([
+            [ "*value", "anything!" ]
+        ]);
+    });
 
     /* -----[ resolve NameRef-s ]----- */
 

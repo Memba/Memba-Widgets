@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -43,6 +43,7 @@ import "./kendo.editable.js";
             NS = ".kendoForm",
             Widget = ui.Widget,
             extend = $.extend,
+            encode = kendo.htmlEncode,
             VALIDATE = "validate",
             VALIDATEFIELD = "validateField",
             VALIDATEINPUT = "validateInput",
@@ -152,44 +153,45 @@ import "./kendo.editable.js";
                 focusFirst: false
             },
 
-            _noLabelfieldTemplate: "<div class='#:styles.field# #if (colSpan) { # k-colspan-#:colSpan# # } # #if (hidden) { ##:styles.hidden## } #'>" +
-                                        "<span class='#:styles.emptyLabel#'></span>" +
-                                        "<div class='k-form-field-wrap' data-container-for='#:field#'></div>" +
+            _noLabelfieldTemplate: ({ styles, colSpan, hidden, field })=>
+                                    `<div class='${encode(styles.field)} ${colSpan ? `k-colspan-${encode(colSpan)}` : '' } ${hidden ? encode(styles.hidden) : '' }'>` +
+                                        `<span class='${encode(styles.emptyLabel)}'></span>` +
+                                        `<div class='k-form-field-wrap' data-container-for='${encode(field)}'></div>` +
                                     "</div>",
 
-            _fieldTemplate: "<div class='#:styles.field# #if (colSpan) { # k-colspan-#:colSpan# # } # #if (hidden) { ##:styles.hidden## } #'>" +
-                                "# if (label && !hidden) { # " +
-                                    "<label class='#:styles.label#' for='#:id#' id='#:id#-form-label'>" +
-                                        "# if (typeof label.encoded != 'undefined' && label.encoded === false) {#" +
-                                            "#= label.text || label #" +
-                                        "# } else { #" +
-                                            "#: label.text || label #" +
-                                        "# } #" +
-                                        "# if (label.optional) { # <span class='#:styles.optional#'>#:optional#</span>  #}#" +
-                                    "</label>" +
-                                "# } #" +
-                                "<div class='k-form-field-wrap' data-container-for='#:field#'></div>" +
+            _fieldTemplate: ({ styles, colSpan, hidden, field, label, id, optional }) =>
+                            `<div class='${encode(styles.field)} ${colSpan ? `k-colspan-${encode(colSpan)}` : ''} ${hidden ? `${encode(styles.hidden)}` : ''}'>` +
+                                ((label && !hidden) ?
+                                `<label class='${encode(styles.label)}' for='${encode(id)}' id='${encode(id)}-form-label'>` +
+                                    ((typeof label.encoded != 'undefined' && label.encoded === false) ?
+                                    label.text || label
+                                    : encode(label.text || label)) +
+                                    (label.optional ? `<span class='${encode(styles.optional)}'>${encode(optional)}</span>` : '') +
+                                "</label>"
+                                : '' ) +
+                                `<div class='k-form-field-wrap' data-container-for='${encode(field)}'></div>` +
                             "</div>",
 
-            _boolLabelTemplate: "<label class='k-checkbox-label' for='#:id#' id='#:id#-form-label'>" +
-                                    "# if (typeof label.encoded != 'undefined' && label.encoded === false) {#" +
-                                        "#= label.text || label #" +
-                                    "# } else { #" +
-                                        "#: label.text || label #" +
-                                    "# } #" +
-                                    "# if (label.optional) { # <span class='#:styles.optional#'>#:optional#</span>  #}#" +
-                                "</label>",
+            _boolLabelTemplate: ({ styles, colSpan, hidden, field, label, id, optional }) =>
+                            `<label class='k-checkbox-label' for='${encode(id)}' id='${encode(id)}-form-label'>` +
+                                ((typeof label.encoded != 'undefined' && label.encoded === false) ?
+                                label.text || label
+                                : encode(label.text || label)) +
+                                (label.optional ? `<span class='${encode(styles.optional)}'>${encode(optional)}</span>` : '') +
+                            "</label>",
 
-            _groupTemplate: "<fieldset class='#:styles.fieldset# #if (colSpan) { #  k-colspan-#:colSpan# # }#'>" +
-                                "<legend class='#:styles.legend#'>#:label.text || label #</legend>" +
+            _groupTemplate: ({ styles, colSpan, label }) =>
+                            `<fieldset class='${encode(styles.fieldset)} ${colSpan ? `k-colspan-${encode(colSpan)}` : ''}'>` +
+                                `<legend class='${encode(styles.legend)}'>${encode(label.text || label)}</legend>` +
                             "</fieldset>",
 
-            _buttonsTemplate: "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary #:styles.submit#' type='submit'><span class='k-button-text'>#:messages.submit#</span></button>" +
-                              "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base #:styles.clear#'><span class='k-button-text'>#:messages.clear#</span></button>",
+            _buttonsTemplate: ({ styles, messages }) =>
+                            `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary ${encode(styles.submit)}' type='submit'><span class='k-button-text'>${encode(messages.submit)}</span></button>` +
+                            `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base ${encode(styles.clear)}'><span class='k-button-text'>${encode(messages.clear)}</span></button>`,
 
-            _errorTemplate: "<span class='k-form-error' id='#=field#-form-error'><div>#=message#</div></span>",
+            _errorTemplate: ({ field, message }) => `<span class='k-form-error' id='${field}-form-error'><div>${message}</div></span>`,
 
-            _hintTemplate: "<div class='k-form-hint' id='#=id#-form-hint'><span>#=message#</span></div>",
+            _hintTemplate: ({ id, message }) => `<div class='k-form-hint' id='${id}-form-hint'><span>${message}</span></div>`,
 
             _wrapper: function() {
                 var that = this,

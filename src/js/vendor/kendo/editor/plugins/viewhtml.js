@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -91,14 +91,14 @@ var ViewHtmlCommand = Command.extend({
 });
 
 extend(ViewHtmlCommand, {
-    template: "" +
-    "<div class='k-editor-dialog k-popup-edit-form k-viewhtml-dialog'>" +
-        "<span class='k-input k-textarea k-input-solid k-input-md k-rounded-md k-editor-textarea'><textarea class='k-input-inner !k-overflow-auto !k-resize-none'></textarea></span>" +
-        "<div class='k-edit-buttons'>" +
-            "<button class='k-dialog-update k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary'><span class='k-button-text'>#: dialogUpdate #</span></button>" +
-            "<button class='k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base'><span class='k-button-text'>#: dialogCancel #</span></button>" +
-        "</div>" +
-    "</div>",
+    template: ({ dialogUpdate, dialogCancel }) =>
+    '<div class="k-editor-dialog k-popup-edit-form k-viewhtml-dialog">' +
+        '<span class="k-input k-textarea k-input-solid k-input-md k-rounded-md k-editor-textarea"><textarea class="k-input-inner !k-overflow-auto !k-resize-none"></textarea></span>' +
+        '<div class="k-edit-buttons">' +
+            `<button class="k-dialog-update k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${kendo.htmlEncode(dialogUpdate)}</span></button>` +
+            `<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${kendo.htmlEncode(dialogCancel)}</span></button>` +
+        '</div>' +
+    '</div>',
     indent: function(content) {
         return content.replace(/<\/(p|li|ul|ol|h[1-6]|table|tr|td|th)>/ig, "</$1>\n")
                       .replace(/<(ul|ol)([^>]*)><li/ig, "<$1$2>\n<li")

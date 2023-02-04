@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -438,7 +438,7 @@ var __meta__ = {
             month: {},
             dates: [],
             disableDates: null,
-            ARIATemplate: 'Current focused #=data.valueType# is #=data.text#',
+            ARIATemplate: ({ valueType, text }) => `Current focused ${valueType} is ${text}`,
             dateInput: false,
             weekNumber: false,
             messages: {
@@ -573,6 +573,19 @@ var __meta__ = {
             var labelOptions = $.isPlainObject(options.label) ? options.label : {
                 content: options.label
             };
+
+            if (that._dateInput) {
+                labelOptions.floatCheck = () => {
+                    that._dateInput._toggleDateMask(true);
+
+                    if (!that.value() && !that._dateInput._hasDateInput() && document.activeElement !== that.element[0]) {
+                        that._dateInput._toggleDateMask(false);
+                        return true;
+                    }
+
+                    return false;
+                };
+            }
 
             that.label = new kendo.ui.Label(null, $.extend({}, labelOptions, {
                 widget: that

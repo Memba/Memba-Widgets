@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -12,78 +12,63 @@ import "../kendo.draganddrop.js";
 (function($, undefined) {
 
     var kendo = window.kendo;
+    var encode = kendo.htmlEncode;
     var Widget = kendo.ui.Widget;
     var extend = $.extend;
     var DOT = ".";
     var SPACE = " ";
     var NS = ".kendoChat";
 
-    var MESSAGE_GROUP_TEMPLATE = kendo.template(
-        '<div #:text# class="#=styles.messageGroup# #= url ? "" : styles.noAvatar #">' +
-            '<p class="#=styles.author#">#:text#</p>' +
-            '# if (url) { #' +
-                '<img src="#=url#" alt="#:text#" class="#=styles.avatar#">' +
-            '# } #' +
-        '</div>');
+    var IMG_TEMPLATE = ({ url, text, styles }) => `<img src="${url}" alt="${encode(text)}" class="${styles.avatar}">`;
 
-    var SELF_MESSAGE_GROUP_TEMPLATE = kendo.template(
-        '<div me class="#=styles.messageGroup# #=styles.self# #= url ? "" : styles.noAvatar #">' +
-            '# if (url) { #' +
-                '<img src="#=url#" alt="#:text#" class="#=styles.avatar#">' +
-            '# } #' +
-        '</div>');
+    var MESSAGE_GROUP_TEMPLATE = ({ text, url, styles }) => `<div ${encode(text)} class="${styles.messageGroup} ${ url ? "" : styles.noAvatar }">
+            <p class="${styles.author}">${encode(text)}</p>
+            ${ url ? IMG_TEMPLATE({ url, text, styles }) : '' }
+        </div>`;
 
-    var TEXT_MESSAGE_TEMPLATE = kendo.template(
-        '<div class="#=styles.message#">' +
-            '<time class="#=styles.messageTime#">#= kendo.toString(kendo.parseDate(timestamp), "HH:mm:ss") #</time>' +
-            '<div class="#=styles.bubble#">#:text#</div>' +
-        '</div>');
+    var SELF_MESSAGE_GROUP_TEMPLATE = ({ url, text, styles }) => `<div me class="${styles.messageGroup} ${styles.self} ${ url ? "" : styles.noAvatar }">
+        ${ url ? IMG_TEMPLATE({ url, text, styles }) : '' }
+    </div>`;
 
-    var TYPING_INDICATOR_TEMPLATE = kendo.template(
-        '<div class="#=styles.messageListContent# #=styles.typingIndicatorBubble#">' +
-            '<p class="#=styles.author#">#:text#</p>' +
-            '<div class="#=styles.message#">' +
-                '<div class="#=styles.bubble#">' +
-                    '<div class="#=styles.typingIndicator#">' +
-                        '<span></span><span></span><span></span>' +
-                    '</div>' +
-                '</div>' +
-            '</div>' +
-        '</div>');
+    var TEXT_MESSAGE_TEMPLATE = ({ styles, text, timestamp }) => `<div class="${styles.message}">
+        <time class="${styles.messageTime}">${ kendo.toString(kendo.parseDate(timestamp), "HH:mm:ss") }</time>
+        <div class="${styles.bubble}">${encode(text)}</div>
+    </div>`;
 
-    var SUGGESTED_ACTIONS_TEMPLATE = kendo.template(
-        '<div class="#=styles.suggestedActions#">' +
-            '# for (var i = 0; i < suggestedActions.length; i++) { #' +
-                '<span role="button" tabindex="0" class="#=styles.suggestedAction#" data-value="#:suggestedActions[i].value#">#:suggestedActions[i].title#</span>' +
-            '# } #' +
-        '</div>'
-        );
+    var TYPING_INDICATOR_TEMPLATE = ({ styles, text }) => `<div class="${styles.messageListContent} ${styles.typingIndicatorBubble}">
+        <p class="${styles.author}">${encode(text)}</p>
+        <div class="${styles.message}">
+            <div class="${styles.bubble}">
+                <div class="${styles.typingIndicator}">
+                    <span></span><span></span><span></span>
+                '</div>
+            </div>
+        </div>
+    </div>`;
 
-    var HERO_CARD_TEMPLATE = kendo.template(
-        '<div class="#=styles.card# #=styles.cardRich#">' +
-            '# if (typeof images !== "undefined" && images.length > 0) { #' +
-                '<img src="#:images[0].url#" alt="#:images[0].alt#" class="#=styles.cardImage#" />' +
-            '# } #' +
-            '<div class="#=styles.cardBody#">' +
-                '# if (typeof title !== "undefined") { #' +
-                    '<h5 class="#=styles.cardTitle#">#:title#</h5>' +
-                '# } #' +
-                '# if (typeof subtitle !== "undefined") { #' +
-                    '<h6 class="#=styles.cardSubtitle#">#:subtitle#</h6>' +
-                '# } #' +
-                '# if (typeof text !== "undefined") { #' +
-                    '<p>#:text#</p>' +
-                '# } #' +
-            '</div>' +
-            '# if (typeof buttons !== "undefined" && buttons.length > 0) { #' +
-                '<div class="#=styles.cardActions# #=styles.cardActionsVertical#">' +
-                '# for (var i = 0; i < buttons.length; i++) { #' +
-                    '<span class="#=styles.cardAction#"><span class="#=styles.button# #=styles.buttonPrimary#" data-value="#:buttons[i].value#">#:buttons[i].title#</span></span>' +
-                '# } #' +
-                '</div>' +
-            '# } #' +
-        '</div>'
-        );
+    var SUGGESTED_ACTION_TEMPLATE = ({ styles, action }) => `<span role="button" tabindex="0" class="${styles.suggestedAction}" data-value="${encode(action.value)}">${encode(action.title)}</span>`;
+
+    var SUGGESTED_ACTIONS_TEMPLATE = ({ styles, suggestedActions }) => `<div class="${styles.suggestedActions}">
+        ${ suggestedActions.map(action => SUGGESTED_ACTION_TEMPLATE({ styles, action })).join('') }
+    </div>`;
+
+    var HERO_IMG_TEMPLATE = ({ images, styles }) => `<img src="${encode(images[0].url)}" alt="${images[0].alt}" class="${styles.cardImage}" />`;
+
+    var CARD_ACTION_BUTTON_TEMPLATE = ({ button, styles }) => `<span class="${styles.cardAction}"><span class="${styles.button} ${styles.buttonPrimary}" data-value="${encode(button.value)}">${encode(button.title)}</span></span>`;
+
+    var CARD_ACTIONS_TEMPLATE = ({ styles, buttons }) => `<div class="${styles.cardActions} ${styles.cardActionsVertical}">
+        ${ buttons.map((button) => CARD_ACTION_BUTTON_TEMPLATE({ styles, button })).join('') }
+    </div>`;
+
+    var HERO_CARD_TEMPLATE = ({ styles, images, buttons, title, subtitle, text }) => `<div class="${styles.card} ${styles.cardRich}">
+        ${ (typeof images !== "undefined" && images.length > 0) ? HERO_IMG_TEMPLATE({ images, styles }) : '' }
+        <div class="${styles.cardBody}">
+            ${ typeof title !== "undefined" ? (() => `<h5 class="${styles.cardTitle}">${encode(title)}</h5>`)() : '' }
+            ${ typeof subtitle !== "undefined" ? (() => `<h6 class="${styles.cardSubtitle}">${encode(subtitle)}</h6>`)() : '' }
+            ${ typeof text !== "undefined" ? (() => `<p>${encode(text)}</p>`)() : '' }
+        </div>
+        ${ (typeof buttons !== "undefined" && buttons.length > 0) ? CARD_ACTIONS_TEMPLATE({ buttons, styles }) : ''}
+    </div>`;
 
     extend(kendo.chat, {
         Templates: {},

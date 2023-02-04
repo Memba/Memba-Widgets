@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -115,7 +115,11 @@ import "./kendo.html.button.js";
 
             _click: function(e) {
                 if (this.options.enable) {
-                    if (this.trigger(CLICK, { event: e })) {
+                    if (this.trigger(CLICK, {
+                        event: e,
+                        id: this.element.attr("id"),
+                        target: this.element
+                    })) {
                         e.preventDefault();
                     }
                 }
@@ -183,9 +187,9 @@ import "./kendo.html.button.js";
                 } catch (err) {}
             },
 
-            _badge: function() {
+            _badge: function(options) {
                 var that = this;
-                var badgeOptions = that.options.badge;
+                var badgeOptions = options || that.options.badge;
                 var badgeEelement;
 
                 if (badgeOptions === null || badgeOptions === undefined) {

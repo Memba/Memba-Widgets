@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -20,6 +20,7 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        encode = kendo.htmlEncode,
         setTime = kendo.date.setTime,
         SchedulerView = ui.SchedulerView,
         outerWidth = kendo._outerWidth,
@@ -35,91 +36,50 @@ var __meta__ = {
         getMilliseconds = kendo.date.getMilliseconds,
         NS = ".kendoMultiDayView";
 
-    var DAY_VIEW_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t} - {1:t}", start, end)#): #=title.replace(/"/g,"&\\#34;")#">' +
-                    '<div class="k-event-template k-event-time">#:kendo.format("{0:t} - {1:t}", start, end)#</div>' +
-                    '<div class="k-event-template">${title}</div>' +
+    var DAY_VIEW_EVENT_TEMPLATE = kendo.template(({ start, end, title }) => `<div title="(${kendo.format("{0:t} - {1:t}", start, end)}): ${title.replace(/"/g,"&#34;")}">` +
+                    `<div class="k-event-template k-event-time">${encode(kendo.format("{0:t} - {1:t}", start, end))}</div>` +
+                    `<div class="k-event-template">${title}</div>` +
                 '</div>'),
-        DAY_VIEW_ALL_DAY_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t}", start)#): #=title.replace(/"/g,"&\\#34;")#">' +
-                    '<div class="k-event-template">${title}</div>' +
+
+        DAY_VIEW_ALL_DAY_EVENT_TEMPLATE = kendo.template(({ start, title }) => `<div title="(${kendo.format("{0:t}", start)}): ${title.replace(/"/g,"&#34;")}">` +
+                    `<div class="k-event-template">${title}</div>` +
                 '</div>'),
-        DATA_HEADER_TEMPLATE = kendo.template("#var dateString = isMobile ? kendo.toString(date,'ddd')[0] : kendo.toString(date,'ddd M/dd'); #" +
-                "<span class='k-link k-nav-day'>#=dateString#</span>"),
-        ALLDAY_EVENT_WRAPPER_STRING = '<div role="button" ' +
-                'aria-label="#: ariaLabel #" ' +
-                'data-#=ns#uid="#=uid#"' +
-                '#if (resources[0]) { #' +
-                    'style="background-color:#=resources[0].color#; border-color: #=resources[0].color#"' +
-                    'class="k-event"' +
-                '#} else {#' +
-                    'class="k-event"' +
-                '#}#' +
-                '>' +
+
+        DATA_HEADER_TEMPLATE = kendo.template(({ isMobile, date }) => `<span class='k-link k-nav-day'>${isMobile ? kendo.toString(date,'ddd')[0] : kendo.toString(date,'ddd M/dd')}</span>`),
+
+        ALLDAY_EVENT_WRAPPER_TEMPLATE = (event) => `<div role="button" aria-label="${encode(event.ariaLabel)}" ${kendo.attr('uid')}="${event.uid}"` +
+                `${(event.resources[0] ? `style="background-color:${event.resources[0].color}; border-color: ${event.resources[0].color}"` : '')} class="k-event">` +
                 '<span class="k-event-actions">' +
-                    '# if(data.tail || data.middle) {#' +
-                        '<span class="k-icon k-i-arrow-60-left"></span>' +
-                    '#}#' +
-                    '# if(data.isException()) {#' +
-                        '<span class="k-icon k-i-non-recurrence"></span>' +
-                    '# } else if(data.isRecurring()) {#' +
-                        '<span class="k-icon k-i-reload"></span>' +
-                    '# } #' +
+                    (event.tail || event.middle ? '<span class="k-icon k-i-arrow-60-left"></span>' : '') +
+                    (event.isException() ? '<span class="k-icon k-i-non-recurrence"></span>' : (event.isRecurring() ? '<span class="k-icon k-i-reload"></span>' : '') ) +
                 '</span>' +
-                '{0}' +
+                kendo.template(event.template)(event) +
                 '<span class="k-event-actions">' +
-                    '#if (showDelete) {#' +
-                        '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' +
-                    '#}#' +
-                    '# if(data.head || data.middle) {#' +
-                        '<span class="k-icon k-i-arrow-60-right"></span>' +
-                    '#}#' +
+                    (event.showDelete ? `<a href="#" class="k-link k-event-delete" title="${event.messages.destroy}" aria-label="${event.messages.destroy}"><span class="k-icon k-i-close"></span></a>` : '') +
+                    (event.head || event.middle ? '<span class="k-icon k-i-arrow-60-right"></span>' : '') +
                 '</span>' +
-                '#if(resizable && !singleDay && !data.tail && !data.middle){#' +
-                '<span class="k-resize-handle k-resize-w"></span>' +
-                '#}#' +
-                '#if(resizable && !singleDay && !data.head && !data.middle){#' +
-                '<span class="k-resize-handle k-resize-e"></span>' +
-                '#}#' +
-                '</div>',
-        EVENT_WRAPPER_STRING = '<div role="button" ' +
-                'aria-label="#: ariaLabel #" ' +
-                'data-#=ns#uid="#=uid#" ' +
-                '#if (resources[0]) { #' +
-                    'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' +
-                    'class="k-event"' +
-                '#} else {#' +
-                    'class="k-event"' +
-                '#}#' +
-                '>' +
+                (event.resizable && !event.singleDay && !event.tail && !event.middle ? '<span class="k-resize-handle k-resize-w"></span>' : '') +
+                (event.resizable && !event.singleDay && !event.head && !event.middle ? '<span class="k-resize-handle k-resize-e"></span>' : '') +
+            '</div>',
+
+        EVENT_WRAPPER_TEMPLATE = (event) => `<div role="button" aria-label="${encode(event.ariaLabel)}" ${kendo.attr('uid')}="${event.uid}"` +
+                `${(event.resources[0] ? `style="background-color:${event.resources[0].color}; border-color: ${event.resources[0].color}"` : '')} class="k-event">` +
                  '<span class="k-event-actions">' +
-                    '# if(data.isException()) {#' +
-                        '<span class="k-icon k-i-non-recurrence"></span>' +
-                    '# } else if(data.isRecurring()) {#' +
-                        '<span class="k-icon k-i-reload"></span>' +
-                    '# } #' +
+                    (event.isException() ? '<span class="k-icon k-i-non-recurrence"></span>' : (event.isRecurring() ? '<span class="k-icon k-i-reload"></span>' : '') ) +
                 '</span>' +
-                '{0}' +
+                kendo.template(event.template)(event) +
                 '<span class="k-event-actions">' +
-                    '#if (showDelete) {#' +
-                        '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' +
-                    '#}#' +
+                    (event.showDelete ? `<a href="#" class="k-link k-event-delete" title="${event.messages.destroy}" aria-label="${event.messages.destroy}"><span class="k-icon k-i-close"></span></a>` : '') +
                 '</span>' +
                 '<span class="k-event-top-actions">' +
-                    '# if(data.tail || data.middle) {#' +
-                    '<span class="k-icon k-i-arrow-60-up"></span>' +
-                    '# } #' +
+                    (event.tail || event.middle ? '<span class="k-icon k-i-arrow-60-up"></span>' : '') +
                 '</span>' +
                 '<span class="k-event-bottom-actions">' +
-                    '# if(data.head || data.middle) {#' +
-                        '<span class="k-icon k-i-arrow-60-down"></span>' +
-                    '# } #' +
+                    (event.head || event.middle ? '<span class="k-icon k-i-arrow-60-down"></span>' : '') +
                 '</span>' +
-                '# if(resizable && !data.tail && !data.middle) {#' +
-                '<span class="k-resize-handle k-resize-n"></span>' +
-                '# } #' +
-                '# if(resizable && !data.head && !data.middle) {#' +
-                    '<span class="k-resize-handle k-resize-s"></span>' +
-                '# } #' +
-                '</div>';
+                (event.resizable && !event.tail && !event.middle ? '<span class="k-resize-handle k-resize-n"></span>' : '') +
+                (event.resizable && !event.head && !event.middle ? '<span class="k-resize-handle k-resize-s"></span>' : '') +
+            '</div>';
 
     function toInvariantTime(date) {
         var staticDate = new Date(1980, 1, 1, 0, 0, 0);
@@ -784,11 +744,11 @@ var __meta__ = {
             endTime: kendo.date.today(),
             minorTickCount: 2,
             majorTick: 60,
-            majorTimeHeaderTemplate: "<span>#=kendo.toString(date, 't')#</span>",
-            minorTimeHeaderTemplate: "&\\#8203;",
-            groupHeaderTemplate: "#=text#",
-            slotTemplate: "&nbsp;",
-            allDaySlotTemplate: "&nbsp;",
+            majorTimeHeaderTemplate: ({ date }) => `<span>${kendo.toString(date, 't')}</span>`,
+            minorTimeHeaderTemplate: () => "&#8203;",
+            groupHeaderTemplate: ({ text }) => text,
+            slotTemplate: () => "&nbsp;",
+            allDaySlotTemplate: () => "&nbsp;",
             eventTemplate: DAY_VIEW_EVENT_TEMPLATE,
             allDayEventTemplate: DAY_VIEW_ALL_DAY_EVENT_TEMPLATE,
             dateHeaderTemplate: DATA_HEADER_TEMPLATE,
@@ -820,8 +780,8 @@ var __meta__ = {
             var options = this.options,
                 settings = extend({}, kendo.Template, options.templateSettings);
 
-            this.eventTemplate = this._eventTmpl(options.eventTemplate, EVENT_WRAPPER_STRING);
-            this.allDayEventTemplate = this._eventTmpl(options.allDayEventTemplate, ALLDAY_EVENT_WRAPPER_STRING);
+            this.allDayEventTemplate = kendo.template(ALLDAY_EVENT_WRAPPER_TEMPLATE);
+            this.eventTemplate = kendo.template(EVENT_WRAPPER_TEMPLATE);
 
             this.majorTimeHeaderTemplate = kendo.template(options.majorTimeHeaderTemplate, settings);
             this.minorTimeHeaderTemplate = kendo.template(options.minorTimeHeaderTemplate, settings);
@@ -1648,6 +1608,7 @@ var __meta__ = {
             var endTime = getMilliseconds(this.endTime());
             var eventStartTime = event._time("start");
             var eventEndTime = event._time("end");
+            var eventTemplate = isOneDayEvent ? options.eventTemplate : options.allDayEventTemplate;
             var middle;
 
             if (startTime >= endTime) {
@@ -1711,7 +1672,8 @@ var __meta__ = {
                 resources: resources,
                 inverseColor: false,
                 messages: options.messages,
-                ariaLabel: this._formatEventAriaLabel(event.title, eventStartDate, eventEndDate, event.isAllDay)
+                ariaLabel: this._formatEventAriaLabel(event.title, eventStartDate, eventEndDate, event.isAllDay),
+                template: eventTemplate
             }, event, {
                 start: eventStartDate,
                 end: eventEndDate

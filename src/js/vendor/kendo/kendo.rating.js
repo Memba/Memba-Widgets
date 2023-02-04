@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -20,6 +20,7 @@ import "./kendo.dom.js";
     (function($, undefined) {
         var kendo = window.kendo,
             ui = kendo.ui,
+            encode = kendo.htmlEncode,
             NS = ".kendoRating",
             Widget = ui.Widget,
             extend = $.extend,
@@ -100,29 +101,23 @@ import "./kendo.dom.js";
             hidden: "k-hidden"
         };
 
-        var RATING_TEMPLATE = kendo.template(
-            '<span class="#:styles.widget#"></span>'
-        );
+        var RATING_TEMPLATE = ({ styles }) =>
+            `<span class="${encode(styles.widget)}"></span>`;
 
-        var RATING_CONTAINER_TEMPLATE = kendo.template(
-            '<span class="#:styles.container#"></span>'
-        );
+        var RATING_CONTAINER_TEMPLATE = ({ styles }) =>
+        `<span class="${encode(styles.container)}"></span>`;
 
-        var RATING_LABEL_WRAPPER_TEMPLATE = kendo.template(
-            '<span class="#:styles.label#"></span>'
-        );
+        var RATING_LABEL_WRAPPER_TEMPLATE = ({ styles }) =>
+        `<span class="${encode(styles.label)}"></span>`;
 
-        var RATING_LABEL_TEMPLATE = kendo.template(
-            '<span>#:value# / #:maxValue#</span>'
-        );
+        var RATING_LABEL_TEMPLATE = ({ value, maxValue }) =>
+            `<span>${encode(value)} / ${encode(maxValue)}</span>`;
 
-        var RATING_ITEM_WRAPPER_TEMPLATE = kendo.template(
-            '<span class="#:styles.item#" data-value="#:value#"></span>'
-        );
+        var RATING_ITEM_WRAPPER_TEMPLATE = ({ styles, value }) =>
+            `<span class="${encode(styles.item)}" data-value="${encode(value)}"></span>`;
 
-        var RATING_ITEM_TEMPLATE = kendo.template(
-            '<span class="#:icon#"></span>'
-        );
+        var RATING_ITEM_TEMPLATE = ({ icon }) =>
+            `<span class="${encode(icon)}"></span>`;
 
         var Rating = Widget.extend({
             init: function(element, options) {

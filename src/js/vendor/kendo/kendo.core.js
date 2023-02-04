@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -18,7 +18,7 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
-    version: '2022.3.1109'.replace(/^\s+|\s+$/g, ''),
+    version: '2023.1.117'.replace(/^\s+|\s+$/g, ''),
     licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
@@ -127,7 +127,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2022.3.1109".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2023.1.117".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -162,9 +162,12 @@ var packageMetadata = {
         this.options = deepExtend({}, this.options, options);
     };
 
-    var isFunction = kendo.isFunction = function(fn) {
-        return typeof fn === "function";
-    };
+    const isPresent = kendo.isPresent = (value) => value !== null && value !== undefined;
+    const isBlank = kendo.isBlank = (value) => value === null || value === undefined;
+    const isString = kendo.isString = (value) => typeof value === 'string';
+    const isNumeric = kendo.isNumeric = (value) => !isNaN(value - parseFloat(value));
+    const isDate = kendo.isDate = (value) => value && value.getTime;
+    const isFunction = kendo.isFunction = (value) => typeof value === 'function';
 
     var preventDefault = function() {
         this._defaultPrevented = true;
@@ -378,11 +381,16 @@ var packageMetadata = {
             functionBody = functionBody.replace(sharpRegExp, "#");
 
             try {
+                // This function evaluation is required for legacy support of the Kendo Template syntax - non CSP compliant.
                 fn = new Function(argumentName, functionBody);
                 fn._slotCount = Math.floor(parts.length / 2);
                 return fn;
             } catch (e) {
-                throw new Error(kendo.format("Invalid template:'{0}' Generated code:'{1}'", template, functionBody));
+                if (kendo.debugTemplates) {
+                    window.console.warn(`Invalid template:'${template}' Generated code:'${functionBody}'`);
+                } else {
+                    throw new Error(kendo.format("Invalid template:'{0}' Generated code:'{1}'", template, functionBody));
+                }
             }
         }
     };
@@ -2233,7 +2241,8 @@ function pad(number, digits, end) {
             mobileOS = support.mobileOS = {
                 ios: true,
                 tablet: "tablet",
-                device: "ipad"
+                device: "ipad",
+                majorVersion: 13
             };
         }
 
@@ -2395,7 +2404,7 @@ function pad(number, digits, end) {
             safari = support.browser.safari;
         support.msPointers = !chrome && window.MSPointerEvent;
         support.pointers = !chrome && !mobileChrome && !mozilla && !safari && window.PointerEvent;
-        support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
+        support.kineticScrollNeeded = mobileOS && (mobileOS.device !== "ipad" || mobileOS.majorVersion < 13) && (support.touch || support.msPointers || support.pointers);
     })();
 
 
@@ -2798,13 +2807,57 @@ function pad(number, digits, end) {
             return expression;
         },
 
+        exprToArray: (expression, safe) => {
+            expression = expression || "";
+            const FIELD_REGEX = /\[(?:(\d+)|['"](.*?)['"])\]|((?:(?!\[.*?\]|\.).)+)/g;
+            const fields = [];
+
+            expression.replace(FIELD_REGEX, (_, index, indexAccessor, field) => {
+                fields.push(kendo.isPresent(index) ? index : (indexAccessor || field));
+                return undefined;
+            });
+
+            return fields;
+        },
+
         getter: function(expression, safe) {
             var key = expression + safe;
-            return getterCache[key] = getterCache[key] || new Function("d", "return " + kendo.expr(expression, safe));
+
+            return getterCache[key] = getterCache[key] || ((obj) => {
+                const fields = kendo.exprToArray(expression, safe);
+
+                let result = obj;
+                for (let idx = 0; idx < fields.length; idx++) {
+                    result = result[fields[idx]];
+                    if (!kendo.isPresent(result) && safe) {
+                        return result;
+                    }
+                }
+
+                return result;
+            });
         },
 
         setter: function(expression) {
-            return setterCache[expression] = setterCache[expression] || new Function("d,value", kendo.expr(expression) + "=value");
+            return setterCache[expression] = setterCache[expression] || ((obj, value) => {
+                const fields = kendo.exprToArray(expression);
+
+                const innerSetter = ({ parent, val, prop, props }) => {
+                    if (props.length) {
+                        parent = parent[props.shift()];
+                        innerSetter({ parent, val, prop, props });
+                    } else {
+                        parent[prop] = val;
+                    }
+                };
+
+                innerSetter({
+                    parent: obj,
+                    val: value,
+                    prop: fields.pop(),
+                    props: fields
+                });
+            });
         },
 
         accessor: function(expression) {
@@ -3179,7 +3232,12 @@ function pad(number, digits, end) {
         } else if (numberRegExp.test(value) && option != "mask" && option != "format") {
             value = parseFloat(value);
         } else if (jsonRegExp.test(value) && !jsonFormatRegExp.test(value)) {
-            value = new Function("return (" + value + ")")();
+            try {
+                value = JSON.parse(value);
+            } catch (error) {
+                // Fallback to function eval for legacy reason - non CSP compliant
+                value = new Function("return (" + value + ")")();
+            }
         }
 
         return value;
@@ -5192,6 +5250,9 @@ function pad(number, digits, end) {
                 curr[key] = value;
             }
         };
+
+        // Use external global flags for templates.
+        kendo.debugTemplates = window.DEBUG_KENDO_TEMPLATES;
 
     })();
 

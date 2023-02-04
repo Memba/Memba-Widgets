@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -623,7 +623,7 @@
         "alignmentDialog": {
           "title": "Alineación",
           "buttons": {
-            "justtifyLeft": "Alinear a la izquierda",
+            "justifyLeft": "Alinear a la izquierda",
             "justifyCenter": "Alinear al centro",
             "justifyRight": "Alinear a la derecha	",
             "justifyFull": "Justificar",
@@ -787,7 +787,7 @@
         "addRowBelow": "Agregar fila debajo",
         "alignment": "Alineación",
         "alignmentButtons": {
-          "justtifyLeft": "Alinear a la izquierda",
+          "justifyLeft": "Alinear a la izquierda",
           "justifyCenter": "Alinear al cenro",
           "justifyRight": "Alinear a la derecha",
           "justifyFull": "Justificar",

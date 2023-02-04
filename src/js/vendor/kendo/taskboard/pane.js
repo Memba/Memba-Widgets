@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -12,6 +12,7 @@ import "../kendo.form.js";
     var kendo = window.kendo,
         extend = $.extend,
         Observable = kendo.Observable,
+        encode = kendo.htmlEncode,
 
         Form = kendo.ui.Form,
 
@@ -55,18 +56,19 @@ import "../kendo.form.js";
 
             Observable.fn.init.call(that);
         },
-        headerTemplate: '<div class="#:styles.headerText#">{0}</div>' +
-                        '<span class="#:styles.spacer#"></span>' +
-                        '<div class="#:styles.headerActions#">' +
-                            '<button class="#:styles.flatButton#" title="#:messages.close#" #:kendo.attr("command")#="ClosePaneCommand">' +
+        headerTemplate: ({ styles, messages, fieldFormat }) => `<div class="${encode(styles.headerText)}">${fieldFormat}</div>` +
+                        `<span class="${encode(styles.spacer)}"></span>` +
+                        `<div class="${encode(styles.headerActions)}">` +
+                            `<button class="${encode(styles.flatButton)}" title="${encode(messages.close)}" ${encode(kendo.attr("command"))}="ClosePaneCommand">` +
                                 '<span class="k-button-icon k-icon k-i-close"></span>' +
                             '</button>' +
                         '</div>',
-        buttonTemplate: '<button class="#:styles.footerButton##if(primary){# #:styles.primaryButton# # } else { # #:styles.baseButton# # } #" title="#:text#" #:kendo.attr("command")#="#:command#" #:kendo.attr("options")#="#:options#">' +
-                            '<span class="k-button-icon #:icon# #:spriteCssClass#"></span>' +
-                            '<span class="k-button-text">#:text#</span>' +
+        buttonTemplate: ({ styles, icon, spriteCssClass, text, primary, command, options }) =>
+                        `<button class="${encode(styles.footerButton)} ${primary ? encode(styles.primaryButton) : encode(styles.baseButton)}" title="${encode(text)}" ${encode(kendo.attr("command"))}="${encode(command)}" ${encode(kendo.attr("options"))}="${encode(options)}">` +
+                            `<span class="k-button-icon ${encode(icon)} ${encode(spriteCssClass)}"></span>` +
+                            `<span class="k-button-text">${encode(text)}</span>` +
                         '</button>',
-        contentTemplate: '',
+        contentTemplate: () => ``,
         builtinButtons: {
             "edit": { name: "edit", icon: "edit", text: "Edit", primary: true, command: "EditCardCommand", rules: "isEditable" },
             "delete": { name: "delete", icon: "delete", text: "Delete", command: "DeleteCardCommand", rules: "isEditable" },
@@ -96,18 +98,19 @@ import "../kendo.form.js";
                 styles = TaskBoardPane.styles,
                 options = that.options,
                 messages = options.messages,
-                headerTemplate = options.headerTemplate ? options.headerTemplate : that._buildHeaderTemplate(),
+                headerTemplate = options.headerTemplate ? options.headerTemplate : that.headerTemplate,
                 resources = that._resources(that._dataItem);
 
             that.header.append(kendo.template(headerTemplate)(extend(true, {}, {
                 styles: styles,
                 messages: messages,
-                resources: resources
+                resources: resources,
+                fieldFormat: that._buildHeaderTemplate(that._dataItem)
             }, that._dataItem)));
         },
-        _buildHeaderTemplate: function() {
+        _buildHeaderTemplate: function(dataItem) {
             var that = this;
-            return kendo.format(that.headerTemplate, "#:" + that.options.dataTitleField + "#");
+            return encode(kendo.getter(that.options.dataTitleField)(dataItem));
         },
         _renderContent: function() {
             var that = this,
@@ -283,13 +286,12 @@ import "../kendo.form.js";
                 states: options.states
             });
 
-            that.contentTemplate = kendo.format(that._contentTemplate, options.dataDescriptionField);
+            that.contentTemplate = (data) => encode(kendo.getter(options.dataDescriptionField)(data));
 
             TaskBoardPane.fn.init.call(that, taskboard, options, dataItem, resources);
 
             that.element.addClass(TaskBoardPane.styles.preview);
         },
-        _contentTemplate: "<p>#:{0}#</p>",
         defaultButtons: [ "delete", "edit" ]
     });
 
@@ -317,11 +319,11 @@ import "../kendo.form.js";
         },
         defaultButtons: [ "cancel", "saveChanges" ],
         formSettings: {
-            buttonsTemplate: ""
+            buttonsTemplate: () => ""
         },
-        _buildHeaderTemplate: function() {
+        _buildHeaderTemplate: function(dataItem) {
             var that = this;
-            return kendo.format(that.headerTemplate, that.options.messages.edit + " #:" + that.options.dataTitleField + "#");
+            return `${that.options.messages.edit} ${encode(kendo.getter(that.options.dataTitleField)(dataItem))}`;
         },
         _renderContent: function() {
             var that = this,
@@ -362,9 +364,9 @@ import "../kendo.form.js";
 
             TaskBoardEditPane.fn.init.call(that, taskboard, options, dataItem, resources);
         },
-        _buildHeaderTemplate: function() {
+        _buildHeaderTemplate: function(dataItem) {
             var that = this;
-            return kendo.format(that.headerTemplate, that.options.messages.createNewCard);
+            return that.options.messages.createNewCard;
         },
         defaultButtons: [ "cancel", "create" ]
     });

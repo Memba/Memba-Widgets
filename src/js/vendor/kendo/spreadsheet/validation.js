@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -20,16 +20,18 @@ import "./runtime.js";
     var TRANSPOSE_FORMAT = "_matrix({0})";
     var DATE_FORMAT = 'DATEVALUE("{0}")';
 
-    calc.runtime.defineFunction("_matrix", function(m){
-        if (typeof m == "string") {
-            // for constant list validation, Excel includes a string
-            // with comma-separated values — make a Matrix from it.
-            m = this.asMatrix([ m.split(/\s*,\s*/) ]);
-        }
-        return m;
-    }).args([
-        [ "m", [ "or", "matrix", "string" ] ]
-    ]);
+    calc.runtime.deferInit(() => {
+        calc.runtime.defineFunction("_matrix", function(m){
+            if (typeof m == "string") {
+                // for constant list validation, Excel includes a string
+                // with comma-separated values — make a Matrix from it.
+                m = this.asMatrix([ m.split(/\s*,\s*/) ]);
+            }
+            return m;
+        }).args([
+            [ "m", [ "or", "matrix", "string" ] ]
+        ]);
+    });
 
     function compileValidation(sheet, row, col, validation) {
         var validationHandler;

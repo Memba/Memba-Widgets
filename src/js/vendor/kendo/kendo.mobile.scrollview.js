@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -393,14 +393,14 @@ var __meta__ = {
 
             if (typeof template === FUNCTION) {
                 templateProxy.template = template;
-                template = "#=this.template(data)#";
+                template = (data) => this.template(data);
             }
 
             this.template = kendo.template(template).bind(templateProxy);
 
             if (typeof emptyTemplate === FUNCTION) {
                 emptyTemplateProxy.emptyTemplate = emptyTemplate;
-                emptyTemplate = "#=this.emptyTemplate(data)#";
+                emptyTemplate = (data) => this.emptyTemplate(data);
             }
 
             this.emptyTemplate = kendo.template(emptyTemplate).bind(emptyTemplateProxy);
@@ -759,8 +759,8 @@ var __meta__ = {
             enablePager: true,
             pagerOverlay: false,
             autoBind: true,
-            template: "",
-            emptyTemplate: ""
+            template: () => "",
+            emptyTemplate: () => ""
         },
 
         events: [

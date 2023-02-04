@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -19,6 +19,7 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        encode = kendo.htmlEncode,
         Widget = ui.Widget,
         DataBoundWidget = ui.DataBoundWidget,
         percentageUnitsRegex = /^\d+(\.\d+)?%$/i,
@@ -360,10 +361,10 @@ var __meta__ = {
             selectable: false,
             value: [],
             dataValueField: null,
-            template: "#:data#",
-            placeholderTemplate: "loading...",
-            groupTemplate: "#:data#",
-            fixedGroupTemplate: "#:data#",
+            template: (data) => encode(data),
+            placeholderTemplate: () => "loading...",
+            groupTemplate: (data) => encode(data),
+            fixedGroupTemplate: (data) => encode(data),
             mapValueTo: "index",
             valueMapper: null,
             ariaLabel: null,
@@ -1177,12 +1178,12 @@ var __meta__ = {
             };
 
             if (options.columns) {
-                for (var i = 0; i < options.columns.length; i++) {
-                    var currentColumn = options.columns[i];
-                    var templateText = currentColumn.field ? currentColumn.field.toString() : "text";
+                options.columns.forEach((column, i) => {
+                    var templateText = column.field ? column.field.toString() : "text";
+                    var templateFunc = data => encode(kendo.getter(templateText)(data));
 
-                    templates["column" + i] = currentColumn.template || "#: " + templateText + "#";
-                }
+                    templates["column" + i] = column.template || templateFunc;
+                });
             }
 
             for (var key in templates) {

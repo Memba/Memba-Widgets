@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -20,6 +20,7 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        encode = kendo.htmlEncode,
         Widget = ui.Widget,
         html = kendo.html,
         extend = $.extend,
@@ -31,16 +32,16 @@ var __meta__ = {
         NS = ".kendoTimeSelector",
         html = kendo.html;
 
-    var listItemTemplate = kendo.template("<li class='k-item' data-value='#:value#'><span>#:value#</span></li>");
-    var listTemplate = kendo.template('<div class="k-time-list-wrapper">' +
-                                          '<span class="k-title">#:title#</span>' +
+    var listItemTemplate = ({ value }) => `<li class='k-item' data-value='${encode(value)}'><span>${encode(value)}</span></li>`;
+    var listTemplate = ({ title, name }) => '<div class="k-time-list-wrapper">' +
+                                          `<span class="k-title">${encode(title)}</span>` +
                                           '<div class="k-time-list">' +
-                                              '<div class="k-content k-scrollable k-time-container" data-name="#:name#">' +
+                                              `<div class="k-content k-scrollable k-time-container" data-name="${encode(name)}">` +
                                                   '<ul class="k-reset"></ul>' +
                                                   '<div class="k-scrollable-placeholder"></div>' +
                                               '</div>' +
                                           '</div>' +
-                                       '</div>');
+                                       '</div>';
 
     var TimeSelector = Widget.extend({
         init: function(element, options) {

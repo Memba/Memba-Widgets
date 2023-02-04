@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -22,6 +22,7 @@ var __meta__ = {
         Widget = kendo.ui.Widget,
         keys = kendo.keys,
         extend = $.extend,
+        encode = kendo.htmlEncode,
 
         STEPPER = ".kendoStepper",
 
@@ -74,7 +75,7 @@ var __meta__ = {
             label: "",
             icon: "",
             successIcon: "",
-            iconTemplate: "",
+            iconTemplate: null,
             enabled: true,
             error: false,
             selected: false,
@@ -87,29 +88,33 @@ var __meta__ = {
             selectable: true
         },
 
-        _indicatorTemplate: '<span class="k-step-indicator" aria-hidden="true">' +
-            '#if(successIcon && previous && !error) {#' +
-                '<span class="k-step-indicator-icon k-icon k-i-#: successIcon #"></span>' +
-            '#} else if(icon) {#' +
-                '<span class="k-step-indicator-icon k-icon k-i-#: icon #"></span>' +
-            '#} else if(previous && !error) {#' +
-                '<span class="k-step-indicator-icon k-icon k-i-check"></span>' +
-            '#} else {#' +
-                '<span class="k-step-indicator-text">#: index + 1 #</span>' +
-            '#}#' +
-        '</span>',
+        _indicatorTemplate: ({ successIcon, index, icon, previous, error }) => {
+            let indicatorContent;
+            if (successIcon && previous && !error) {
+                indicatorContent = `<span class="k-step-indicator-icon k-icon k-i-${encode(successIcon)}"></span>`;
+            } else if (icon) {
+                indicatorContent = `<span class="k-step-indicator-icon k-icon k-i-${encode(icon)}"></span>`;
+            } else if (previous && !error) {
+                indicatorContent = '<span class="k-step-indicator-icon k-icon k-i-check"></span>';
+            } else {
+                indicatorContent = `<span class="k-step-indicator-text">${encode(index + 1)}</span>`;
+            }
 
-        _labelTemplate: '<span class="k-step-label">' +
+            return '<span class="k-step-indicator" aria-hidden="true">' + indicatorContent + '</span>';
+        },
+
+        _labelTemplate: ({ label, indicatorVisible, previous, error }) =>
+        '<span class="k-step-label">' +
             '<span class="k-step-text">' +
-                '#: label #' +
+                encode(label) +
             '</span>' +
             ' ' +
-            '#if(error || (!indicatorVisible && !error && previous)) {#' +
-                '<span class="k-icon' +
-                    '#if(previous && !error){# k-i-check#}#' +
-                    '#if(error){# k-i-warning#}#' +
-                '" aria-hidden="true"></span>' +
-            '#}#' +
+            ((error || (!indicatorVisible && !error && previous)) ?
+            '<span class="k-icon' +
+                (previous && !error ? ' k-i-check' : '') +
+                (error ? ' k-i-warning' : '') +
+            '" aria-hidden="true"></span>'
+            : '') +
         '</span>',
 
         deselect: function() {

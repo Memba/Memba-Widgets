@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -208,7 +208,13 @@ import "../kendo.core.js";
         return style.replace(/^-(?:ms|moz|webkit)-/, "");
     }
 
-    function borderObject(styles) {
+    function borderObject(element, styles) {
+        // MS Office uses class name and writes borders in the <style> section, so for it we need to
+        // use the computed styles.  For Google Sheets / LibreOffice, however, the inline styles are
+        // more accurate.
+        if (!element.className) {
+            styles = element.style;
+        }
         var obj = {};
         [
             "borderBottom",
@@ -216,16 +222,45 @@ import "../kendo.core.js";
             "borderLeft",
             "borderTop"
         ].forEach(function(key) {
-            obj[key] = styles[key + "Style"] == "none" ? null : {
-                size: 1,
-                color: styles[key + "Color"]
-            };
+            var width = styles[key + "Width"];
+            if (width) {
+                width = parseInt(width, 10);
+            }
+            if (width) {
+                obj[key] = {
+                    size: width,
+                    color: styles[key + "Color"] || "#000"
+                };
+            }
         });
         return obj;
     }
 
     function cellState(row, col, element, hBorders, vBorders) {
         var styles = window.getComputedStyle(element);
+        var value, format, formula;
+
+        // google sheets
+        if ((value = element.getAttribute("data-sheets-value"))) {
+            value = JSON.parse(value);
+            value = value[value[1]];
+        }
+        if ((format = element.getAttribute("data-sheets-numberformat"))) {
+            format = JSON.parse(format);
+            format = format[format[1]];
+        }
+        formula = element.getAttribute("data-sheets-formula");
+
+        // libre office
+        if (value == null && format == null && formula == null) {
+            value = element.getAttribute("sdval");
+            format = element.getAttribute("sdnum");
+            if (format) {
+                // for ungoogable reasons, libreoffice prepends format strings with
+                // "1033;" and sometimes with "1033;0;". discard it below.
+                format = format.replace(/^1033;(?:0;)?/, "");
+            }
+        }
 
         // note: Chrome 70 appends a \t to a cell's text, which is actually mandated by the standard
         // ([1] item 6).  We remove it below.  In [2] it's suggested they might switch back to
@@ -233,48 +268,61 @@ import "../kendo.core.js";
         //
         // [1] https://www.w3.org/TR/html53/dom.html#dom-htmlelement-innertext
         // [2] https://bugs.chromium.org/p/chromium/issues/detail?id=897373
-        var text = element.innerText.replace(/\t$/, "");
+        if (value == null) {
+            value = element.innerText.replace(/\t$/, "");
+        }
 
-        var borders = borderObject(styles);
+        var borders = borderObject(element, styles);
         var state = {
-            value: text === "" ? null : text,
+            value: value === "" ? null : value,
+            formula: formula,
 
             borderTop    : borders.borderTop    || hBorders.get(row, col)     || null,
             borderBottom : borders.borderBottom || hBorders.get(row + 1, col) || null,
             borderLeft   : borders.borderLeft   || vBorders.get(row, col)     || null,
             borderRight  : borders.borderRight  || vBorders.get(row, col + 1) || null,
 
-            fontSize : parseInt(styles["font-size"], 10)
+            fontSize : parseInt(styles["fontSize"], 10)
         };
+
+        if (format != null) {
+            state.format = format;
+        }
 
         hBorders.set(row, col, state.borderTop);
         hBorders.set(row + 1, col, state.borderBottom);
         vBorders.set(row, col, state.borderLeft);
         vBorders.set(row, col + 1, state.borderRight);
 
-        if (styles["background-color"] !== "rgb(0, 0, 0)" && styles["background-color"] !== "rgba(0, 0, 0, 0)") {
-            state.background = styles["background-color"];
+        if (styles["backgroundColor"] !== "rgb(0, 0, 0)" && styles["backgroundColor"] !== "rgba(0, 0, 0, 0)") {
+            state.background = styles["backgroundColor"];
         }
+        if (stripStyle(styles["textAlign"]) !== "right") {
+            state.textAlign = stripStyle(styles["textAlign"]);
+        }
+        if (styles["verticalAlign"] !== "middle") {
+            state.verticalAlign = styles["verticalAlign"];
+        }
+        if (styles["wordWrap"] !== "normal" ) {
+            state.wrap = true;
+        }
+
+        var txtElem = element.querySelector("font"); // libre office
+        if (txtElem) {
+            styles = window.getComputedStyle(txtElem);
+        }
+
         if (styles.color !== "rgb(0, 0, 0)" && styles.color !== "rgba(0, 0, 0, 0)") {
             state.color = styles.color;
         }
-        if (styles["text-decoration"] == "underline") {
+        if (/^underline/.test(styles["textDecoration"])) {
             state.underline = true;
         }
-        if (styles["font-style"] == "italic") {
+        if (styles["fontStyle"] == "italic") {
             state.italic = true;
         }
-        if (styles["font-weight"] == "bold") {
+        if (/^(?:bold|[67]00)$/i.test(styles["fontWeight"])) {
             state.bold = true;
-        }
-        if (stripStyle(styles["text-align"]) !== "right") {
-            state.textAlign = stripStyle(styles["text-align"]);
-        }
-        if (styles["vertical-align"] !== "middle") {
-            state.verticalAlign = styles["vertical-align"];
-        }
-        if (styles["word-wrap"] !== "normal" ) {
-            state.wrap = true;
         }
 
         return state;

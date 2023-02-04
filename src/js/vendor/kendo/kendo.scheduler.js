@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -124,85 +124,73 @@ var __meta__ = {
         DELETERECURRINGCONFIRM = "Are you sure you want to delete this event occurrence?",
         RESETSERIESCONFIRM = "Are you sure you want to reset the whole series?",
         DELETESERIESCONFIRM = "Are you sure you want to delete the whole series?",
-        COMMANDBUTTONTMPL = '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid #=className#" #=attr#><span class="k-button-text">#=text#</span></button>',
-        VIEWS_DROPDOWN_TEMPLATE = kendo.template('' +
-            '<select aria-label="#= label #" class="k-picker k-dropdown-list k-dropdown k-views-dropdown" tabindex="-1">' +
-                '#for (var view in views) {#' +
-                    '<option value="#= view #">${views[view].title}</option>' +
-                '#}#' +
+        COMMANDBUTTONTMPL = ({ className, attr, text }) => `<button type="button" class="k-button k-button-md k-rounded-md k-button-solid ${className}" ${attr}><span class="k-button-text">${text}</span></button>`,
+        VIEWS_DROPDOWN_TEMPLATE = kendo.template(({ label, views }) =>
+            `<select aria-label="${label}" class="k-picker k-dropdown-list k-dropdown k-views-dropdown" tabindex="-1">` +
+                Object.keys(views).map((view) => `<option value="${view}">${views[view].title}</option>`).join('') +
             '</select>'
         ),
-        TOOLBARTEMPLATE = kendo.template('' +
+        TOOLBARTEMPLATE = kendo.template(({ pdf, messages, ns, search, viewsCount, view, views }) =>
             '<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
-                '# if (pdf) { #' +
-                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-pdf"><span class="k-button-icon k-icon k-i-file-pdf"></span><span class="k-button-text">${messages.pdf}</span></button>' +
-                '# } #' +
+                (pdf ? `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-pdf"><span class="k-button-icon k-icon k-i-file-pdf"></span><span class="k-button-text">${messages.pdf}</span></button>` : '') +
                 '<span class="k-scheduler-navigation k-button-group">' +
-                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-nav-today" title="${messages.today}"><span class="k-button-text">${messages.today}</span></button>' +
-                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-prev" title="${messages.previous}" aria-label="${messages.previous}"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></button>' +
-                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-next" title="${messages.next}" aria-label="${messages.next}"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></button>' +
+                    `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-nav-today" title="${messages.today}"><span class="k-button-text">${messages.today}</span></button>` +
+                    `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-prev" title="${messages.previous}" aria-label="${messages.previous}"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></button>` +
+                    `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-next" title="${messages.next}" aria-label="${messages.next}"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></button>` +
                 '</span>' +
-                '<a tabindex="-1" role="button" href="\\#" class="k-nav-current" aria-live="polite">' +
+                '<a tabindex="-1" role="button" href="#" class="k-nav-current" aria-live="polite">' +
                     '<span class="k-icon k-i-calendar"></span>' +
-                    '<span class="k-sm-date-format" data-#=ns#bind="text: formattedShortDate"></span>' +
-                    '<span class="k-lg-date-format" data-#=ns#bind="text: formattedDate"></span>' +
+                    `<span class="k-sm-date-format" data-${ns}bind="text: formattedShortDate"></span>` +
+                    `<span class="k-lg-date-format" data-${ns}bind="text: formattedDate"></span>` +
                 '</a>' +
                 '<span class="k-spacer k-toolbar-spacer"></span>' +
-                '# if (search) { #' +
+                (search ?
                     '<span class="k-scheduler-search k-textbox k-input k-input-md k-rounded-md k-input-solid">' +
-                        '<input tabindex="-1" autocomplete="off" placeholder="${messages.search}" title="${messages.search}" class="k-input-inner k-scheduler-search-input k-input-inner" />' +
+                        `<input tabindex="-1" autocomplete="off" placeholder="${messages.search}" title="${messages.search}" class="k-input-inner k-scheduler-search-input k-input-inner" />` +
                         '<span class="k-input-suffix"><span class="k-icon k-i-search"></span></span>' +
-                    '</span>' +
-                '# } #' +
-                '# if (viewsCount === 1) { #' +
-                    '<a role="button" tabindex="-1" data-#=ns#name="#=view#" href="\\#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-scheduler-refresh" aria-label="${messages.refresh}">' +
+                    '</span>' : ''
+                ) +
+                (viewsCount === 1 ?
+                    `<a role="button" tabindex="-1" data-${ns}name="${view}" href="\\#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-scheduler-refresh" aria-label="${messages.refresh}">` +
                         '<span class="k-button-icon k-icon k-i-reload"></span>' +
-                    '</a>' +
-                '# } else { #' +
+                    '</a>' :
                     '<span class="k-scheduler-views-wrapper">' +
                         '<span class="k-scheduler-views k-button-group">' +
-                            '# for (var view in views) { #' +
-                                '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><span class="k-button-text">${views[view].title}</span></button>' +
-                            '# } #' +
+                            Object.keys(views).map((viewKey) =>
+                                `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-${ viewKey.toLowerCase() }" data-${ns}name="${viewKey}"><span class="k-button-text">${views[viewKey].title}</span></button>`
+                            ).join('') +
                         '</span>' +
-                    '</span>' +
-                '# } #' +
+                    '</span>'
+                ) +
             '</div>'),
-        MOBILETOOLBARTEMPLATE = kendo.template('<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
+        MOBILETOOLBARTEMPLATE = kendo.template(({ pdf, editable, search, messages, viewsCount, views, ns, view }) => '<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
             '<span class="k-scheduler-tools k-button-group">' +
-                '# if (pdf) { #' +
-                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-pdf"><span class="k-button-icon k-icon k-i-file-pdf"></span></button>' +
-                '# } #' +
-                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-calendar"><span class="k-button-icon k-icon k-i-calendar"></span></button>' +
-                "# if (editable) { #" +
-                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-create-event"><span class="k-button-icon k-icon k-i-plus"></span></button>' +
-                "# } #" +
+                (pdf ? '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-pdf"><span class="k-button-icon k-icon k-i-file-pdf"></span></button>' : '') +
+                '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-calendar"><span class="k-button-icon k-icon k-i-calendar"></span></button>' +
+                (editable ? '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-create-event"><span class="k-button-icon k-icon k-i-plus"></span></button>' : '') +
             '</span>' +
             '<span class="k-spacer k-toolbar-spacer"></span>' +
-            '# if (search) { #' +
+            (search ?
                 '<span class="k-scheduler-search k-textbox k-input k-input-md k-rounded-md k-input-solid">' +
-                    '<input tabindex="-1" autocomplete="off" placeholder="${messages.search}" title="${messages.search}" class="k-scheduler-search-input k-input-inner" />' +
+                    `<input tabindex="-1" autocomplete="off" placeholder="${messages.search}" title="${messages.search}" class="k-scheduler-search-input k-input-inner" />` +
                     '<span class="k-input-suffix"><span class="k-icon k-i-search"></span></span>' +
-                '</span>' +
-            '# } #' +
-            '#if(viewsCount === 1){#' +
-                '<a role="button" tabindex="-1" data-#=ns#name="#=view#" href="\\#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-scheduler-refresh">' +
+                '</span>' : ''
+            ) +
+            (viewsCount === 1 ?
+                `<a role="button" tabindex="-1" data-${ns}name="${view}" href="\\#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-scheduler-refresh">` +
                     '<span class="k-button-icon k-icon k-i-reload"></span>' +
-                '</a>' +
-            '#} else {#' +
+                '</a>' :
                 '<select tabindex="-1" class="k-picker k-dropdown-list k-dropdown k-scheduler-mobile-views">' +
-                    '#for(var view in views){#' +
-                        '<option class="k-view-#= view.toLowerCase() #" value="#=view#">${views[view].title}</option>' +
-                    '#}#' +
-                '</select>' +
-            '#}#' +
+                    Object.keys(views).map((viewKey) => `<option class="k-view-${ viewKey.toLowerCase() }" value="${viewKey}">${views[viewKey].title}</option>`).join('') +
+                '</select>'
+            ) +
             '</div>' +
             '<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
                 '<span class="k-scheduler-navigation">' +
                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-prev"><span class="k-button-icon k-icon k-i-arrow-chevron-left"></span></button>' +
                    '<span class="k-nav-current">' +
-                        '<span class="k-m-date-format" data-#=ns#bind="text: formattedMobileDate"></span>' +
-                        '<span class="k-y-date-format" data-#=ns#bind="text: formattedYear"></span>' +
+                        `<span class="k-m-date-format" data-${ns}bind="text: formattedMobileDate"></span>` +
+                        `<span class="k-y-date-format" data-${ns}bind="text: formattedYear"></span>` +
                     '</span>' +
                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-next"><span class="k-button-icon k-icon k-i-arrow-chevron-right"></span></button>' +
                 '</span>' +
@@ -1154,7 +1142,7 @@ var __meta__ = {
                     dataSource: resource.dataSource.data(),
                     valuePrimitive: resource.valuePrimitive,
                     optionLabel: "None",
-                    template: kendo.format('<span #= data.disabled ? "data-disabled": ""#><span class="k-scheduler-mark" style="background-color:#= data.{0}?{0}:"none" #"></span>#={1}#</span>', resource.dataColorField, resource.dataTextField),
+                    template: (data) => `<span ${data.disabled ? "data-disabled" : ""}><span class="k-scheduler-mark" style="background-color:${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}</span>`,
                     select: function(e) {
                         if (e.dataItem && e.dataItem.disabled) {
                             e.preventDefault();
@@ -1235,8 +1223,8 @@ var __meta__ = {
                     dataValueField: resource.dataValueField,
                     dataSource: resource.dataSource.data(),
                     valuePrimitive: resource.valuePrimitive,
-                    itemTemplate: kendo.format('<span #= data.disabled ? "data-disabled": "" #><span class="k-scheduler-mark" style="background-color:#= data.{0}?{0}:"none" #"></span>#={1}#</span>', resource.dataColorField, resource.dataTextField),
-                    tagTemplate: kendo.format('<span class="k-scheduler-mark" style="background-color:#= data.{0}?{0}:"none" #"></span>#={1}#', resource.dataColorField, resource.dataTextField),
+                    itemTemplate: (data) => `<span ${data.disabled ? "data-disabled" : ""}><span class="k-scheduler-mark" style="background-color:${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}</span>`,
+                    tagTemplate: (data) => `<span class="k-scheduler-mark" style="background-color:${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}`,
                     select: function(e) {
                         if (e.dataItem && e.dataItem.disabled) {
                             e.preventDefault();
@@ -1430,134 +1418,103 @@ var __meta__ = {
 
         _buildDesktopEditTemplate: function(model, fields, editableFields) {
             var messages = this.options.messages;
-            var settings = extend({}, kendo.Template, this.options.templateSettings);
-            var paramName = settings.paramName;
-            var html = "";
 
-            html += '<div class="k-form">';
+            const startTimezone = '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">' +
+                                    '<div class="k-form">' +
+                                    '<div class="k-form-field"><div class="k-form-field-wrap">' + kendo.html.renderCheckBox($('<input class="k-timezone-toggle"/>'), { label: messages.editor.separateTimezones }) + '</div></div>';
 
-            for (var idx = 0, length = fields.length; idx < length; idx++) {
-                var field = fields[idx];
+            const editableField = (fieldName) => {
+                const isEditable = !model.editable || model.editable(fieldName);
 
-                if (field.field === "startTimezone") {
-                    html += '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">';
-                    html += '<div class="k-form">';
-                    html += '<div class="k-form-field"><div class="k-form-field-wrap">' + kendo.html.renderCheckBox($('<input class="k-timezone-toggle"/>'), { label: messages.editor.separateTimezones }) + '</div></div>';
-                }
-
-                if (model.fields[field.field] && model.fields[field.field].type === "boolean") {
-                    html += '<div class="k-form-field">';
+                if (isEditable) {
+                    return `<div ${kendo.attr("container-for")}="${fieldName}" class="k-form-field-wrap"></div>`;
                 } else {
-                    html += '<div class="k-form-field"><label class="k-label k-form-label" for="' + field.field + '" id="' + field.field + '_label">' + (field.title || field.field || "") + '</label>';
+                    return `<div class="k-form-field-wrap">${(fieldName && kendo.getter(fieldName)(model)) || ''}</div>`;
                 }
+            };
 
-                if ((!model.editable || model.editable(field.field))) {
+            const generateFields = (field) => {
+                const fieldName = field.field;
+                const fieldTitle = field.title;
+                const modelField = model.fields[fieldName];
+                const isEditable = !model.editable || model.editable(fieldName);
+
+                if (isEditable) {
                     editableFields.push(field);
-                    html += '<div ' + kendo.attr("container-for") + '="' + field.field + '" class="k-form-field-wrap"></div>';
-                } else {
-                    var tmpl = "#:";
-
-                    if (field.field) {
-                        field = kendo.expr(field.field, paramName);
-                        tmpl += field + "==null?'':" + field;
-                    } else {
-                        tmpl += "''";
-                    }
-
-                    tmpl += "#";
-
-                    tmpl = kendo.template(tmpl, settings);
-
-                    html += '<div class="k-form-field-wrap">' + tmpl(model) + '</div>';
                 }
 
-                html += "</div>";
+                return (fieldName === 'startTimezone' ? startTimezone : '') +
+                    (modelField && modelField.type === "boolean" ?
+                        `<div class="k-form-field">${editableField(fieldName)}</div>` :
+                        `<div class="k-form-field"><label class="k-label k-form-label" for="${fieldName}" id="${fieldName}_label">${fieldTitle || fieldName || ""}</label>${editableField(fieldName)}</div>`) +
+                    (fieldName === 'endTimezone' ? this._createEndTimezoneButton() : '');
+            };
 
-                if (field.field === "endTimezone") {
-                    html += this._createEndTimezoneButton();
-                }
-            }
-
-            html += '</div>';
-
-            return html;
+            return `<div class="k-form">` +
+                fields.map(generateFields).join('') +
+            `</div>`;
         },
 
         _buildMobileEditTemplate: function(model, fields, editableFields) {
             var messages = this.options.messages;
-            var settings = extend({}, kendo.Template, this.options.templateSettings);
-            var paramName = settings.paramName;
-            var html = "";
 
-            html += '<ul class="k-listgroup k-listgroup-flush">';
+            const startTimezone = '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">' +
+                                    '<ul class="k-listgroup k-listgroup-flush">' +
+                                        '<li class="k-item k-listgroup-item">' +
+                                            '<label class="k-label k-listgroup-form-row">' +
+                                                '<span class="k-item-title k-listgroup-form-row">' + messages.editor.separateTimezones + '</span>' +
+                                                '<span class="k-listgroup-form-field-wrapper">' +
+                                                    '<input class="k-timezone-toggle" data-role="switch" type="checkbox" />' +
+                                                '</span>' +
+                                            '</label>' +
+                                        '</li>';
 
-            for (var idx = 0, length = fields.length; idx < length; idx++) {
-                var field = fields[idx];
+            const editableField = (field) => {
+                const fieldName = field.field;
+                const fieldTitle = field.title;
+                const isEditable = !model.editable || model.editable(fieldName);
+                let midPart;
 
-                if (field.field === "timezone" || field.field === "recurrenceRule") {
-                    html += '</ul><ul class="k-listgroup k-listgroup-flush">';
-                }
-
-                if (field.field === "startTimezone") {
-                    html += '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">';
-                    html += '<ul class="k-listgroup k-listgroup-flush">';
-                    html += '<li class="k-item k-listgroup-item">';
-                    html += '<label class="k-label k-listgroup-form-row">';
-                    html += '<span class="k-item-title k-listgroup-form-row">' + messages.editor.separateTimezones + '</span>';
-                    html += '<span class="k-listgroup-form-field-wrapper">';
-                    html += '<input class="k-timezone-toggle" data-role="switch" type="checkbox" />';
-                    html += '</span>';
-                    html += '</label>';
-                    html += '</li>';
-                }
-
-                if ((!model.editable || model.editable(field.field))) {
-                    html += '<li class="k-item k-listgroup-item">';
-                    if (field.field === "timezone") {
-                        html += '<label class="k-label k-listgroup-form-row" data-bind="css: { k-disabled: isAllDay }">';
-                    } else {
-                        html += '<label class="k-label k-listgroup-form-row">';
-                    }
-                    html += '<span class="k-item-title k-listgroup-form-field-label">' + (field.title || field.field || "") + '</span>';
-
-                    editableFields.push(field);
-                    html += '<div class="k-listgroup-form-field-wrapper" ' + kendo.attr("container-for") + '="' + field.field + '"></div>';
-
-                    html += '</label></li>';
+                if (isEditable) {
+                    midPart = `${fieldName === 'timezone' ?
+                                    `<label class="k-label k-listgroup-form-row" data-bind="css: { k-disabled: isAllDay }">` :
+                                    `<label class="k-label k-listgroup-form-row">`}` +
+                        `<span class="k-item-title k-listgroup-form-field-label">${fieldTitle || fieldName || ""}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper" ${kendo.attr("container-for")}="${fieldName}"></div>`;
                 } else {
-                    var tmpl = "#:";
-
-                    html += '<li class="k-item k-listgroup-item">';
-                    html += '<label class="k-label k-no-click k-listgroup-form-row">';
-                    html += '<span class="k-item-title k-listgroup-form-field-label">' + (field.title || field.field || "") + '</span>';
-
-                    if (field.field) {
-                        field = kendo.expr(field.field, paramName);
-                        tmpl += field + "==null?'':" + field;
-                    } else {
-                        tmpl += "''";
-                    }
-
-                    tmpl += "#";
-
-                    tmpl = kendo.template(tmpl, settings);
-
-                    html += '<span class="k-no-editor k-listgroup-form-field-wrapper">' + tmpl(model) + '</span>';
-
-                    html += '</label></li>';
+                    midPart = `<li class="k-item k-listgroup-item">` +
+                        `<label class="k-label k-no-click k-listgroup-form-row">` +
+                        `<span class="k-item-title k-listgroup-form-field-label">${fieldTitle || fieldName || ""}</span>` +
+                        `<span class="k-no-editor k-listgroup-form-field-wrapper">${(fieldName && kendo.getter(fieldName)(model)) || ''}</span>`;
                 }
 
-                if (field.field === "recurrenceRule") {
-                    html += '</ul><ul class="k-listgroup k-listgroup-flush">';
+
+                return `<li class="k-item k-listgroup-item">` +
+                   midPart +
+                `</label></li>`;
+
+            };
+
+            const generateFields = (field) => {
+                const fieldName = field.field;
+                const isEditable = !model.editable || model.editable(fieldName);
+
+                if (isEditable) {
+                    editableFields.push(field);
                 }
 
-                if (field.field === "endTimezone") {
-                    html += "</ul></div>";
-                }
-            }
-            html += '</ul>';
+                return (fieldName === "timezone" || fieldName === "recurrenceRule" ? '</ul><ul class="k-listgroup k-listgroup-flush">' : '') +
+                    (fieldName === 'startTimezone' ? startTimezone : '') +
+                    editableField(field) +
+                    (fieldName === 'recurrenceRule' ? '</ul><ul class="k-listgroup k-listgroup-flush">' : '') +
+                    (fieldName === 'endTimezone' ? '</ul></div>' : '');
+            };
 
-            return html;
+            const result = `<ul class="k-listgroup k-listgroup-flush">` +
+                fields.map(generateFields).join('') +
+            `</ul>`;
+
+            return result;
         },
 
         _buildEditTemplate: function(model, fields, editableFields, isMobile) {
@@ -1740,10 +1697,10 @@ var __meta__ = {
 
             html += '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form"' + kendo.attr("uid") + '="' + model.uid + '">' +
                 '<div data-role="header" class="k-header">' +
-                    '<a href="\\#" class="k-header-cancel k-scheduler-cancel k-link" title="' + cancelText + '"' +
+                    '<a href="#" class="k-header-cancel k-scheduler-cancel k-link" title="' + cancelText + '"' +
                     'aria-label="' + cancelText + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' +
                     titleText +
-                    '<a href="\\#" class="k-header-done k-scheduler-update k-link" title="' + updateText + '" ' +
+                    '<a href="#" class="k-header-done k-scheduler-update k-link" title="' + updateText + '" ' +
                     'aria-label="' + updateText + '"><span class="k-icon k-i-check"></span></a>' +
                 '</div>';
 
@@ -2408,7 +2365,7 @@ var __meta__ = {
                     }
 
                     events = new kendo.data.Query(events)
-                        .filter({ field: "element[0].getAttribute('data-uid')", operator: "eq", value: eventsUids[idx] })
+                        .filter({ field: event => event.element[0].getAttribute('data-uid'), operator: "eq", value: eventsUids[idx] })
                         .toArray();
 
                     if (events[0]) {
@@ -3068,7 +3025,10 @@ var __meta__ = {
             }
 
             if (shortcutKeys.indexOf(key) > -1) {
-                this._keydownShortcut(key);
+                if (!$(e.target).hasClass("k-scheduler-search-input")) {
+                    this._keydownShortcut(key);
+                }
+
                 return;
             }
 
@@ -5347,8 +5307,8 @@ var __meta__ = {
 
     ui.plugin(TimezoneEditor);
 
-    var ZONETITLEOPTIONTEMPLATE = kendo.template('<option value="#=other_zone#">#=name#</option>');
-    var ZONEOPTIONTEMPLATE = kendo.template('<option value="#=zone#">#=territory#</option>');
+    var ZONETITLEOPTIONTEMPLATE = kendo.template(({ name, other_zone }) => `<option value="${other_zone}">${name}</option>`);
+    var ZONEOPTIONTEMPLATE = kendo.template(({ zone, territory }) => `<option value="${zone}">${territory}</option>`);
 
     var MobileTimezoneEditor = Widget.extend({
         init: function(element, options) {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -12,6 +12,7 @@ import "../kendo.sortable.js";
     var kendo = window.kendo,
         ui = kendo.ui,
         Observable = kendo.Observable,
+        encode = kendo.htmlEncode,
         extend = $.extend,
 
         DOT = ".",
@@ -99,20 +100,21 @@ import "../kendo.sortable.js";
             return that.container.children();
         },
 
-        template: '<div class="#: styles.headerText # #: styles.ellipsis #">{0}</div>' +
-                  '<span class="#: styles.spacer #"></span>' +
-                  '#=buttons#',
+        template: (data) => `<div class="${encode(data.styles.headerText)} ${encode(data.styles.ellipsis)}">${kendo.getter(data.dataTextField)(data)}</div>` +
+                  `<span class="${encode(data.styles.spacer)}"></span>` +
+                  `${data.buttons}`,
 
-        editTemplate: '<div class="#: styles.headerText # #: styles.ellipsis #">' +
-                        '<span class="#: styles.textbox #">' +
-                            '<input class="#: styles.input #" placeholder="#: {0} ? messages.editColumn : messages.newColumn #" #:kendo.attr("command")#="SaveColumnCommand" value="#:{0}#" />' +
+        editTemplate: (data) => `<div class="${encode(data.styles.headerText)} ${encode(data.styles.ellipsis)}">` +
+                        `<span class="${encode(data.styles.textbox)}">` +
+                            `<input class="${encode(data.styles.input)}" placeholder="${encode(kendo.getter(data.dataTextField)(data) ? data.messages.editColumn : data.messages.newColumn)}" ${encode(kendo.attr("command"))}="SaveColumnCommand" value="${encode(kendo.getter(data.dataTextField)(data))}" />` +
                         '</span>' +
                         '</div>' +
-                        '<span class="#: styles.spacer #"></span>' +
-                        '#=buttons#',
+                        `<span class="${encode(data.styles.spacer)}"></span>` +
+                        `${data.buttons}`,
 
-        actionButton: '<button class="#: styles.actionButton # #: styles.button #" title="#:text#" #:kendo.attr("command")#="#:command#" #if(options){##:kendo.attr("options")#="#:options#"#}#>' +
-                        '<i class="k-button-icon #:icon# #:spriteCssClass#"></i>' +
+        actionButton: ({ styles, icon, spriteCssClass, text, command, options }) =>
+                      `<button class="${encode(styles.actionButton)} ${encode(styles.button)}" title="${encode(text)}" ${encode(kendo.attr("command"))}="${encode(command)}" ${options ? encode(kendo.attr('options')) + "=" + encode(options) : ""}>` +
+                        `<i class="k-button-icon ${encode(icon)} ${encode(spriteCssClass)}"></i>` +
                       '</button>',
 
         builtinButtons: {
@@ -153,11 +155,12 @@ import "../kendo.sortable.js";
             var that = this,
                 styles = TaskBoardColumn.styles,
                 options = that.options,
-                template = options.template ? options.template : kendo.format(that.template, "#:" + options.dataTextField + "#");
+                template = options.template ? options.template : that.template;
 
             that.header.append(kendo.template(template)(extend(true, {}, {
                 styles: styles,
-                buttons: that._buildActionsHtml()
+                buttons: that._buildActionsHtml(),
+                dataTextField: options.dataTextField
             }, that._dataItem)));
         },
 
@@ -165,14 +168,15 @@ import "../kendo.sortable.js";
             var that = this,
                 styles = TaskBoardColumn.styles,
                 options = that.options,
-                template = options.editTemplate ? options.editTemplate : kendo.format(that.editTemplate, options.dataTextField);
+                template = options.editTemplate ? options.editTemplate : that.editTemplate;
 
             that.header.html("");
 
             that.header.append(kendo.template(template)(extend(true, {}, {
                 styles: styles,
                 messages: options.messages,
-                buttons: that._buildActionsHtml()
+                buttons: that._buildActionsHtml(),
+                dataTextField: options.dataTextField
             }, that._dataItem)));
 
             setTimeout(function() {
@@ -427,9 +431,11 @@ import "../kendo.sortable.js";
         }
     });
 
-    extend(kendo.ui.taskboard, {
-        Column: TaskBoardColumn,
-        NewColumn: TaskBoardNewColumn
+    extend(kendo.ui, {
+        taskboard: {
+            Column: TaskBoardColumn,
+            NewColumn: TaskBoardNewColumn
+        }
     });
 
     extend(true, kendo.ui.taskboard.Column, {

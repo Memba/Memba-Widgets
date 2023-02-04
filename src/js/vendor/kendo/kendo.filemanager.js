@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -8,20 +8,22 @@
  */
 import "./filemanager/commands.js";
 import "./filemanager/view.js";
-import "./filemanager/toolbar.js";
 import "./filemanager/data.js";
 import "./filemanager/contextmenu.js";
+import "./kendo.toolbar.js";
 import "./kendo.breadcrumb.js";
 import "./kendo.upload.js";
 import "./kendo.dialog.js";
 import "./kendo.resizable.js";
+import "./kendo.switch.js";
+import "./kendo.textbox.js";
 
 var __meta__ = {
     id: "filemanager",
     name: "FileManager",
     category: "web",
     description: "The FileManager widget displays offers file management functionality.",
-    depends: [ "core", "data", "listview", "toolbar", "breadcrumb", "menu", "treeview", "upload", "dialog", "switch", "resizable", "selectable", "editable" ],
+    depends: [ "core", "data", "listview", "toolbar", "breadcrumb", "menu", "treeview", "upload", "dialog", "switch", "resizable", "selectable", "editable", "textbox" ],
     features: [{
         id: "filemanager-grid-view",
         name: "GridView",
@@ -33,11 +35,13 @@ var __meta__ = {
 (function($, undefined) {
     var ui = kendo.ui,
         extend = $.extend,
+        encode = kendo.htmlEncode,
         isPlainObject = $.isPlainObject,
         isArray = Array.isArray,
         DataBoundWidget = ui.DataBoundWidget,
         template = kendo.template,
         outerHeight = kendo._outerHeight,
+        ns = ".kendoFileManager",
 
         NAVIGATE = "navigate",
         SELECT = "select",
@@ -46,6 +50,8 @@ var __meta__ = {
         CHANGE = "change",
         UPLOAD = "upload",
         SUCCESS = "success",
+        CLICK = "click",
+        TOGGLE = "toggle",
         CLOSE = "close",
         HIDE = "hide",
         LOAD = "load",
@@ -102,50 +108,58 @@ var __meta__ = {
         list: "list"
     };
 
-    var NO_FILE_PREVIEW_TEMPLATE = '' +
-        '<div class="#:styles.fileInfo#">' +
-            '<div class="#:styles.filePreview#">' +
+    var NO_FILE_PREVIEW_TEMPLATE = ({ styles, messages }) =>
+         `<div class="${encode(styles.fileInfo)}">` +
+            `<div class="${encode(styles.filePreview)}">` +
                 '<span class="k-file-icon k-icon k-i-none"></span>' +
             '</div>' +
-            '<span class="#:styles.fileName#" k-no-file-selected>#: messages.noFileSelected #</span>' +
+            `<span class="${encode(styles.fileName)}" k-no-file-selected>${encode(messages.noFileSelected)}</span>` +
         '</div>';
 
-    var SINGLE_FILES_PREVIEW_TEMPLATE = '' +
-        '<div class="#:styles.fileInfo#">' +
-            '<div class="#:styles.filePreview#">' +
-                '<span class="k-file-icon k-icon k-i-#: !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension, true) : "folder" #"></span>' +
+    var SINGLE_FILES_PREVIEW_TEMPLATE = ({ styles, selection, metaFields, messages }) => {
+        let result = '';
+        result +=
+        `<div class="${encode(styles.fileInfo)}">` +
+            `<div class="${encode(styles.filePreview)}">` +
+                `<span class="k-file-icon k-icon k-i-${!selection[0].isDirectory ? encode(kendo.getFileGroup(selection[0].extension, true)) : "folder"}"></span>` +
             '</div>' +
-            '<span class="#:styles.fileName#">#:selection[0].name#</span>' +
-            '#if(metaFields){#' +
-                '<dl class="#:styles.fileMeta#">' +
-                    '#for(var i = 0; i < metaFields.length; i+=1){#' +
-                        '#var field = metaFields[i]#' +
-                        '<dt class="#:styles.metaLabel#">#:messages[field]#: </dt>' +
-                        '<dd class="#:styles.metaValue# #:styles[field]#">' +
-                            '#if(field == "size"){#' +
-                                ' #:kendo.getFileSizeMessage(selection[0][field])#' +
-                            '#} else if(selection[0][field] instanceof Date) {#' +
-                                ' #:kendo.toString(selection[0][field], "G")#' +
-                            '#} else if(field == "extension") {#' +
-                                ' #: !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder"#' +
-                            '#} else {#' +
-                                ' #:selection[0][field]#' +
-                            '#}#' +
-                        '</dd>' +
-                        '<dd class="k-line-break"></dd>' +
-                    '# } #' +
-                '</dl>' +
-            '#}#' +
-        '</div>';
+            `<span class="${encode(styles.fileName)}">${encode(selection[0].name)}</span>`;
+        if (metaFields) {
+            result += `<dl class="${encode(styles.fileMeta)}">`;
+                for (var i = 0; i < metaFields.length; i += 1) {
+                    var field = metaFields[i];
+                    result +=
+                    `<dt class="${encode(styles.metaLabel)}">${encode(messages[field])}: </dt>` +
+                    `<dd class="${encode(styles.metaValue)} ${encode(styles[field])}">`;
+                    if (field == "size") {
+                        result += ` ${encode(kendo.getFileSizeMessage(selection[0][field]))}`;
+                    } else if (selection[0][field] instanceof Date) {
+                        result += ` ${encode(kendo.toString(selection[0][field], "G"))}`;
+                    } else if (field == "extension") {
+                        result += ` ${encode( !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder")}`;
+                    } else {
+                        result += ` ${encode(selection[0][field])}`;
+                    }
 
-    var MULTIPLE_FILES_PREVIEW_TEMPLATE = '' +
-        '<div class="#:styles.fileInfo#">' +
-            '<div class="#:styles.filePreview#">' +
+                    result += '</dd>' +
+                    '<dd class="k-line-break"></dd>';
+                }
+
+                result += '</dl>';
+        }
+
+        result += '</div>';
+        return result;
+    };
+
+    var MULTIPLE_FILES_PREVIEW_TEMPLATE = ({ styles, selection, messages }) =>
+        `<div class="${encode(styles.fileInfo)}">` +
+            `<div class="${encode(styles.filePreview)}">` +
                 '<span class="k-file-icon k-icon k-i-file"></span>' +
             '</div>' +
-            '<span class="#:styles.fileName#">' +
-                '#:selection.length# ' +
-                '#:messages.items#' +
+            `span class="${encode(styles.fileName)}">` +
+                `${encode(selection.length)} ` +
+                `${encode(messages.items)}` +
             '</span>' +
         '</div>';
 
@@ -181,6 +195,8 @@ var __meta__ = {
             that._initUploadDialog();
 
             that._resizable();
+
+            that._attachKeyDown();
 
             that.resize();
 
@@ -309,6 +325,92 @@ var __meta__ = {
             EXECUTE,
             COMMAND
         ],
+
+        defaultTools: {
+            createFolder: { type: "button", name: "createFolder", command: "CreateFolderCommand", rules: { remote: true } },
+            upload: { type: "button", name: "upload", command: "OpenDialogCommand", options: "{ \"type\": \"uploadDialog\" }", rules: { remote: true } },
+            sortDirection: {
+                type: "buttonGroup",
+                buttons: [
+                    { name: "sortDirectionAsc", showText: "overflow", icon: "sort-asc-sm", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"asc\" }", selected: true },
+                    { name: "sortDirectionDesc", showText: "overflow", icon: "sort-desc-sm", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"desc\" }" }
+                ]
+            },
+            sortField: {
+                type: "splitButton",
+                name: "sortField",
+                command: "SortCommand",
+                menuButtons: [
+                    { name: "nameField", options: "{\"field\": \"name\"}", command: "SortCommand" },
+                    { name: "typeField", options: "{\"field\": \"extension\"}", command: "SortCommand" },
+                    { name: "sizeField", options: "{\"field\": \"size\"}", command: "SortCommand" },
+                    { name: "dateCreatedField", options: "{\"field\": \"createdUtc\"}", command: "SortCommand" },
+                    { name: "dateModifiedField", options: "{\"field\": \"modifiedUtc\"}", command: "SortCommand" }
+                ]
+            },
+            changeView: {
+                type: "buttonGroup",
+                buttons: [
+                    { name: "gridView", showText: "overflow", icon: "grid-layout", togglable: true, group: "changeView", command: "ChangeViewCommand", options: "grid" },
+                    { name: "listView", showText: "overflow", icon: "grid", togglable: true, group: "changeView", command: "ChangeViewCommand", options: "list" }
+                ]
+            },
+            spacer: { type: "spacer" },
+            details: {
+                type: "component",
+                name: "details",
+                items: [{
+                    template: function(data) {
+                        return "<label for='details-toggle'>" + data.componentOptions.messages.text + "</label>";
+                    },
+                    overflow: "never",
+                    componentOptions: {
+                        messages: {
+                            text: "details"
+                        }
+                    }
+                },
+                {
+                    name: "details",
+                    command: "TogglePaneCommand",
+                    options: "{ \"type\": \"preview\" }",
+                    overflow: "never",
+                    element: "<input id='details-toggle' class='k-filemanager-details-toggle' />",
+                    component: "Switch",
+                    componentOptions: {
+                        messages: {
+                            checked: "detailsChecked",
+                            unchecked: "detailsUnchecked"
+                        },
+                        commandOn: "change"
+                    }
+                }]
+            },
+            search: {
+                type: "component",
+                name: "search",
+                command: "SearchCommand",
+                options: "{ \"field\": \"name\", \"operator\": \"startswith\" }",
+                overflow: "never",
+                component: "TextBox",
+                componentOptions: {
+                    placeholder: "Search",
+                    icon: "search",
+                    commandOn: "input"
+                }
+            }
+        },
+
+        _attachKeyDown: function() {
+            var that = this;
+
+            that.wrapper.on("keydown" + ns, (e) => {
+                if (e.keyCode === kendo.keys.F10) {
+                    e.preventDefault();
+                    that.toolbar.element.find("[tabindex=0]").first().trigger("focus");
+                }
+            });
+        },
 
         _dataSource: function() {
             var that = this,
@@ -450,7 +552,7 @@ var __meta__ = {
 
             that.content.append(that._initView());
 
-            if (!toolbar || !toolbar.isToolEnabled(toolbar.defaultTools.upload.name)) {
+            if (!toolbar || !that._isToolEnabled(that.defaultTools.upload.name)) {
                 that.content.append(that._initUpload().wrapper.hide());
             }
 
@@ -510,17 +612,88 @@ var __meta__ = {
             var that = this,
                 options = that.options,
                 toolbarElement = $("<div />").addClass(fileManagerStyles.toolbar),
-                toolbarOptions = extend({}, options.toolbar, {
-                    filemanager: this,
-                    messages: options.messages.toolbar,
-                    action: that.executeCommand.bind(that)
-                });
+                toolbarOptions = extend({}, options.toolbar),
+                tools = toolbarOptions.items ? toolbarOptions.items : Object.keys(that.defaultTools);
+
+            tools = that._processTools(tools);
+            toolbarOptions.tools = tools;
+            toolbarOptions.defaultTools = that.defaultTools;
+            toolbarOptions.parentMessages = that.options.messages.toolbar;
 
             that.header.append(toolbarElement);
+            that.toolbar = new kendo.ui.ToolBar(toolbarElement, toolbarOptions);
+            that.options.toolbar = that.toolbar.options;
 
-            that.toolbar = new ui.filemanager.ToolBar(toolbarElement, toolbarOptions);
+            that.toolbar.bind(TOGGLE, that._toolbarClick.bind(that));
+            that.toolbar.bind(CLOSE, that._toolbarClick.bind(that));
+            that.toolbar.bind(CLICK, that._toolbarClick.bind(that));
+            that.toolbar.bind(CHANGE, that._toolbarClick.bind(that));
 
             return that.toolbar;
+        },
+
+        _processTools: function(tools) {
+            var that = this;
+
+            tools.forEach(t => {
+                var rules = t.rules || that.defaultTools[t] ? that.defaultTools[t].rules : null;
+
+                if (rules && rules.remote && that.dataSource.isLocalBinding) {
+                    if (t.rules) {
+                        t.hidden = true;
+                    } else {
+                        that.defaultTools[t].hidden = true;
+                    }
+                }
+
+                if (t.name === "changeView") {
+                    that.defaultTools[t.name].buttons.forEach((b, i) => {
+                        if (b.options === that.options.initialView) {
+                            that.defaultTools[t.name].buttons[i].selected = true;
+                        }
+                    });
+                } else if (t.buttons && t.buttons[0].group === "changeView") {
+                    t.buttons.forEach((b, i) => {
+                        if (b.options === that.options.initialView) {
+                            t.buttons[i].selected = true;
+                        }
+                    });
+                }
+            });
+
+            return tools;
+        },
+
+        _toolbarClick: function(ev) {
+            var command = $(ev.target).data("command"),
+                options = $(ev.target).data("options");
+
+            options = extend({}, options, { value: $(ev.target).val() });
+
+            if (!command) {
+                return;
+            }
+
+            this.executeCommand({
+                command: command,
+                options: options
+            });
+        },
+
+        _isToolEnabled: function(toolName) {
+            var that = this,
+                options = that.options.toolbar,
+                items = options.items || that.defaultTools,
+                found = false;
+
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].name == toolName) {
+                    found = true;
+                    break;
+                }
+            }
+
+            return items[toolName] || found;
         },
 
         _initTreeView: function() {
@@ -699,8 +872,8 @@ var __meta__ = {
                     visible: false,
                     width: 500,
                     actions: [
-                        { text: dialogMessages.clear, action: that._clearUploadFilesList.bind(that) },
-                        { text: dialogMessages.done, primary: true }
+                        { text: () => dialogMessages.clear, action: that._clearUploadFilesList.bind(that) },
+                        { text: () => dialogMessages.done, primary: true }
                     ],
                     messages: dialogMessages
                 }, options.dialogs.upload),

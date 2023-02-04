@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -41,37 +41,37 @@ var __meta__ = {
     var MOUSELEAVE = "mouseleave";
     var KEYDOWN = "keydown";
     var DOT = ".";
-    var TIME_HEADER_TEMPLATE = kendo.template("#=kendo.toString(start, 't')#");
-    var DAY_HEADER_TEMPLATE = kendo.template("#=kendo.toString(start, 'ddd M/dd')#");
-    var WEEK_HEADER_TEMPLATE = kendo.template("#=kendo.toString(start, 'ddd M/dd')# - #=kendo.toString(kendo.date.addDays(end, -1), 'ddd M/dd')#");
-    var MONTH_HEADER_TEMPLATE = kendo.template("#=kendo.toString(start, 'MMM')#");
-    var YEAR_HEADER_TEMPLATE = kendo.template("#=kendo.toString(start, 'yyyy')#");
-    var RESIZE_HINT = kendo.template('<div class="#=styles.marquee#">' +
-                           '<div class="#=styles.marqueeColor#"></div>' +
-                       '</div>');
-    var RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper# k-gantt-resize-hint">' +
-                                   '<div class="#=styles.tooltipContent#">' +
-                                        '<div>#=messages.start#: #=kendo.toString(start, format)#</div>' +
-                                        '<div>#=messages.end#: #=kendo.toString(end, format)#</div>' +
+    var TIME_HEADER_TEMPLATE = ({ start }) => kendo.toString(start, 't');
+    var DAY_HEADER_TEMPLATE = ({ start }) => kendo.toString(start, 'ddd M/dd');
+    var WEEK_HEADER_TEMPLATE = ({ start, end }) => `${kendo.toString(start, 'ddd M/dd')} - ${kendo.toString(kendo.date.addDays(end, -1), 'ddd M/dd')}`;
+    var MONTH_HEADER_TEMPLATE = ({ start }) => kendo.toString(start, 'MMM');
+    var YEAR_HEADER_TEMPLATE = ({ start }) => kendo.toString(start, 'yyyy');
+    var RESIZE_HINT = ({ styles }) => `<div class="${styles.marquee}">` +
+                           `<div class="${styles.marqueeColor}"></div>` +
+                       '</div>';
+    var RESIZE_TOOLTIP_TEMPLATE = ({ styles, messages, start, end, format }) => `<div style="z-index: 100002;" class="${styles.tooltipWrapper} k-gantt-resize-hint">` +
+                                   `<div class="${styles.tooltipContent}">` +
+                                        `<div>${messages.start}: ${kendo.toString(start, format)}</div>` +
+                                        `<div>${messages.end}: ${kendo.toString(end, format)}</div>` +
                                    '</div>' +
-                              '</div>');
-    var PERCENT_RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper#" >' +
-                                   '<div class="#=styles.tooltipContent#">#=text#%</div>' +
-                                   '<div class="#=styles.tooltipCallout#" style="left:13px;"></div>' +
-                              '</div>');
-    var TASK_TOOLTIP_TEMPLATE = kendo.template('<div class="#=kendo.htmlEncode(styles.taskDetails)#">' +
-                                    '<strong>#=kendo.htmlEncode(task.title)#</strong>' +
-                                    '<div class="#=styles.taskDetailsPercent#">#=kendo.toString(task.percentComplete, "p0")#</div>' +
-                                    '<ul class="#=styles.reset#">' +
-                                        '<li>#=messages.start#: #=kendo.toString(task.start, "h:mm tt ddd, MMM d")#</li>' +
-                                        '<li>#=messages.end#: #=kendo.toString(task.end, "h:mm tt ddd, MMM d")#</li>' +
+                              '</div>';
+    var PERCENT_RESIZE_TOOLTIP_TEMPLATE = ({ styles, text }) => `<div style="z-index: 100002;" class="${styles.tooltipWrapper}" >` +
+                                   `<div class="${styles.tooltipContent}">${text}%</div>` +
+                                   `<div class="${styles.tooltipCallout}" style="left:13px;"></div>` +
+                              '</div>';
+    var TASK_TOOLTIP_TEMPLATE = ({ styles, task, messages }) => `<div class="${kendo.htmlEncode(styles.taskDetails)}">` +
+                                    `<strong>${kendo.htmlEncode(task.title)}</strong>` +
+                                    `<div class="${styles.taskDetailsPercent}">${kendo.toString(task.percentComplete, "p0")}</div>` +
+                                    `<ul class="${styles.reset}">` +
+                                        `<li>${messages.start}: ${kendo.toString(task.start, "h:mm tt ddd, MMM d")}</li>` +
+                                        `<li>${messages.end}: ${kendo.toString(task.end, "h:mm tt ddd, MMM d")}</li>` +
                                     '</ul>' +
-                                '</div>');
-    var OFFSET_TOOLTIP_TEMPLATE = kendo.template('<span>#=offsetPrefix#: #=offsetText#</span>');
-    var PLANNED_TOOLTIP_TEMPLATE = kendo.template('<div class="k-task-content">' +
-            '<div>#=plannedStart#: #=startDate#</div>' +
-            '<div>#=plannedEnd#: #=endDate#</div>' +
-        '</div>');
+                                '</div>';
+    var OFFSET_TOOLTIP_TEMPLATE = ({ offsetPrefix, offsetText }) => `<span>${offsetPrefix}: ${offsetText}</span>`;
+    var PLANNED_TOOLTIP_TEMPLATE = ({ plannedStart, plannedEnd, startDate, endDate }) => '<div class="k-task-content">' +
+            `<div>${plannedStart}: ${startDate}</div>` +
+            `<div>${plannedEnd}: ${endDate}</div>` +
+        '</div>';
     var SIZE_CALCULATION_TEMPLATE = "<table style='visibility: hidden;'>" +
         "<tbody>" +
             "<tr style='height:{0}'>" +
@@ -646,7 +646,7 @@ var __meta__ = {
 
                 if (editable && editable.resize !== false && editable.update !== false && !task.summary) {
                     if (editable.destroy !== false) {
-                        offsetElement.children.push(kendoDomElement("span", { className: styles.taskActions }, [
+                        offsetElement.children.push(kendoDomElement("span", { className: styles.taskActions, "aria-hidden": "true" }, [
                             kendoDomElement("a", { className: styles.link + " " + styles.taskDelete, href: "#", "aria-label": "Delete" }, [
                                 kendoDomElement("span", { className: styles.icon + " " + styles.iconDelete })
                             ])
@@ -743,7 +743,7 @@ var __meta__ = {
                 taskContent = kendoHtmlElement(this._taskTemplate(task));
             } else {
                 taskContent = kendoTextElement(task.title);
-                taskChildren.push(kendoDomElement("div", { className: styles.taskComplete, style: { width: progressWidth + "px" } }));
+                taskChildren.push(kendoDomElement("div", { className: styles.taskComplete, style: { width: progressWidth + "px" }, "aria-hidden": "true" }));
             }
 
             var content = kendoDomElement("div", { className: styles.taskContent }, [
@@ -756,7 +756,7 @@ var __meta__ = {
 
             if (editable) {
                 if (editable.destroy !== false && (!plannedPosition || !task.plannedEnd || (task.end <= task.plannedEnd || task.start >= task.plannedEnd))) {
-                    content.children.push(kendoDomElement("span", { className: styles.taskActions }, [
+                    content.children.push(kendoDomElement("span", { className: styles.taskActions, "aria-hidden": "true" }, [
                         kendoDomElement("a", { className: styles.link + " " + styles.taskDelete, href: "#", "aria-label": "Delete" }, [
                             kendoDomElement("span", { className: styles.icon + " " + styles.iconDelete })
                         ])
@@ -774,7 +774,7 @@ var __meta__ = {
             }
 
             var element = kendoDomElement("div", {
-                className: classes, "data-uid": task.uid, style:
+                className: classes, "data-uid": task.uid, role: "treeitem", style:
                     { width: Math.max((widthExceptDelay - position.borderWidth * 2), 0) + "px" }
             }, taskChildren);
 
@@ -792,7 +792,7 @@ var __meta__ = {
                 classes += " " + styles.taskAdvanced;
             }
 
-            return kendoDomElement("div", { className: classes, "data-uid": task.uid });
+            return kendoDomElement("div", { className: classes, "data-uid": task.uid, role: "treeitem", "aria-label": task.title });
         },
 
         _renderSummary: function(task, position, plannedPosition) {
@@ -817,7 +817,7 @@ var __meta__ = {
 
             progressWidth = Math.round(widthExceptDelay * task.percentComplete);
 
-            var element = kendoDomElement("div", { className: classes, "data-uid": task.uid, style: { width: widthExceptDelay + "px" } }, [
+            var element = kendoDomElement("div", { className: classes, "data-uid": task.uid, role: "treeitem", "aria-label": task.title, style: { width: widthExceptDelay + "px" } }, [
                 kendoDomElement("div", { className: styles.taskSummaryProgress, style: { width: progressWidth + "px" } }, [
                     kendoDomElement("div", { className: styles.taskSummaryComplete, style: { width: position.width + "px" } })
                 ])
@@ -2337,7 +2337,7 @@ var __meta__ = {
             this.wrapper = this.element
                 .addClass(styles.wrapper)
                 .append("<div class='" + styles.gridHeader + "'><div class='" + styles.gridHeaderWrap + "'></div></div>")
-                .append("<div class='" + styles.gridContentWrap + "'><div class='" + styles.tasksWrapper + "'></div><div class='" + styles.dependenciesWrapper + "'></div></div>");
+                .append("<div role='tree' class='" + styles.gridContentWrap + "'><div class='" + styles.tasksWrapper + "'></div><div class='" + styles.dependenciesWrapper + "'></div></div>");
 
             if (options.rowHeight) {
                 this._calculatedSize = calculateSize();

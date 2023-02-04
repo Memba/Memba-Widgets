@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -55,10 +55,10 @@ var __meta__ = {
     };
 
     var templates = {
-        item: template("<span class='" + bottomNavigationStyles.item + "'></span>"),
-        anchor: template("<a class='" + bottomNavigationStyles.item + "' href='#:url#'></a>"),
-        text: template("<span class='" + bottomNavigationStyles.text + "'>#=text#</span>"),
-        icon: template("<span class='" + bottomNavigationStyles.navIcon + "#if(icon){# k-icon k-i-#:icon# #}#'></span>")
+        item: template(() => `<span class="${bottomNavigationStyles.item}"></span>`),
+        anchor: template(({ url }) => `<a class="${bottomNavigationStyles.item}"  href="${kendo.htmlEncode(url)}"></a>`),
+        text: template(({ text }) => `<span class="${bottomNavigationStyles.text}" >${text}</span>`),
+        icon: template(({ icon }) => `<span class="${bottomNavigationStyles.navIcon} ${icon ? `k-icon k-i-${icon}` : ''}"></span>`)
     };
 
     var BottomNavigation = Widget.extend({

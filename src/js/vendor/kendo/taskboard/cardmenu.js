@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -13,6 +13,7 @@ import "../kendo.menu.js";
         extend = $.extend,
         template = kendo.template,
         ContextMenu = kendo.ui.ContextMenu,
+        encode = kendo.htmlEncode,
 
         ACTION = "action";
 
@@ -31,7 +32,7 @@ import "../kendo.menu.js";
         },
 
         _overrideTemplates: function() {
-            this.templates.sprite = template("#if(spriteCssClass) {#<span class='#: spriteCssClass #'></span>#}#");
+            this.templates.sprite = ({ spriteCssClass }) => `${spriteCssClass ? '<span class="' + encode(spriteCssClass) + '"></span>' : ''}`;
         },
 
         defaultItems: {

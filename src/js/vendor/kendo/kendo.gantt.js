@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -53,30 +53,24 @@ var __meta__ = {
         DOT = ".",
         TASK_DELETE_CONFIRM = "Are you sure you want to delete this task?",
         DEPENDENCY_DELETE_CONFIRM = "Are you sure you want to delete this dependency?",
-        TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-gantt-toggle" type="button" ' + ARIA_LABEL + '="Toggle"><span class="k-button-icon #=styles.iconToggle#"></span></button>'),
-        BUTTON_TEMPLATE = '<button aria-label="#=text#" class="#=styles.button# #=styles.buttonDefaults# #=className#" type="button" ' +
-            '#if (action) {#' +
-                'data-action="#=action#"' +
-            '#}#' +
+        TOGGLE_BUTTON_TEMPLATE = ({ styles }) => `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-gantt-toggle" type="button" ${ARIA_LABEL}="Toggle"><span class="k-button-icon ${styles.iconToggle}"></span></button>`,
+        BUTTON_TEMPLATE = ({ text, styles, className, action, iconClass }) => `<button aria-label="${text}" class="${styles.button} ${styles.buttonDefaults} ${className}" type="button" ` +
+            `${action ? 'data-action="' + action + '"' : ''}` +
         '>' +
-            '<span class="k-button-icon #=iconClass#"></span>' +
-            '<span class="k-button-text">#=text#</span>' +
+            `<span class="k-button-icon ${iconClass}"></span>` +
+            `<span class="k-button-text">${text}</span>` +
         '</button>',
-        COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#"><span class="k-button-text">#=text#</span></a>',
-        VIEWS_DROPDOWN_TEMPLATE = kendo.template('<select aria-label="#= label #" class="k-dropdown k-picker k-dropdown-list #= styles.viewsDropdown #">' +
-            '#for(var view in views){#' +
-                '<option value="#=view#">#=views[view].title#</option>' +
-            '#}#' +
-        '</select>'),
-        HEADER_VIEWS_TEMPLATE = kendo.template('<div class="#=styles.viewsWrapper#">' +
-            '<span class="k-button-group #=styles.views#">' +
-                '#for(var view in views){#' +
-                    '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#">' +
-                        '<span class="k-button-text">#=views[view].title#</span>' +
-                    '</button>' +
-                '#}#' +
+        COMMAND_BUTTON_TEMPLATE = ({ className, attr, text }) => `<a class="${className}" ${attr} href="#"><span class="k-button-text">${text}</span></a>`,
+        VIEWS_DROPDOWN_TEMPLATE = ({ label, styles, views }) => `<select aria-label="${label}" class="k-dropdown k-picker k-dropdown-list ${styles.viewsDropdown}">` +
+            `${Object.keys(views).map(view => '<option value="' + view + '">' + views[view].title + '</option>').join("")}` +
+        '</select>',
+        HEADER_VIEWS_TEMPLATE = ({ styles, views, ns }) => `<div class="${styles.viewsWrapper}">` +
+            `<span class="k-button-group ${styles.views}">` +
+                `${Object.keys(views).map(view => '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-' + view.toLowerCase() + '" data-' + ns + 'name="' + view + '">' +
+                    '<span class="k-button-text">' + views[view].title + '</span>' +
+                '</button>').join("")}` +
             '</span>' +
-        '</div>');
+        '</div>';
 
     var ganttStyles = {
         wrapper: "k-widget k-gantt",
@@ -389,7 +383,7 @@ var __meta__ = {
 
         clearSelection: function() {
             this.list.clearSelection();
-            this.list.trigger("change");
+            this._selectionUpdate();
         },
 
         destroy: function() {
@@ -504,7 +498,7 @@ var __meta__ = {
             var height = options.height;
             var width = options.width;
 
-            this.wrapper = this.element.addClass(ganttStyles.wrapper);
+            this.wrapper = this.element.addClass(ganttStyles.wrapper).attr("role", "application");
             this.layout = $("<div class='" + ganttStyles.content + "' />").appendTo(this.wrapper)
                 .append("<div class='" + ganttStyles.listWrapper + "'><div></div></div>")
                 .append("<div class='" + ganttStyles.splitBarWrapper + "'><div class='" + splitBarHandleClassName + "'></div></div>")
@@ -718,7 +712,7 @@ var __meta__ = {
                 if (editable && editable.create !== false) {
                     actions = ["append"];
                 } else {
-                    return html;
+                    return () => html;
                 }
             }
 
@@ -733,7 +727,7 @@ var __meta__ = {
                 html += this._createButton(action);
             }
 
-            return html;
+            return () => html;
         },
 
         _footer: function() {
@@ -746,7 +740,7 @@ var __meta__ = {
             var ganttStyles = Gantt.styles.toolbar;
             var messages = this.options.messages.actions;
             var button = $(kendo.template(BUTTON_TEMPLATE)(extend(true, { styles: ganttStyles }, defaultCommands.append, { text: messages.append })));
-            var footer = $("<div class='" + ganttStyles.footerWrapper + "'>").append(button);
+            var footer = $("<div role='toolbar' class='" + ganttStyles.footerWrapper + "'>").append(button);
 
             this.wrapper.append(footer);
             this.footer = footer;
@@ -1296,13 +1290,22 @@ var __meta__ = {
                     that._createDependency(dependency);
                 })
                 .bind("select", function(e) {
-                    var editable = that.list.editor;
+                    var editable = that.list.editor,
+                        current = that.select(),
+                        currentUid;
 
                     if (editable) {
                         editable.end();
                     }
 
-                    that.select("[data-uid='" + e.uid + "']");
+                    if (current && current.length) {
+                        currentUid = current.data("uid");
+                    }
+
+                    if (currentUid !== e.uid) {
+                        that.select("[data-uid='" + e.uid + "']");
+                        that.trigger("change");
+                    }
                 })
                 .bind("editTask", function(e) {
                     var editable = that.list.editor;
@@ -1315,6 +1318,7 @@ var __meta__ = {
                 })
                 .bind("clear", function() {
                     that.clearSelection();
+                    that.trigger("change");
                 })
                 .bind("removeTask", function(e) {
                     var editable = that.list.editor;
@@ -1913,6 +1917,7 @@ var __meta__ = {
             var current;
             var cachedUid;
             var cachedIndex = -1;
+            var selected = this.select()[0] ? this.select().data("uid") : this._selected;
 
             if (this.current) {
                 cachedUid = this.current.closest("tr").attr(kendo.attr("uid"));
@@ -1949,6 +1954,11 @@ var __meta__ = {
             }
 
             this._scrollToUid = null;
+
+            if (selected) {
+                this._selected = selected;
+                this.select("[data-uid=" + selected + "]");
+            }
 
             this.trigger("dataBound");
         },
@@ -2192,18 +2202,18 @@ var __meta__ = {
                 var index = that.current.index();
                 var sibling = parent[method]('tr:visible').first();
 
-                if (that.select().length !== 0) {
-                    that.clearSelection();
-                }
-
                 if (sibling.length !== 0) {
                     that._current(sibling.children("td").eq(index));
                     that._scrollTo(that.current);
                 } else {
                     if (that.current.is("td") && method == "prevAll") {
                         focusTable(headerTable);
+                        that._current(headerTable.find("tr").last().children("th").eq(index));
+                        that._scrollTo(that.current);
                     } else if (that.current.is("th") && method == "nextAll") {
                         focusTable(contentTable);
+                        that._current(contentTable.find("tr").first().children("td").eq(index));
+                        that._scrollTo(that.current);
                     }
                 }
             };
@@ -2373,7 +2383,10 @@ var __meta__ = {
                         case keys.SPACEBAR:
                             e.preventDefault();
                             if (isCell) {
-                                that.select(that.current.closest("tr"));
+                                if (!that.select() || that.current.closest("tr")[0] !== that.select()[0]) {
+                                    that.select(that.current.closest("tr"));
+                                    that.trigger("change");
+                                }
                             }
                             break;
                         case keys.ENTER:

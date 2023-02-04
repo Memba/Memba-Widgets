@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -24,6 +24,7 @@ var __meta__ = {
 
 (function($, undefined) {
     var kendo = window.kendo,
+        encode = kendo.htmlEncode,
         DataBoundWidget = kendo.ui.DataBoundWidget,
         OrgChartDataSource = kendo.data.OrgChartDataSource,
         ContextMenu = kendo.ui.ContextMenu,
@@ -89,34 +90,56 @@ var __meta__ = {
     };
 
     var MENU_ITEMS = {
-        edit: "<li data-action='edit'>#: edit #</li>",
-        create: "<li data-action='create'>#: create #</li>",
-        destroy: "<li data-action='destroy'>#: destroy #</li>"
+        edit: ({ edit }) => `<li data-action='edit'>${encode(edit)}</li>`,
+        create: ({ create }) => `<li data-action='create'>${encode(create)}</li>`,
+        destroy: ({ destroy }) => `<li data-action='destroy'>${encode(destroy)}</li>`
     };
 
-    var GROUP_HEADER_TEMPLATE = '<div>' +
-        '<div class="k-orgchart-node-group-title">#: value #</div>' +
-        '<div class="k-orgchart-node-group-subtitle">#: field #</div>' +
+    var MENU_TEMPLATE = (messages, editable) => {
+        var result = "<ul>";
+
+        if (editable === true) {
+            result += MENU_ITEMS.edit(messages);
+            result += MENU_ITEMS.create(messages);
+            result += MENU_ITEMS.destroy(messages);
+        } else {
+            if (editable.fields || editable.parent) {
+                result += MENU_ITEMS.edit(messages);
+            }
+            if (editable.create) {
+                result += MENU_ITEMS.create(messages);
+            }
+            if (editable.destroy) {
+                result += MENU_ITEMS.destroy(messages);
+            }
+        }
+
+        return result;
+    };
+
+    var GROUP_HEADER_TEMPLATE = ({ value, field }) => '<div>' +
+        `<div class="k-orgchart-node-group-title">${encode(value)}</div>` +
+        `<div class="k-orgchart-node-group-subtitle">${encode(field)}</div>` +
     '</div>';
 
-    var AVATAR_PREVIEW_TEMPLATE = '<div class="k-orgchart-avatar-preview k-hstack k-align-items-center k-pb-lg">' +
+    var AVATAR_PREVIEW_TEMPLATE = ({ avatar, name, destroy, fileName }) => '<div class="k-orgchart-avatar-preview k-hstack k-align-items-center k-pb-lg">' +
         '<div class="k-avatar k-avatar-solid-primary k-avatar-solid k-avatar-lg k-rounded-full">' +
             '<span class="k-avatar-image">' +
-                '<img src="#: avatar #" alt="#: name #">' +
+                `<img src="${encode(avatar)}" alt="${encode(name)}">` +
             '</span>' +
         '</div>' +
-        '<div class="k-px-md">#: fileName #</div>' +
-        '<button class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button" aria-label="#: destroy #">' +
+        `<div class="k-px-md">${encode(fileName)}</div>` +
+        `<button class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button" aria-label="${encode(destroy)}">` +
             '<span class="k-button-icon k-icon k-i-delete"></span>' +
         '</button>' +
     '</div>';
 
-    var EDITOR_BUTTONS_TEMPLATE = '<div class="k-edit-buttons">' +
+    var EDITOR_BUTTONS_TEMPLATE = ({ cancel, save }) => '<div class="k-edit-buttons">' +
         '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-orgchart-cancel">' +
-            '<span class="k-button-text">#: cancel #</span>' +
+            `<span class="k-button-text">${encode(cancel)}</span>` +
         '</button>' +
         '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-orgchart-update">' +
-            '<span class="k-button-text">#: save #</span>' +
+            `<span class="k-button-text">${encode(save)}</span>` +
         '</button>' +
     '</div>';
 
@@ -156,7 +179,7 @@ var __meta__ = {
                 destroy: true,
                 fields: true,
                 form: {
-                    buttonsTemplate: "",
+                    buttonsTemplate: () => "",
                     orientation: "vertical"
                 },
                 parent: true
@@ -386,25 +409,7 @@ var __meta__ = {
             if (editable === true ||
                 (editable !== false &&
                     (editable.create || editable.destroy || editable.fields || editable.parent))) {
-                        menuElement = "<ul>";
-
-                        if (editable === true) {
-                            menuElement += MENU_ITEMS.edit;
-                            menuElement += MENU_ITEMS.create;
-                            menuElement += MENU_ITEMS.destroy;
-                        } else {
-                            if (editable.fields || editable.parent) {
-                                menuElement += MENU_ITEMS.edit;
-                            }
-                            if (editable.create) {
-                                menuElement += MENU_ITEMS.create;
-                            }
-                            if (editable.destroy) {
-                                menuElement += MENU_ITEMS.destroy;
-                            }
-                        }
-
-                        menuElement = kendo.template(menuElement)(messages);
+                        menuElement = MENU_TEMPLATE(messages, editable);
 
                         this._menu = new ContextMenu(menuElement, menuOptions);
                     }

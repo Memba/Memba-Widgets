@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -14106,9 +14106,9 @@ var Chart = Class.extend({
             this._hoveredPoint = null;
         }
 
-        if (this._plotArea.hovered) {
+        if (this._plotAreaHovered) {
+            this._plotAreaHovered = false;
             this.trigger(PLOT_AREA_LEAVE);
-            this._plotArea.hovered = false;
         }
     },
 
@@ -14538,33 +14538,7 @@ var Chart = Class.extend({
             return (element.hover || element.over) && !(element instanceof PlotAreaBase);
         });
 
-        var activePoint = this._activePoint;
-        var multipleSeries = this._plotArea.series.length > 1;
-        var hasInactiveOpacity = this._hasInactiveOpacity();
-
-        this._updateHoveredPoint(point, e);
-
-        if (point && activePoint !== point && point.hover) {
-            this._activePoint = point;
-
-            if (!this._sharedTooltip() && !point.hover(this, e)) {
-                this._displayTooltip(point);
-
-                if (hasInactiveOpacity) {
-                    this._displayInactiveOpacity(point, multipleSeries);
-                } else {
-                    this._highlight.show(point);
-                }
-            }
-        } else if (!point && hasInactiveOpacity) {
-            if (multipleSeries && this._activeChartInstance) {
-                this._updateSeriesOpacity(point, true);
-                this._applySeriesOpacity(this._activeChartInstance.children, null, true);
-                this._activeChartInstance = null;
-            }
-            this._highlight && this._highlight.hide();
-            this._activePoint = null;
-        }
+        this._showInactiveOpacity(point, e);
 
         return point;
     },
@@ -14700,6 +14674,44 @@ var Chart = Class.extend({
         return chartInstance;
     },
 
+    _showInactiveOpacity: function(point, e) {
+        var activePoint = this._activePoint;
+        var multipleSeries = this._plotArea.series.length > 1;
+        var hasInactiveOpacity = this._hasInactiveOpacity();
+
+        this._updateHoveredPoint(point, e);
+
+        if (point && activePoint !== point && point.hover) {
+            this._activePoint = point;
+
+            if (!this._sharedTooltip() && !point.hover(this, e)) {
+                this._displayTooltip(point);
+
+                if (hasInactiveOpacity) {
+                    this._displayInactiveOpacity(point, multipleSeries);
+                } else {
+                    this._highlight.show(point);
+                }
+            }
+        }
+
+        return point;
+    },
+
+    _hideInactiveOpacity: function(point) {
+        var multipleSeries = this._plotArea.series.length > 1;
+        var hasInactiveOpacity = this._hasInactiveOpacity();
+        if (hasInactiveOpacity) {
+            if (multipleSeries && this._activeChartInstance) {
+                this._updateSeriesOpacity(point, true);
+                this._applySeriesOpacity(this._activeChartInstance.children, null, true);
+                this._activeChartInstance = null;
+            }
+            this._highlight && this._highlight.hide();
+            this._activePoint = null;
+        }
+    },
+
     _hasInactiveOpacity: function() {
         var hasDefaultInactiveOpacity = this.options.seriesDefaults.highlight.inactiveOpacity !== undefined;
         var hasInactiveOpacity = this.options.series.filter(function (s) { return s.highlight.inactiveOpacity !== undefined; } ).length > 0;
@@ -14755,6 +14767,8 @@ var Chart = Class.extend({
             unbindEvents(document, ( obj = {}, obj[ MOUSEMOVE ] = this._mouseMoveTrackHandler, obj ));
             this._unsetActivePoint();
             this._mouseMoveTrackHandler = null;
+
+            this._hideInactiveOpacity(point);
         }
     },
 
@@ -14767,11 +14781,11 @@ var Chart = Class.extend({
         if (plotArea.hover) {
             var overPlotArea = plotArea.backgroundContainsPoint(coords);
             if (overPlotArea) {
-                plotArea.hovered = true;
+                this._plotAreaHovered = true;
                 this._plotArea.hover(this, e);
-            } else if (plotArea.hovered && !overPlotArea) {
+            } else if (this._plotAreaHovered && !overPlotArea) {
+                this._plotAreaHovered = false;
                 this.trigger(PLOT_AREA_LEAVE);
-                plotArea.hovered = false;
             }
         }
 

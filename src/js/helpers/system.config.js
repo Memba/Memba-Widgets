@@ -30,6 +30,8 @@ SystemJS.config({
         'kendo.chat': 'src/js/vendor/kendo/kendo.chat.js',
         'kendo.checkbox': 'src/js/vendor/kendo/kendo.checkbox.js',
         'kendo.checkboxgroup': 'src/js/vendor/kendo/kendo.checkboxgroup.js',
+        'kendo.chip': 'src/js/vendor/kendo/kendo.chip.js',
+        'kendo.chiplist': 'src/js/vendor/kendo/kendo.chiplist.js',
         'kendo.circularprogressbar':
             'src/js/vendor/kendo/kendo.circularprogressbar.js',
         'kendo.color': 'src/js/vendor/kendo/kendo.color.js',
@@ -195,6 +197,7 @@ SystemJS.config({
         'kendo.timepicker': 'src/js/vendor/kendo/kendo.timepicker.js',
         'kendo.timeselector': 'src/js/vendor/kendo/kendo.timeselector.js',
         'kendo.timezones': 'src/js/vendor/kendo/kendo.timezones.js',
+        'kendo.togglebutton': 'src/js/vendor/kendo/kendo.togglebutton.js',
         'kendo.toggleinputbase': 'src/js/vendor/kendo/kendo.toggleinputbase.js',
         'kendo.toolbar': 'src/js/vendor/kendo/kendo.toolbar.js',
         'kendo.tooltip': 'src/js/vendor/kendo/kendo.tooltip.js',

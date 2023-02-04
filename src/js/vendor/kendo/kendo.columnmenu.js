@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -21,6 +21,7 @@ var __meta__ = {
 
 (function($, undefined) {
     var kendo = window.kendo,
+        encode = kendo.htmlEncode,
         ui = kendo.ui,
         extend = $.extend,
         grep = $.grep,
@@ -1322,215 +1323,200 @@ var __meta__ = {
         }
     });
 
-    var modernTemplate = '#if(sortable){#' +
-                                '<div class="k-columnmenu-item-wrapper">' +
-                                    '<div>' +
-                                        '<div class="k-columnmenu-item k-sort-asc" tabindex="0">' +
-                                            '<span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}' +
-                                        '</div>' +
-                                    '</div>' +
-                                    '<div>' +
-                                        '<div class="k-columnmenu-item k-sort-desc" tabindex="0">' +
-                                            '<span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</div>' +
-                            '#}#' +
-                            '#if(showColumns){#' +
-                                '<div class="k-columnmenu-item-wrapper">' +
-                                    '<div>' +
-                                        '<div class="k-columnmenu-item-content k-columns-item">' +
-                                            '<div class="k-column-list-wrapper">' +
-                                                '<div class="k-column-list" role="menu">' +
-                                                '#for (var idx = 0; idx < columns.length; idx++) {#' +
-                                                    '#if(columns[idx].groupHeader){#' +
-                                                        '<span class="k-column-menu-group-header"><span class="k-column-menu-group-header-text">#=columns[idx].title#</span></span>' +
-                                                    '#} else {#' +
-                                                        '<label class="k-column-list-item" role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input class="k-checkbox k-checkbox-md k-rounded-md" type="checkbox" title="#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/\"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/><span class="k-checkbox-label"> #=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#</span></label>' +
-                                                    '#}#' +
-                                                '#}#' +
-                                                '</div>' +
-                                            '</div>' +
-                                            '<div class="k-columnmenu-actions">' +
-                                                '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" type="button">${messages.reset}</button>' +
-                                                '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" type="button">${messages.apply}</button>' +
-                                            '</div>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</div>' +
-                            '#}#' +
-                            '#if(filterable){#' +
-                                '<div class="k-columnmenu-item-wrapper">' +
-                                    '<div class="k-columnmenu-item-content k-column-menu-filter">' +
-                                        '<div class="k-filterable"></div>' +
-                                    '</div>' +
-                                '</div>' +
-                            '#}#' +
-                            '#if(hasLockableColumns || hasStickableColumns){#' +
-                                '<div class="k-columnmenu-item-wrapper">' +
-                                    '<div class="k-column-menu-position">' +
-                                        '#if(hasLockableColumns){#' +
-                                            '<div class="k-columnmenu-item k-lock" tabindex="0">' +
-                                                '<span class="k-icon k-i-lock"></span>${messages.lock}' +
-                                            '</div>' +
-                                            '<div class="k-columnmenu-item k-unlock" tabindex="0">' +
-                                                '<span class="k-icon k-i-unlock"></span>${messages.unlock}' +
-                                            '</div>' +
-                                        '#}#' +
-                                        '#if(hasStickableColumns){#' +
-                                            '<div class="k-columnmenu-item k-stick" tabindex="0">' +
-                                                '<span class="k-icon k-i-stick"></span>${messages.stick}' +
-                                            '</div>' +
-                                            '<div class="k-columnmenu-item k-unstick" tabindex="0">' +
-                                                '<span class="k-icon k-i-unstick"></span>${messages.unstick}' +
-                                            '</div>' +
-                                        '#}#' +
-                                    '</div>' +
-                                '</div>' +
-                            '#}#';
+    /* ------------------------- MODERN TEMPLATE ------------------------- */
 
-    var template = '<ul id="#=uid#">' +
-                          '#if(sortable){#' +
-                              '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-menu-link-text">${messages.sortAscending}</span></span></li>' +
-                              '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-menu-link-text">${messages.sortDescending}</span></span></li>' +
-                              '#if(showColumns || filterable){#' +
-                                  '<li class="k-separator k-menu-separator" role="presentation"></li>' +
-                              '#}#' +
-                          '#}#' +
-                          '#if(showColumns){#' +
-                              '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span><span class="k-menu-link-text">${messages.columns}</span></span><ul>' +
-                              '#for (var idx = 0; idx < columns.length; idx++) {#' +
-                                  '#if(columns[idx].groupHeader){#' +
-                                      '<li class="k-column-menu-group-header" #=omitWrapAttribute#="true" ><span class="k-column-menu-group-header-text">#=columns[idx].title#</span></li>' +
-                                  '#} else {#' +
-                                      '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" title="#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/\"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/>#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#</li>' +
-                                  '#}#' +
-                              '#}#' +
-                              '</ul></li>' +
-                              '#if(filterable || hasLockableColumns || hasStickableColumns){#' +
-                                  '<li class="k-separator k-menu-separator" role="presentation"></li>' +
-                              '#}#' +
-                          '#}#' +
-                          '#if(filterable){#' +
-                              '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span><span class="k-menu-link-text">${messages.filter}</span></span><ul>' +
-                                  '<li><div class="k-filterable"></div></li>' +
-                              '</ul></li>' +
-                              '#if(hasLockableColumns || hasStickableColumns){#' +
-                                  '<li class="k-separator k-menu-separator" role="presentation"></li>' +
-                              '#}#' +
-                          '#}#' +
-                          '#if(hasLockableColumns || hasStickableColumns){#' +
-                              '<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span><span class="k-menu-link-text">${messages.setColumnPosition}</span></span><ul>' +
-                                  '#if(hasLockableColumns){#' +
-                                      '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span><span class="k-menu-link-text">${messages.lock}</span></span></li>' +
-                                      '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span><span class="k-menu-link-text">${messages.unlock}</span></span></li>' +
-                                      '#if(hasStickableColumns){#' +
-                                          '<li class="k-separator k-menu-separator" role="presentation"></li>' +
-                                      '#}#' +
-                                  '#}#' +
-                                  '#if(hasStickableColumns){#' +
-                                      '<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span><span class="k-menu-link-text">${messages.stick}</span></span></li>' +
-                                      '<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span><span class="k-menu-link-text">${messages.unstick}</span></span></li>' +
-                                  '#}#' +
-                              '</ul></li>' +
-                          '#}#' +
-                    '</ul>';
+    function modernColumnsTemplateIterator(columns, encodeTitles, ns) {
+        return columns.map((column) => {
+            if (column.groupHeader) {
+                return `<span class="k-column-menu-group-header"><span class="k-column-menu-group-header-text">${column.title}</span></span>`;
+            } else {
+                return `<label class="k-column-list-item" role="menuitemcheckbox" aria-checked="false" ${column.matchesMedia === false ? "style=\'display:none;\'" : ""}><input class="k-checkbox k-checkbox-md k-rounded-md" type="checkbox" title="${encodeTitles ? encode(column.title) : column.title}" data-${ns}field="${column.field.replace(/\"/g, "&#34;")}" data-${ns}index="${column.index} data-${ns}locked="${column.locked}" data-${ns}uid="${column.uid}" /><span class="k-checkbox-label">${encodeTitles ? encode(column.title) : column.title}</span></label>`;
+            }
+        }).join("");
+    }
 
-    var mobileTemplate =
-            '<div data-#=ns#role="view" class="k-grid-column-menu">' +
-                '<div data-#=ns#role="header" class="k-header">' +
-                    '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' +
-                    'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' +
-                    '${messages.settings}' +
-                    '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' +
-                    'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' +
-                '</div>' +
-                '<div class="k-column-menu">' +
-                    '<ul class="k-reset">' +
-                        '<li>' +
-                            '<span class="k-list-title">#=messages.column#: ${title}</span>' +
-                            '<ul class="k-listgroup k-listgroup-flush k-mb-4">' +
-                                '#if(sortable){#' +
-                                    '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>' +
-                                    '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>' +
-                                '#}#' +
-                                '#if(hasLockableColumns){#' +
-                                    '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>' +
-                                    '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>' +
-                                '#}#' +
-                                '#if(hasStickableColumns){#' +
-                                    '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-stick"><span class="k-link"><span class="k-icon k-i-stick"></span><span class="k-item-title">${messages.stick}</span></span></li>' +
-                                    '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unstick"><span class="k-link"><span class="k-icon k-i-unstick"></span><span class="k-item-title">${messages.unstick}</span></span></li>' +
-                                '#}#' +
-                                '#if(filterable){#' +
-                                    '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-filter-item">' +
-                                        '<span class="k-link k-filterable">' +
-                                            '<span class="k-icon k-i-filter"></span>' +
-                                            '<span class="k-item-title">${messages.filter}</span>' +
-                                            '<span class="k-select"><span class="k-icon k-i-arrow-chevron-right"></span></span>' +
-                                        '</span>' +
-                                    '</li>' +
-                                '#}#' +
-                            '</ul>' +
-                        '</li>' +
-                        '#if(showColumns){#' +
-                            '<li class="k-columns-item"><span class="k-list-title">${messages.columnVisibility}</span>' +
-                                '#if(hasGroups){#' +
-                                    '#for (var i = 0; i < groups.length; i++) {#' +
-                                        '<span class="k-list-group-header k-pb-1">#:groups[i].title#</span>' +
-                                        '<ul class="k-listgroup k-listgroup-flush k-mb-4">' +
-                                            '#for (var idx = 0; idx < groups[i].columns.length; idx++) {#' +
-                                                '<li id="#=kendo.guid()#" class="k-item k-listgroup-item">' +
-                                                    '<span class="k-listgroup-form-row">' +
-                                                        '<span class="k-listgroup-form-field-label k-item-title">' +
-                                                            '#=groups[i].columns[idx].title#' +
-                                                        '</span>' +
-                                                        '<span class="k-listgroup-form-field-wrapper">' +
-                                                            '<input type="checkbox" title="#=groups[i].columns[idx].title#" ' +
-                                                                ' data-#=ns#field="#=groups[i].columns[idx].field.replace(/\"/g,"&\\#34;")#"' +
-                                                                ' data-#=ns#index="#=groups[i].columns[idx].index#"' +
-                                                                ' data-#=ns#uid="#=groups[i].columns[idx].uid#"' +
-                                                                ' data-#=ns#locked="#=groups[i].columns[idx].locked#" />' +
-                                                        '</span>' +
-                                                    '</span>' +
-                                                '</li>' +
-                                            '#}#' +
-                                        '</ul>' +
-                                    '#}#' +
-                                '#} else {#' +
-                                    '<ul class="k-listgroup k-listgroup-flush k-mb-4">' +
-                                    '#for (var idx = 0; idx < columns.length; idx++) {#' +
-                                        '<li id="#=kendo.guid()#" class="k-item k-listgroup-item">' +
-                                            '<span class="k-listgroup-form-row">' +
-                                                '<span class="k-listgroup-form-field-label k-item-title">' +
-                                                    '#=columns[idx].title#' +
-                                                '</span>' +
-                                                '<span class="k-listgroup-form-field-wrapper">' +
-                                                    '<input type="checkbox" title="#=columns[idx].title#" ' +
-                                                        ' data-#=ns#field="#=columns[idx].field.replace(/\"/g,"&\\#34;")#"' +
-                                                        ' data-#=ns#index="#=columns[idx].index#"' +
-                                                        ' data-#=ns#uid="#=columns[idx].uid#"' +
-                                                        ' data-#=ns#locked="#=columns[idx].locked#" />' +
-                                                '</span>' +
-                                            '</span>' +
-                                        '</li>' +
-                                    '#}#' +
-                                    '</ul>' +
-                                '#}#' +
-                            '</li>' +
-                        '#}#' +
-                        '<li class="k-item k-clear-wrap">' +
-                            '<ul class="k-listgroup k-listgroup-flush">' +
-                                '<li class="k-listgroup-item">' +
-                                    '<span class="k-link k-label k-clear" title="#=messages.clear#" aria-label="#=messages.clear#">' +
-                                        '#=messages.clear#' +
-                                    '</span>' +
-                                '</li>' +
-                            '</ul>' +
-                        '</li>' +
-                    '</ul>' +
-                '</div>' +
-            '</div>';
+    const SORTABLE_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
+<div>\
+<div class="k-columnmenu-item k-sort-asc" tabindex="0">\
+<span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}\
+</div>\
+</div>\
+<div>\
+<div class="k-columnmenu-item k-sort-desc" tabindex="0">\
+<span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}\
+</div>\
+</div>\
+</div>`;
+
+    const COLUMNS_PARTIAL_MODERN = ({ columns, messages, encodeTitles, ns }) => `<div class="k-columnmenu-item-wrapper">\
+<div>\
+<div class="k-columnmenu-item-content k-columns-item">\
+<div class="k-column-list-wrapper">\
+<div class="k-column-list" role="menu">\
+${modernColumnsTemplateIterator(columns, encodeTitles, ns)}\
+</div>\
+</div>\
+<div class="k-columnmenu-actions">\
+<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" type="button">${messages.reset}</button>\
+<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" type="button">${messages.apply}</button>\
+</div>\
+</div>\
+</div>\
+</div>`;
+
+    const LOCKABLE_COLUMNS_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item k-lock" tabindex="0">\
+<span class="k-icon k-i-lock"></span>${messages.lock}\
+</div>\
+<div class="k-columnmenu-item k-unlock" tabindex="0">\
+<span class="k-icon k-i-unlock"></span>${messages.unlock}\
+</div>`;
+
+    const STICKABLE_COLUMNS_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item k-stick" tabindex="0">\
+<span class="k-icon k-i-stick"></span>${messages.stick}\
+</div>\
+<div class="k-columnmenu-item k-unstick" tabindex="0">\
+<span class="k-icon k-i-unstick"></span>${messages.unstick}\
+</div>`;
+
+    const LOCK_STICK_COLUMNS_PARTIAL_MODERN = ({ hasLockableColumns, hasStickableColumns, messages }) => `<div class="k-columnmenu-item-wrapper">\
+<div class="k-column-menu-position">\
+${hasLockableColumns ? LOCKABLE_COLUMNS_PARTIAL_MODERN({ messages }) : ''}\
+${hasStickableColumns ? STICKABLE_COLUMNS_PARTIAL_MODERN({ messages }) : ''}\
+</div>\
+</div>`;
+
+    var modernTemplate = ({ sortable, filterable, showColumns, messages, columns, hasLockableColumns, hasStickableColumns, encodeTitles, ns }) => `\
+${sortable ? SORTABLE_PARTIAL_MODERN({ messages }) : ''}\
+${showColumns ? COLUMNS_PARTIAL_MODERN({ columns, messages, encodeTitles, ns }) : ''}\
+${filterable ? '<div class="k-columnmenu-item-wrapper"><div class="k-columnmenu-item-content k-column-menu-filter"><div class="k-filterable"></div></div></div>' : ''}\
+${hasLockableColumns || hasStickableColumns ? LOCK_STICK_COLUMNS_PARTIAL_MODERN({ hasLockableColumns, hasStickableColumns, messages }) : ''}`;
+
+    /* ------------------------- CLASSIC TEMPLATE ------------------------- */
+
+    function classicColumnsTemplateIterator(columns, encodeTitles, ns, omitWrapAttribute) {
+        return columns.map((column) => {
+            if (column.groupHeader) {
+                return `<li class="k-column-menu-group-header" ${omitWrapAttribute}="true" ><span class="k-column-menu-group-header-text">${column.title}</span></li>`;
+            } else {
+                return `<li role="menuitemcheckbox" aria-checked="false" ${column.matchesMedia === false ? "style='display:none;'" : ""}><input type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" title="${encodeTitles ? encode(column.title) : column.title}" data-${ns}field="${column.field.replace(/\"/g,"&#34;")}" data-${ns}index="${column.index}" data-${ns}locked="${column.locked}" data-${ns}uid="${column.uid}"/>${encodeTitles ? encode(column.title) : column.title}</li>`;
+            }
+        }).join("");
+    }
+
+    const SORTABLE_PARTIAL_CLASSIC = ({ messages, showColumns, filterable }) => `\
+<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-menu-link-text">${messages.sortAscending}</span></span></li>\
+<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-menu-link-text">${messages.sortDescending}</span></span></li>\
+${showColumns || filterable ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
+
+    const COLUMNS_PARTIAL_CLASSIC = ({ columns, messages, encodeTitles, ns, omitWrapAttribute, filterable, hasLockableColumns, hasStickableColumns }) => `\
+<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span><span class="k-menu-link-text">${messages.columns}</span></span><ul>\
+${classicColumnsTemplateIterator(columns, encodeTitles, ns, omitWrapAttribute)}\
+</ul></li>\
+${filterable || hasLockableColumns || hasStickableColumns ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
+
+const FILTERABLE_PARTIAL_CLASSIC = ({ messages, hasLockableColumns, hasStickableColumns }) => `<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span><span class="k-menu-link-text">${messages.filter}</span></span><ul>\
+<li><div class="k-filterable"></div></li>\
+</ul></li>\
+${hasLockableColumns || hasStickableColumns ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
+
+    const LOCKABLE_COLUMNS_PARTIAL_CLASSIC = ({ messages, hasStickableColumns }) => `\
+<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span><span class="k-menu-link-text">${messages.lock}</span></span></li>\
+<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span><span class="k-menu-link-text">${messages.unlock}</span></span></li>\
+${hasStickableColumns ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
+
+    const STICKABLE_COLUMNS_PARTIAL_CLASSIC = ({ messages }) => `\
+<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span><span class="k-menu-link-text">${messages.stick}</span></span></li>\
+<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span><span class="k-menu-link-text">${messages.unstick}</span></span></li>`;
+
+    const LOCK_STICK_COLUMNS_PARTIAL_CLASSIC = ({ messages, hasLockableColumns, hasStickableColumns }) => `\
+<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span><span class="k-menu-link-text">${messages.setColumnPosition}</span></span><ul>\
+${hasLockableColumns ? LOCKABLE_COLUMNS_PARTIAL_CLASSIC({ messages, hasStickableColumns }) : ''}\
+${hasStickableColumns ? STICKABLE_COLUMNS_PARTIAL_CLASSIC({ messages }) : ''}\
+</ul></li>`;
+
+    var template = ({ uid, sortable, filterable, showColumns, messages, columns, hasLockableColumns, hasStickableColumns, encodeTitles, ns, omitWrapAttribute }) => `\
+<ul id="${uid}">\
+${sortable ? SORTABLE_PARTIAL_CLASSIC({ messages, showColumns, filterable }) : '' }\
+${showColumns ? COLUMNS_PARTIAL_CLASSIC({ columns, messages, encodeTitles, ns, omitWrapAttribute, filterable, hasLockableColumns, hasStickableColumns }) : ''}\
+${filterable ? FILTERABLE_PARTIAL_CLASSIC({ messages, hasLockableColumns, hasStickableColumns }) : ''}\
+${hasLockableColumns || hasStickableColumns ? LOCK_STICK_COLUMNS_PARTIAL_CLASSIC({ messages, hasLockableColumns, hasStickableColumns }) : ''}
+</ul>`;
+
+    /* ------------------------- MOBILE TEMPLATE ------------------------- */
+
+    function mobileColumnsTemplateIterator(columns, groups, ns, hasGroups) {
+        var result = "";
+
+        if (hasGroups) {
+            for (var i = 0; i < groups.length; i++) {
+                result += `<span class="k-list-group-header k-pb-1">${encode(groups[i].title)}</span><ul class="k-listgroup k-listgroup-flush k-mb-4">`;
+
+                for (var idx = 0; idx < groups[i].columns.length; idx++) {
+                    result += `<li id="${kendo.guid()}" class="k-item k-listgroup-item"><span class="k-listgroup-form-row"><span class="k-listgroup-form-field-label k-item-title">${groups[i].columns[idx].title}</span><span class="k-listgroup-form-field-wrapper"><input type="checkbox" title="${groups[i].columns[idx].title}" data-${ns}field="${groups[i].columns[idx].field.replace(/\"/g,"&#34;")}" data-${ns}index="${groups[i].columns[idx].index}" data-${ns}uid="${groups[i].columns[idx].uid}" data-${ns}locked="${groups[i].columns[idx].locked}"/></span></span></li>"`;
+                }
+
+                result += `</ul>`;
+            }
+        } else {
+            result += `<ul class="k-listgroup k-listgroup-flush k-mb-4">`;
+
+            for (var idx = 0; idx < columns.length; idx++) {
+                result += `<li id="${kendo.guid()}" class="k-item k-listgroup-item"><span class="k-listgroup-form-row"><span class="k-listgroup-form-field-label k-item-title">${columns[idx].title}</span><span class="k-listgroup-form-field-wrapper"><input type="checkbox" title="${columns[idx].title}" data-${ns}field="${columns[idx].field.replace(/\"/g,"&#34;")}" data-${ns}index="${columns[idx].index}" data-${ns}uid="${columns[idx].uid}" data-${ns}locked="${columns[idx].locked}"/></span></span></li>`;
+            }
+
+            result += `</ul>`;
+        }
+
+        return result;
+    }
+
+    const SORTABLE_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>\
+<li id="${kendo.guid()}" class="k-item k-listgroup-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>`;
+
+    const LOCKABLE_COLUMNS_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>\
+<li id="${kendo.guid()}" class="k-item k-listgroup-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>`;
+
+    const STICKABLE_COLUMNS_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-stick"><span class="k-link"><span class="k-icon k-i-stick"></span><span class="k-item-title">${messages.stick}</span></span></li>\
+<li id="${kendo.guid()}" class="k-item k-listgroup-item k-unstick"><span class="k-link"><span class="k-icon k-i-unstick"></span><span class="k-item-title">${messages.unstick}</span></span></li>`;
+
+    const FILTERABLE_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-filter-item">\
+<span class="k-link k-filterable">\
+<span class="k-icon k-i-filter"></span>\
+<span class="k-item-title">${messages.filter}</span>\
+<span class="k-select"><span class="k-icon k-i-arrow-chevron-right"></span></span>\
+</span>\
+</li>`;
+
+    const COLUMNS_PARTIAL_MOBILE = ({ messages, hasGroups, columns, groups, ns }) => `\
+<li class="k-columns-item"><span class="k-list-title">${messages.columnVisibility}</span>\
+${mobileColumnsTemplateIterator(columns, groups, ns, hasGroups)}\
+</li>`;
+
+    var mobileTemplate = ({ messages, title, sortable, filterable, showColumns, hasLockableColumns, hasStickableColumns, hasGroups, columns, groups, ns }) => `\
+<div data-${ns}role="view" class="k-grid-column-menu">\
+<div data-${ns}role="header" class="k-header">\
+<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" aria-label="${messages.cancel}"><span class="k-icon k-i-arrow-chevron-left"></span></a>\
+${messages.settings}\
+<a href="#" class="k-header-done k-link" title="${messages.done}" aria-label="${messages.done}"><span class="k-icon k-i-check"></span></a>\
+</div>\
+<div class="k-column-menu">\
+<ul class="k-reset">\
+<li>\
+<span class="k-list-title">${messages.column}: ${title}</span>\
+<ul class="k-listgroup k-listgroup-flush k-mb-4">\
+${sortable ? SORTABLE_PARTIAL_MOBILE({ messages }) : ''}\
+${hasLockableColumns ? LOCKABLE_COLUMNS_PARTIAL_MOBILE({ messages }) : ''}\
+${hasStickableColumns ? STICKABLE_COLUMNS_PARTIAL_MOBILE({ messages }) : ''}\
+${filterable ? FILTERABLE_PARTIAL_MOBILE({ messages }) : ''}\
+</ul>\
+</li>\
+${showColumns ? COLUMNS_PARTIAL_MOBILE({ messages, hasGroups, columns, groups, ns }) : ''}\
+<li class="k-item k-clear-wrap">\
+<ul class="k-listgroup k-listgroup-flush">\
+<li class="k-listgroup-item">\
+<span class="k-link k-label k-clear" title="${messages.clear}" aria-label="${messages.clear}">\
+${messages.clear}\
+</span></li></ul></li></ul></div></div>`;
 
     var MobileMenu = Widget.extend({
         init: function(element, options) {

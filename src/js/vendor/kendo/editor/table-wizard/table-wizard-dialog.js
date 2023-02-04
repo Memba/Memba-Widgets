@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -12,6 +12,7 @@ import "../../kendo.tabstrip.js";
 (function($, undefined) {
 
 var kendo = window.kendo,
+    encode = kendo.htmlEncode,
     numericTextBoxSettings = { format: "0", min: 0 },
     units = ["px", "em"],
     borderStyles = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "initial", "inherit", "none", "hidden"];
@@ -34,8 +35,8 @@ var tableAlignmentDropDownSettings = {
     }],
     dataTextField: "className",
     dataValueField: "value",
-    template: "<span class='#: className #' title='#: tooltip #'></span>",
-    valueTemplate: "<span class='k-align-group #: className #' title='#: tooltip #'></span>"
+    template: ({ className, tooltip }) => `<span class="${encode(className)}" title="${encode(tooltip)}"></span>`,
+    valueTemplate: ({ className, tooltip }) => `<span class="k-align-group ${encode( className )}" title="${encode( tooltip )}"></span>`
 };
 
 var cellAlignmentDropDownSettings = {
@@ -72,8 +73,8 @@ var cellAlignmentDropDownSettings = {
     }],
     dataTextField: "className",
     dataValueField: "value",
-    template: "<span class='#: className #' title='#: tooltip #'></span>",
-    valueTemplate: "<span class='k-align-group #: className #' title='#: tooltip #'></span>"
+    template: ({ className, tooltip }) => `<span class="${encode( className )}' title='${encode( tooltip )}'></span>`,
+    valueTemplate: ({ className, tooltip }) => `<span class='k-align-group ${encode( className )}' title='${encode( tooltip )}'></span>`
 };
 
 var accessibilityAlignmentDropDownSettings = {
@@ -101,94 +102,94 @@ var accessibilityAlignmentDropDownSettings = {
     }],
     dataTextField: "className",
     dataValueField: "value",
-    template: "<span class='#: className #' title='#: tooltip #'></span>",
-    valueTemplate: "<span class='k-align-group #: className #' title='#: tooltip #'></span>"
+    template: ({ className, tooltip }) => `<span class="${encode( className )}" title="${encode( tooltip )}"></span>`,
+    valueTemplate: ({ className, tooltip }) => `<span class="k-align-group ${encode( className )}" title="${encode( tooltip )}"></span>`
 };
 
-var dialogTemplate =
+var dialogTemplate = ({ messages }) =>
     '<div class="k-editor-dialog k-editor-table-wizard-dialog k-action-window k-popup-edit-form">' +
         '<div class="k-edit-form-container">' +
             '<div id="k-table-wizard-tabs" class="k-root-tabs">' +
                 '<ul>' +
-                    '<li class="k-active">#= messages.tableTab #</li>' +
-                    '<li>#= messages.cellTab #</li>' +
-                    '<li>#= messages.accessibilityTab #</li>' +
+                    `<li class="k-active">${ messages.tableTab }</li>` +
+                    `<li>${ messages.cellTab }</li>` +
+                    `<li>${ messages.accessibilityTab }</li>` +
                 '</ul>' +
                 '<div id="k-table-properties">' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-width">#= messages.width #</label>' +
+                        `<label for="k-editor-table-width">${ messages.width }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-width" />' +
-                        '<input id="k-editor-table-width-type" aria-label="#= messages.units #" />' +
+                        `<input id="k-editor-table-width-type" aria-label="${ messages.units }" />` +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-height">#= messages.height #</label>' +
+                        `<label for="k-editor-table-height">${ messages.height }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-height" />' +
-                        '<input id="k-editor-table-height-type" aria-label="#= messages.units #" />' +
+                        `<input id="k-editor-table-height-type" aria-label="${ messages.units }" />` +
                     '</div>' +
 
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-columns">#= messages.columns #</label>' +
+                        `<label for="k-editor-table-columns">${ messages.columns }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-columns" />' +
                     '</div>' +
 
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-rows">#= messages.rows #</label>' +
+                        `<label for="k-editor-table-rows">${ messages.rows }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-rows" />' +
                     '</div>' +
 
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-cell-spacing">#= messages.cellSpacing #</label>' +
+                        `<label for="k-editor-table-cell-spacing">${ messages.cellSpacing }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-cell-spacing" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-cell-padding">#= messages.cellPadding #</label>' +
+                        `<label for="k-editor-table-cell-padding">${ messages.cellPadding }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-cell-padding" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-alignment">#= messages.alignment #</label>' +
+                        `<label for="k-editor-table-alignment">${ messages.alignment }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-table-alignment" class="k-align" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-bg">#= messages.background #</label>' +
+                        `<label for="k-editor-table-bg">${ messages.background }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-table-bg" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-css-class">#= messages.cssClass #</label>' +
+                        `<label for="k-editor-css-class">${ messages.cssClass }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-css-class" class="k-input-inner" type="text" /></span>' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-id">#= messages.id #</label>' +
+                        `<label for="k-editor-id">${ messages.id }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-id" class="k-input-inner" type="text" /></span>' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-border-width">#= messages.border #</label>' +
+                        `<label for="k-editor-border-width">${ messages.border }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-border-width" />' +
                         '<input id="k-editor-border-color" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-border-style">#= messages.borderStyle #</label>' +
+                        `<label for="k-editor-border-style">${ messages.borderStyle }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-border-style" />' +
@@ -196,7 +197,7 @@ var dialogTemplate =
                     '<div class="k-edit-label">&nbsp;</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-collapse-borders" type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" />' +
-                        '<label for="k-editor-collapse-borders" class="k-checkbox-label">#= messages.collapseBorders #</label>' +
+                        `<label for="k-editor-collapse-borders" class="k-checkbox-label">${ messages.collapseBorders }</label>` +
                     '</div>' +
                 '</div>' +
 
@@ -204,68 +205,68 @@ var dialogTemplate =
 
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-selectAllCells" type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" />' +
-                        '<label for="k-editor-selectAllCells" class="k-checkbox-label">#= messages.selectAllCells #</label>' +
+                        `<label for="k-editor-selectAllCells" class="k-checkbox-label">${ messages.selectAllCells }</label>` +
                     '</div>' +
 
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-width">#= messages.width #</label>' +
+                        `<label for="k-editor-cell-width">${ messages.width }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-cell-width" />' +
-                        '<input id="k-editor-cell-width-type" aria-label="#= messages.units #" />' +
+                        `<input id="k-editor-cell-width-type" aria-label="${ messages.units }" />` +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-height">#= messages.height #</label>' +
+                        `<label for="k-editor-cell-height">${ messages.height }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-cell-height" />' +
-                        '<input id="k-editor-cell-height-type" aria-label="#= messages.units #" />' +
+                        `<input id="k-editor-cell-height-type" aria-label="${ messages.units }" />` +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-cell-margin">#= messages.cellMargin #</label>' +
+                        `<label for="k-editor-table-cell-margin">${ messages.cellMargin }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-cell-margin" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-cells-padding">#= messages.cellPadding #</label>' +
+                        `<label for="k-editor-table-cells-padding">${ messages.cellPadding }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-cells-padding" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-alignment">#= messages.alignment #</label>' +
+                        `<label for="k-editor-cell-alignment">${ messages.alignment }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-cell-alignment" class="k-align" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-bg">#= messages.background #</label>' +
+                        `<label for="k-editor-cell-bg">${ messages.background }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-cell-bg" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-css-class">#= messages.cssClass #</label>' +
+                        `<label for="k-editor-cell-css-class">${ messages.cssClass }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-cell-css-class" class="k-input-inner" type="text" /></span>' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-id">#= messages.id #</label>' +
+                        `<label for="k-editor-cell-id">${ messages.id }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-cell-id" class="k-input-inner" type="text" /></span>' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-border-width">#= messages.border #</label>' +
+                        `<label for="k-editor-cell-border-width">${ messages.border }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-cell-border-width" />' +
                         '<input id="k-editor-cell-border-color" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cell-border-style">#= messages.borderStyle #</label>' +
+                        `<label for="k-editor-cell-border-style">${ messages.borderStyle }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-cell-border-style" />' +
@@ -273,56 +274,56 @@ var dialogTemplate =
                     '<div class="k-edit-label">&nbsp;</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-wrap-text" type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" />' +
-                        '<label for="k-editor-wrap-text" class="k-checkbox-label">#= messages.wrapText #</label>' +
+                        `<label for="k-editor-wrap-text" class="k-checkbox-label">${ messages.wrapText }</label>` +
                     '</div>' +
                 '</div>' +
 
                 '<div id="k-accessibility-properties">' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-header-rows">#= messages.headerRows #</label>' +
+                        `<label for="k-editor-table-header-rows">${ messages.headerRows }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-header-rows" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-header-columns">#= messages.headerColumns #</label>' +
+                        `<label for="k-editor-table-header-columns">${ messages.headerColumns }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input type="numeric" id="k-editor-table-header-columns" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-table-caption">#= messages.caption #</label>' +
+                        `<label for="k-editor-table-caption">${ messages.caption }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-table-caption" class="k-input-inner" type="text"/></span>' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-accessibility-alignment">#= messages.alignment #</label>' +
+                        `<label for="k-editor-accessibility-alignment">${ messages.alignment }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<input id="k-editor-accessibility-alignment" class="k-align" />' +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-accessibility-summary">#= messages.summary #</label>' +
+                        `<label for="k-editor-accessibility-summary">${ messages.summary }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
-                        '<span class="k-input k-textarea k-input-solid k-input-md k-rounded-md"><textarea id="k-editor-accessibility-summary" rows="5" class="k-input-inner k-editor-accessibility-summary" placeholder="#= messages.tableSummaryPlaceholder #"></textarea></span>' +
+                        `<span class="k-input k-textarea k-input-solid k-input-md k-rounded-md"><textarea id="k-editor-accessibility-summary" rows="5" class="k-input-inner k-editor-accessibility-summary" placeholder="${ messages.tableSummaryPlaceholder }"></textarea></span>` +
                     '</div>' +
                     '<div class="k-edit-label">' +
-                        '<label for="k-editor-cells-headers">#= messages.associateCellsWithHeaders #</label>' +
+                        `<label for="k-editor-cells-headers">${ messages.associateCellsWithHeaders }</label>` +
                     '</div>' +
                     '<div class="k-edit-field">' +
                         '<select id="k-editor-cells-headers">' +
-                            '<option value="none">#= messages.associateNone #</option>' +
-                            '<option value="scope">#= messages.associateScope #</option>' +
-                            '<option value="ids">#= messages.associateIds #</option>' +
+                            `<option value="none">${ messages.associateNone }</option>` +
+                            `<option value="scope">${ messages.associateScope }</option>` +
+                            `<option value="ids">${ messages.associateIds }</option>` +
                         '</select>' +
                     '</div>' +
                 '</div>' +
                 '</div>' +
                 '<div class="k-edit-buttons">' +
-                '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-dialog-ok"><span class="k-button-text">#= messages.dialogOk #</span></button>' +
-                '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-dialog-close"><span class="k-button-text">#= messages.dialogCancel #</span></button>' +
+                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-dialog-ok"><span class="k-button-text">${ messages.dialogOk }</span></button>` +
+                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-dialog-close"><span class="k-button-text">${ messages.dialogCancel }</span></button>` +
             '</div>' +
         '</div>' +
     '</div>';

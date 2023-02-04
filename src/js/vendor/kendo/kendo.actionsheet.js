@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -19,6 +19,7 @@ var __meta__ = {
 
 (function($, undefined) {
     var kendo = window.kendo;
+    var encode = kendo.htmlEncode;
     var Widget = kendo.ui.Widget;
     var ui = kendo.ui;
     var ns = ".kendoActionSheet";
@@ -41,18 +42,8 @@ var __meta__ = {
     var CLICK = "click";
     var KEYDOWN = "keydown";
     var hexColor = /^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/;
-    var HEADER_TEMPLATE = '<div id="' + HEADER_ID + '" class="k-actionsheet-header">' +
-                                "#=title#" +
-                            '</div>';
-    var ITEM_TEMPLATE = '<li role="none" class="k-actionsheet-item #= disabled ? "' + STATEDISABLED + '" : "" #">' +
-                            '<a href="\\#" role="button" class="k-actionsheet-action">' +
-                                '#if(icon){# #=icon# #}#' +
-                                '<span class="k-actionsheet-item-text">' +
-                                    '<span class="k-actionsheet-item-title">#:text#</span>' +
-                                    '#if(description){#<span class="k-actionsheet-item-description">#:description#</span>#}#' +
-                                '</span>' +
-                            '</a>' +
-                        '</li>';
+    var HEADER_TEMPLATE = ({ title }) => `<span id="${HEADER_ID}" class="k-actionsheet-header">${title}</span>`;
+    var ITEM_TEMPLATE = ({ disabled, icon, text, description }) => `<span role="button" tabindex="0" class="k-actionsheet-item ${disabled ? STATEDISABLED : ""}"><span class="k-actionsheet-action">${icon ? icon : ""}<span class="k-actionsheet-item-text"><span class="k-actionsheet-item-title">${encode(text)}</span>${description ? '<span class="k-actionsheet-item-description">' + encode(description) + '</span>' : ''}</span></span></span>`;
     var SEPARATOR = '<hr class="k-hr" />';
     var defaultItem = {
         text: "",
@@ -205,7 +196,7 @@ var __meta__ = {
             var item;
             var itemTemplate;
             var itemElement;
-            var container = $("<ul class='k-actionsheet-items' role='group'></ul>");
+            var container = $("<div class='k-actionsheet-items' role='group'></div>");
             var icon;
 
             if (!items.length) {
@@ -270,17 +261,20 @@ var __meta__ = {
             var that = this;
             var keys = kendo.keys;
             var keyCode = e.keyCode;
+            var target = $(e.target);
 
             if (keyCode == keys.ESC) {
                 e.stopPropagation();
                 that.close();
+            } else if (target.hasClass("k-actionsheet-item ") && keyCode === keys.ENTER) {
+                target.trigger(CLICK);
             }
         },
 
         _openHandler: function() {
             var that = this;
 
-            that.element.find('li.k-actionsheet-item').eq(0).find("a").trigger("focus");
+            that.element.find('.k-actionsheet-item').eq(0).trigger("focus");
         },
 
         _mousedown: function(e) {

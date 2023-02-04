@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -44,7 +44,7 @@ import "../kendo.colorpicker.js";
     });
 
     var EditorUtils = {
-        editorWrapperTemplate:
+        editorWrapperTemplate: () =>
             '<table cellspacing="0" cellpadding="0" class="k-widget k-editor" role="presentation">' +
                 '<tbody>' +
                     '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-toolbar k-editor-toolbar" role="toolbar"></ul></td></tr>' +
@@ -52,47 +52,41 @@ import "../kendo.colorpicker.js";
                 '</tbody>' +
             '</table>',
 
-        buttonTemplate:
-            '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' +
-            '# var dataPopup = data.popup ? "data-popup" : "";#' +
-            '<button type="button" tabindex="0" role="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-tool" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' +
-                '<span class="#= iconCssClass #"></span>' +
-                '<span class="k-tool-text k-button-text">#= data.title #</span>' +
+        buttonTemplate: (data) =>
+            `<button type="button" tabindex="0" role="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-tool" ${ data.popup ? "data-popup" : "" } title="${ data.title }" aria-label="${ data.title }">` +
+                `<span class="${ "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", "")) }"></span>` +
+                `<span class="k-tool-text k-button-text">${ data.title }</span>` +
             '</button>',
 
-        iconTextButtonTemplate:
-            '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' +
-            '# var dataPopup = data.popup ? "data-popup" : "";#' +
-            '<button type="button" tabindex="0" role="button" class="k-i-import k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' +
-                '<span class="k-button-icon #= iconCssClass #"></span>' +
-                '<span class="k-button-text">#= data.title #</span>' +
-            '</button>',
+        iconTextButtonTemplate: (data) =>
+            `<button type="button" tabindex="0" role="button" class="k-i-import k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" ${ data.popup ? "data-popup" : "" } title="${ data.title }" aria-label="${ data.title }">` +
+                `<span class="k-button-icon ${ "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", "")) }"></span>` +
+                `<span class="k-button-text">${ data.title }</span>` +
+            `</button>`,
 
-        tableWizardButtonTemplate:
-            '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' +
-            '# var dataPopup = data.popup ? "data-popup" : "";#' +
-            '<button type="button" tabindex="0" role="button" class="k-tool k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' +
-                '<span class="#= iconCssClass #"></span>' +
-                '<span class="k-tool-text">#= data.title #</span>' +
-            '</button>',
+        tableWizardButtonTemplate: (data) =>
+            `<button type="button" tabindex="0" role="button" class="k-tool k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" ${ data.popup ? "data-popup" : "" } title="${ data.title }" aria-label="${ data.title }">` +
+                `<span class="${ "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", "")) }"></span>` +
+                `<span class="k-tool-text">${ data.title }</span>` +
+            `</button>`,
 
-        colorPickerTemplate:
-            '<input class="k-colorpicker k-icon k-i-#= data.cssClass.replace("k-", "") #" />',
+        colorPickerTemplate: (data) =>
+            `<input class="k-colorpicker k-icon k-i-${ data.cssClass.replace("k-", "") }" />`,
 
-        comboBoxTemplate:
-            '<select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #"></select>',
+        comboBoxTemplate: (data) =>
+            `<select title="${ data.title }" aria-label="${ data.title }" class="${ data.cssClass }"></select>`,
 
-        dropDownListTemplate:
-            '<span class="k-editor-dropdown"><select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #"></select></span>',
+        dropDownListTemplate: (data) =>
+            `<span class="k-editor-dropdown"><select title="${ data.title }" aria-label="${ data.title }" class="${ data.cssClass }"></select></span>`,
 
-        separatorTemplate:
+        separatorTemplate: () =>
             '<span class="k-separator"></span>',
 
-        overflowAnchorTemplate:
-            '<button type="button" tabindex="0" role="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-tool k-overflow-anchor" data-popup' +
-                ' title="#= data.title #" aria-label="#= data.title #" aria-haspopup="true" aria-expanded="false">' +
-                '<span class="k-icon k-i-more-vertical k-button-icon"></span>' +
-            '</button>',
+        overflowAnchorTemplate: (data) =>
+            `<button type="button" tabindex="0" role="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-tool k-overflow-anchor" data-popup` +
+                ` title="${ data.title }" aria-label="${ data.title }" aria-haspopup="true" aria-expanded="false">` +
+                `<span class="k-icon k-i-more-vertical k-button-icon"></span>` +
+            `</button>`,
 
         formatByName: function(name, format) {
             for (var i = 0; i < format.length; i++) {
@@ -594,7 +588,7 @@ import "../kendo.colorpicker.js";
                 textarea = that.element,
                 w = textarea[0].style.width,
                 h = textarea[0].style.height,
-                template = EditorUtils.editorWrapperTemplate,
+                template = EditorUtils.editorWrapperTemplate(),
                 editorWrap = $(template).insertBefore(textarea),
                 editArea = editorWrap.find(".k-editable-area");
 

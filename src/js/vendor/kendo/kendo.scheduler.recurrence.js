@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -21,6 +21,7 @@ var __meta__ = {
 
 (function($, undefined) {
     var kendo = window.kendo,
+        encode = kendo.htmlEncode,
         timezone = kendo.timezone,
         Class = kendo.Class,
         ui = kendo.ui,
@@ -1591,74 +1592,76 @@ var __meta__ = {
         toExceptionString: toExceptionString
     };
 
-    var RECURRENCE_VIEW_TEMPLATE = kendo.template(
-       '# if (frequency !== "never") { #' +
+    var RECURRENCE_VIEW_TEMPLATE = kendo.template(({ frequency, messages, end }) =>
+       (frequency !== "never" ?
             '<div class="k-form-field">' +
-                '<label id="recur_interval_label" class="k-label k-form-label" for="recur_interval">#:messages.repeatEvery#</label>' +
+                `<label id="recur_interval_label" class="k-label k-form-label" for="recur_interval">${encode(messages.repeatEvery)}</label>` +
                 '<div class="k-form-field-wrap">' +
-                    '<input id="recur_interval" class="k-recur-interval" title="#:messages.repeatEvery# #:messages.interval#" aria-labelledby="recur_interval_label">#:messages.interval#' +
+                    `<input id="recur_interval" class="k-recur-interval" title="${encode(messages.repeatEvery)} ${encode(messages.interval)}" aria-labelledby="recur_interval_label">${encode(messages.interval)}` +
                 '</div>' +
-            '</div>' +
-        '# } #' +
-       '# if (frequency === "weekly") { #' +
+            '</div>' : ''
+       ) +
+       (frequency === "weekly" ?
             '<div class="k-form-field">' +
-                '<label class="k-label k-form-label">#:messages.repeatOn#</label>' +
+                `<label class="k-label k-form-label">${encode(messages.repeatOn)}</label>` +
                 '<div class="k-form-field-wrap">' +
-                    '<div class="k-button-group-stretched k-recur-weekday-buttons" title="#:messages.repeatOn#"></div></div>' +
+                    `<div class="k-button-group-stretched k-recur-weekday-buttons" title="${encode(messages.repeatOn)}"></div></div>` +
                 '</div>' +
-            '</div>' +
-        '# } else if (frequency === "monthly") { #' +
-            '<div class="k-form-field"><label class="k-label k-form-label">#:messages.repeatOn#</label></div>' +
-                '<div class="k-form-field-wrap">' +
-                    '<ul class="k-radio-list">' +
-                        '<li class="k-radio-item">' +
-                            '<label class="k-radio-label"><input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="monthday" title="#:messages.repeatOn#" />#:messages.date#:</label>' +
-                            '<input class="k-recur-monthday" aria-label="#:messages.date#" title="#:messages.date#" />' +
-                        '</li>' +
-                        '<li class="k-radio-item">' +
-                            '<input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="weekday" aria-label="#:messages.repeatOn# #:messages.day#" title="#:messages.repeatOn# #:messages.day#" />' +
-                            '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" style="width:8em;" />' +
-                            '<input class="k-recur-weekday" title="#:messages.day#" style="width:8em;" />' +
-                        '</li>' +
-                    '</ul>' +
-                '</div>' +
-            '</div>' +
-       '# } else if (frequency === "yearly") { #' +
-            '<div class="k-form-field"><label class="k-label k-form-label">#:messages.repeatOn#</label>' +
+            '</div>' : ''
+        ) +
+        (frequency === "monthly" ?
+            `<div class="k-form-field"><label class="k-label k-form-label">${encode(messages.repeatOn)}</label></div>` +
                 '<div class="k-form-field-wrap">' +
                     '<ul class="k-radio-list">' +
                         '<li class="k-radio-item">' +
-                            '<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="monthday" title="#:messages.repeatOn# #:messages.month#" />' +
-                            '<input class="k-recur-month" aria-label="#:messages.month#" title="#:messages.month#" style="width:8em;" />' +
-                            '<input class="k-recur-monthday" aria-label="#:messages.date#" title="#:messages.date#" />' +
+                            `<label class="k-radio-label"><input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="monthday" title="${encode(messages.repeatOn)}" />${encode(messages.date)}:</label>` +
+                            `<input class="k-recur-monthday" aria-label="${encode(messages.date)}" title="${encode(messages.date)}" />` +
                         '</li>' +
                         '<li class="k-radio-item">' +
-                            '<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="weekday" title="#:messages.repeatOn# #:messages.day#" />' +
-                            '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" style="width:8em;"/><input class="k-recur-weekday" title="#:messages.day#" style="width:8em;"/>#:messages.of#<input class="k-recur-month" title="#:messages.of + messages.month#" style="width:8em;"/>' +
+                            `<input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="weekday" aria-label="${encode(messages.repeatOn)} ${encode(messages.day)}" title="${encode(messages.repeatOn)} ${encode(messages.day)}" />` +
+                            `<input class="k-recur-weekday-offset" title="${encode(messages.repeatOn)}" style="width:8em;" />` +
+                            `<input class="k-recur-weekday" title="${encode(messages.day)}" style="width:8em;" />` +
                         '</li>' +
                     '</ul>' +
                 '</div>' +
-            '</div>' +
-       '# } #' +
-       '# if (frequency !== "never") { #' +
-            '<div class="k-form-field"><label class="k-label k-form-label">#:end.label#</label>' +
+            '</div>' : ''
+        ) +
+       (frequency === "yearly" ?
+            `<div class="k-form-field"><label class="k-label k-form-label">${encode(messages.repeatOn)}</label>` +
                 '<div class="k-form-field-wrap">' +
                     '<ul class="k-radio-list">' +
                         '<li class="k-radio-item">' +
-                            '<label class="k-radio-label"><input class="k-recur-end-never k-radio k-radio-md" type="radio" name="end" value="never" title="#:end.label#" />#:end.never#</label>' +
+                            `<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="monthday" title="${encode(messages.repeatOn)} ${encode(messages.month)}" />` +
+                            `<input class="k-recur-month" aria-label="${encode(messages.month)}" title="${encode(messages.month)}" style="width:8em;" />` +
+                            `<input class="k-recur-monthday" aria-label="${encode(messages.date)}" title="${encode(messages.date)}" />` +
                         '</li>' +
                         '<li class="k-radio-item">' +
-                            '<label class="k-radio-label"><input class="k-recur-end-count k-radio k-radio-md" type="radio" name="end" value="count" title="#:end.label#" />#:end.after#</label>' +
-                            '<input class="k-recur-count" aria-label="#:end.occurrence#" title="#:end.occurrence#" />#:end.occurrence#' +
-                        '</li>' +
-                        '<li class="k-radio-item">' +
-                            '<label class="k-radio-label"><input class="k-recur-end-until k-radio k-radio-md" type="radio" name="end" value="until" title="#:end.label#" />#:end.on#</label>' +
-                            '<input class="k-recur-until" title="#:end.on#" aria-label="#:end.on#" name="recur-until" />' +
+                            `<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="weekday" title="${encode(messages.repeatOn)} ${encode(messages.day)}" />` +
+                            `<input class="k-recur-weekday-offset" title="${encode(messages.repeatOn)}" style="width:8em;"/><input class="k-recur-weekday" title="${encode(messages.day)}" style="width:8em;"/>${encode(messages.of)}<input class="k-recur-month" title="${encode(messages.of + messages.month)}" style="width:8em;"/>` +
                         '</li>' +
                     '</ul>' +
                 '</div>' +
-            '</div>' +
-       '# } #'
+            '</div>' : ''
+       ) +
+       (frequency !== "never" ?
+            `<div class="k-form-field"><label class="k-label k-form-label">${encode(end.label)}</label>` +
+                '<div class="k-form-field-wrap">' +
+                    '<ul class="k-radio-list">' +
+                        '<li class="k-radio-item">' +
+                            `<label class="k-radio-label"><input class="k-recur-end-never k-radio k-radio-md" type="radio" name="end" value="never" title="${encode(end.label)}" />${encode(end.never)}</label>` +
+                        '</li>' +
+                        '<li class="k-radio-item">' +
+                            `<label class="k-radio-label"><input class="k-recur-end-count k-radio k-radio-md" type="radio" name="end" value="count" title="${encode(end.label)}" />${encode(end.after)}</label>` +
+                            `<input class="k-recur-count" aria-label="${encode(end.occurrence)}" title="${encode(end.occurrence)}" />${encode(end.occurrence)}` +
+                        '</li>' +
+                        '<li class="k-radio-item">' +
+                            `<label class="k-radio-label"><input class="k-recur-end-until k-radio k-radio-md" type="radio" name="end" value="until" title="${encode(end.label)}" />${encode(end.on)}</label>` +
+                            `<input class="k-recur-until" title="${encode(end.on)}" aria-label="${encode(end.on)}" name="recur-until" />` +
+                        '</li>' +
+                    '</ul>' +
+                '</div>' +
+            '</div>' : ''
+       )
     );
 
     var DAY_RULE = [
@@ -1838,25 +1841,27 @@ var __meta__ = {
                 });
             }
 
-            that._weekDayButtonGroup = new ButtonGroup(that._container.find(".k-recur-weekday-buttons"), {
-                items: items,
-                selection: "multiple",
-                select: function() {
-                    var rule = that._value,
-                        selectedDays = that._weekDayButtonGroup.current();
+            if (that._container.find(".k-recur-weekday-buttons").length > 0) {
+                that._weekDayButtonGroup = new ButtonGroup(that._container.find(".k-recur-weekday-buttons"), {
+                    items: items,
+                    selection: "multiple",
+                    select: function() {
+                        var rule = that._value,
+                            selectedDays = that._weekDayButtonGroup.current();
 
-                    rule.weekDays = selectedDays.map(function(i, day) {
-                        return {
-                            day: Number(day.getAttribute("data-value")),
-                            offset: 0
-                        };
-                    });
+                        rule.weekDays = selectedDays.map(function(i, day) {
+                            return {
+                                day: Number(day.getAttribute("data-value")),
+                                offset: 0
+                            };
+                        });
 
-                    if (!that.options.mobile) {
-                        that._trigger();
+                        if (!that.options.mobile) {
+                            that._trigger();
+                        }
                     }
-                }
-            });
+                });
+            }
         },
 
         _weekDayRule: function(clear) {
@@ -2082,8 +2087,14 @@ var __meta__ = {
 
             if (startInput) {
                 startInput.on("change", function() {
+                    var untilEl = that._until.element,
+                        readonly = Boolean(untilEl.attr("readonly")),
+                        enable = !(Boolean(untilEl.is("[disabled]") || untilEl.parents("fieldset").is(':disabled')));
+
                     that._until.setOptions({
-                        min: startInput.val()
+                        min: startInput.val(),
+                        readonly,
+                        enable
                     });
                 });
             }
@@ -2214,6 +2225,12 @@ var __meta__ = {
                  messages: options.messages[frequency],
                  end: options.messages.end
             };
+
+            if (that._weekDayButtonGroup) {
+                that._weekDayButtonGroup.destroy();
+                that._container.find(".k-recur-weekday-buttons").empty();
+                that._weekDayButtonGroup = null;
+            }
 
             kendo.destroy(that._container);
             that._container.html(RECURRENCE_VIEW_TEMPLATE(data));
@@ -2426,12 +2443,12 @@ var __meta__ = {
     ui.plugin(RecurrenceEditor);
 
 
-    var RECURRENCE_HEADER_TEMPLATE = kendo.template(
+    var RECURRENCE_HEADER_TEMPLATE = kendo.template(({ headerTitle }) =>
         '<div data-role="content">' +
             '<ul class="k-listgroup k-listgroup-flush">' +
                 '<li class="k-item k-listgroup-item">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:headerTitle#</span>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${headerTitle}</span>` +
                         '<div class="k-recur-pattern k-listgroup-form-field-wrapper"></div>' +
                     '</label>' +
                 '</li>' +
@@ -2440,109 +2457,104 @@ var __meta__ = {
         '</div>'
     );
 
-    var RECURRENCE_REPEAT_PATTERN_TEMPLATE = kendo.template(
-        '# if (frequency !== "never") { #' +
+    var RECURRENCE_REPEAT_PATTERN_TEMPLATE = kendo.template(({ frequency, messages }) =>
+        (frequency !== "never" ?
             '<label class="k-label k-listgroup-form-row">' +
-                '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatEvery#</span>' +
+                `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.repeatEvery)}</span>` +
                 '<div class="k-recur-editor-wrap k-listgroup-form-field-wrapper">' +
-                    '<input class="k-recur-interval" type="number" pattern="\\\\d*"/>' +
-                    '# if (messages.interval.length) { #' +
-                        '<span class="k-recur-editor-text">#:messages.interval#</span>' +
-                    '# } #' +
+                    '<input class="k-recur-interval" type="number" pattern="\\d*"/>' +
+                    (messages.interval.length ? `<span class="k-recur-editor-text">${encode(messages.interval)}</span>` : '') +
                 '</div>' +
-            '</label>' +
-        '# } #' +
-        '# if (frequency === "weekly") { #' +
+            '</label>' : ''
+        ) +
+        (frequency === "weekly" ?
             '<ul class="k-recur-items-wrap k-listgroup k-listgroup-flush">' +
                 '<li class="k-item k-listgroup-item k-no-click">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatOn#</span>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.repeatOn)}</span>` +
                     '</label>' +
                 '</li>' +
-                '<div class="k-button-group-stretched k-recur-weekday-buttons" title="#:messages.repeatOn#">' +
-            '</ul>' +
-        '# } else if (frequency === "monthly") { #' +
+                `<div class="k-button-group-stretched k-recur-weekday-buttons" title="${encode(messages.repeatOn)}">` +
+            '</ul>' : '') +
+        (frequency === "monthly" ?
             '<ul class="k-recur-items-wrap k-listgroup k-listgroup-flush">' +
                 '<li class="k-item k-listgroup-item">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatBy#</span>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.repeatBy)}</span>` +
                         '<div class="k-repeat-rule k-listgroup-form-field-wrapper"></div>' +
                     '</label>' +
                 '</li>' +
                 '<li class="k-monthday-view k-item k-listgroup-item" style="display:none">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' +
-                        '<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" aria-label="#:messages.date#" title="#:messages.day#" pattern="\\\\d*"/></div>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" aria-label="${encode(messages.date)}" title="${encode(messages.day)}" pattern="\\d*"/></div>` +
                     '</label>' +
                 '</li>' +
                 '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.every#</span>' +
-                        '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="#:messages.every#"></select></div>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.every)}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="${encode(messages.every)}"></select></div>` +
                     '</label>' +
                 '</li>' +
                 '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' +
-                        '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="#:messages.day#"></select></div>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="${encode(messages.day)}"></select></div>` +
                     '</label>' +
                 '</li>' +
-            '</ul>' +
-        '# } else if (frequency === "yearly") { #' +
+            '</ul>' : '') +
+        (frequency === "yearly" ?
             '<ul class="k-recur-items-wrap k-listgroup k-listgroup-flush">' +
                 '<li class="k-item k-listgroup-item">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatBy#</span>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.repeatBy)}</span>` +
                         '<div class="k-repeat-rule k-listgroup-form-field-wrapper"></div>' +
                     '</label>' +
                 '</li>' +
                 '<li class="k-monthday-view k-item k-listgroup-item" style="display:none">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' +
-                        '<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" aria-label="#:messages.date#" title="#:messages.day#" pattern="\\\\d*"/></div>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" aria-label="${encode(messages.date)}" title="${encode(messages.day)}" pattern="\\d*"/></div>` +
                     '</label>' +
                 '</li>' +
                 '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.every#</span>' +
-                        '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="#:messages.every#"></select></div>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.every)}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="${encode(messages.every)}"></select></div>` +
                     '</label>' +
                 '</li>' +
                 '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' +
-                        '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="#:messages.day#"></select></div>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="${encode(messages.day)}"></select></div>` +
                     '</label>' +
                 '</li>' +
                 '<li class="k-item k-item k-listgroup-item">' +
                     '<label class="k-label k-listgroup-form-row">' +
-                        '<span class="k-item-title k-listgroup-form-field-label">#:messages.month#</span>' +
-                        '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-month" title="#:messages.month#"></select></div>' +
+                        `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.month)}</span>` +
+                        `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-month" title="${encode(messages.month)}"></select></div>` +
                     '</label>' +
                 '</li>' +
-           '</ul>' +
-        '# } #'
+           '</ul>' : '')
     );
 
-    var RECURRENCE_END_PATTERN_TEMPLATE = kendo.template(
-        '# if (endPattern === "count") { #' +
-            '<label class="k-label k-listgroup-form-row">' +
-                '<span class="k-item-title k-listgroup-form-field-label">#:messages.after#</span>' +
-                '<div class="k-listgroup-form-field-wrapper"><input class="k-recur-count" aria-label="#:messages.occurrence#" type="number" pattern="\\\\d*" /></div>' +
-            '</label>' +
-        '# } else if (endPattern === "until") { #' +
-            '<label class="k-label k-listgroup-form-row">' +
-                '<span class="k-item-title k-listgroup-form-field-label">#:messages.on#</span>' +
-                '<div class="k-listgroup-form-field-wrapper"><input type="date" class="k-recur-until" aria-label="#:messages.on#" name="recur-until"/></div>' +
-            '</label>' +
-        '# } #'
-    );
+    var RECURRENCE_END_PATTERN_TEMPLATE = kendo.template(({ endPattern, messages }) => {
+        if (endPattern === "count") {
+            return '<label class="k-label k-listgroup-form-row">' +
+                `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.after)}</span>` +
+                `<div class="k-listgroup-form-field-wrapper"><input class="k-recur-count" aria-label="${encode(messages.occurrence)}" type="number" pattern="\\d*" /></div>` +
+            '</label>';
+        } else if (endPattern === "until") {
+            return '<label class="k-label k-listgroup-form-row">' +
+                `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.on)}</span>` +
+                `<div class="k-listgroup-form-field-wrapper"><input type="date" class="k-recur-until" aria-label="${encode(messages.on)}" name="recur-until"/></div>` +
+            '</label>';
+        }
+    });
 
-    var RECURRENCE_GROUP_BUTTON_TEMPLATE = kendo.template(
+    var RECURRENCE_GROUP_BUTTON_TEMPLATE = kendo.template(({ dataSource, value }) =>
         '<select class="k-scheduler-select">' +
-            '#for (var i = 0, length = dataSource.length; i < length; i++) {#' +
-                '<option value="#=dataSource[i].value#" #= value === dataSource[i].value  ? \"selected\" : \"\" #>#:dataSource[i].text#</option>' +
-            '#}#' +
+            dataSource.map((item) => `<option value="${item.value}" ${value === item.value ? 'selected' : ''}>${encode(item.text)}</option>`).join('') +
         '</select>'
     );
 
@@ -2554,7 +2566,7 @@ var __meta__ = {
 
             options = that.options;
 
-            that._optionTemplate = kendo.template('<option value="#:value#">#:text#</option>');
+            that._optionTemplate = kendo.template(({ value, text }) => `<option value="${encode(value)}">${encode(text)}</option>`);
 
             that.value(options.value);
 
@@ -2642,10 +2654,6 @@ var __meta__ = {
             this._destroyView();
 
             kendo.destroy(this._endFields);
-
-            if (this._weekDayButtonGroup) {
-                this._weekDayButtonGroup.destroy();
-            }
 
             this.element.off(CLICK + this._namespace);
 

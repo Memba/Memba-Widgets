@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -46,28 +46,28 @@ var __meta__ = {
             this._resizeHandler = this.resize.bind(this, true);
             $(window).on("resize" + NS, this._resizeHandler);
         },
-        _mediaQuery:
-            "@media (max-width: #= breakpoint-1 #px) {" +
-                ".#= guid #.k-rpanel-animate.k-rpanel-left," +
-                ".#= guid #.k-rpanel-animate.k-rpanel-right {" +
+        _mediaQuery: ({ breakpoint, guid, toggleButton }) =>
+            `@media (max-width: ${breakpoint - 1}px) {` +
+                `.${guid}.k-rpanel-animate.k-rpanel-left,` +
+                `.${guid}.k-rpanel-animate.k-rpanel-right {` +
                     "-webkit-transition: -webkit-transform .2s ease-out;" +
                     "-ms-transition: -ms-transform .2s ease-out;" +
                     "transition: transform .2s ease-out;" +
                 "} " +
-                ".#= guid #.k-rpanel-top {" +
+                `.${guid}.k-rpanel-top {` +
                     "overflow: hidden;" +
                 "}" +
-                ".#= guid #.k-rpanel-animate.k-rpanel-top {" +
+                `.${guid}.k-rpanel-animate.k-rpanel-top {` +
                     "-webkit-transition: max-height .2s linear;" +
                     "-ms-transition: max-height .2s linear;" +
                     "transition: max-height .2s linear;" +
                 "}" +
             "} " +
-            "@media (min-width: #= breakpoint #px) {" +
-                "#= toggleButton # { display: none; } " +
-                ".#= guid #.k-rpanel-left { float: left; } " +
-                ".#= guid #.k-rpanel-right { float: right; } " +
-                ".#= guid #.k-rpanel-left, .#= guid #.k-rpanel-right {" +
+            `@media (min-width: ${breakpoint}px) {` +
+                `${toggleButton} { display: none; } ` +
+                `.${guid}.k-rpanel-left { float: left; } ` +
+                `.${guid}.k-rpanel-right { float: right; } ` +
+                `.${guid}.k-rpanel-left, .${guid}.k-rpanel-right {` +
                     "position: relative;" +
                     "-webkit-transform: translateX(0);" +
                     "-ms-transform: translateX(0);" +
@@ -76,13 +76,13 @@ var __meta__ = {
                     "-ms-transform: translateX(0) translateZ(0);" +
                     "transform: translateX(0) translateZ(0);" +
                 "} " +
-                ".k-ie9 .#= guid #.k-rpanel-left { left: 0; } " +
-                ".#= guid #.k-rpanel-top { max-height: none; }" +
+                `.k-ie9 .${guid}.k-rpanel-left { left: 0; } ` +
+                `.${guid}.k-rpanel-top { max-height: none; }` +
             "}",
         _registerBreakpoint: function() {
             var options = this.options;
 
-            this._registerStyle(kendo.template(this._mediaQuery)({
+            this._registerStyle(this._mediaQuery({
                 breakpoint: options.breakpoint,
                 toggleButton: options.toggleButton,
                 guid: this._guid

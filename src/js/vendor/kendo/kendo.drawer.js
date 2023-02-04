@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -101,22 +101,17 @@ var __meta__ = {
         },
 
         _navigatable: function() {
-
-            if (!this.options.navigatable) {
-                return;
-            }
-
             var that = this;
             var element = that.element;
             var drawerItems = element.find("[data-role='drawer-item']");
 
-            element.find("[data-role='drawer-separator']").attr("aria-hidden", true);
-
-            drawerItems.attr("role","tab");
-
             drawerItems.first().parent()
-                .attr("role", "tablist")
+                .attr("role", "menu")
                 .attr("aria-orientation", "vertical");
+
+            if (!this.options.navigatable) {
+                return;
+            }
 
             element
                 .attr(TABINDEX, 0)
@@ -264,18 +259,17 @@ var __meta__ = {
             var drawerItems = drawerItemsWrapper.find("[data-role='drawer-item']");
             var separatorItems = drawerItemsWrapper.find("[data-role='drawer-separator']");
 
-            drawerItems.addClass("k-drawer-item");
-            separatorItems.addClass("k-drawer-item k-drawer-separator");
+            drawerItems.addClass("k-drawer-item").attr("role", "menuitem");
+            separatorItems.addClass("k-drawer-item k-drawer-separator").attr("role", "separator");
+
+            drawerItems.each((i, item) => {
+                item.setAttribute("aria-label", item.textContent.trim());
+            });
 
             if (this._selectedItemIndex >= 0) {
                 drawerItems.removeClass("k-selected");
                 drawerItems.eq(this._selectedItemIndex).addClass("k-selected");
             }
-
-            if (this.options.navigatable) {
-                drawerItems.attr("aria-selected", false);
-            }
-
         },
 
         _mode: function() {
@@ -540,8 +534,6 @@ var __meta__ = {
             that._selectItem(item);
 
             if (that.options.navigatable) {
-                items.attr("aria-selected", false);
-                item.attr("aria-selected", true);
                 that._setCurrent(item);
             }
         },

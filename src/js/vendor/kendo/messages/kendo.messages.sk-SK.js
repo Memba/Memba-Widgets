@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -601,7 +601,7 @@ $.extend(true, kendo.spreadsheet.messages.dialogs, {
     "alignmentDialog": {
         "title": "Zarovnanie",
         "buttons": {
-            "justtifyLeft": "Zarovnať vľavo",
+            "justifyLeft": "Zarovnať vľavo",
             "justifyCenter": "Centrovať",
             "justifyRight": "Zarovnať vpravo",
             "justifyFull": "Zarovnať do bloku",
@@ -765,7 +765,7 @@ $.extend(true, kendo.spreadsheet.messages.toolbar, {
     "addRowBelow": "Pridať riadok pod",
     "alignment": "Zarovnanie",
     "alignmentButtons": {
-        "justtifyLeft": "Zarovnať vľavo",
+        "justifyLeft": "Zarovnať vľavo",
         "justifyCenter": "Centrovať",
         "justifyRight": "Zarovnať vpravo",
         "justifyFull": "Zarovnať do bloku",

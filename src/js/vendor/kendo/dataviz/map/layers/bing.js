@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -70,10 +70,10 @@ import "./tile.js";
                 var resource = this.resource = data.resourceSets[0].resources[0];
 
                 deepExtend(this._view.options, {
-                    urlTemplate: resource.imageUrl
-                        .replace("{subdomain}", "#= subdomain #")
-                        .replace("{quadkey}", "#= quadkey #")
-                        .replace("{culture}", "#= culture #"),
+                    urlTemplate: ({ subdomain, quadkey, culture }) => resource.imageUrl
+                        .replace("{subdomain}", subdomain)
+                        .replace("{quadkey}", quadkey)
+                        .replace("{culture}", culture),
                     subdomains: resource.imageUrlSubdomains
                 });
 

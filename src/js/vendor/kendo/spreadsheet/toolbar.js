@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -14,9 +14,6 @@ import "../kendo.popup.js";
 import "./borderpalette.js";
 
 (function(kendo) {
-
-
-
     var $ = kendo.jQuery;
 
     var ToolBar = kendo.ui.ToolBar;
@@ -28,7 +25,7 @@ import "./borderpalette.js";
         addRowBelow: "Add row below",
         alignment: "Alignment",
         alignmentButtons: {
-            justtifyLeft: "Align left",
+            justifyLeft: "Align left",
             justifyCenter: "Center",
             justifyRight: "Align right",
             justifyFull: "Justify",
@@ -105,168 +102,508 @@ import "./borderpalette.js";
         home: [
             "open",
             "exportAs",
+            "separator",
             [ "cut", "copy", "paste" ],
-            [ "bold", "italic", "underline" ], "hyperlink", "insertComment", "insertImage",
-            "backgroundColor", "textColor",
+            "separator",
+            "fontFamily",
+            "fontSize",
+            [ "bold", "italic", "underline" ],
+            "separator",
+            "textColor",
+            "separator",
+            "backgroundColor",
             "borders",
-            "fontSize", "fontFamily",
+            "separator",
             "alignment",
             "textWrap",
+            "separator",
             [ "formatDecreaseDecimal", "formatIncreaseDecimal" ],
-            "format",
-            "merge",
-            "freeze",
+            "separator",
             "filter",
+            "format",
+            "hyperlink",
+            "separator",
+            "insertImage",
+            "insertComment",
+            "separator",
+            "freeze",
+            "merge",
             "toggleGridlines"
         ],
         insert: [
             [ "addColumnLeft", "addColumnRight", "addRowBelow", "addRowAbove" ],
+            "separator",
             [ "deleteColumn", "deleteRow" ]
         ],
         data: [
             "sort",
+            "separator",
             "filter",
+            "separator",
             "validation"
         ]
     };
 
+    var defaultFormats = kendo.spreadsheet.formats = {
+        automatic: null,
+        text: "@",
+        number: "#,0.00",
+        percent: "0.00%",
+        financial: '_("$"* #,##0.00_);_("$"* (#,##0.00);_("$"* "-"??_);_(@_)',
+        currency: "$#,##0.00;[Red]$#,##0.00",
+        date: "m/d/yyyy",
+        time: "h:mm:ss AM/PM",
+        dateTime: "m/d/yyyy h:mm",
+        duration: "[h]:mm:ss"
+    };
+
+    var colorPickerPalette = [ //metro palette
+        "#ffffff", "#000000", "#d6ecff", "#4e5b6f", "#7fd13b", "#ea157a", "#feb80a", "#00addc", "#738ac8", "#1ab39f",
+        "#f2f2f2", "#7f7f7f", "#a7d6ff", "#d9dde4", "#e5f5d7", "#fad0e4", "#fef0cd", "#c5f2ff", "#e2e7f4", "#c9f7f1",
+        "#d8d8d8", "#595959", "#60b5ff", "#b3bcca", "#cbecb0", "#f6a1c9", "#fee29c", "#8be6ff", "#c7d0e9", "#94efe3",
+        "#bfbfbf", "#3f3f3f", "#007dea", "#8d9baf", "#b2e389", "#f272af", "#fed46b", "#51d9ff", "#aab8de", "#5fe7d5",
+        "#a5a5a5", "#262626", "#003e75", "#3a4453", "#5ea226", "#af0f5b", "#c58c00", "#0081a5", "#425ea9", "#138677",
+        "#7f7f7f", "#0c0c0c", "#00192e", "#272d37", "#3f6c19", "#750a3d", "#835d00", "#00566e", "#2c3f71", "#0c594f"
+    ];
+
+    var COLOR_PICKER_MESSAGES = kendo.spreadsheet.messages.colorPicker = {
+        reset: "Reset color",
+        customColor: "Custom color...",
+        apply: "Apply",
+        cancel: "Cancel"
+    };
+
     var toolDefaults = {
+        separator: { type: "separator" },
         //home tab
-        open:                  { type: "open",                                     overflow: "never",                          iconClass: "file-excel" },
-        exportAs:              { type: "exportAsDialog", dialogName: "exportAs",   overflow: "never",       text: "",        iconClass: "file-excel" },
-        bold:                  { type: "button", command: "PropertyChangeCommand", property: "bold",          value: true,     iconClass: "bold", togglable: true },
-        italic:                { type: "button", command: "PropertyChangeCommand", property: "italic",        value: true,     iconClass: "italic", togglable: true },
-        underline:             { type: "button", command: "PropertyChangeCommand", property: "underline",     value: true,     iconClass: "underline", togglable: true },
-        formatDecreaseDecimal: { type: "button", command: "AdjustDecimalsCommand",                            value: -1,       iconClass: "decimal-decrease" },
-        formatIncreaseDecimal: { type: "button", command: "AdjustDecimalsCommand",                            value: +1,       iconClass: "decimal-increase" },
-        textWrap:              { type: "button", command: "TextWrapCommand",       property: "wrap",          value: true,     iconClass: "text-wrap", togglable: true },
-        cut:                   { type: "button", command: "ToolbarCutCommand",                                                 iconClass: "cut" },
-        copy:                  { type: "button", command: "ToolbarCopyCommand",                                                iconClass: "copy" },
-        paste:                 { type: "button", command: "ToolbarPasteCommand",                                               iconClass: "paste" },
-        separator:             { type: "separator" },
-        alignment:             { type: "alignment",                           iconClass: "align-left" },
-        backgroundColor:       { type: "colorPicker", property: "background", iconClass: "paint" },
-        textColor:             { type: "colorPicker", property: "color",      iconClass: "foreground-color" },
-        fontFamily:            { type: "fontFamily",  property: "fontFamily", iconClass: "font-family" },
-        fontSize:              { type: "fontSize",    property: "fontSize",   iconClass: "font-size" },
-        format:                { type: "format",      property: "format",     iconClass: "custom-format" },
-        filter:                { type: "filter",      property: "hasFilter",  iconClass: "filter" },
-        merge:                 { type: "merge",                               iconClass: "cells-merge" },
-        freeze:                { type: "freeze",                              iconClass: "pane-freeze" },
-        borders:               { type: "borders",                             iconClass: "borders-all" },
-        formatCells:           { type: "dialog", dialogName: "formatCells", overflow: "never" },
-        hyperlink:             { type: "dialog", dialogName: "hyperlink", iconClass: "link-horizontal", overflow: "never", text: "" },
-        toggleGridlines:       { type: "button", command: "GridLinesChangeCommand", property: "gridLines", value: true, iconClass: "border-no", togglable: true },
-        insertComment:         { type: "dialog", dialogName: "insertComment", property: "comment", togglable: true, overflow: "never", iconClass: "comment", text: "" },
-        insertImage:           { type: "dialog", dialogName: "insertImage", overflow: "never", iconClass: "image", text: "" },
+        open: {
+            type: "open",
+            name: "open",
+            icon: "folder-open",
+            extensions: ".xlsx",
+            command: "OpenCommand"
+        },
+        exportAs: {
+            type: "button",
+            name: "exportAs",
+            dialog: "exportAs",
+            overflow: "never",
+            icon: "download"
+        },
+        bold: {
+            type: "button",
+            command: "PropertyChangeCommand",
+            property: "bold",
+            value: true,
+            icon: "bold",
+            togglable: true
+        },
+        italic: {
+            type: "button",
+            command: "PropertyChangeCommand",
+            property: "italic",
+            value: true,
+            icon: "italic",
+            togglable: true
+        },
+        underline: {
+            type: "button",
+            command: "PropertyChangeCommand",
+            property: "underline",
+            value: true,
+            icon: "underline",
+            togglable: true
+        },
+        formatDecreaseDecimal: {
+            type: "button",
+            name: "formatDecreaseDecimal",
+            command: "AdjustDecimalsCommand",
+            value: -1,
+            icon: "decimal-decrease"
+        },
+        formatIncreaseDecimal: {
+            type: "button",
+            name: "formatIncreaseDecimal",
+            command: "AdjustDecimalsCommand",
+            value: +1,
+            icon: "decimal-increase"
+        },
+        textWrap: {
+            type: "button",
+            name: "textWrap",
+            command: "TextWrapCommand",
+            property: "wrap",
+            value: true,
+            icon: "text-wrap",
+            togglable: true
+        },
+        cut: {
+            type: "button",
+            name: "cut",
+            command: "ToolbarCutCommand",
+            icon: "cut"
+        },
+        copy: {
+            type: "button",
+            name: "copy",
+            command: "ToolbarCopyCommand",
+            icon: "copy"
+        },
+        paste: {
+            type: "button",
+            name: "paste",
+            command: "ToolbarPasteCommand",
+            icon: "paste"
+        },
+        alignment: {
+            type: "component",
+            name: "alignment",
+            property: "alignment",
+            component: "DropDownButton",
+            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-align-left"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            overflowComponent: {
+                type: "button",
+                dialog: "alignment",
+                icon: "align-left"
+            },
+            componentOptions: {
+                items: [
+                    { attributes: { "data-value": "left", "data-property": "textAlign", "data-command": "PropertyChangeCommand" }, icon: "align-left", text: MESSAGES.alignmentButtons.justifyLeft },
+                    { attributes: { "data-value": "center", "data-property": "textAlign", "data-command": "PropertyChangeCommand" }, icon: "align-center", text: MESSAGES.alignmentButtons.justifyCenter },
+                    { attributes: { "data-value": "right", "data-property": "textAlign", "data-command": "PropertyChangeCommand" }, icon: "align-right", text: MESSAGES.alignmentButtons.justifyRight },
+                    { attributes: { "data-value": "justify", "data-property": "textAlign", "data-command": "PropertyChangeCommand" }, icon: "align-justify", text: MESSAGES.alignmentButtons.justifyFull },
+                    { attributes: { class: "k-separator" } },
+                    { attributes: { "data-value": "top", "data-property": "verticalAlign", "data-command": "PropertyChangeCommand" }, icon: "align-top", text: MESSAGES.alignmentButtons.alignTop },
+                    { attributes: { "data-value": "center", "data-property": "verticalAlign", "data-command": "PropertyChangeCommand" }, icon: "align-middle", text: MESSAGES.alignmentButtons.alignMiddle },
+                    { attributes: { "data-value": "bottom", "data-property": "verticalAlign", "data-command": "PropertyChangeCommand" }, icon: "align-bottom", text: MESSAGES.alignmentButtons.alignBottom }
+                ],
+                commandOn: "click"
+            }
+        },
+        backgroundColor: {
+            type: "component",
+            name: "backgroundColor",
+            commandOn: "change",
+            command: "PropertyChangeCommand",
+            property: "background",
+            component: "ColorPicker",
+            componentOptions: {
+                view: "palette",
+                toolIcon: "k-i-paint",
+                palette: colorPickerPalette,
+                clearButton: true,
+                messages: COLOR_PICKER_MESSAGES,
+                input: false,
+                commandOn: "change"
+            },
+            overflowComponent: {
+                type: "button",
+                dialog: "colorPicker",
+                icon: "paint"
+            }
+        },
+        textColor: {
+            type: "component",
+            name: "textColor",
+            commandOn: "change",
+            command: "PropertyChangeCommand",
+            property: "color",
+            component: "ColorPicker",
+            componentOptions: {
+                view: "palette",
+                toolIcon: "k-i-foreground-color",
+                palette: colorPickerPalette,
+                clearButton: true,
+                messages: COLOR_PICKER_MESSAGES,
+                input: false,
+                commandOn: "change"
+            },
+            overflowComponent: {
+                type: "button",
+                dialog: "colorPicker",
+                icon: "foreground-color"
+            }
+        },
+        fontFamily: {
+            type: "component",
+            name: "fontFamily",
+            command: "PropertyChangeCommand",
+            property: "fontFamily",
+            component: "DropDownList",
+            overflowComponent: {
+                type: "button",
+                dialog: "fontFamily",
+                icon: "font-family"
+            },
+            componentOptions: {
+                dataSource: ["Arial", "Courier New", "Georgia", "Times New Roman", "Trebuchet MS", "Verdana"],
+                value: "Arial" ,
+                commandOn: "change"
+            }
+        },
+        fontSize: {
+            type: "component",
+            name: "fontSize",
+            command: "PropertyChangeCommand",
+            property: "fontSize",
+            component: "ComboBox",
+            overflowComponent: {
+                type: "button",
+                dialog: "fontSize",
+                icon: "font-size"
+            },
+            componentOptions: {
+                dataSource: [8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72],
+                value: 12,
+                commandOn: "change"
+            }
+        },
+        format: {
+            type: "component",
+            name: "format",
+            component: "DropDownButton",
+            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-custom-format"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            overflowComponent: {
+                type: "button",
+                dialog: "formatCells",
+                icon: "custom-format"
+            },
+            componentOptions: {
+                items: [
+                    { attributes: { "data-value": defaultFormats.automatic, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.automatic },
+                    { attributes: { "data-value": defaultFormats.text, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.text },
+                    { attributes: { "data-value": defaultFormats.number, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.number, sample: "1,499.99" },
+                    { attributes: { "data-value": defaultFormats.percent, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.percent, sample: "14.50%" },
+                    { attributes: { "data-value": defaultFormats.financial, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.financial, sample: "(1,000.12)" },
+                    { attributes: { "data-value": defaultFormats.currency, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.currency, sample: "$1,499.99" },
+                    { attributes: { "data-value": defaultFormats.date, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.date, sample: "4/21/2012" },
+                    { attributes: { "data-value": defaultFormats.time, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.time, sample: "5:49:00 PM" },
+                    { attributes: { "data-value": defaultFormats.dateTime, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.dateTime, sample: "4/21/2012 5:49:00" },
+                    { attributes: { "data-value": defaultFormats.duration, "data-command": "PropertyChangeCommand", "data-property": "format" }, text: MESSAGES.formatTypes.duration, sample: "168:05:00" },
+                    { attributes: { "data-value": "popup", "data-popup": "formatCells" }, text: MESSAGES.formatTypes.moreFormats },
+                ],
+                itemTemplate:
+                    '<span class="k-link k-menu-link"><span class="k-menu-link-text">' +
+                        "# if (data.sample) { #" +
+                            "<span class='k-spreadsheet-sample'>#: data.sample #</span>" +
+                        "# } #" +
+                        "#: data.text #" +
+                    '</span></span>',
+                commandOn: "click"
+            }
+        },
+        filter: {
+            type: "button",
+            name: "filter",
+            property: "hasFilter",
+            icon: "filter",
+            command: "FilterCommand",
+            togglable: true,
+            enable: false
+        },
+        merge: {
+            type: "component",
+            name: "merge",
+            component: "DropDownButton",
+            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-cells-merge"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            overflowComponent: {
+                type: "button",
+                dialog: "merge",
+                icon: "cells-merge"
+            },
+            componentOptions: {
+                items: [
+                    { attributes: { "data-value": "cells", "data-command": "MergeCellCommand" }, icon: "cells-merge", text: MESSAGES.mergeButtons.mergeCells },
+                    { attributes: { "data-value": "horizontally", "data-command": "MergeCellCommand" }, icon: "cells-merge-horizontally", text: MESSAGES.mergeButtons.mergeHorizontally },
+                    { attributes: { "data-value": "vertically", "data-command": "MergeCellCommand" }, icon: "cells-merge-vertically", text: MESSAGES.mergeButtons.mergeVertically },
+                    { attributes: { "data-value": "unmerge", "data-command": "MergeCellCommand" }, icon: "table-unmerge", text: MESSAGES.mergeButtons.unmerge }
+                ],
+                commandOn: "click"
+            }
+        },
+        freeze: {
+            type: "component",
+            name: "freeze",
+            component: "DropDownButton",
+            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-pane-freeze"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            overflowComponent: {
+                type: "button",
+                dialog: "freeze",
+                icon: "pane-freeze"
+            },
+            componentOptions: {
+                items: [
+                    { attributes: { "data-value": "panes", "data-command": "FreezePanesCommand" }, icon: "pane-freeze", text: MESSAGES.freezeButtons.freezePanes },
+                    { attributes: { "data-value": "rows", "data-command": "FreezePanesCommand" }, icon: "row-freeze", text: MESSAGES.freezeButtons.freezeRows },
+                    { attributes: { "data-value": "columns", "data-command": "FreezePanesCommand" }, icon: "column-freeze", text: MESSAGES.freezeButtons.freezeColumns },
+                    { attributes: { "data-value": "unfreeze", "data-command": "FreezePanesCommand" }, icon: "table-unmerge", text: MESSAGES.freezeButtons.unfreeze }
+                ],
+                commandOn: "click"
+            }
+        },
+        borders: {
+            type: "popupButton",
+            name: "borders",
+            icon: "borders-all",
+            popupComponent: kendo.spreadsheet.BorderPalette,
+            commandOn: "change",
+            command: "BorderChangeCommand",
+            overflowComponent: {
+                type: "button",
+                dialog: "borders"
+            }
+        },
+        formatCells: {
+            type: "button",
+            dialog: "formatCells",
+            overflow: "never"
+        },
+        hyperlink: {
+            type: "button",
+            name: "hyperlink",
+            dialog: "hyperlink",
+            icon: "link-horizontal"
+        },
+        toggleGridlines: {
+            type: "button",
+            name: "toggleGridlines",
+            command: "GridLinesChangeCommand",
+            property: "gridLines",
+            value: true,
+            icon: "border-no",
+            togglable: true,
+            selected: true
+        },
+        insertComment: {
+            type: "button",
+            name: "insertComment",
+            dialog: "insertComment",
+            property: "comment",
+            togglable: true,
+            icon: "comment"
+        },
+        insertImage: {
+            type: "button",
+            name: "insertImage",
+            dialog: "insertImage",
+            icon: "image",
+        },
 
         //insert tab
-        addColumnLeft:         { type: "button", command: "AddColumnCommand",    value: "left",  iconClass: "table-column-insert-left"  },
-        addColumnRight:        { type: "button", command: "AddColumnCommand",    value: "right", iconClass: "table-column-insert-right" },
-        addRowBelow:           { type: "button", command: "AddRowCommand",       value: "below", iconClass: "table-row-insert-below"    },
-        addRowAbove:           { type: "button", command: "AddRowCommand",       value: "above", iconClass: "table-row-insert-above"    },
-        deleteColumn:          { type: "button", command: "DeleteColumnCommand",                 iconClass: "table-column-delete"    },
-        deleteRow:             { type: "button", command: "DeleteRowCommand",                    iconClass: "table-row-delete"       },
+        addColumnLeft: {
+            type: "button",
+            name: "addColumnLeft",
+            command: "AddColumnCommand",
+            value: "left",
+            icon: "table-column-insert-left"
+        },
+        addColumnRight: {
+            type: "button",
+            name: "addColumnRight",
+            command: "AddColumnCommand",
+            value: "right",
+            icon: "table-column-insert-right"
+        },
+        addRowBelow: {
+            type: "button",
+            name: "addRowBelow",
+            command: "AddRowCommand",
+            value: "below",
+            icon: "table-row-insert-below"
+        },
+        addRowAbove: {
+            type: "button",
+            name: "addRowAbove",
+            command: "AddRowCommand",
+            value: "above",
+            icon: "table-row-insert-above"
+        },
+        deleteColumn: {
+            type: "button",
+            name: "deleteColumn",
+            command: "DeleteColumnCommand",
+            icon: "table-column-delete"
+        },
+        deleteRow: {
+            type: "button",
+            name: "deleteRow",
+            command: "DeleteRowCommand",
+            icon: "table-row-delete"
+        },
 
         //data tab
-        sort:                  { type: "sort", iconClass: "sort-desc" },
-        validation:            { type: "dialog", dialogName: "validation", iconClass: "exception", overflow: "never" }
+        sort: {
+            type: "component",
+            name: "sort",
+            component: "DropDownButton",
+            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-sort-desc"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            overflowComponent: {
+                type: "button",
+                dialog: "sort",
+                icon: "sort-desc"
+            },
+            componentOptions: {
+                items: [
+                    { attributes: { "data-value": "asc", "data-command": "SortCommand" }, sheet: false, text: MESSAGES.sortButtons.sortRangeAsc, icon: "sort-asc" },
+                    { attributes: { "data-value": "desc", "data-command": "SortCommand" }, sheet: false, text: MESSAGES.sortButtons.sortRangeDesc, icon: "sort-desc" },
+                ],
+                commandOn: "click"
+            }
+        },
+        validation: {
+            type: "button",
+            name: "validation",
+            dialog: "validation",
+            icon: "exception"
+        }
     };
 
     var SpreadsheetToolBar = ToolBar.extend({
         init: function(element, options) {
-            options.items = this._expandTools(options.tools || SpreadsheetToolBar.prototype.options.tools[options.toolbarName]);
+            Object.keys(toolDefaults).forEach((t) => {
+                if (t !== "validation") {
+                    toolDefaults[t].showText = "overflow";
+                }
+            });
+
+            options.tools = options.tools || SpreadsheetToolBar.prototype.options.tools[options.toolbarName];
+            options.parentMessages = MESSAGES;
+            options.defaultTools = toolDefaults;
 
             ToolBar.fn.init.call(this, element, options);
             var handleClick = this._click.bind(this);
 
             this.element.addClass("k-spreadsheet-toolbar");
 
-            this._addSeparators(this.element);
-
-            this.element.on("focusout", function () {
-                $(this).find(".k-toolbar-first-visible").removeClass("k-focus");
-            });
-
             this.bind({
                 click: handleClick,
-                toggle: handleClick
+                toggle: handleClick,
+                change: handleClick
             });
         },
-        _nextTool: function (direction) {
-            var that = this;
-            var tools = that.element.find(".k-dropdownlist, .k-combobox, .k-button, .k-button-group > a").not("[tabindex=-1]");
-            var activeIndex = tools.index($(document.activeElement).closest(".k-dropdownlist, .k-combobox, .k-button, .k-button-group > a").not("[tabindex=-1]"));
-            if (activeIndex > 0) {
-                return tools[activeIndex + direction];
-            }
-        },
-        _addSeparators: function(element) {
-            var groups = element.children(".k-toolbar-item, .k-dropdownlist, .k-combobox, a.k-button, .k-button-group");
-
-            groups.before("<span class='k-separator'></span>");
-        },
-        _expandTools: function(tools) {
-            function expandTool(toolName) {
-                // expand string to object, add missing tool properties
-                var options = $.isPlainObject(toolName) ? toolName : toolDefaults[toolName] || {};
-                var spriteCssClass = "k-icon k-i-" + options.iconClass;
-                var type = options.type;
-                var typeDefaults = {
-                    button: {
-                        showText: "overflow"
-                    },
-                    colorPicker: {
-                        toolIcon: spriteCssClass,
-                        spriteCssClass: spriteCssClass
-                    },
-                    borders: { spriteCssClass: spriteCssClass },
-                    alignment:  { spriteCssClass: spriteCssClass },
-                    merge:  { spriteCssClass: spriteCssClass },
-                    freeze:  { spriteCssClass: spriteCssClass }
-                };
-
-                var tool = kendo.deepExtend({
-                    name: options.name || toolName,
-                    text: MESSAGES[options.name || toolName],
-                    icon: options.iconClass,
-                    attributes: {
-                        title: MESSAGES[options.name || toolName],
-                        "aria-label":   MESSAGES[options.name || toolName]
-                    }
-                }, typeDefaults[type], options);
-
-                if (type == "splitButton") {
-                    tool.menuButtons = tool.menuButtons.map(expandTool);
-                }
-
-                if(tool.name === "fontSize" || toolName === "fontSize") {
-                    tool.attributes["aria-label"] = null;
-                }
-
-                tool.attributes["data-tool"] = toolName;
-
-                if (options.property) {
-                    tool.attributes["data-property"] = options.property;
-                }
-
-                return tool;
-            }
-
-            return tools.reduce(function(tools, tool) {
-                if (Array.isArray(tool)) {
-                    tools.push({ type: "buttonGroup", buttons: tool.map(expandTool) });
-                } else {
-                    tools.push(expandTool.call(this, tool));
-                }
-
-                return tools;
-            }, []);
-        },
         _click: function(e) {
-            var toolName = e.target.attr("data-tool");
-            var tool = toolDefaults[toolName] || {};
-            var commandType = tool.command;
+            var target = e.target,
+                property = target.data("property"),
+                value = e.value || target.data("value") || e.target.val(),
+                commandType = target.data("command"),
+                dialog = target.data("dialog"),
+                options = target.data("options") || {};
+
+            if (value === "popup") {
+                // Special case to open custom format dialog from option of the format DDL
+                dialog = target.data("popup");
+            }
+
+            options.property = property || null;
+            options.value = value || null;
+
+            if (dialog) {
+                this.dialog({
+                    name: dialog,
+                    options: options
+                });
+                return;
+            }
 
             if (!commandType) {
                 return;
@@ -274,10 +611,7 @@ import "./borderpalette.js";
 
             var args = {
                 command: commandType,
-                options: {
-                    property: tool.property || null,
-                    value: tool.value || null
-                }
+                options: options
             };
 
             if (typeof args.options.value === "boolean") {
@@ -287,13 +621,6 @@ import "./borderpalette.js";
             this.action(args);
         },
         events: [
-            "click",
-            "toggle",
-            "open",
-            "close",
-            "overflowOpen",
-            "overflowClose",
-
             "action",
             "dialog"
         ],
@@ -309,84 +636,23 @@ import "./borderpalette.js";
             this.trigger("dialog", args);
         },
         refresh: function(activeCell) {
-            var range = activeCell;
-            var tools = this._tools();
-
-            function setToggle(tool, value) {
-                var toolbar = tool.toolbar;
-                var overflow = tool.overflow;
-                var togglable = (toolbar && toolbar.options.togglable) ||
-                                 (overflow && overflow.options.togglable);
-
-                if (!togglable) {
-                    return;
-                }
-
-                var toggle = false;
-
-                if (typeof value === "boolean") {
-                    toggle = value;
-                } else if (typeof value === "string") {
-                    if (toolbar.options.hasOwnProperty("value")) {
-                        toggle = toolbar.options.value === value;
-                    } else {
-                        // if no value is specified in the tool
-                        // options, assume it should be ON if the
-                        // range value is not null, and OFF otherwise.
-                        toggle = value != null;
-                    }
-                }
-
-                toolbar.toggle(toggle);
-
-                if (overflow) {
-                    overflow.toggle(toggle);
-                }
-            }
-
-            function update(tool, value) {
-                var toolbar = tool.toolbar;
-                var overflow = tool.overflow;
-                var selection, enabled;
-
-                if (toolbar && toolbar.update) {
-                    toolbar.update(value);
-                }
-
-                if (overflow && overflow.update) {
-                    overflow.update(value);
-                }
-
-                if (tool.type == "filter") {
-                    selection = range.sheet().selection();
-
-                    if (selection && selection._ref && selection._ref.height) {
-                        enabled = value || selection._ref.height() > 1;
-                        toolbar.enable(enabled);
-                        overflow.enable(enabled);
-                    }
-                }
-            }
+            var range = activeCell,
+                tools = this._tools();
 
             for (var i = 0; i < tools.length; i++) {
-                var property = tools[i].property;
-                var tool = tools[i].tool;
-                var value = kendo.isFunction(range[property]) ? range[property]() : range;
+                var property = tools[i].property,
+                    tool = tools[i].tool,
+                    value = kendo.isFunction(range[property]) ? range[property]() : range;
 
                 if (property == "gridLines") {
-                    // the law of leaky abstractions kicks in.  this
-                    // isn't really a property of the range, it's
-                    // per-sheet.
+                    // this isn't really a property of the range, it's per-sheet.
                     value = range.sheet().showGridLines();
                 }
 
-                if (tool.type === "button") {
-                    setToggle(tool, value);
-                } else {
-                    update(tool, value);
-                }
+                this._updateTool(tool, value, property, range);
             }
-            this.resize();
+
+            this.resize(true);
         },
         _tools: function() {
             return this.element.find("[data-property]").toArray().map(function(element) {
@@ -397,791 +663,57 @@ import "./borderpalette.js";
                 };
             }.bind(this));
         },
-        destroy: function() {
-            // TODO: move to ToolBar.destroy to take care of these
-            this.element.find("[data-command],.k-button").each(function() {
-                var element = $(this);
-                var instance = element.data("instance");
-                if (instance && instance.destroy) {
-                    instance.destroy();
-                }
-            });
+        _updateTool: function(tool, value, property, range) {
+            var component = tool.component,
+                toolbarEl = tool.toolbarEl,
+                widget = kendo.widgetInstance(toolbarEl.find("[data-role]")),
+                menuItem = tool.menuItem,
+                toggle = false,
+                vertical, text, menu, selection, enabled, label;
 
-            ToolBar.fn.destroy.call(this);
+            if (property === "hasFilter") {
+                selection = range.sheet().selection();
+
+                if (selection && selection._ref && selection._ref.height) {
+                    enabled = value || selection._ref.height() > 1;
+
+                    this.enable(toolbarEl, enabled);
+                }
+            } else if (property === "alignment") {
+                vertical = value.verticalAlign();
+                text = value.textAlign();
+                menu = component.menu.element;
+
+                menu.find(".k-item .k-link").removeClass("k-selected");
+                menu.find(".k-item[data-property=textAlign][data-value=" + text + "] .k-link").addClass("k-selected");
+                menu.find(".k-item[data-property=verticalAlign][data-value=" + vertical + "] .k-link").addClass("k-selected");
+            } else if (property === "background" || property === "color") {
+                widget.value(value);
+            } else if (property === "fontFamily" || property === "fontSize") {
+                label = menuItem.find(".k-menu-link-text").text().split("(")[0].trim();
+                menuItem.find(".k-menu-link-text").text(label + " (" + value + ") ...");
+                widget.value(value);
+            }
+
+            if (component && component.toggle) {
+                if (typeof value === "boolean") {
+                    toggle = !!value;
+                } else if (typeof value === "string") {
+                    if (toolbarEl.data("value")) {
+                        toggle = toolbarEl.data("value") === value;
+                    } else {
+                        // if no value is specified in the tool options,
+                        // assume it should be ON if the range value is not null, and OFF otherwise.
+                        toggle = value != null;
+                    }
+                }
+
+                this.toggle(toolbarEl, toggle);
+            }
         }
     });
+
     kendo.spreadsheet.ToolBar = SpreadsheetToolBar;
-
-    var DropDownTool = kendo.toolbar.TemplateItem.extend({
-        init: function(options, toolbar) {
-            var dropDownList = $("<select />")
-                .attr("title", options.attributes.title)
-                .attr("aria-label", options.attributes.title)
-                .kendoDropDownList({
-                    height: "auto",
-                    autoWidth: true
-                }).data("kendoDropDownList");
-
-            this.dropDownList = dropDownList;
-
-            delete options.attributes["aria-label"];
-
-            kendo.toolbar.TemplateItem.fn.init.call(this, dropDownList.wrapper, options, toolbar);
-
-            dropDownList.bind("open", this._open.bind(this));
-            dropDownList.bind("change", this._change.bind(this));
-
-            this.element.parent(".k-toolbar-item").width(options.width).attr({
-                "data-command": "PropertyChangeCommand",
-                "data-property": options.property
-            });
-        },
-        _open: function() {
-            var ddl = this.dropDownList;
-            var list = ddl.list;
-            var listWidth;
-
-            list.css({
-                whiteSpace: "nowrap",
-                width: "auto"
-            });
-
-            listWidth = list.width();
-
-            if (listWidth > 0) {
-                listWidth += 20;
-            } else {
-                listWidth = ddl._listWidth;
-            }
-
-            list.css("width", listWidth + kendo.support.scrollbar());
-
-            ddl._listWidth = listWidth;
-        },
-        _change: function(e) {
-            var that = this;
-            var instance = e.sender;
-            var value = instance.value();
-            var dataItem = instance.dataItem();
-            var popupName = dataItem ? dataItem.popup : undefined;
-
-            if (popupName) {
-                setTimeout(function () {
-                    that.toolbar.dialog({ name: popupName });
-                });
-            } else {
-                that.toolbar.action({
-                    command: "PropertyChangeCommand",
-                    options: {
-                        property: this.options.property,
-                        value: value == "null" ? null : value
-                    }
-                });
-            }
-        },
-        value: function(value) {
-            if (value !== undefined) {
-                this.dropDownList.value(value);
-            } else {
-                return this.dropDownList.value();
-            }
-        }
-    });
-
-    var PopupTool = kendo.toolbar.Item.extend({
-        init: function(options, toolbar) {
-            this.element = $("<a role='button' href='#' class='k-button k-button-md k-rounded-md  k-button-solid k-button-solid-base'>" +
-                                "<span class='k-button-icon k-icon " + options.spriteCssClass + "'></span>" +
-                                "<span class='k-button-text'><span class='k-icon k-i-arrow-s'></span></span>" +
-                            "</a>");
-
-            this.element
-                .on("click touchend", this.open.bind(this))
-                .attr("data-command", options.command);
-
-            this.options = options;
-            this.toolbar = toolbar;
-
-            this.attributes();
-            this.addUidAttr();
-            this.addOverflowAttr();
-
-            this._popup();
-        },
-        destroy: function() {
-            this.popup.destroy();
-        },
-        open: function(ev) {
-            ev.preventDefault();
-            this.popup.toggle();
-        },
-        _popup: function() {
-            var element = this.element;
-
-            this.popup = $("<div class='k-spreadsheet-popup' />").appendTo(element).kendoPopup({
-                anchor: element
-            }).data("kendoPopup");
-        }
-    });
-
-    kendo.toolbar.registerComponent("dialog", kendo.toolbar.ToolBarButton.extend({
-        init: function(options, toolbar) {
-            kendo.toolbar.ToolBarButton.fn.init.call(this, options, toolbar);
-
-            this._dialogName = options.dialogName;
-
-            this.element.on("click touchend", this.open.bind(this))
-                        .data("instance", this);
-        },
-        open: function() {
-            this.toolbar.dialog({ name: this._dialogName });
-        }
-    }));
-
-    kendo.toolbar.registerComponent("exportAsDialog", kendo.toolbar.Item.extend({
-        init: function(options, toolbar) {
-            this._dialogName = options.dialogName;
-
-            this.toolbar = toolbar;
-            this._title = options.attributes.title;
-            this.element = $("<button type='button' role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button'>" +
-                                 "<span class='k-button-icon k-icon k-i-download'></span>" +
-                             "</button>")
-                             .attr("title", this._title)
-                             .attr("aria-label", this._title)
-                             .data("instance", this);
-
-            this.element.on("click", this.open.bind(this))
-                        .data("instance", this);
-        },
-        open: function() {
-            this.toolbar.dialog({ name: this._dialogName });
-        }
-    }));
-
-    var OverflowDialogButton = kendo.toolbar.OverflowButton.extend({
-        init: function(options, toolbar) {
-            kendo.toolbar.OverflowButton.fn.init.call(this, options, toolbar);
-
-            this.element.on("click touchend", this._click.bind(this));
-
-            this.message = this.options.text;
-
-            var instance = this.element.data("button");
-            this.element.data(this.options.type, instance);
-        },
-        _click: $.noop
-    });
-
-    var ColorPicker = PopupTool.extend({
-        init: function(options, toolbar) {
-            PopupTool.fn.init.call(this, options, toolbar);
-            this.popup.element.addClass("k-spreadsheet-colorpicker");
-
-            this.colorChooser = new kendo.spreadsheet.ColorChooser(this.popup.element, {
-                change: this._colorChange.bind(this)
-            });
-
-            this.element.attr({
-                "data-property": options.property
-            });
-
-            this.element.data({
-                type: "colorPicker",
-                colorPicker: this,
-                instance: this
-            });
-        },
-        destroy: function() {
-            this.colorChooser.destroy();
-            PopupTool.fn.destroy.call(this);
-        },
-        update: function(value) {
-            this.value(value);
-        },
-        value: function(value) {
-            this.colorChooser.value(value);
-        },
-        _colorChange: function(e) {
-            this.toolbar.action({
-                command: "PropertyChangeCommand",
-                options: {
-                    property: this.options.property,
-                    value: e.sender.value()
-                }
-            });
-            this.popup.close();
-        }
-    });
-
-    var ColorPickerButton = OverflowDialogButton.extend({
-        init: function(options, toolbar) {
-            options.iconName = "text";
-            OverflowDialogButton.fn.init.call(this, options, toolbar);
-        },
-        _click: function() {
-            this.toolbar.dialog({
-                name: "colorPicker",
-                options: {
-                    title: this.options.property, property: this.options.property
-                }
-            });
-        }
-    });
-
-    kendo.toolbar.registerComponent("colorPicker", ColorPicker, ColorPickerButton);
-
-    var FONT_SIZES = [8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
-    var DEFAULT_FONT_SIZE = 12;
-
-    var FontSize = kendo.toolbar.TemplateItem.extend({
-        init: function(options, toolbar) {
-            var comboBox = $("<input />")
-                .attr("aria-label", options.attributes.title)
-                .attr("title", options.attributes.title)
-                .kendoComboBox({
-                    change: this._valueChange.bind(this),
-                    clearButton: false,
-                    dataSource: options.fontSizes || FONT_SIZES,
-                    value: DEFAULT_FONT_SIZE
-                }).data("kendoComboBox");
-
-            this.comboBox = comboBox;
-
-            kendo.toolbar.TemplateItem.fn.init.call(this, comboBox.wrapper, options, toolbar);
-
-            this.element.width(options.width).attr({
-                "data-command": "PropertyChangeCommand",
-                "data-property": options.property
-            });
-
-            this.element.data({
-                type: "fontSize",
-                fontSize: this
-            });
-        },
-
-        _valueChange: function(e) {
-            this.toolbar.action({
-                command: "PropertyChangeCommand",
-                options: {
-                    property: this.options.property,
-                    value: kendo.parseInt(e.sender.value())
-                }
-            });
-        },
-
-        update: function(value) {
-            this.value(kendo.parseInt(value) || DEFAULT_FONT_SIZE);
-        },
-
-        value: function(value) {
-            if (value !== undefined) {
-                this.comboBox.value(value);
-            } else {
-                return this.comboBox.value();
-            }
-        }
-    });
-
-    var FontSizeButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({
-                name: "fontSize",
-                options: {
-                    sizes: FONT_SIZES,
-                    defaultSize: DEFAULT_FONT_SIZE
-                }
-            });
-        },
-        update: function(value) {
-            this._value = value || DEFAULT_FONT_SIZE;
-            this.element.find(".k-button-text").text(this.message + " (" + this._value + ") ...");
-        }
-    });
-
-    kendo.toolbar.registerComponent("fontSize", FontSize, FontSizeButton);
-
-    var FONT_FAMILIES = ["Arial", "Courier New", "Georgia", "Times New Roman", "Trebuchet MS", "Verdana"];
-    var DEFAULT_FONT_FAMILY = "Arial";
-
-    var FontFamily = DropDownTool.extend({
-        init: function(options, toolbar) {
-            DropDownTool.fn.init.call(this, options, toolbar);
-
-            var ddl = this.dropDownList;
-            ddl.setDataSource(options.fontFamilies || FONT_FAMILIES);
-            ddl.value(DEFAULT_FONT_FAMILY);
-
-            this.element.data({
-                type: "fontFamily",
-                fontFamily: this
-            });
-        },
-        update: function(value) {
-            this.value(value || DEFAULT_FONT_FAMILY);
-        }
-    });
-
-    var FontFamilyButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({
-                name: "fontFamily",
-                options: {
-                    fonts: FONT_FAMILIES,
-                    defaultFont: DEFAULT_FONT_FAMILY
-                }
-            });
-        },
-        update: function(value) {
-            this._value = value || DEFAULT_FONT_FAMILY;
-            this.element.find(".k-button-text").text(this.message + " (" + this._value + ") ...");
-        }
-    });
-
-    kendo.toolbar.registerComponent("fontFamily", FontFamily, FontFamilyButton);
-
-    var defaultFormats = kendo.spreadsheet.formats = {
-        automatic: null,
-        text: "@",
-        number: "#,0.00",
-        percent: "0.00%",
-        financial: '_("$"* #,##0.00_);_("$"* (#,##0.00);_("$"* "-"??_);_(@_)',
-        currency: "$#,##0.00;[Red]$#,##0.00",
-        date: "m/d/yyyy",
-        time: "h:mm:ss AM/PM",
-        dateTime: "m/d/yyyy h:mm",
-        duration: "[h]:mm:ss"
-    };
-
-    var Format = DropDownTool.extend({
-        _revertTitle: function(e) {
-            e.sender.value("");
-            e.sender.wrapper.width("auto");
-        },
-        init: function(options, toolbar) {
-            DropDownTool.fn.init.call(this, options, toolbar);
-
-            var ddl = this.dropDownList;
-            var icon = "<span class='k-icon k-i-" + options.iconClass + "' style='line-height: 1em; width: 1.35em;'></span>";
-            ddl.bind("change", this._revertTitle.bind(this));
-            ddl.bind("dataBound", this._revertTitle.bind(this));
-            ddl.setOptions({
-                dataValueField: "format",
-                dataTextField: "name",
-                dataValuePrimitive: true,
-                valueTemplate: icon,
-                template:
-                    "# if (data.sample) { #" +
-                        "<span class='k-spreadsheet-sample'>#: data.sample #</span>" +
-                    "# } #" +
-                    "#: data.name #"
-            });
-            ddl.text(icon);
-            ddl.setDataSource([
-                { format: defaultFormats.automatic, name: MESSAGES.formatTypes.automatic },
-                { format: defaultFormats.text, name: MESSAGES.formatTypes.text },
-                { format: defaultFormats.number, name: MESSAGES.formatTypes.number , sample: "1,499.99" },
-                { format: defaultFormats.percent, name: MESSAGES.formatTypes.percent , sample: "14.50%" },
-                { format: defaultFormats.financial, name: MESSAGES.formatTypes.financial , sample: "(1,000.12)" },
-                { format: defaultFormats.currency, name: MESSAGES.formatTypes.currency , sample: "$1,499.99" },
-                { format: defaultFormats.date, name: MESSAGES.formatTypes.date , sample: "4/21/2012" },
-                { format: defaultFormats.time, name: MESSAGES.formatTypes.time , sample: "5:49:00 PM" },
-                { format: defaultFormats.dateTime, name: MESSAGES.formatTypes.dateTime , sample: "4/21/2012 5:49:00" },
-                { format: defaultFormats.duration, name: MESSAGES.formatTypes.duration , sample: "168:05:00" },
-                { popup: "formatCells", name: MESSAGES.formatTypes.moreFormats }
-            ]);
-
-            this.element.data({
-                type: "format",
-                format: this
-            });
-
-            ddl.wrapper.find("[role='option']").attr("aria-label", "Select format");
-        }
-    });
-
-    var FormatButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({ name: "formatCells" });
-        }
-    });
-
-    kendo.toolbar.registerComponent("format", Format, FormatButton);
-
-    var BorderChangeTool = PopupTool.extend({
-        init: function(options, toolbar) {
-            PopupTool.fn.init.call(this, options, toolbar);
-            this._borderPalette();
-
-            this.element.data({
-                type: "borders",
-                instance: this
-            });
-        },
-        destroy: function() {
-            this.borderPalette.destroy();
-            PopupTool.fn.destroy.call(this);
-        },
-        _borderPalette: function() {
-            var element = $("<div />").appendTo(this.popup.element);
-            this.borderPalette = new kendo.spreadsheet.BorderPalette(element, {
-                change: this._action.bind(this)
-            });
-        },
-        _action: function(e) {
-            this.toolbar.action({
-                command: "BorderChangeCommand",
-                options: {
-                    border: e.type,
-                    style: { size: 1, color: e.color }
-                }
-            });
-        }
-    });
-
-    var BorderChangeButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({ name: "borders" });
-        }
-    });
-
-    kendo.toolbar.registerComponent("borders", BorderChangeTool, BorderChangeButton);
-
-    var AlignmentTool = PopupTool.extend({
-        init: function(options, toolbar) {
-            PopupTool.fn.init.call(this, options, toolbar);
-
-            this.element.attr({ "data-property": "alignment" });
-            this._defineButtons();
-            this._commandPalette();
-            this.popup.element.on("click", ".k-button", function(e) {
-                this._action($(e.currentTarget));
-            }.bind(this));
-
-            this.element.data({
-                type: "alignment",
-                alignment: this,
-                instance: this
-            });
-        },
-        _defineButtons: function() {
-            this.buttons = [
-                { property: "textAlign",     value: "left",    iconClass: "align-left",   text: MESSAGES.alignmentButtons.justtifyLeft },
-                { property: "textAlign",     value: "center",  iconClass: "align-center", text: MESSAGES.alignmentButtons.justifyCenter },
-                { property: "textAlign",     value: "right",   iconClass: "align-right",  text: MESSAGES.alignmentButtons.justifyRight },
-                { property: "textAlign",     value: "justify", iconClass: "align-justify",   text: MESSAGES.alignmentButtons.justifyFull },
-                { property: "verticalAlign", value: "top",     iconClass: "align-top",      text: MESSAGES.alignmentButtons.alignTop },
-                { property: "verticalAlign", value: "center",  iconClass: "align-middle",   text: MESSAGES.alignmentButtons.alignMiddle },
-                { property: "verticalAlign", value: "bottom",  iconClass: "align-bottom",   text: MESSAGES.alignmentButtons.alignBottom }
-            ];
-        },
-        destroy: function() {
-            this.popup.element.off();
-            PopupTool.fn.destroy.call(this);
-        },
-        update: function(range) {
-            var textAlign = range.textAlign();
-            var verticalAlign = range.verticalAlign();
-            var element = this.popup.element;
-
-            element.find(".k-button").removeClass("k-selected");
-
-            if (textAlign) {
-                element.find("[data-property=textAlign][data-value=" + textAlign + "]").addClass("k-selected");
-            }
-
-            if (verticalAlign) {
-                element.find("[data-property=verticalAlign][data-value=" + verticalAlign + "]").addClass("k-selected");
-            }
-        },
-        _commandPalette: function() {
-            var buttons = this.buttons;
-            var element = $("<div />").appendTo(this.popup.element);
-            buttons.forEach(function(options, index) {
-                var button = "<a role='button' title='" + options.text + "' data-property='" + options.property + "' data-value='" + options.value + "' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button'>" +
-                                "<span class='k-button-icon k-icon k-i-" + options.iconClass + "'></span>" +
-                             "</a>";
-                if (index !== 0 && buttons[index - 1].property !== options.property) {
-                    element.append($("<span class='k-separator' />"));
-                }
-                element.append(button);
-            });
-        },
-        _action: function(button) {
-            var property = button.attr("data-property");
-            var value = button.attr("data-value");
-
-            this.toolbar.action({
-                command: "PropertyChangeCommand",
-                options: {
-                    property: property,
-                    value: value
-                }
-            });
-        }
-    });
-
-    var AlignmentButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({ name: "alignment" });
-        }
-    });
-
-    kendo.toolbar.registerComponent("alignment", AlignmentTool, AlignmentButton);
-
-    var MergeTool = PopupTool.extend({
-        init: function(options, toolbar) {
-            PopupTool.fn.init.call(this, options, toolbar);
-
-            this.popup.element.addClass("k-menu-popup");
-
-            this._defineButtons();
-            this._commandPalette();
-            this.popup.element.on("click", ".k-menu-item", function(e) {
-                this._action($(e.currentTarget));
-            }.bind(this));
-
-            this.element.data({
-                type: "merge",
-                merge: this,
-                instance: this
-            });
-        },
-        _defineButtons: function() {
-            this.buttons = [
-                { value: "cells",        iconClass: "cells-merge",        text: MESSAGES.mergeButtons.mergeCells },
-                { value: "horizontally", iconClass: "cells-merge-horizontally", text: MESSAGES.mergeButtons.mergeHorizontally },
-                { value: "vertically",   iconClass: "cells-merge-vertically",   text: MESSAGES.mergeButtons.mergeVertically },
-                { value: "unmerge",      iconClass: "table-unmerge",      text: MESSAGES.mergeButtons.unmerge }
-            ];
-        },
-        destroy: function() {
-            this.popup.element.off();
-            PopupTool.fn.destroy.call(this);
-        },
-        _commandPalette: function() {
-            var element = $("<ul class='k-group k-menu-group k-reset k-menu-group-md'>").appendTo(this.popup.element);
-
-            this.buttons.forEach(function(options) {
-                var item = "<li class='k-item k-menu-item' data-value='" + options.value + "'>" +
-                    "<span class='k-link k-menu-link'>" +
-                        "<span class='k-icon k-i-" + options.iconClass + "'></span>" +
-                        "<span class='k-menu-link-text'>" + options.text + "</span>" +
-                    "</span>" +
-                "</li>";
-
-                element.append(item);
-            });
-        },
-        _action: function(button) {
-            var value = button.attr("data-value");
-
-            this.toolbar.action({
-                command: "MergeCellCommand",
-                options: {
-                    value: value
-                }
-            });
-        }
-    });
-
-    var MergeButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({ name: "merge" });
-        }
-    });
-
-    kendo.toolbar.registerComponent("merge", MergeTool, MergeButton);
-
-    var FreezeTool = PopupTool.extend({
-        init: function(options, toolbar) {
-            PopupTool.fn.init.call(this, options, toolbar);
-
-            this.popup.element.addClass("k-menu-popup");
-            this._defineButtons();
-            this._commandPalette();
-            this.popup.element.on("click", ".k-menu-item", function(e) {
-                this._action($(e.currentTarget));
-            }.bind(this));
-
-            this.element.data({
-                type: "freeze",
-                freeze: this,
-                instance: this
-            });
-        },
-        _defineButtons: function() {
-            this.buttons = [
-                { value: "panes",    iconClass: "pane-freeze",  text: MESSAGES.freezeButtons.freezePanes },
-                { value: "rows",     iconClass: "row-freeze",    text: MESSAGES.freezeButtons.freezeRows },
-                { value: "columns",  iconClass: "column-freeze",    text: MESSAGES.freezeButtons.freezeColumns },
-                { value: "unfreeze", iconClass: "table-unmerge", text: MESSAGES.freezeButtons.unfreeze }
-            ];
-        },
-        destroy: function() {
-            this.popup.element.off();
-            PopupTool.fn.destroy.call(this);
-        },
-        _commandPalette: function() {
-            var element = $("<ul class='k-group k-menu-group k-reset k-menu-group-md'>").appendTo(this.popup.element);
-            this.buttons.forEach(function(options) {
-                var item = "<li class='k-item k-menu-item' data-value='" + options.value + "'>" +
-                    "<span class='k-link k-menu-link'>" +
-                        "<span class='k-icon k-i-" + options.iconClass + "'></span>" +
-                        "<span class='k-menu-link-text'>" + options.text + "</span>" +
-                    "</span>" +
-                "</li>";
-                element.append(item);
-            });
-        },
-        _action: function(button) {
-            var value = button.attr("data-value");
-
-            this.toolbar.action({
-                command: "FreezePanesCommand",
-                options: {
-                    value: value
-                }
-            });
-        }
-    });
-
-    var FreezeButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({ name: "freeze" });
-        }
-    });
-
-    kendo.toolbar.registerComponent("freeze", FreezeTool, FreezeButton);
-
-    var Sort = DropDownTool.extend({
-        _revertTitle: function(e) {
-            e.sender.wrapper.find('[role="option"]').attr("aria-label", e.sender.value());
-            e.sender.value("");
-            e.sender.wrapper.width("auto");
-        },
-        init: function(options, toolbar) {
-            DropDownTool.fn.init.call(this, options, toolbar);
-
-            var ddl = this.dropDownList;
-            ddl.bind("change", this._revertTitle.bind(this));
-            ddl.bind("dataBound", this._revertTitle.bind(this));
-            ddl.setOptions({
-                valueTemplate: "<span class='k-icon k-i-" + options.iconClass + "' style='line-height: 1em; width: 1.35em;'></span>",
-                template: "<span class='k-icon k-i-#= iconClass #' style='line-height: 1em; width: 1.35em;'></span>#=text#",
-                dataTextField: "text",
-                dataValueField: "value"
-            });
-            ddl.setDataSource([
-                // { value: "asc", sheet: true, asc: true,  text: MESSAGES.sortButtons.sortSheetAsc,  iconClass: "sort-asc" },
-                // { value: "desc", sheet: true, asc: false, text: MESSAGES.sortButtons.sortSheetDesc,  , iconClass: "sort-desc" },
-                { value: "asc", sheet: false, text: MESSAGES.sortButtons.sortRangeAsc, iconClass: "sort-asc" },
-                { value: "desc", sheet: false, text: MESSAGES.sortButtons.sortRangeDesc, iconClass: "sort-desc" }
-            ]);
-            ddl.select(0);
-            ddl.wrapper.find('[role="option"]').attr("aria-label", "asc");
-
-            this.element.data({
-                type: "sort",
-                sort: this
-            });
-        },
-        _change: function(e) {
-            var instance = e.sender;
-            var dataItem = instance.dataItem();
-
-            if (dataItem) {
-                this.toolbar.action({
-                    command: "SortCommand",
-                    options: {
-                        value: dataItem.value,
-                        sheet: dataItem.sheet
-                    }
-                });
-            }
-        },
-        value: $.noop
-    });
-
-    var SortButton = OverflowDialogButton.extend({
-        _click: function() {
-            this.toolbar.dialog({ name: "sort" });
-        }
-    });
-
-    kendo.toolbar.registerComponent("sort", Sort, SortButton);
-
-    var Filter = kendo.toolbar.ToolBarButton.extend({
-        init: function(options, toolbar) {
-            options.showText = "overflow";
-            kendo.toolbar.ToolBarButton.fn.init.call(this, options, toolbar);
-
-            this.element.on("click", this._click.bind(this));
-
-            this.element.data({
-                type: "filter",
-                filter: this
-            });
-        },
-        _click: function() {
-            this.toolbar.action({ command: "FilterCommand" });
-        },
-        update: function(value) {
-            this.toggle(value);
-        }
-    });
-
-    var FilterButton = OverflowDialogButton.extend({
-        init: function(options, toolbar) {
-            OverflowDialogButton.fn.init.call(this, options, toolbar);
-
-            this.element.data({
-                type: "filter",
-                filter: this
-            });
-        },
-        _click: function() {
-            this.toolbar.action({ command: "FilterCommand" });
-        },
-        update: function(value) {
-            this.toggle(value);
-        }
-    });
-
-    kendo.toolbar.registerComponent("filter", Filter, FilterButton);
-
-    var Open = kendo.toolbar.Item.extend({
-        init: function(options, toolbar) {
-            this.toolbar = toolbar;
-            this.element = $("<div class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button k-icon-button'>" +
-                                 "<span class='k-button-icon k-icon k-i-folder-open'></span>" +
-                             "</div>").data("instance", this);
-
-            this._title = options.attributes.title;
-            this._reset();
-        },
-        _reset: function() {
-            this.element.find("input").remove();
-
-            $("<input type='file' autocomplete='off' accept='.xlsx'/>")
-                .attr("title", this._title)
-                .attr("aria-label", this._title)
-                .one("change", this._change.bind(this))
-                .appendTo(this.element);
-        },
-        _change: function(e) {
-            this.toolbar.action({
-                command: "OpenCommand",
-                options: {
-                    file: e.target.files[0]
-                }
-            });
-
-            this._reset();
-        }
-    });
-    kendo.toolbar.registerComponent("open", Open);
 
     kendo.spreadsheet.TabStrip = kendo.ui.TabStrip.extend({
         init: function(element, options) {
@@ -1196,11 +728,6 @@ import "./borderpalette.js";
             this.contentElements.each(function(idx, element) {
                 this._toolbar($(element), tabs[idx].id, options.toolbarOptions[tabs[idx].id]);
             }.bind(this));
-
-            this.one("activate", function() { //force resize of the tabstrip after TabStrip tab is opened
-                var toolbar = this.toolbars[this.options.dataSource[0].id];
-                toolbar.resize();
-            });
 
             this.bind("activate", function(e) { //force resize of the tabstrip after TabStrip tab is opened
                 var toolbar = $(e.contentElement).find(".k-toolbar").data("kendoSpreadsheetToolBar");
@@ -1240,10 +767,10 @@ import "./borderpalette.js";
 
         _quickAccessButtons: function() {
             var buttons = [
-                { title: MESSAGES.quickAccess.undo, iconClass: "undo", action: "undo" },
-                { title: MESSAGES.quickAccess.redo, iconClass: "redo", action: "redo" }
+                { title: MESSAGES.quickAccess.undo, icon: "undo", action: "undo" },
+                { title: MESSAGES.quickAccess.redo, icon: "redo", action: "redo" }
             ];
-            var buttonTemplate = kendo.template("<a role='button' href='\\#' title='#= title #' data-action='#= action #' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' aria-label='#= title #'><span class='k-button-icon k-icon k-i-#=iconClass#'></span></a>");
+            var buttonTemplate = kendo.template("<a role='button' href='\\#' title='#= title #' data-action='#= action #' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' aria-label='#= title #'><span class='k-button-icon k-icon k-i-#=icon#'></span></a>");
 
             this.quickAccessToolBar = $("<div />", {
                 "class": "k-spreadsheet-quick-access-toolbar",

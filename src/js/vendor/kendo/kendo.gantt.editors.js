@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -57,17 +57,16 @@ var __meta__ = {
             }
         },
 
-        TASK_DROPDOWN_TEMPLATE = kendo.template('<div class="#=styles.popupWrapper#">' +
-            '<ul class="#=styles.popupList#" role="listbox" aria-label="Add dropdown">' +
-                '#for(var i = 0, l = actions.length; i < l; i++){#' +
-                    '<li tabindex="0" class="#=styles.item#" data-action="#=actions[i].data#" role="option">' +
-                        '<span class="k-link k-menu-link">' +
-                            '<span class="k-menu-link-text">#=actions[i].text#</span>' +
-                        '</span>' +
-                    '</li>' +
-                '#}#' +
+        TASK_DROPDOWN_TEMPLATE = ({ styles, actions }) => `<div class="${styles.popupWrapper}">` +
+            `<ul class="${styles.popupList}" role="listbox" aria-label="Add dropdown">` +
+                `${actions.map(action => '<li tabindex="0" class="' + styles.item + '" data-action="' + action.data + '" role="option">' +
+                                            '<span class="k-link k-menu-link">' +
+                                                '<span class="k-menu-link-text">' + action.text + '</span>' +
+                                            '</span>' +
+                                        '</li>'
+                )}` +
             '</ul>' +
-        '</div>');
+        '</div>';
 
     var ganttStyles = {
         buttonDelete: "k-gantt-delete",
@@ -536,7 +535,7 @@ var __meta__ = {
                 this.form = container.find(".k-gantt-form").kendoForm({
                     items: fields,
                     formData: task,
-                    buttonsTemplate: "",
+                    buttonsTemplate: () => "",
                     validatable: {
                         validateOnBlur: true
                     }
@@ -722,12 +721,10 @@ var __meta__ = {
                     {
                         field: "name",
                         title: messages.resourcesHeader,
-                        template:
-                            "<label><input type='checkbox' value='#=name#'" +
-                                "# if (value > 0 && value !== null) {#" +
-                                       "checked='checked'" +
-                                "# } #" +
-                            "/>#=name#</labe>"
+                        template: ({ name, value }) =>
+                            `<label><input type='checkbox' value='${name}'` +
+                                `${value > 0 && value !== null ? 'checked="checked"' : ''}` +
+                            `/>${name}</labe>`
                     },
                     {
                         field: "value",

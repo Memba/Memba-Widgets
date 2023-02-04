@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -73,22 +73,19 @@ var __meta__ = {
         ARIA_LABELLEDBY = "aria-labelledby",
 
         templates = {
-            content: template(
-                "<div class='k-tabstrip-content k-content' #= contentAttributes(data) # tabindex='0'>#= content(item) #</div>"
-            ),
-            itemWrapper: template(
-                "<#= tag(item) # class='k-link' #= contentUrl(item) # #= textAttributes(item) #>" +
-                    "#= image(item) ##= sprite(item) ##= text(item) #" +
-                "</#= tag(item) #>"
-            ),
-            item: template(
-                "<li class='#= wrapperCssClass(group, item) #' role='tab' #=item.active ? \"aria-selected='true'\" : ''#>" +
-                    "#= itemWrapper(data) #" +
-                "</li>"
-            ),
-            image: template("<img class='k-image' alt='' src='#= imageUrl #' />"),
-            sprite: template("<span class='k-sprite #= spriteCssClass #'></span>"),
-            empty: template("")
+            content: (data) =>
+                `<div class='k-tabstrip-content k-content' ${data.contentAttributes(data)} tabindex='0'>${data.content(data.item)}</div>`,
+            itemWrapper: ({ tag, item , contentUrl, textAttributes, image, sprite, text }) =>
+                `<${tag(item)} class='k-link' ${contentUrl(item)} ${textAttributes(item)}>` +
+                    `${image(item)}${sprite(item)}${text(item)}` +
+                `</${tag(item)}>`,
+            item: (data) =>
+                `<li class='${data.wrapperCssClass(data.group, data.item)}' role='tab' ${data.item.active ? "aria-selected='true'" : ''}>` +
+                    `${data.itemWrapper(data)}` +
+                "</li>",
+            image: ({ imageUrl }) => `<img class='k-image' alt='' src='${imageUrl}' />`,
+            sprite: ({ spriteCssClass }) => `<span class='k-sprite ${spriteCssClass}'></span>`,
+            empty: () => ""
         },
 
         rendering = {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -25,6 +25,7 @@ var __meta__ = {
         outerWidth = kendo._outerWidth,
         outerHeight = kendo._outerHeight,
         extend = $.extend,
+        encode = kendo.htmlEncode,
         getDate = kendo.date.getDate,
         getMilliseconds = kendo.date.getMilliseconds,
         MS_PER_DAY = kendo.date.MS_PER_DAY,
@@ -36,46 +37,26 @@ var __meta__ = {
         BORDER_SIZE_COEFF = 0.8666,
         NS = ".kendoTimelineView";
 
-    var EVENT_TEMPLATE = kendo.template('<div>' +
-        '<div class="k-event-template k-event-time">#:kendo.format("{0:t} - {1:t}", start, end)#</div>' +
-        '<div class="k-event-template">${title}</div></div>'),
-        DATA_HEADER_TEMPLATE = kendo.template("<span class='k-link k-nav-day'>#=kendo.format('{0:m}', date)#</span>"),
-        EVENT_WRAPPER_STRING = '<div role="button" ' +
-                'aria-label="#: ariaLabel #" ' +
-                'data-#=ns#uid="#=uid#"' +
-                '#if (resources[0]) { #' +
-                    'style="background-color:#=resources[0].color#; border-color: #=resources[0].color#"' +
-                    'class="k-event" ' +
-                '#} else {#' +
-                    'class="k-event"' +
-                '#}#' +
-                '>' +
+    var EVENT_TEMPLATE = kendo.template(({ title, start, end }) =>'<div>' +
+        `<div class="k-event-template k-event-time">${encode(kendo.format("{0:t} - {1:t}", start, end))}</div>` +
+        `<div class="k-event-template">${title}</div></div>`),
+        DATA_HEADER_TEMPLATE = kendo.template(({ date }) => `<span class='k-link k-nav-day'>${kendo.format('{0:m}', date)}</span>`),
+        EVENT_WRAPPER_TEMPLATE = (task) =>
+            `<div role="button" aria-label="${encode(task.ariaLabel)}" data-${task.ns}uid="${task.uid}" ` +
+            `${task.resources[0] ? `style="background-color:${task.resources[0].color}; border-color: ${task.resources[0].color}" class="k-event">` : 'class="k-event">'}` +
                 '<span class="k-event-actions">' +
-                    '# if(data.tail) {#' +
-                        '<span class="k-icon k-i-arrow-60-left"></span>' +
-                    '#}#' +
-                    '# if(data.isException()) {#' +
-                        '<span class="k-icon k-i-non-recurrence"></span>' +
-                    '# } else if(data.isRecurring()) {#' +
-                        '<span class="k-icon k-i-reload"></span>' +
-                    '# } #' +
+                    `${task.tail ? '<span class="k-icon k-i-arrow-60-left"></span>' : ''}` +
+                    `${task.isException() ? '<span class="k-icon k-i-non-recurrence"></span>' :
+                        (task.isRecurring() ? '<span class="k-icon k-i-reload"></span>' : '')}` +
                 '</span>' +
-                '{0}' +
+                `${kendo.template(task.template)(task)}` +
                 '<span class="k-event-actions">' +
-                    '#if (showDelete) {#' +
-                        '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' +
-                    '#}#' +
-                    '# if(data.head) {#' +
-                        '<span class="k-icon k-i-arrow-60-right"></span>' +
-                    '#}#' +
+                    `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}"><span class="k-icon k-i-close"></span></a>` : ''}` +
+                    `${task.head ? '<span class="k-icon k-i-arrow-60-right"></span>' : ''}` +
                 '</span>' +
-                '#if(resizable && !data.tail){#' +
-                '<span class="k-resize-handle k-resize-w"></span>' +
-                '#}#' +
-                '#if(resizable && !data.head){#' +
-                '<span class="k-resize-handle k-resize-e"></span>' +
-                '#}#' +
-                '</div>';
+                `${task.resizable && !task.tail ? '<span class="k-resize-handle k-resize-w"></span>' : ''}` +
+                `${task.resizable && !task.head ? '<span class="k-resize-handle k-resize-e"></span>' : ''}` +
+            '</div>';
 
     function toInvariantTime(date) {
         var staticDate = new Date(1980, 1, 1, 0, 0, 0);
@@ -1250,9 +1231,9 @@ var __meta__ = {
             eventHeight: 25,
             eventMinWidth: 0,
             columnWidth: 100,
-            groupHeaderTemplate: "#=text#",
-            majorTimeHeaderTemplate: "#=kendo.toString(date, 't')#",
-            slotTemplate: "&nbsp;",
+            groupHeaderTemplate: ({ text }) => text,
+            majorTimeHeaderTemplate: ({ date }) => kendo.toString(date, 't'),
+            slotTemplate: () => "&nbsp;",
             eventTemplate: EVENT_TEMPLATE,
             dateHeaderTemplate: DATA_HEADER_TEMPLATE,
             footer: {
@@ -1275,7 +1256,7 @@ var __meta__ = {
             var options = this.options,
                 settings = extend({}, kendo.Template, options.templateSettings);
 
-            this.eventTemplate = this._eventTmpl(options.eventTemplate, EVENT_WRAPPER_STRING);
+            this.eventTemplate = kendo.template(EVENT_WRAPPER_TEMPLATE);
             this.majorTimeHeaderTemplate = kendo.template(options.majorTimeHeaderTemplate, settings);
             this.dateHeaderTemplate = kendo.template(options.dateHeaderTemplate, settings);
             this.slotTemplate = kendo.template(options.slotTemplate, settings);
@@ -2054,7 +2035,8 @@ var __meta__ = {
                 resources: resources,
                 inverseColor: false,
                 messages: this.options.messages,
-                ariaLabel: this._formatEventAriaLabel(event.title, eventStartDate, eventEndDate, event.isAllDay)
+                ariaLabel: this._formatEventAriaLabel(event.title, eventStartDate, eventEndDate, event.isAllDay),
+                template: this.options.eventTemplate
             }, event, {
                 start: eventStartDate,
                 end: eventEndDate

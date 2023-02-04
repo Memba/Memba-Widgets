@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -301,7 +301,8 @@ var __meta__ = {
             for (var idx = 0; idx < this.options.columns.length; idx++) {
                 var currentColumn = this.options.columns[idx];
                 var title = currentColumn.title || currentColumn.field || "";
-                var template = currentColumn.headerTemplate || title;
+                var titleFunc = () => title;
+                var template = currentColumn.headerTemplate || titleFunc;
                 var columnsHeaderTemplate = typeof template !== "function" ? kendo.template(template) : template;
                 var currentWidth = currentColumn.width;
                 var currentWidthInt = parseInt(currentWidth, 10);
@@ -336,7 +337,7 @@ var __meta__ = {
         _noData: function() {
             var list = this;
             var noData = $(list.noData);
-            var template = list.options.noDataTemplate === true ? list.options.messages.noData : list.options.noDataTemplate;
+            var template = list.options.noDataTemplate === true ? () => list.options.messages.noData : list.options.noDataTemplate;
 
             list.angular("cleanup", function() { return { elements: noData }; });
             kendo.destroy(noData);
@@ -411,7 +412,7 @@ var __meta__ = {
             }, options, virtual, changeEventOption);
 
             if (!options.template) {
-                options.template = "#:" + kendo.expr(options.dataTextField, "data") + "#";
+                options.template = (data) => htmlEncode(kendo.getter(options.dataTextField)(data));
             }
 
             if (currentOptions.$angular) {
@@ -1860,6 +1861,13 @@ var __meta__ = {
             var valueField = that.options.cascadeFromField || parent.options.dataValueField;
             var expressions;
 
+            // Applicable only when parent is ComboBox or MultiColumnComboBox
+            if (parent.options.cascadeOnCustomValue &&
+                filterValue === null &&
+                (!that.options.cascadeFromParentField || that.options.cascadeFromParentField === parent.options.dataValueField)) {
+                    filterValue = parent.value();
+            }
+
             that._valueBeforeCascade = valueBeforeCascade !== undefined ? valueBeforeCascade : that.value();
 
             if (filterValue || filterValue === 0) {
@@ -2366,8 +2374,6 @@ var __meta__ = {
         _valueExpr: function(type, values) {
             var that = this;
             var idx = 0;
-
-            var body;
             var comparer;
             var normalized = [];
 
@@ -2378,14 +2384,14 @@ var __meta__ = {
                     normalized.push(unifyType(values[idx], type));
                 }
 
-                body = "for (var idx = 0; idx < " + normalized.length + "; idx++) {" +
-                        " if (current === values[idx]) {" +
-                        "   return idx;" +
-                        " }" +
-                        "} " +
-                        "return -1;";
-
-                comparer = new Function("current", "values", body);
+                comparer = (current, values) => {
+                    for (var idx = 0; idx < normalized.length; idx++) {
+                        if (current === values[idx]) {
+                            return idx;
+                        }
+                    }
+                    return -1;
+                };
 
                 that._valueComparer = function(current) {
                     return comparer(current, normalized);
@@ -2558,23 +2564,6 @@ var __meta__ = {
             return candidate;
         },
 
-        _template: function() {
-            var that = this;
-            var options = that.options;
-            var template = options.template;
-
-            if (!template) {
-                template = kendo.template('<li tabindex="-1" role="option" unselectable="on" class="k-list-item"><span class="k-list-item-text">${' + kendo.expr(options.dataTextField, "data") + "}</span></li>", { useWithBlock: false });
-            } else {
-                template = kendo.template(template);
-                template = function(data) {
-                    return '<li tabindex="-1" role="option" unselectable="on" class="k-list-item">' + template(data) + "</li>";
-                };
-            }
-
-            return template;
-        },
-
         _templates: function() {
             var template;
             var options = this.options;
@@ -2585,12 +2574,12 @@ var __meta__ = {
             };
 
             if (options.columns) {
-                for (var i = 0; i < options.columns.length; i++) {
-                    var currentColumn = options.columns[i];
-                    var templateText = currentColumn.field ? currentColumn.field.toString() : TEXT;
+                options.columns.forEach((column, i) => {
+                    var templateText = column.field ? column.field.toString() : TEXT;
+                    var templateFunc = data => htmlEncode(kendo.getter(templateText)(data));
 
-                    templates["column" + i] = currentColumn.template || "#: " + templateText + "#";
-                }
+                    templates["column" + i] = column.template || templateFunc;
+                });
             }
 
             for (var key in templates) {

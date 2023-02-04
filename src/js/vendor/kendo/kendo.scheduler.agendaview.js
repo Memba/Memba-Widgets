@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -20,56 +20,48 @@ import "./kendo.scheduler.view.js";
     (function($) {
         var kendo = window.kendo,
             ui = kendo.ui,
+            encode = kendo.htmlEncode,
             NS = ".kendoAgendaView",
             ROLE = "role";
 
-        var EVENT_WRAPPER_FORMAT = '<div class="k-task" title="#:(data.title || "").replace(/"/g,"\'")#" data-#=kendo.ns#uid="#=uid#">' +
-            '# if (resources[0]) {#' +
-            '<span class="k-scheduler-mark" style="background-color:#=resources[0].color#"></span>' +
-            "# } #" +
-            "# if (data.isException()) { #" +
-            '<span class="k-icon k-i-non-recurrence"></span>' +
-            '# } else if (data.isRecurring()) {#' +
-            '<span class="k-icon k-i-reload"></span>' +
-            "# } #" +
-            '<span class="k-scheduler-task-text">{0}</span>' +
-            '#if (showDelete) {#' +
-            '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' +
-            '#}#' +
+        var EVENT_WRAPPER_TEMPLATE = (task) => `<div class="k-task" title="${encode((task.title || "").replace(/"/g,"\'"))}" ${kendo.attr('uid')}="${task.uid}">` +
+            `${task.resources[0] ? `<span class="k-scheduler-mark" style="background-color:${task.resources[0].color}"></span>` : ''}` +
+            `${task.isException() ? '<span class="k-icon k-i-non-recurrence"></span>' :
+                (task.isRecurring() ? '<span class="k-icon k-i-reload"></span>' : '')}` +
+            `<span class="k-scheduler-task-text">${kendo.template(task.template)(task)}</span>` +
+            `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}"><span class="k-icon k-i-close"></span></a>` : ''}` +
             '</div>';
 
-        var EVENT_DATE_TEMPLATE = "# if (!isMobile) { #" +
-            '<strong class="k-scheduler-agendaday">' +
-            '#=kendo.toString(date, "dd")#' +
+        var DESKTOP_EVENT_DATE_TEMPLATE = ({ date }) => '<strong class="k-scheduler-agendaday">' +
+                kendo.toString(date, "dd") +
             '</strong>' +
             '<em class="k-scheduler-agendaweek">' +
-            '#=kendo.toString(date,"dddd")#' +
+                kendo.toString(date,"dddd") +
             '</em>' +
             '<span class="k-scheduler-agendadate">' +
-            '#=kendo.toString(date, "y")#' +
-            '</span>' +
-            '# } else { #' +
-            '<div class="k-scheduler-datecolumn-wrap">' +
-            '<span class="k-mobile-scheduler-agendadate">' +
-            '<span class="k-mobile-scheduler-agendaday">#=kendo.toString(date, "dd")#</span>' +
-            '&nbsp' +
-            '<span class="k-mobile-scheduler-agendamonth">#=kendo.toString(date, "MMMM")#</span>' +
-            '</span>' +
-            '<span class="k-mobile-scheduler-agendaweekday">' +
-            '#=kendo.toString(date, "dddd")#' +
-            '</span>' +
-            '</div>' +
-            '# } #';
+                kendo.toString(date, "y") +
+            '</span>';
 
-        var EVENT_GROUP_TEMPLATE = "# if (!isMobile) { #" +
-            '<strong class="k-scheduler-adgendagroup">' +
-            '#=value#' +
-            '</strong>' +
-            '# } else { #' +
-            '<span class="k-scheduler-group-text">' +
-            '#=value#' +
-            '</span>' +
-            '# } #';
+        var MOBILE_EVENT_DATE_TEMPLATE = ({ date }) => '<div class="k-scheduler-datecolumn-wrap">' +
+                '<span class="k-mobile-scheduler-agendadate">' +
+                    `<span class="k-mobile-scheduler-agendaday">${kendo.toString(date, "dd")}</span>` +
+                    '&nbsp' +
+                    `<span class="k-mobile-scheduler-agendamonth">${kendo.toString(date, "MMMM")}</span>` +
+                '</span>' +
+                '<span class="k-mobile-scheduler-agendaweekday">' +
+                    kendo.toString(date, "dddd") +
+                '</span>' +
+            '</div>';
+
+        var EVENT_DATE_TEMPLATE = (data) => (data.isMobile ? MOBILE_EVENT_DATE_TEMPLATE(data) : DESKTOP_EVENT_DATE_TEMPLATE(data));
+
+        var EVENT_GROUP_TEMPLATE = ({ isMobile, value }) => (!isMobile ?
+                                        '<strong class="k-scheduler-adgendagroup">' +
+                                            value +
+                                        '</strong>' :
+                                        '<span class="k-scheduler-group-text">' +
+                                            value +
+                                        '</span>');
 
         var AgendaGroupedView = kendo.Class.extend({
             init: function(view) {
@@ -305,7 +297,7 @@ import "./kendo.scheduler.view.js";
 
                 this.title = options.title;
 
-                this._eventTemplate = this._eventTmpl(options.eventTemplate, EVENT_WRAPPER_FORMAT);
+                this._eventTemplate = kendo.template(EVENT_WRAPPER_TEMPLATE);
                 this._dateTemplate = kendo.template(options.eventDateTemplate);
                 this._groupTemplate = kendo.template(options.eventGroupTemplate);
                 this._timeTemplate = kendo.template(options.eventTimeTemplate);
@@ -520,9 +512,9 @@ import "./kendo.scheduler.view.js";
                         tableRow.push(kendo.format(
                             '<td class="k-scheduler-timecolumn {4}"><div>{0}{1}{2}</div></td><td>{3}</td>',
                             task.tail || task.middle ? '<span class="k-icon k-i-arrow-60-left"></span>' : "",
-                            this._timeTemplate(task.clone({ start: task._startTime || task.start, end: task.endTime || task.end })),
+                            this._timeTemplate(task.clone({ start: task._startTime || task.start, end: task.endTime || task.end, messages: this.options.messages })),
                             task.head || task.middle ? '<span class="k-icon k-i-arrow-60-right"></span>' : "",
-                            this._eventTemplate(task.clone({ showDelete: showDelete, messages: this.options.messages })),
+                            this._eventTemplate(task.clone({ showDelete: showDelete, messages: this.options.messages, template: this.options.eventTemplate })),
                             !this.groupedResources.length && isMobile ? "k-first" : ""
                         ));
 
@@ -769,12 +761,8 @@ import "./kendo.scheduler.view.js";
                 selectedDateFormat: "{0:D}-{1:D}",
                 selectedShortDateFormat: "{0:d} - {1:d}",
                 selectedMobileDateFormat: "{0: MMM} {0:dd} - {1:dd}",
-                eventTemplate: "#:title#",
-                eventTimeTemplate: "#if(data.isAllDay) {#" +
-                    '#=this.options.messages.allDay#' +
-                    "#} else { #" +
-                    '#=kendo.format(format, start, end)#' +
-                    "# } #",
+                eventTemplate: ({ title }) => encode(title),
+                eventTimeTemplate: ({ isAllDay, messages, format, start, end }) => (isAllDay ? messages.allDay : kendo.format(format, start, end)),
                 eventDateTemplate: EVENT_DATE_TEMPLATE,
                 eventGroupTemplate: EVENT_GROUP_TEMPLATE,
                 messages: {

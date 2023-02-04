@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -901,7 +901,7 @@
                 "alignmentDialog": {
                     "title": "المحاذاة",
                     "buttons": {
-                        "justtifyLeft": "محاذاة إلى اليسار",
+                        "justifyLeft": "محاذاة إلى اليسار",
                         "justifyCenter": "وسط",
                         "justifyRight": "محاذاة إلي اليمين",
                         "justifyFull": "ضبط",
@@ -1091,7 +1091,7 @@
                 "addRowBelow": "أضف صف إلي الأسفل",
                 "alignment": "محاذاة",
                 "alignmentButtons": {
-                    "justtifyLeft": "محاذاة إلي اليسار",
+                    "justifyLeft": "محاذاة إلي اليسار",
                     "justifyCenter": "وسط",
                     "justifyRight": "محاذاة إلي اليمين",
                     "justifyFull": "ضبط",

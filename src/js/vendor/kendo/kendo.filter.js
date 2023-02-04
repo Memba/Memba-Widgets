@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -16,13 +16,6 @@ var __meta__ = {
     depends: [ "core", "buttongroup"]
 };
 
-var editors = {
-    "number": "<input id='#=id#' type='text' aria-label='#=field#' title='#=field#' data-#=ns#role='numerictextbox' data-#=ns#bind='value: value'/>",
-    "string": "<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input id='#=id#' type='text' aria-label='#=field#' title='#=field#' class='k-input-inner' data-#=ns#bind='value: value'/></span>",
-    "boolean": "<input id='#=id#' class='k-checkbox k-checkbox-md k-rounded-md' aria-label='#=field#' data-#=ns#role='checkbox' data-#=ns#bind='checked: value' type='checkbox'>",
-    "date": "<input id='#=id#' type='text' aria-label='#=field#' title='#=field#' data-#=ns#role='datepicker' data-#=ns#bind='value: value'/>"
-};
-
 var defaultValues = {
     "number": 0,
     "boolean": false,
@@ -30,18 +23,14 @@ var defaultValues = {
     "date": ""
 };
 
-var operatorsTemplate =
-    "<select data-#=ns#bind='value: operator' title='#=operatorsLabel#' data-#=ns#role='dropdownlist'>" +
-        "#for(var op in operators){#" +
-            "<option value='#=op#'>#=operators[op].text || operators[op]#</option>" +
-        "#}#" +
+var operatorsTemplate = ({ ns, operatorsLabel, operators }) =>
+    `<select data-${ns}bind='value: operator' title='${operatorsLabel}' data-${ns}role='dropdownlist'>` +
+        `${Object.keys(operators).map(op => "<option value='" + op + "'>" + (operators[op].text || operators[op]) + "</option>" ).join("")}` +
     "</select>";
 
-var logicTemplate =
-    "<div data-#=ns#bind='value: logic' data-#=ns#role='filterbuttongroup'>" +
-        "#for(var op in operators){#" +
-            "<span value='#=op#'>#=operators[op]#</span>" +
-        "#}#" +
+var logicTemplate = ({ ns, operators }) =>
+    `<div data-${ns}bind='value: logic' data-${ns}role='filterbuttongroup'>` +
+        `${Object.keys(operators).map(op => "<span value='" + op + "'>" + operators[op] + "</span>" ).join("")}` +
     "</div>";
 
 var mainContainer =
@@ -49,26 +38,26 @@ var mainContainer =
         "<li class='k-filter-group-main'></li>" +
     "</ul>";
 
-var mainLogicTemplate =
+var mainLogicTemplate = ({ mainFilterLogicLabel, uid, addExpression, addGroup, close, ns, operators }) =>
     "<div class='k-filter-toolbar'>" +
-        "<div role='toolbar' aria-label='#=mainFilterLogicLabel#' class='k-toolbar' id='#=uid#'>" +
+        `<div role='toolbar' aria-label='${mainFilterLogicLabel}' class='k-toolbar' id='${uid}'>` +
             "<div class='k-filter-toolbar-item'>" +
-                logicTemplate +
+                logicTemplate({ ns, operators }) +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                "<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='#=addExpression#' aria-label='#=addExpression#' tabindex='0'>" +
+                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addExpression}' aria-label='${addExpression}' tabindex='0'>` +
                     "<span class='k-button-icon k-icon k-i-filter-add-expression'>" +
                     "</span>" +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                "<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='#=addGroup#' aria-label='#=addGroup#' tabindex='0'>" +
+                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addGroup}' aria-label='${addGroup}' tabindex='0'>` +
                     "<span class='k-button-icon k-icon k-i-filter-add-group'>" +
                     "</span>" +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                "<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='#=close#' aria-label='#=close#' aria-disabled='false' tabindex='0'>" +
+                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
                     "<span class='k-button-icon k-icon k-i-close'>" +
                     "</span>" +
                 "</button>" +
@@ -76,27 +65,27 @@ var mainLogicTemplate =
         "</div>" +
     "</div>";
 
-var logicItemTemplate =
+var logicItemTemplate = ({ filterLogicLabel, addExpression, addGroup, close, ns, operators }) =>
 "<li class='k-filter-item'>" +
     "<div class='k-filter-toolbar'>" +
-        "<div role='toolbar' aria-label='#=filterLogicLabel#' class='k-toolbar'>" +
+        `<div role='toolbar' aria-label='${filterLogicLabel}' class='k-toolbar'>` +
             "<div class='k-filter-toolbar-item'>" +
-                logicTemplate +
+                logicTemplate({ ns, operators }) +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                "<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='#=addExpression#' aria-label='#=addExpression#' aria-disabled='false' tabindex='0'>" +
+                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addExpression}' aria-label='${addExpression}' aria-disabled='false' tabindex='0'>` +
                     "<span class='k-button-icon k-icon k-i-filter-add-expression'>" +
                     "</span>" +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                "<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='#=addGroup#' aria-label='#=addGroup#' aria-disabled='false' tabindex='0'>" +
+                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addGroup}' aria-label='${addGroup}' aria-disabled='false' tabindex='0'>` +
                     "<span class='k-button-icon k-icon k-i-filter-add-group'>" +
                     "</span>" +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                "<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='#=close#' aria-label='#=close#' aria-disabled='false' tabindex='0'>" +
+                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
                     "<span class='k-button-icon k-icon k-i-close'>" +
                     "</span>" +
                 "</button>" +
@@ -105,15 +94,13 @@ var logicItemTemplate =
     "</div>" +
 "</li>";
 
-var expressionItemTemplate =
+var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fields, close }) =>
 "<li class='k-filter-item'>" +
     "<div class='k-filter-toolbar'>" +
-       "<div role='group' aria-label='#=filterExpressionLabel#' class='k-toolbar' id='#=uid#'>" +
+       `<div role='group' aria-label='${filterExpressionLabel}' class='k-toolbar' id='${uid}'>` +
          "<div class='k-filter-toolbar-item k-filter-field'>" +
-            "<select data-#=ns#bind='value: field' title='#=fieldsLabel#' class='k-filter-dropdown' data-auto-width='true' data-#=ns#role='dropdownlist'>" +
-                "#for(var current in fields){#" +
-                    "<option value='#=fields[current].name#'>#=fields[current].label#</option>" +
-                "#}#" +
+            `<select data-${ns}bind='value: field' title='${fieldsLabel}' class='k-filter-dropdown' data-auto-width='true' data-${ns}role='dropdownlist'>` +
+                `${Object.keys(fields).map(current => "<option value='" + fields[current].name + "'>" + fields[current].label + "</option>").join("")}` +
             "</select>" +
          "</div>" +
          "<div class='k-filter-toolbar-item k-filter-operator'>" +
@@ -121,7 +108,7 @@ var expressionItemTemplate =
          "<div class='k-filter-toolbar-item k-filter-value'>" +
          "</div>" +
          "<div class='k-filter-toolbar-item'>" +
-            "<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='#=close#' aria-label='#=close#' aria-disabled='false' tabindex='0'>" +
+            `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
                 "<span class='k-button-icon k-icon k-i-close'>" +
                 "</span>" +
             "</button>" +
@@ -134,12 +121,29 @@ var expressionItemTemplate =
 (function($) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        guid = kendo.guid,
+        ns = kendo.ns,
         Widget = ui.Widget,
         ButtonGroup = ui.ButtonGroup,
         CHANGE = "change",
         NS = ".kendoFilter",
         EQ = "Is equal to",
         NEQ = "Is not equal to";
+
+    var editors = {
+        "number": function(container, { field }) {
+            $(`<input id='${guid()}' type='text' aria-label='${field}' title='${field}' data-${ns}role='numerictextbox' data-${ns}bind='value: value'/>`).appendTo(container);
+        },
+        "string": function(container, { field }) {
+            $(`<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input id='${guid()}' type='text' aria-label='${field}' title='${field}' class='k-input-inner' data-${kendo.ns}bind='value: value'/></span>`).appendTo(container);
+        },
+        "boolean": function(container, { field }) {
+            $(`<input id='${guid()}' class='k-checkbox k-checkbox-md k-rounded-md' aria-label='${field}' data-${ns}role='checkbox' data-${ns}bind='checked: value' type='checkbox'>`).appendTo(container);
+        },
+        "date": function(container, { field }) {
+            $(`<input id='${guid()}' type='text' aria-label='${field}' title='${field}' data-${ns}role='datepicker' data-${ns}bind='value: value'/>`).appendTo(container);
+        }
+    };
 
     var FilterButtonGroup = ButtonGroup.extend({
         init: function(element, options) {
@@ -156,11 +160,11 @@ var expressionItemTemplate =
                 return this._value;
             }
             this._value = value;
-            ButtonGroup.fn.select.call(this, this.wrapper.find("[value='" + value + "']")[0]);
+            ButtonGroup.fn._select.call(this, this.wrapper.find("[value='" + value + "']"));
             this.trigger(CHANGE);
         },
 
-        select: function(button) {
+        _select: function(button) {
             if (button !== -1) {
                 this.value($(button).attr("value"));
             }

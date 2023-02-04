@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -11,6 +11,7 @@ import "./inlineformat.js";
 (function($, undefined) {
 
 var kendo = window.kendo,
+    encode = kendo.htmlEncode,
     Class = kendo.Class,
     extend = $.extend,
     Editor = kendo.ui.editor,
@@ -121,23 +122,23 @@ var LinkCommand = Command.extend({
     },
 
     _dialogTemplate: function() {
-        return kendo.template(
+        return kendo.template( ({ messages }) =>
             '<div class="k-editor-dialog k-popup-edit-form">' +
                 '<div class="k-edit-form-container">' +
                     "<div class='k-edit-label'>" +
-                        "<label for='k-editor-link-url'>#: messages.linkWebAddress #</label>" +
+                        `<label for="k-editor-link-url">${encode( messages.linkWebAddress )}</label>` +
                     "</div>" +
                     "<div class='k-edit-field'>" +
                         "<span class=\"k-textbox k-input k-input-md k-rounded-md k-input-solid\"><input type='text' class='k-input-inner' id='k-editor-link-url'></span>" +
                     "</div>" +
                     "<div class='k-edit-label k-editor-link-text-row'>" +
-                        "<label for='k-editor-link-text'>#: messages.linkText #</label>" +
+                        `<label for="k-editor-link-text">${encode( messages.linkText )}</label>` +
                     "</div>" +
                     "<div class='k-edit-field k-editor-link-text-row'>" +
                         "<span class=\"k-textbox k-input k-input-md k-rounded-md k-input-solid\"><input type='text' class='k-input-inner' id='k-editor-link-text'></span>" +
                     "</div>" +
                     "<div class='k-edit-label'>" +
-                        "<label for='k-editor-link-title'>#: messages.linkToolTip #</label>" +
+                        `<label for="k-editor-link-title">${encode( messages.linkToolTip )}</label>` +
                     "</div>" +
                     "<div class='k-edit-field'>" +
                         "<span class=\"k-textbox k-input k-input-md k-rounded-md k-input-solid\"><input type='text' class='k-input-inner' id='k-editor-link-title'></span>" +
@@ -145,11 +146,11 @@ var LinkCommand = Command.extend({
                     "<div class='k-edit-label'></div>" +
                     "<div class='k-edit-field'>" +
                         "<input type='checkbox' class='k-checkbox k-checkbox-md k-rounded-md' id='k-editor-link-target'>" +
-                        "<label for='k-editor-link-target' class='k-checkbox-label'>#: messages.linkOpenInNewWindow #</label>" +
+                        `<label for="k-editor-link-target" class="k-checkbox-label">${encode( messages.linkOpenInNewWindow )}</label>` +
                     "</div>" +
                     "<div class='k-edit-buttons'>" +
-                        '<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">#: messages.dialogInsert #</span></button>' +
-                        '<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">#: messages.dialogCancel #</span></button>' +
+                        `<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${encode(messages.dialogInsert)}</span></button>` +
+                        `<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${encode(messages.dialogCancel)}</span></button>` +
                     "</div>" +
                 "</div>" +
             "</div>"

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -206,20 +206,30 @@ import "../kendo.core.js";
             items.removeClass(ITEMSELECTEDCLASS).removeAttr("aria-selected");
             item.addClass(ITEMSELECTEDCLASS).attr("aria-selected", true);
         },
-        _template: kendo.template(
+        _template: kendo.template(({colors, columns, tileSize, value, id}) => {
+            let startPart =
             '<div class="k-colorpalette-table-wrap">' +
-            '<table class="k-colorpalette-table k-palette" role="presentation"><tr role="row">' +
-              '# for (var i = 0; i < colors.length; ++i) { #' +
-                '# var selected = colors[i].equals(value); #' +
-                '# if (i && i % columns == 0) { # </tr><tr role="row"> # } #' +
-                '<td role="gridcell" unselectable="on" style="background-color:#= colors[i].toCss() #"' +
-                    '#= selected ? " aria-selected=true" : "" # ' +
-                    '#=(id && i === 0) ? "id=\\""+id+"\\" " : "" # ' +
-                    'class="k-colorpalette-tile#= selected ? " ' + ITEMSELECTEDCLASS + '" : "" #" ' +
-                    'aria-label="#= colors[i].toCss() #"></td>' +
-              '# } #' +
-            '</tr></table></div>'
-        ),
+            '<table class="k-colorpalette-table k-palette" role="presentation"><tr role="row">';
+
+            let cellElements = "";
+            for (var i = 0; i < colors.length; ++i) {
+                let selected = colors[i].equals(value);
+                if (i && i % columns == 0) {
+                    cellElements += '</tr><tr role="row">';
+                }
+
+                cellElements +=
+                `<td role="gridcell" unselectable="on" style="background-color:${colors[i].toCss()}"` +
+                    `${selected ? " aria-selected=true" : ""} ` +
+                    `${(id && i === 0) ? 'id=\\"' + id + '\\" ' : '' } ` +
+
+                    `class="k-colorpalette-tile${selected ? " " + ITEMSELECTEDCLASS : ""}" ` +
+                    `aria-label="${colors[i].toCss()}"></td>`;
+            }
+
+            let endPart = '</tr></table></div>';
+            return startPart + cellElements + endPart;
+        }),
         _tileSize: function() {
             var tileSize = this.options.tileSize,
                 width, height;

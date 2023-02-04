@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -29,6 +29,7 @@ var __meta__ = {
     var kendo = window.kendo,
         ui = kendo.ui,
         data = kendo.data,
+        encode = kendo.htmlEncode,
         extend = $.extend,
         template = kendo.template,
         isArray = Array.isArray,
@@ -510,14 +511,15 @@ var __meta__ = {
             if (options.template && typeof options.template == STRING) {
                 options.template = template(options.template);
             } else if (!options.template) {
-                options.template = templateNoWith(
-                    "# var text = " + fieldAccessor("text") + "(data.item); #" +
-                    "# if (typeof data.item.encoded != 'undefined' && data.item.encoded === false) {#" +
-                        "<span class='k-treeview-leaf-text'>#= text #</span>" +
-                    "# } else { #" +
-                        "<span class='k-treeview-leaf-text'>#: text #</span>" +
-                    "# } #"
-                );
+                options.template = ({ item }) => {
+                    var text = fieldAccessor("text")(item);
+
+                    if (typeof item.encoded != 'undefined' && item.encoded === false) {
+                        return `<span class='k-treeview-leaf-text'>${text}</span>`;
+                    }
+
+                    return `<span class='k-treeview-leaf-text'>${encode(text)}</span>`;
+                };
             }
 
             that._checkboxes();
@@ -614,76 +616,89 @@ var __meta__ = {
 
                     return cssClass;
                 },
-                dragClue: templateNoWith(
-                    "#= data.treeview.template(data) #"
-                ),
-                group: templateNoWith(
-                    "<ul class='#= data.r.groupCssClass(data.group) #'#= data.r.groupAttributes(data.group) #>" +
-                        "#= data.renderItems(data) #" +
-                    "</ul>"
-                ),
-                itemContent: templateNoWith(
-                    "# var imageUrl = " + fieldAccessor("imageUrl") + "(data.item); #" +
-                    "# var spriteCssClass = " + fieldAccessor("spriteCssClass") + "(data.item); #" +
-                    "# if (imageUrl) { #" +
-                        "<img class='k-image' alt='' src='#= imageUrl #'>" +
-                    "# } #" +
+                dragClue: (data) => data.treeview.template(data),
+                group: (data) =>
+                `<ul class='${data.r.groupCssClass(data.group)}'${data.r.groupAttributes(data.group)}>` +
+                    data.renderItems(data) +
+                `</ul>`,
+                itemContent: (data) => {
+                    var imageUrl = fieldAccessor("imageUrl")(data.item);
+                    var spriteCssClass = fieldAccessor("spriteCssClass")(data.item);
+                    var result = "";
 
-                    "# if (spriteCssClass) { #" +
-                        "<span class='k-sprite #= spriteCssClass #'></span>" +
-                    "# } #" +
+                    if (imageUrl) {
+                        result += `<img class='k-image' alt='' src='${imageUrl}'>`;
+                    }
 
-                    "#= data.treeview.template(data) #"
-                ),
-                itemElement: templateNoWith(
-                    "# var item = data.item, r = data.r; #" +
-                    "# var url = " + fieldAccessor("url") + "(item); #" +
-                    "<div class='#= r.cssClass(data.group, item) #'>" +
-                        "# if (item.hasChildren) { #" +
-                            "<span class='k-treeview-toggle'>" +
-                                "<span class='#= r.toggleButtonClass(item) #'></span>" +
-                            "</span>" +
-                        "# } #" +
+                    if (spriteCssClass) {
+                        result += `<span class='k-sprite ${spriteCssClass}'></span>`;
+                    }
 
-                        "# if (data.treeview.checkboxes) { #" +
-                            "<span class='k-checkbox-wrapper' role='presentation'>" +
-                                "#= data.treeview.checkboxes.template(data) #" +
-                            "</span>" +
-                        "# } #" +
+                    result += data.treeview.template(data);
 
-                        "# var tag = url ? 'a' : 'span'; #" +
-                        "# var textAttr = url ? ' href=\\'' + url + '\\'' : ''; #" +
+                    return result;
+                },
+                itemElement: (data) => {
+                    var item = data.item,
+                        r = data.r;
+                    var url = fieldAccessor("url")(item),
+                        tag = url ? 'a' : 'span',
+                        textAttr = url ? ' href="' + url + '"' : '';
+                    var result = `<div class="${r.cssClass(data.group, item)}">`;
 
-                        "<#=tag# class='#= r.textClass(item, !!url) #'#= textAttr #>" +
-                            "#= r.itemContent(data) #" +
-                        "</#=tag#>" +
-                    "</div>"
-                ),
-                item: templateNoWith(
-                    "# var item = data.item, r = data.r; #" +
-                    "<li role='treeitem' class='#= r.wrapperCssClass(data.group, item) #'" +
-                        kendo.attr("uid") + "='#= item.uid #' " +
-                        "#= r.setAttributes(item.toJSON ? item.toJSON() : item) # " +
-                        "# if (data.treeview.checkboxes) { #" +
-                            "aria-checked='#= item.checked ? \"true\" : \"false\" #' " +
-                        "# } #" +
-                        "aria-selected='#= item.selected ? \"true\" : \"false\" #' " +
-                        "#=item.enabled === false ? \"aria-disabled='true'\" : ''#" +
-                        "# if (item.hasChildren) { #" +
-                            "aria-expanded='#= item.expanded ? \"true\" : \"false\" #' " +
-                        "# } #" +
-                        "data-expanded='#= item.expanded ? \"true\" : \"false\" #' " +
-                    ">" +
-                        "#= r.itemElement(data) #" +
-                    "</li>"
-                ),
-                loading: templateNoWith(
-                    "<div class='k-icon k-i-loading'></div> #: data.messages.loading #"
-                ),
-                retry: templateNoWith(
-                    "#: data.messages.requestFailed # " +
-                    "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-request-retry'><span class='k-button-text'>#: data.messages.retry #</span></button>"
-                )
+                    if (item.hasChildren) {
+                        result += `<span class='k-treeview-toggle'>` +
+                                    `<span class='${r.toggleButtonClass(item)}'></span>` +
+                                  `</span>`;
+                    }
+
+                    if (data.treeview.checkboxes) {
+                        result += `<span class='k-checkbox-wrapper' role='presentation'>` +
+                                    data.treeview.checkboxes.template(data) +
+                                  `</span>`;
+                    }
+
+                    result += `<${tag} class='${r.textClass(item, !!url)}'${textAttr}>` +
+                                 r.itemContent(data) +
+                              `</${tag}>`;
+
+                    result += "</div>";
+
+                    return result;
+                },
+                item: (data) => {
+                    var item = data.item,
+                        r = data.r;
+                    var result =
+                        `<li role='treeitem' class="${r.wrapperCssClass(data.group, item)}"` +
+                        `${kendo.attr("uid")}="${item.uid}"` +
+                        `${r.setAttributes(item.toJSON ? item.toJSON() : item)} `;
+
+                    if (data.treeview.checkboxes) {
+                        result +=
+                            `aria-checked="${item.checked ? 'true' : 'false'}" `;
+                    }
+
+                    result +=
+                        `aria-selected="${item.selected ? 'true' : 'false'}" ` +
+                            `${item.enabled === false ? 'aria-disabled="true"' : ''}`;
+
+                    if (item.hasChildren) {
+                        result += `aria-expanded="${item.expanded ? "true" : "false"}" `;
+                    }
+
+                    result +=
+                        `data-expanded="${item.expanded ? "true" : "false"}" >` +
+                        r.itemElement(data) +
+                        `</li>`;
+
+                    return result;
+                },
+                loading: ({ messages }) =>
+                    `<div class='k-icon k-i-loading'></div> ${encode(messages.loading)}`,
+                retry: ({ messages }) =>
+                    `${encode(messages.requestFailed)} ` +
+                    `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-request-retry'><span class='k-button-text'>${encode(messages.retry)}</span></button>`
             };
         },
 
@@ -886,23 +901,17 @@ var __meta__ = {
         // generates accessor function for a given field name, honoring the data*Field arrays
         _fieldAccessor: function(fieldName) {
             var fieldBindings = this.options[bindings[fieldName]],
-                count = fieldBindings.length,
-                result = "(function(item) {";
+                count = fieldBindings.length;
 
-            if (count === 0) {
-                result += "return item['" + fieldName + "'];";
-            } else {
-                result += "var levels = [" +
-                            $.map(fieldBindings, function(x) {
-                                return "function(d){ return " + kendo.expr(x) + "}";
-                            }).join(",") + "];";
+            return (function(item) {
+                if (count === 0) {
+                    return kendo.getter(fieldName)(item);
+                }
 
-                result += "return levels[Math.min(item.level(), " + count + "-1)](item)";
-            }
-
-            result += "})";
-
-            return result;
+                return $.map(fieldBindings, function(x) {
+                    return function(d) { return kendo.getter(x)(d); };
+                })[Math.min(item.level(), count - 1)](item);
+            });
         },
 
         setOptions: function(options) {
@@ -911,6 +920,8 @@ var __meta__ = {
             this._animation();
 
             this._dragging();
+
+            this._accessors();
 
             this._templates();
         },
@@ -1464,22 +1475,21 @@ var __meta__ = {
             var defaultTemplate, checkbox;
 
             if (checkboxes) {
-                checkbox = "<input id='_#= item.uid #' aria-hidden='true' type='checkbox' tabindex='-1'";
-
-
-                if (checkboxes.name) {
-                    checkbox += " name='" + checkboxes.name + "'";
-                }
-
-                checkbox += " />";
-
-                defaultTemplate = kendo.html.renderCheckBox($(checkbox), $.extend({}, options, {
+                defaultTemplate = kendo.html.renderCheckBox($("<input/>"), $.extend({}, options, {
                     rounded: "medium"
                 }));
-                defaultTemplate = defaultTemplate.replace(/(<input[^/>]*)/, "$1 #= (item.enabled === false) ? 'disabled' : '' # #= item.checked ? 'checked' : '' #");
+
+                defaultTemplate = defaultTemplate.replace(">", "");
+
+                checkbox = ({ item }) =>
+                defaultTemplate +
+                ` id="_${item.uid}" aria-hidden="true" type="checkbox" tabindex="-1"` +
+                `${checkboxes.name ? 'name="' + checkboxes.name + '"' : ''} ` +
+                `${(item.enabled === false) ? 'disabled' : ''} ` +
+                `${item.checked ? 'checked' : ''}/>`;
 
                 checkboxes = extend({
-                    template: defaultTemplate
+                    template: checkbox
                 }, options.checkboxes);
 
                 if (typeof checkboxes.template == STRING) {

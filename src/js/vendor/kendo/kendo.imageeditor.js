@@ -1,19 +1,20 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-import "./imageeditor/toolbar.js";
+import "./kendo.dropdownlist.js";
+import "./kendo.toolbar.js";
 import "./imageeditor/commands.js";
 
 var __meta__ = {
     id: "imageeditor",
     name: "ImageEditor",
     category: "web",
-    depends: ["core", "toolbar"]
+    depends: ["core", "toolbar", "dropdownlist"]
 };
 
 (function($, undefined) {
@@ -30,7 +31,10 @@ var __meta__ = {
         ERROR = "error",
         IMAGELOADED = "imageLoaded",
         IMAGERENDERED = "imageRendered",
-        EXECUTE = "execute";
+        EXECUTE = "execute",
+
+        CLICK = "click",
+        CHANGE = "change";
 
     var imageEditorStyles = {
         wrapper: "k-widget k-imageeditor",
@@ -127,6 +131,44 @@ var __meta__ = {
             EXECUTE
         ],
 
+        defaultTools: {
+            open: { type: "button", icon: "upload", name: "open", command: "OpenImageEditorCommand", showText: "overflow" },
+            save: { type: "button", icon: "download", name: "save", command: "SaveImageEditorCommand", showText: "overflow", toggleCondition: "canExport" },
+            separator: { type: "separator" },
+            undo: { type: "button", icon: "undo", name: "undo", command: "UndoImageEditorCommand", showText: "overflow", toggleCondition: "undo" },
+            redo: { type: "button", icon: "redo", name: "redo", command: "RedoImageEditorCommand", showText: "overflow", toggleCondition: "redo" },
+            separator1: { type: "separator" },
+            crop: { type: "button", icon: "crop", name: "crop", command: "OpenPaneImageEditorCommand", options: "crop", showText: "overflow", toggleCondition: "canExport" },
+            resize: { type: "button", icon: "image-resize", name: "resize", command: "OpenPaneImageEditorCommand", options: "resize", showText: "overflow", toggleCondition: "canExport" },
+            zoomIn: { type: "button", icon: "zoom-in", name: "zoomIn", command: "ZoomImageEditorCommand", showText: "overflow", options: "zoomIn", toggleCondition: "enable" },
+            zoomOut: { type: "button", icon: "zoom-out", name: "zoomOut", command: "ZoomImageEditorCommand", showText: "overflow", options: "zoomOut", toggleCondition: "enable" },
+            zoomDropdown: {
+                type: "component",
+                name: "zoomDropdown",
+                command: "ZoomImageEditorCommand",
+                toggleCondition: "enable",
+                overflow: "never",
+                component: "DropDownList",
+                componentOptions: {
+                    placeholder: "Search",
+                    icon: "search",
+                    dataSource: [
+                        { name: "zoomActualSize", icon: "zoom-actual-size", value: "actualSize" },
+                        { name: "zoomFitToScreen", icon: "zoom-best-fit", value: "fitToScreen" }
+                    ],
+                    dataTextField: "text",
+                    dataValueField: "value",
+                    valuePrimitive: true,
+                    template: ({ icon, text }) => `<span class='k-icon k-i-${kendo.htmlEncode(icon)}'></span> ${kendo.htmlEncode(text)}`,
+                    commandOn: "change",
+                    optionLabel: "Zoom options",
+                    dataBound: (e) => {
+                        e.sender.list.find(".k-list-optionlabel").hide();
+                    }
+                }
+            }
+        },
+
         _wrapper: function() {
             var that = this,
                 options = that.options,
@@ -166,16 +208,38 @@ var __meta__ = {
             var that = this,
                 options = that.options,
                 toolbarElement = $("<div></div>").addClass(imageEditorStyles.toolbar),
-                toolbarOptions = extend({}, options.toolbar, {
-                    messages: options.messages.toolbar,
-                    action: that.executeCommand.bind(that)
-                });
+                toolbarOptions = extend({}, options.toolbar),
+                tools = toolbarOptions.items ? toolbarOptions.items : Object.keys(that.defaultTools);
+
+            toolbarOptions.tools = tools;
+            toolbarOptions.defaultTools = that.defaultTools;
+            toolbarOptions.parentMessages = that.options.messages.toolbar;
 
             that.header.append(toolbarElement);
+            that.toolbar = new kendo.ui.ToolBar(toolbarElement, toolbarOptions);
+            that.options.toolbar = that.toolbar.options;
+            that.toolbar.toggleTools();
 
-            that.toolbar = new ui.imageeditor.ToolBar(toolbarElement, toolbarOptions);
+            that.toolbar.bind(CLICK, that._toolbarClick.bind(that));
+            that.toolbar.bind(CHANGE, that._toolbarClick.bind(that));
 
             return that.toolbar;
+        },
+
+        _toolbarClick: function(ev) {
+            var command = $(ev.target).data("command"),
+                options = $(ev.target).data("options");
+
+            options = $(ev.target).val() || options;
+
+            if (!command) {
+                return;
+            }
+
+            this.executeCommand({
+                command: command,
+                options: options
+            });
         },
 
         _contentWrapper: function() {

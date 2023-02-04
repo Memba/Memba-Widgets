@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -118,9 +118,29 @@ import "../kendo.upload.js";
 
     var PageChangeCommand = Command.extend({
         exec: function() {
-            var pageNumber = this.options.value;
+            var targetPage = this.options.value,
+                viewer = this.viewer,
+                current, total;
 
-            this.viewer.activatePage(pageNumber);
+            if (isNaN(targetPage)) {
+                current = viewer._pageNum;
+                total = viewer.document.total;
+
+                switch (targetPage) {
+                    case "first": targetPage = 1;
+                        break;
+                    case "prev": targetPage = current > 1 ? current - 1 : 1;
+                        break;
+                    case "next": targetPage = current < total ? current + 1 : total;
+                        break;
+                    case "last": targetPage = total;
+                        break;
+                }
+            } else {
+                targetPage = Number(targetPage);
+            }
+
+            viewer.activatePage(targetPage);
         }
     });
 
@@ -243,6 +263,7 @@ import "../kendo.upload.js";
             searchEngine.destroy();
             delete that.viewer._searchDOM;
             that._updateSearchModel();
+            that.viewer.toolbar.element.find("[tabindex=0]").trigger("focus");
         },
         _change: function(ev) {
             var that = this;
@@ -328,7 +349,7 @@ import "../kendo.upload.js";
             var that = this,
                 options = that.options,
                 viewer = that.viewer,
-                scale = options.scale,
+                scale = options.value || options.scale,
                 loadedPagesHeight = 0,
                 page = that.viewer._pageNum,
                 containerHeight = viewer.pageContainer[0].clientHeight,
@@ -410,7 +431,7 @@ import "../kendo.upload.js";
                 pageContainer = viewer.pageContainer,
                 visibleCanvas = viewer._visiblePages && viewer._visiblePages[0].canvas,
                 calculatedDpr = (viewer._visiblePages && viewer._visiblePages[0]._dpr) || 2,
-                scale = options.scale,
+                scale = options.value || options.scale,
                 scaleValue = scale,
                 preventZoom;
 
@@ -434,9 +455,16 @@ import "../kendo.upload.js";
                 viewer._allowResize = true;
                 viewer._autoFit = "fitToPage";
                 scaleValue = (pageContainer.height() / ((visibleCanvas.height / calculatedDpr) / viewer.zoomScale));
+            } else if (scale && scale.toString().match(/^[0-9]+%?$/)) {
+                scale = parseInt(scale.replace('%', ''), 10) / 100;
+                scaleValue = scale;
+            } else {
+                preventZoom = isNaN(scale);
             }
 
-            preventZoom = scale < viewerOptions.zoomMin || scale > viewerOptions.zoomMax;
+            if (!preventZoom) {
+                preventZoom = scale < viewerOptions.zoomMin || scale > viewerOptions.zoomMax;
+            }
 
             if (preventZoom || viewer.trigger(ZOOMSTART, { scale: scale })) {
                 return;
@@ -444,7 +472,7 @@ import "../kendo.upload.js";
 
             if (options.updateComboBox && viewer.toolbar)
             {
-                viewer.toolbar._updateZoomComboBox(scale);
+                viewer._updateZoomComboBox(scale);
             }
 
             return scaleValue;

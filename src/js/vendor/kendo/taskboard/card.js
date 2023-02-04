@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -11,6 +11,7 @@ import "../kendo.core.js";
 (function($, undefined) {
     var kendo = window.kendo,
         Observable = kendo.Observable,
+        encode = kendo.htmlEncode,
         extend = $.extend;
 
     var TaskBoardCardStyles = {
@@ -46,21 +47,22 @@ import "../kendo.core.js";
             Observable.fn.init.call(that);
         },
 
-        headerTemplate: '<div class="#:styles.header# #:styles.hbox#">' +
-                            '<a class="#:styles.title# #:styles.link#" href="\\#" #if(selectable){##:kendo.attr("command")#="SelectCardCommand"#}#>#:{0}#</a>' +
-                            '<span class="#:styles.spacer#"></span>' +
-                            '#=cardMenuButton#' +
-                        '</div>',
-        bodyTemplate: '<div class="#:styles.body#"><p>#:{0}#</p></div>',
-        cardMenuButtonTemplate: '<div class="#:styles.headerActions#"><button aria-label="menu" class="#:styles.button# #:styles.flatButton# #:styles.cardMenuButton#">' +
-                                    '<span class="k-button-icon #:styles.actionsIcon#"></span>' +
+        contentTemplate: (data) => `<div class="${encode(data.styles.header)} ${encode(data.styles.hbox)}">` +
+            `<a class="${encode(data.styles.title)} ${encode(data.styles.link)}" href="#" ${data.selectable ? kendo.attr("command") + '=SelectCardCommand' : ''}>${encode(kendo.getter(data.dataTitleField)(data))}</a>` +
+            `<span class="${encode(data.styles.spacer)}"></span>` +
+            `${data.cardMenuButton}` +
+        '</div>' +
+        `<div class="${encode(data.styles.body)}"><p>${encode(kendo.getter(data.dataDescriptionField)(data))}</p></div>`,
+
+        cardMenuButtonTemplate: ({ styles }) => `<div class="${encode(styles.headerActions)}"><button aria-label="menu" class="${encode(styles.button)} ${encode(styles.flatButton)} ${encode(styles.cardMenuButton)}">` +
+                                    `<span class="k-button-icon ${encode(styles.actionsIcon)}"></span>` +
                                 '</button></div>',
 
         _render: function() {
             var that = this,
                 options = that.options,
                 styles = TaskBoardCard.styles,
-                template = options.template || that._buildTemplate(),
+                template = options.template || that.contentTemplate,
                 element = $("<div class='" + styles.element + " " + styles.card + " " + styles.moveCursor + "'></div>"),
                 cardMenuButtonTemplate = options.cardMenu ? that.cardMenuButtonTemplate : "",
                 resources = that._resources(that._dataItem),
@@ -84,7 +86,9 @@ import "../kendo.core.js";
                 styles: styles,
                 cardMenuButton: kendo.template(cardMenuButtonTemplate)({ styles: styles }),
                 selectable: options.states.isSelectable,
-                resources: resources
+                resources: resources,
+                dataTitleField: options.dataTitleField,
+                dataDescriptionField: options.dataDescriptionField
             }, that._dataItem)));
 
             that.element = element;

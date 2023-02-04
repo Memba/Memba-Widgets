@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -1016,15 +1016,17 @@ var __meta__ = {
             if (options.template && typeof options.template == "string") {
                 template = kendo.template(options.template);
             } else if (!options.template) {
-                template = kendo.template('${' + kendo.expr(options.dataTextField, "data") + "}", { useWithBlock: false });
+                template = kendo.template((data) => `${kendo.getter(options.dataTextField)(data)}`);
             } else {
                 template = options.template;
             }
 
             that.templates = {
-                itemTemplate: kendo.template("# var item = data.item, r = data.r; # <li class='k-list-item' role='option' aria-selected='false'><span class='k-list-item-text'>#=r(item)#</span></li>", { useWithBlock: false }),
+                itemTemplate: kendo.template(({ item, r }) =>
+                    `<li class='k-list-item' role='option' aria-selected='false'><span class='k-list-item-text'>${r(item)}</span></li>`
+                ),
                 itemContent: template,
-                toolbar: "<div role='toolbar' class='" + TOOLBAR_CLASS + "'></div>"
+                toolbar: `<div role='toolbar' class='${TOOLBAR_CLASS}'></div>`
             };
         },
 
@@ -1586,10 +1588,10 @@ var __meta__ = {
 
         _initTemplates: function() {
             this.templates = {
-                tool: kendoTemplate(
+                tool: kendoTemplate( ({ iconClass, command, text }) =>
                     "<li>" +
-                        "<a href='\\\\#' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' data-command='#= command #' title='#= text #' aria-label='#= text #' role='button'>" +
-                            "<span class='k-button-icon k-icon #= iconClass #'></span>" +
+                        `<a href='#' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' data-command='${command}' title='${text}' aria-label='${text}' role='button'>` +
+                            `<span class='k-button-icon k-icon ${iconClass}'></span>` +
                         "</a>" +
                     "</li>")
             };

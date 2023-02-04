@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -79,7 +79,7 @@ var DATA_URL_OPTIONS = { compression: "DEFLATE", type: "base64" };
 var BLOB_OPTIONS = { compression: "DEFLATE", type: "blob" };
 var ARRAYBUFFER_OPTIONS = { compression: "DEFLATE", type: "arraybuffer" };
 
-/* eslint-disable key-spacing, no-arrow-condition, indent, no-nested-ternary, consistent-return */
+/* eslint-disable key-spacing, no-confusing-arrow, no-constant-condition, indent, no-nested-ternary, consistent-return */
 
 function toDataURI(content) {
     return DATA_URL_PREFIX + content;
@@ -682,6 +682,7 @@ var MAP_EXCEL_OPERATOR = {
 };
 
 var MAP_EXCEL_TYPE = {
+    // eslint-disable-next-line id-denylist
     number: "decimal"
 };
 
@@ -728,14 +729,14 @@ var defaultFormats = {
 
 function maybeRGB(value) {
     function hex(val) {
-        var x = (+val).toString(16);
+        var x = parseInt(val, 10).toString(16);
         return x.length < 2 ? "0" + x : x;
     }
 
     var m = /^rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([0-9.]+)\s*)?\)/i.exec(value.trim());
     if (m) {
         var opacity = (m[4] ? parseFloat(m[4]) : 1) * 255 | 0;
-        value = "#" + hex(opacity) + hex(m[1]) + hex(m[2]) + hex(m[3]);
+        return "#" + hex(opacity) + hex(m[1]) + hex(m[2]) + hex(m[3]);
     }
     return value;
 }

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -45,6 +45,7 @@ var __meta__ = {
         Widget = kendo.ui.Widget,
         keys = kendo.keys,
         EMPTY_STRING = "",
+        EMPTY_STRING_TEMPLATE = () => EMPTY_STRING,
         DOT = ".",
         FOCUSSELECTOR = "> *:not(.k-loading-mask)",
         PROGRESS = "progress",
@@ -135,10 +136,10 @@ var __meta__ = {
             navigatable: false,
             pageable: false,
             height: null,
-            template: EMPTY_STRING,
-            altTemplate: EMPTY_STRING,
-            editTemplate: EMPTY_STRING,
-            contentTemplate: "<div data-content='true' />",
+            template: EMPTY_STRING_TEMPLATE,
+            altTemplate: null,
+            editTemplate: null,
+            contentTemplate: () => "<div data-content='true' />",
             contentElement: "div",
             bordered: true,
             borders: "",
@@ -169,9 +170,9 @@ var __meta__ = {
         _templates: function() {
             var options = this.options;
 
-            this.template = kendo.template(options.template || EMPTY_STRING);
-            this.altTemplate = kendo.template(options.altTemplate || options.template);
-            this.editTemplate = kendo.template(options.editTemplate || EMPTY_STRING);
+            this.template = kendo.template(options.template || EMPTY_STRING_TEMPLATE);
+            this.altTemplate = kendo.template(options.altTemplate || options.template || EMPTY_STRING_TEMPLATE);
+            this.editTemplate = kendo.template(options.editTemplate || EMPTY_STRING_TEMPLATE);
         },
 
         _item: function(action) {
@@ -807,7 +808,7 @@ var __meta__ = {
                                 };
 
                                 that.one("dataBound", focusAgain);
-                            } else if (that.options.editTemplate !== "") {
+                            } else if (that.options.editTemplate) {
                                 that.edit(current);
                             }
                         }

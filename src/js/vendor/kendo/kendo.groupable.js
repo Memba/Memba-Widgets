@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -35,15 +35,15 @@ var __meta__ = {
         GROUP_SORT = "group-sort",
         NS = ".kendoGroupable",
         CHANGE = "change",
-        indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" ${data.id ? ("data-" + data.ns + "id="+data.id) : ""} data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' +
-                '<a role="button" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})" href="\\#" class="k-link">' +
-                    '<span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})"></span>' +
-                    '${data.title ? data.title: data.field}' +
-                '</a>' +
-                '<a href="\\#" role="button" data-role="button" aria-label="Remove grouping by ${data.title || data.field} field" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
-                    '<span class="k-button-icon k-icon k-i-close"></span>' +
-                '</a>' +
-             '</div>', { useWithBlock: false }),
+        indicatorTmpl = (data) => `<div class="k-group-indicator" data-${data.ns}field="${data.field}" ${data.id ? ("data-" + data.ns + "id=" + data.id) : ""} data-${data.ns}title="${data.title || ""}" data-${data.ns}dir="${data.dir || "asc"}">
+                <a role="button" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending" : "descending"})" href="#" class="k-link">
+                    <span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending" : "descending"})"></span>
+                    ${data.title ? data.title : data.field}
+                </a>
+                <a href="#" role="button" data-role="button" aria-label="Remove grouping by ${data.title || data.field} field" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">
+                    <span class="k-button-icon k-icon k-i-close"></span>
+                </a>
+             </div>`,
         hint = function(target) {
             var title = target.attr(kendo.attr("title"));
             if (title) {

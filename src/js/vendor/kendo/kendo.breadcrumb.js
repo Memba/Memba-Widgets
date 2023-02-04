@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -21,6 +21,7 @@ var __meta__ = {
         Widget = kendo.ui.Widget,
         extend = $.extend,
         isPlainObject = $.isPlainObject,
+        encode = kendo.htmlEncode,
 
         BREADCRUMB = ".kendoBreadcrumb",
 
@@ -450,29 +451,29 @@ var __meta__ = {
             this.resize(true);
         },
 
-        itemTemplate: '<li class="k-breadcrumb-item #:itemClass# #if(lastSegment){#k-breadcrumb-last-item#}#">' +
-            '<a href="#:href#" class="#:linkClass# ' +
-                                     '#if(type !== "rootitem"){# k-breadcrumb-link#}#' +
-                                     '#if(showText && showIcon){# k-breadcrumb-icontext-link#}#' +
-                                     '#if(showIcon && !showText){# k-breadcrumb-icon-link#}#' +
-                                     '#if(lastSegment && type !== "rootitem"){# k-disabled#}#"' +
-                                     '#if(lastSegment){# aria-current="page"#}#' +
-                                     '#if(lastSegment && type !== "rootitem"){# aria-disabled="true" #}#' +
-                                     'title="#:text || title#">' +
-                '#if(showIcon) {#' +
-                    '<span class="#if(icon){#k-icon k-i-#:icon##}# #:iconClass#"></span>' +
-                '#}#' +
-                '#if(showText) {#' +
-                    '#:text#' +
-                '#}#' +
-            '</a>' +
-            '#if(renderDelimiter) {#' +
-                '<span class="k-breadcrumb-delimiter-icon k-icon k-i-#:delimiterIcon#" aria-hidden="true"></span>' +
-            '#}#' +
-            '#if(type === "rootitem" && renderDelimiter) {#' +
-                '<span class="k-breadcrumb-delimiter-icon k-hidden k-icon k-i-#:delimiterIcon#" aria-hidden="true"></span>' +
-            '#}#' +
-        '</li>',
+        itemTemplate: (data) => {
+            const getLinkClasses = () => {
+                let linkClasses = {
+                    'k-breadcrumb-link': data.type !== 'rootitem',
+                    'k-breadcrumb-icontext-link': data.showText && data.showIcon,
+                    'k-breadcrumb-icon-link': data.showIcon && !data.showText,
+                    'k-disabled': data.lastSegment && data.type !== "rootitem"
+                };
+
+                return Object.keys(linkClasses).filter(i => linkClasses[i]).join(' ');
+            };
+
+            const iconElm = data.showIcon ? `<span class="${(data.icon) ? `k-icon k-i-${encode(data.icon)}` : ''} ${encode(data.iconClass)}"></span>` : '';
+            const delimiterElm = data.renderDelimiter ? `<span class="k-breadcrumb-delimiter-icon k-icon k-i-${encode(data.delimiterIcon)}" aria-hidden="true"></span>` : '';
+            const text = `${data.showText ? (data.encoded !== false ? encode(data.text) : data.text) : '' }`;
+
+            const linkElm = `<a href="${encode(data.href)}" class="${encode(data.linkClass)} ${getLinkClasses()}"
+                ${data.lastSegment ? 'aria-current="page"' : ''}
+                ${(data.lastSegment && data.type !== "rootitem") ? 'aria-disabled="true"' : ''}
+                title="${encode(data.text || data.title)}">${iconElm}${text}</a>`;
+
+            return `<li class="k-breadcrumb-item ${encode(data.itemClass)} ${data.lastSegment ? 'k-breadcrumb-last-item' : ''}">${linkElm}${delimiterElm}</li>`;
+        },
 
         _displayOverflowIcons: function(visible) {
             var that = this,

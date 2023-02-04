@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -25,6 +25,7 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo;
     var ui = kendo.ui;
+    var encode = kendo.htmlEncode;
     var MENU = "kendoContextMenu";
     var NS = ".kendoPivotFieldMenu";
     var Widget = ui.Widget;
@@ -115,7 +116,7 @@ var __meta__ = {
                 autoBind: false,
                 dataSource: that._treeViewDataSource(),
                 dataTextField: "caption",
-                template: "#: data.item.caption || data.item.name #",
+                template: ({ item }) => `${encode(item.caption || item.name)}`,
                 check: function(e) {
                     /* The result can be observed in the DevTools(F12) console of the browser. */
                     var dataItem = e.sender.dataItem(e.node);
@@ -806,7 +807,7 @@ var __meta__ = {
                 autoBind: false,
                 dataSource: that._treeViewDataSource(),
                 dataTextField: "caption",
-                template: "#: data.item.caption || data.item.name #",
+                template: ({ item }) => `${encode(item.caption || item.name)}`,
                 checkboxes: {
                     checkChildren: true
                 },
@@ -1077,41 +1078,39 @@ var __meta__ = {
         return resultExpression ? resultExpression : null;
     }
 
-    var LABELMENUTEMPLATE =
+    var LABELMENUTEMPLATE = (messages) =>
         '<div class="k-filterable k-content" tabindex="-1" data-role="fieldmenu">' +
             '<form class="k-filter-menu">' +
                 '<div class="k-filter-menu-container">' +
-                    '<div class="k-filter-help-text">#=messages.info#</div>' +
+                    `<div class="k-filter-help-text">${messages.info}</div>` +
                     '<select>' +
-                        '#for(var op in messages.operators){#' +
-                            '<option value="#=op#">#=messages.operators[op]#</option>' +
-                        '#}#' +
+                        `${Object.keys(messages.operators).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
                     '</select>' +
-                    '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" type="text" ' + ARIA_LABEL + '="#=messages.filter#" title="#=messages.filter#" /></span>' +
+                    `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" type="text" ${ARIA_LABEL}="${messages.filter}" title="${messages.filter}" /></span>` +
                     '<div class="k-action-buttons">' +
-                        '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter" href="\\#"><span class="k-button-text">#=messages.filter#</span></a>' +
-                        '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-clear" href="\\#"><span class="k-button-text">#=messages.clear#</span></a>' +
+                        `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter" href="#"><span class="k-button-text">${messages.filter}</span></a>` +
+                        `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-clear" href="#"><span class="k-button-text">${messages.clear}</span></a>` +
                     '</div>' +
                 '</div>' +
             '</form>' +
         '</div>';
 
-    var MENUTEMPLATEV2 =
+    var MENUTEMPLATEV2 = ({ messages }) =>
         '<div class="k-pivotgrid-column-menu k-column-menu k-popup k-child-animation-container">' +
             '<div class="k-pivotgrid-column-menu-popup k-grid-columnmenu-popup">' +
                 '<div>' +
                     '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-columnmenu-item k-item">' +
-                            '<span class="k-icon k-i-sort-asc-sm"></span>#:messages.sortAscending#' +
+                            `<span class="k-icon k-i-sort-asc-sm"></span>${encode(messages.sortAscending)}` +
                         '</div>' +
                         '<div class="k-columnmenu-item k-item">' +
-                            '<span class="k-icon k-i-sort-desc-sm"></span>#:messages.sortDescending#' +
+                            `<span class="k-icon k-i-sort-desc-sm"></span>${encode(messages.sortDescending)}` +
                         '</div>' +
                     '</div>' +
                     '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-widget k-expander k-item">' +
                             '<div class="k-columnmenu-item">' +
-                                '<span class="k-icon k-i-grid-layout"></span>#:messages.include#' +
+                                `<span class="k-icon k-i-grid-layout"></span>${encode(messages.include)}` +
                                 '<span class="k-expander-spacer"></span>' +
                                 '<span class="k-expander-indicator k-icon k-i-arrow-chevron-down"></span>' +
                             '</div>' +
@@ -1124,15 +1123,15 @@ var __meta__ = {
                                 '</div>' +
                             '</div>' +
                             '<div class="k-actions k-hstack k-justify-content-stretch">' +
-                                '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-includes-reset"><span class="k-button-text">#:messages.reset#</span></button>' +
-                                '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-includes-apply"><span class="k-button-text">#:messages.apply#</span></button>' +
+                                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-includes-reset"><span class="k-button-text">${encode(messages.reset)}</span></button>` +
+                                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-includes-apply"><span class="k-button-text">${encode(messages.apply)}</span></button>` +
                             '</div>' +
                         '</div>' +
                     '</div>' +
                     '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-widget k-expander k-item">' +
                             '<div class="k-columnmenu-item">' +
-                                '<span class="k-icon k-i-filter"></span>#:messages.filterFields#' +
+                                `<span class="k-icon k-i-filter"></span>${encode(messages.filterFields)}` +
                                 '<span class="k-expander-spacer"></span>' +
                                 '<span class="k-expander-indicator k-icon k-i-arrow-chevron-down"></span>' +
                             '</div>' +
@@ -1144,14 +1143,12 @@ var __meta__ = {
                                         '<form class="k-filter-menu k-group k-reset">' +
                                             '<div class="k-filter-menu-container">' +
                                                     '<select class="k-dropdown k-picker k-dropdown-list" style="overflow:visible">' +
-                                                        '#for(var op in messages.operators){#' +
-                                                            '<option value="#=op#">#=messages.operators[op]#</option>' +
-                                                         '#}#' +
+                                                        `${Object.keys(messages.operators).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
                                                     '</select>' +
                                                     '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" value=""></span>' +
                                                 '<div class="k-actions k-hstack k-justify-content-stretch">' +
-                                                    '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-filter-clear"><span class="k-button-text">#:messages.clear#</span></button>' +
-                                                    '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter"><span class="k-button-text">#:messages.filter#</span></button>' +
+                                                    `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-filter-clear"><span class="k-button-text">${(messages.clear)}</span></button>` +
+                                                    `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter"><span class="k-button-text">${encode(messages.filter)}</span></button>` +
                                                 '</div>' +
                                             '</div>' +
                                         '</form>' +
@@ -1164,55 +1161,72 @@ var __meta__ = {
             '</div>' +
         '</div>';
 
-    var MENUTEMPLATE = '<ul class="k-pivot-fieldmenu">' +
-                        '# if (sortable) {#' +
-                        '<li class="k-item k-menu-item k-sort-asc">' +
-                            '<span class="k-link k-menu-link">' +
-                                '<span class="k-icon k-i-sort-asc-sm"></span>' +
-                                '<span class="k-menu-link-text">${messages.sortAscending}</span>' +
-                            '</span>' +
-                        '</li>' +
-                        '<li class="k-item k-menu-item k-sort-desc">' +
-                            '<span class="k-link k-menu-link">' +
-                                '<span class="k-icon k-i-sort-desc-sm"></span>' +
-                                '<span class="k-menu-link-text">${messages.sortDescending}</span>' +
-                            '</span>' +
-                        '</li>' +
-                            '# if (filterable) {#' +
-                            '<li class="k-separator"></li>' +
-                            '# } #' +
-                        '# } #' +
-                        '# if (filterable) {#' +
-                        '<li class="k-item k-menu-item k-include-item">' +
-                            '<span class="k-link k-menu-link">' +
-                                '<span class="k-icon k-i-filter"></span>' +
-                                '<span class="k-menu-link-text">${messages.include}</span>' +
-                            '</span>' +
-                        '</li>' +
-                        '<li class="k-separator"></li>' +
-                        '<li class="k-item k-menu-item ' + FILTER_ITEM + '">' +
-                            '<span class="k-link k-menu-link">' +
-                                '<span class="k-icon k-i-filter"></span>' +
-                                '<span class="k-menu-link-text">${messages.filterFields}</span>' +
-                            '</span>' +
-                            '<ul>' +
-                                '<li>' + LABELMENUTEMPLATE + '</li>' +
-                            '</ul>' +
-                        '</li>' +
-                        '# } #' +
+    var MENU_TEMPLATE_SORTABLE_PARTIAL = (messages, sortable, filterable) => {
+        var result = '';
+
+        if (sortable) {
+            result += '<li class="k-item k-menu-item k-sort-asc">' +
+            '<span class="k-link k-menu-link">' +
+            '<span class="k-icon k-i-sort-asc-sm"></span>' +
+            `<span class="k-menu-link-text">${messages.sortAscending}</span>` +
+            '</span>' +
+            '</li>' +
+            '<li class="k-item k-menu-item k-sort-desc">' +
+            '<span class="k-link k-menu-link">' +
+            '<span class="k-icon k-i-sort-desc-sm"></span>' +
+            `<span class="k-menu-link-text">${messages.sortDescending}</span>` +
+            '</span>' +
+            '</li>';
+
+            if (filterable) {
+                result += '<li class="k-separator"></li>';
+            }
+        }
+
+        return result;
+    };
+
+    var MENU_TEMPLATE_FILTERABLE_PARTIAL = (messages, filterable) => {
+        var result = '';
+
+        if (filterable) {
+            result += '<li class="k-item k-menu-item k-include-item">' +
+                '<span class="k-link k-menu-link">' +
+                '<span class="k-icon k-i-filter"></span>' +
+                `<span class="k-menu-link-text">${messages.include}</span>` +
+                '</span>' +
+                '</li>' +
+                '<li class="k-separator"></li>' +
+                '<li class="k-item k-menu-item ' + FILTER_ITEM + '">' +
+                '<span class="k-link k-menu-link">' +
+                '<span class="k-icon k-i-filter"></span>' +
+                `<span class="k-menu-link-text">${messages.filterFields}</span>` +
+                '</span>' +
+                '<ul>' +
+                '<li>' + LABELMENUTEMPLATE(messages) + '</li>' +
+                '</ul>' +
+                '</li>';
+        }
+
+        return result;
+    };
+
+    var MENUTEMPLATE = ({ messages, filterable, sortable }) => '<ul class="k-pivot-fieldmenu">' +
+                        MENU_TEMPLATE_SORTABLE_PARTIAL(messages, sortable, filterable) +
+                        MENU_TEMPLATE_FILTERABLE_PARTIAL(messages, filterable) +
                     '</ul>';
 
-    var WINDOWTEMPLATE = '<div class="k-popup-edit-form k-pivot-filter-window"><div class="k-edit-form-container">' +
+    var WINDOWTEMPLATE = ({ messages }) => '<div class="k-popup-edit-form k-pivot-filter-window"><div class="k-edit-form-container">' +
                             '<div class="k-treeview"></div>' +
                             '<div class="k-edit-buttons">' +
-                                '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-ok" href="\\#">' +
+                                '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-ok" href="#">' +
                                     '<span class="k-button-text">' +
-                                        '${messages.ok}' +
+                                        `${messages.ok}` +
                                     '</span>' +
                                 '</a>' +
-                                '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-cancel" href="\\#">' +
+                                '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-cancel" href="#">' +
                                     '<span class="k-button-text">' +
-                                        '${messages.cancel}' +
+                                        `${messages.cancel}` +
                                     '</span>' +
                                 '</a>' +
                         '</div></div>';

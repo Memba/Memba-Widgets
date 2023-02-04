@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -71,7 +71,11 @@ import "./kendo.resizable.js";
                 $.cssNumber.gridRowStart = true;
                 $.cssNumber.gridRowEnd = true;
 
-                that.element = $(element).addClass(TileLayout.styles.wrapper);
+                that.element = $(element)
+                    .addClass(TileLayout.styles.wrapper)
+                    .attr({
+                        role: "list"
+                    });
 
                 that._setWrapperStyles();
                 that._initContainers();
@@ -166,7 +170,11 @@ import "./kendo.resizable.js";
                         id = kendo.guid();
                         var current = $(element)
                             .addClass(TileLayout.styles.item)
-                            .attr("id", id);
+                            .attr({
+                                id: id,
+                                role: "listitem",
+                                "aria-keyshortcuts": "Enter"
+                            });
 
                         that._addContainer(current, containers[i], i, id);
                     });
@@ -176,7 +184,11 @@ import "./kendo.resizable.js";
                         containerSettings = containers[i];
                         container = $("<div></div>")
                             .addClass(TileLayout.styles.item)
-                            .attr("id", id);
+                            .attr({
+                                id: id,
+                                role: "listitem",
+                                "aria-keyshortcuts": "Enter"
+                            });
 
                         headerSettings = containerSettings.header;
                         if (headerSettings && (headerSettings.template || headerSettings.text)) {

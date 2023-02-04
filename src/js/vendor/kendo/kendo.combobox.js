@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -32,6 +32,7 @@ var __meta__ = {
 
 (function($, undefined) {
     var kendo = window.kendo,
+        encode = kendo.htmlEncode,
         ui = kendo.ui,
         html = kendo.html,
         List = ui.List,
@@ -159,12 +160,13 @@ var __meta__ = {
             cascadeFrom: "",
             cascadeFromField: "",
             cascadeFromParentField: "",
+            cascadeOnCustomValue: false,
             ignoreCase: true,
             animation: {},
             virtual: false,
             template: null,
-            groupTemplate: "#:data#",
-            fixedGroupTemplate: "#:data#",
+            groupTemplate: (data) => encode(data),
+            fixedGroupTemplate: (data) => encode(data),
             clearButton: true,
             syncValueAndText: true,
             autoWidth: false,
@@ -172,7 +174,8 @@ var __meta__ = {
             size: "medium",
             fillMode: "solid",
             rounded: "medium",
-            label: null
+            label: null,
+            clearOnEscape: true
         },
 
         events: [
@@ -1087,7 +1090,7 @@ var __meta__ = {
                 }
             } else if (key != keys.TAB && !that._move(e) && !isNonPrintableKey && !isFkey && !e.ctrlKey) {
                that._search();
-            } else if (key === keys.ESC && !that.popup.visible() && that.text()) {
+            } else if (that.options.clearOnEscape && key === keys.ESC && !that.popup.visible() && that.text()) {
                 that._clearValue();
             }
         },

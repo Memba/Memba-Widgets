@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -33,9 +33,9 @@ var __meta__ = {
         POINT = ".",
         AUTOCOMPLETEVALUE = "off",
         nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g,
-        ERRORTEMPLATE = '<div class="k-tooltip k-tooltip-error k-validator-tooltip">' +
+        ERRORTEMPLATE = ({ message }) => '<div class="k-tooltip k-tooltip-error k-validator-tooltip">' +
             '<span class="k-tooltip-icon k-icon k-i-warning"></span>' +
-            '<span class="k-tooltip-content">#= message #</span>' +
+            `<span class="k-tooltip-content">${message}</span>` +
             '<span class="k-callout k-callout-n"></span>' +
         '</div>',
         CHANGE = "change";
@@ -170,7 +170,7 @@ var __meta__ = {
         "DatePicker", "DateTimePicker", "DropDownTree",
         "Editor", "FlatColorPicker", "MaskedTextBox", "MultiColumnComboBox","MultiSelect",
         "NumericTextBox", "RadioGroup", "Rating", "Slider", "Switch", "TimePicker", "DropDownList",
-        "TextBox", "TextArea", "Captcha", "Signature"
+        "TextBox", "TextArea", "Captcha", "Signature", "TimeDurationPicker"
     ];
 
     var editors = {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -1491,16 +1491,16 @@ var __meta__ = {
             var empty = month.empty;
 
             that.month = {
-                content: template('<td class="#=data.cssClass#" role="gridcell"><a tabindex="-1" class="k-link#=data.linkClass#" href="#=data.url#" ' + kendo.attr(VALUE) + '="#=data.dateString#" title="#=data.title#">' + (content || "#=data.value#") + '</a></td>', { useWithBlock: !!content }),
-                empty: template('<td role="gridcell"' + (empty ? '>' : ' class="k-calendar-td k-out-of-range">') + (empty || "<a class='k-link'></a>") + "</td>", { useWithBlock: !!empty }),
-                weekNumber: template('<th class="k-calenar-td k-alt">' + (weekNumber || "#= data.weekNumber #") + "</th>", { useWithBlock: !!weekNumber })
+                content: template((data) => `<td class="${data.cssClass}" role="gridcell"><a tabindex="-1" class="k-link${data.linkClass}" href="${data.url}" ${kendo.attr(VALUE)}="${data.dateString}" title="${data.title}">${content ? kendo.template(content, { useWithBlock: !!content })(data) : data.value}</a></td>`, { useWithBlock: !!content }),
+                empty: template((data) => `<td role="gridcell"${empty ? '>' : ' class="k-calendar-td k-out-of-range">'}${(empty ? kendo.template(empty, { useWithBlock: !!empty })(data) : "<a class='k-link'></a>")}</td>`, { useWithBlock: !!empty }),
+                weekNumber: template((data) => `<th class="k-calenar-td k-alt">${weekNumber ? kendo.template(weekNumber, { useWithBlock: !!weekNumber })(data) : data.weekNumber}</th>`, { useWithBlock: !!weekNumber })
             };
         },
 
         _footer: function() {
             var that = this;
             var options = that.options;
-            var template = options.footer !== false ? kendo.template(that.options.footer || '#= kendo.toString(data,"D","' + options.culture + '") #', { useWithBlock: false }) : null;
+            var template = options.footer !== false ? kendo.template(that.options.footer || ((data) => kendo.toString(data,"D", options.culture)), { useWithBlock: false }) : null;
             var today = getToday();
             var element = that.element;
             var footer = element.find(".k-footer");

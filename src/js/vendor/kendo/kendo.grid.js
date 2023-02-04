@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -121,6 +121,7 @@ var __meta__ = {
         inArray = $.inArray,
         push = Array.prototype.push,
         isFunction = kendo.isFunction,
+        encode = kendo.htmlEncode,
         isEmptyObject = $.isEmptyObject,
         contains = $.contains,
         math = Math,
@@ -242,11 +243,11 @@ var __meta__ = {
         rightRegExp = new RegExp("(\\s*right\\s*:\\s*\\d*px;?)*", "ig"),
         nonDataCellsRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-group-cell|k-hierarchy-cell)" + "(" + whitespaceRegExp + "|$)"),
         filterRowRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-filter-row)" + "(" + whitespaceRegExp + "|$)"),
-        COMMANDBUTTONTMPL = '<button type="button" class="#=className#" #=attr#>#=text#</button>',
-        SELECTCOLUMNTMPL = '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">',
-        SELECTCOLUMNHEADERTMPL = '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">',
-        DRAGHANDLECOLUMNTMPL = '<span class="k-icon k-i-reorder"></span>',
-        SORTHEADERTMPL = '<span class="k-cell-inner"><span class="k-link"><span class="k-column-title">#=text#</span></span></span>',
+        COMMANDBUTTONTMPL = ({ className, attr, text }) => `<button type="button" class="${className}" ${attr}>${text}</button>`,
+        SELECTCOLUMNTMPL = () => '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">',
+        SELECTCOLUMNHEADERTMPL = () => '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">',
+        DRAGHANDLECOLUMNTMPL = () => '<span class="k-icon k-i-reorder"></span>',
+        SORTHEADERTMPL = ({ text }) => `<span class="k-cell-inner"><span class="k-link"><span class="k-column-title">${text}</span></span></span>`,
         isRtl = false,
         browser = kendo.support.browser;
 
@@ -4744,7 +4745,7 @@ var __meta__ = {
             if (!template && !that._isMobile) {
                 that.editable = new ui.Form(that._editContainer.find(".k-edit-form-container"), {
                     items: that._editFields(columns, model),
-                    buttonsTemplate: "",
+                    buttonsTemplate: () => '',
                     formData: model
                 }).editable;
                 that._editContainer.append(buttonsHTML);
@@ -5261,12 +5262,13 @@ var __meta__ = {
 
                 if (!container.length) {
                     if (!isFunction(toolbar)) {
-                        toolbar = (typeof toolbar === STRING ? toolbar : that._toolbarTmpl(toolbar).replace(templateHashRegExp, "\\#"));
+                        let toolbarString = (typeof toolbar === STRING ? toolbar : that._toolbarTmpl(toolbar));
+                        toolbar = (typeof toolbar === STRING ? toolbar : (() => toolbarString));
                         toolbar = kendo.template(toolbar).bind(that);
                     }
 
                     container = $('<div class="k-toolbar k-grid-toolbar" />')
-                        .html(toolbar({}))
+                        .html(toolbar({ grid: that }))
                         .prependTo(wrapper);
 
                     that.angular("compile", function() {
@@ -5648,8 +5650,8 @@ var __meta__ = {
 
             var lockedItems = $(filter, elements[0]);
             var nonLockedItems = $(filter, elements[1]);
-            var columns = cell ? lockedColumns(that.columns).length : 1;
-            var nonLockedColumns = cell ? that.columns.length - columns : 1;
+            var columns = cell ? lockedColumns(leafColumns(that.columns)).length : 1;
+            var nonLockedColumns = cell ? leafColumns(that.columns).length - columns : 1;
             var result = [];
 
             for (var idx = 0; idx < lockedItems.length; idx += columns) {
@@ -8575,7 +8577,7 @@ var __meta__ = {
                 }
 
                 if (!that.dataSource || !that.dataSource.view().length) {
-                    noRecordsElement = $(that.noRecordsTemplate({})).insertAfter(that.table);
+                    noRecordsElement = $(that.noRecordsTemplate({ grid: that })).insertAfter(that.table);
 
                     that.angular("compile", function() {
                         return {
@@ -9602,120 +9604,106 @@ var __meta__ = {
                 column,
                 type,
                 hasDetails = that._hasDetails(),
-                className = [],
                 groups = that._groups();
 
             var fieldAttr = kendo.attr("field");
             var field;
-            var dirtyCellTemplate = "";
             var classAttribute;
+            let rowTemplateFunc;
 
             if (!rowTemplate) {
-                rowTemplate = "<tr";
+                rowTemplateFunc = (data) => {
+                    var uid = length ? ` ${kendo.attr("uid")}="${kendo.getter("uid")(data)}"` : '';
+                    var rowTemplateResult = `<tr class="${alt ? 'k-alt ' : ''}k-master-row"${uid}>`;
 
-                if (alt) {
-                    className.push("k-alt");
-                }
-
-                className.push("k-master-row");
-
-                if (className.length) {
-                    rowTemplate += ' class="' + className.join(" ") + '"';
-                }
-
-                if (length) { // data item is an object
-                    rowTemplate += ' ' + kendo.attr("uid") + '="#=' + kendo.expr("uid", settings.paramName) + '#"';
-                }
-
-                rowTemplate += ">";
-
-                if (groups > 0 && !skipGroupCells) {
-                    rowTemplate += groupCells(groups);
-                }
-
-                if (hasDetails) {
-                    rowTemplate += '<td class="k-hierarchy-cell" aria-expanded="false"><a class="k-icon k-i-expand" href="\\#" ' + ARIA_LABEL + '="' + EXPAND + '" tabindex="-1"></a></td>';
-                }
-
-                for (idx = 0; idx < length; idx++) {
-                    column = columns[idx];
-                    template = column.template;
-                    type = typeof template;
-                    field = column.field;
-
-                    if (that._editMode() === INCELL && field) {
-                        column.attributes = column.attributes || {};
-
-                        if (that.virtualScroll) {
-                            column.attributes[fieldAttr] = field;
-                        }
-
-                        dirtyCellTemplate = that._dirtyCellTemplate(field, paramName);
-                        column.attributes["class"] = (column.attributes["class"] || "");
-
-                        if (column.attributes["class"].indexOf(dirtyCellTemplate) < 0) {
-                            column.attributes["class"] += dirtyCellTemplate;
-                        }
+                    if (groups > 0 && !skipGroupCells) {
+                        rowTemplateResult += groupCells(groups);
                     }
 
-                    if (column.colSpan && column.colSpan > 0 && hasHiddenStyle(column.attributes)) { //virtual cell should be visible at all times
-                        column.attributes = removeHiddenStyle(column.attributes);
-                    } else if (!column.colSpan && column.hidden) {
-                        column.attributes = addHiddenStyle(column.attributes);
+                    if (hasDetails) {
+                        rowTemplateResult += '<td class="k-hierarchy-cell" aria-expanded="false"><a class="k-icon k-i-expand" href="#" ' + ARIA_LABEL + '="' + EXPAND + '" tabindex="-1"></a></td>';
                     }
 
-                    if (column.command) {
-                        column.attributes = column.attributes || {};
-                        classAttribute = column.attributes["class"];
+                    for (idx = 0; idx < length; idx++) {
+                        column = columns[idx];
+                        template = column.template;
+                        type = typeof template;
+                        field = column.field;
 
-                        if (typeof classAttribute !== "undefined") {
-                            if (classAttribute.indexOf("k-command-cell") < 0) {
-                                column.attributes["class"] += " k-command-cell";
+                        if (that._editMode() === INCELL && field) {
+                            column.attributes = column.attributes || {};
+
+                            if (that.virtualScroll) {
+                                column.attributes[fieldAttr] = field;
                             }
-                        } else {
-                            column.attributes["class"] = "k-command-cell";
+
+                            let dirtyCellTemplate = that._dirtyCellTemplate(field)(data);
+                            column.attributes["class"] = (column.attributes["class"] || "");
+
+                            if (column.attributes["class"].indexOf(dirtyCellTemplate) < 0) {
+                                column.attributes["class"] += dirtyCellTemplate;
+                            }
                         }
+
+                        if (column.colSpan && column.colSpan > 0 && hasHiddenStyle(column.attributes)) { //virtual cell should be visible at all times
+                            column.attributes = removeHiddenStyle(column.attributes);
+                        } else if (!column.colSpan && column.hidden) {
+                            column.attributes = addHiddenStyle(column.attributes);
+                        }
+
+                        if (column.command) {
+                            column.attributes = column.attributes || {};
+                            classAttribute = column.attributes["class"];
+
+                            if (typeof classAttribute !== "undefined") {
+                                if (classAttribute.indexOf("k-command-cell") < 0) {
+                                    column.attributes["class"] += " k-command-cell";
+                                }
+                            } else {
+                                column.attributes["class"] = "k-command-cell";
+                            }
+                        }
+
+                        if (column.draggable) {
+                            column.attributes = column.attributes || {};
+
+                            if (typeof column.attributes["class"] !== "undefined") {
+                                column.attributes["class"] += " k-drag-cell k-touch-action-none";
+                            } else {
+                                column.attributes["class"] = "k-drag-cell k-touch-action-none";
+                            }
+
+                            if (typeof column.attributes[ARIA_LABEL] === "undefined") {
+                                column.attributes[ARIA_LABEL] = that.options.messages.dragHandleLabel;
+                            }
+
+                            if (typeof column.attributes.style !== "undefined") {
+                                column.attributes.style += " cursor: move;";
+                            } else {
+                                column.attributes.style = "cursor: move;";
+                            }
+                        }
+
+                        let columnAttributes = stringifyAttributes(column.attributes);
+                        let colSpanAttributes = '';
+
+                        if (column.colSpan) {
+                            if (column.colSpan > 1) {
+                                colSpanAttributes += " " + kendo.attr("virtual");
+                            }
+                            colSpanAttributes += ` colSpan="${column.colSpan}"`;
+                        }
+                        rowTemplateResult += `<td${columnAttributes}${colSpanAttributes}>`;
+                        rowTemplateResult += that._cellTmpl(column, state)(data);
+                        rowTemplateResult += "</td>";
                     }
 
-                    if (column.draggable) {
-                        column.attributes = column.attributes || {};
-
-                        if (typeof column.attributes["class"] !== "undefined") {
-                            column.attributes["class"] += " k-drag-cell k-touch-action-none";
-                        } else {
-                            column.attributes["class"] = "k-drag-cell k-touch-action-none";
-                        }
-
-                        if (typeof column.attributes[ARIA_LABEL] === "undefined") {
-                            column.attributes[ARIA_LABEL] = that.options.messages.dragHandleLabel;
-                        }
-
-                        if (typeof column.attributes.style !== "undefined") {
-                            column.attributes.style += " cursor: move;";
-                        } else {
-                            column.attributes.style = "cursor: move;";
-                        }
-                    }
-
-                    rowTemplate += "<td" + stringifyAttributes(column.attributes);
-
-                    if (column.colSpan) {
-                        if (column.colSpan > 1) {
-                            rowTemplate += " " + kendo.attr("virtual");
-                        }
-                        rowTemplate += " colSpan='" + column.colSpan + "'";
-                    }
-
-                    rowTemplate += ">";
-                    rowTemplate += that._cellTmpl(column, state);
-
-                    rowTemplate += "</td>";
-                }
-
-                rowTemplate += "</tr>";
+                    rowTemplateResult += "</tr>";
+                    return rowTemplateResult;
+                };
             }
 
-            rowTemplate = kendo.template(rowTemplate, settings);
+            rowTemplate = kendo.template(rowTemplate || rowTemplateFunc, settings);
 
             if (state.count > 0) {
                 return rowTemplate.bind(state.storage);
@@ -9724,16 +9712,15 @@ var __meta__ = {
             return rowTemplate;
         },
 
-        _dirtyCellTemplate: function(field, paramName) {
-            var dirtyField;
+        _dirtyCellTemplate: function(field) {
+            return (data) => {
+                if (field && data && data.dirty && data.dirtyFields) {
+                    let dirtyField = field.charAt(0) === "[" ? kendo.getter(field)(data.dirtyFields) : data.dirtyFields[field];
+                    return dirtyField ? ' k-dirty-cell' : '';
+                }
 
-            if (field && paramName) {
-                dirtyField = field.charAt(0) === "[" ? kendo.expr(field, paramName + ".dirtyFields") : paramName + ".dirtyFields['" + field + "']";
-
-                return "#= " + paramName + " && " + paramName + ".dirty && " + paramName + ".dirtyFields && " + dirtyField + " ? ' k-dirty-cell' : '' #";
-            }
-
-            return "";
+                return "";
+            };
         },
 
         _headerCellText: function(column) {
@@ -9757,7 +9744,7 @@ var __meta__ = {
                 template = column.template,
                 paramName = settings.paramName,
                 field = column.field,
-                html = "",
+                // html = "",
                 idx,
                 length,
                 format = column.format,
@@ -9766,16 +9753,19 @@ var __meta__ = {
 
             if (column.command) {
                 if (isArray(column.command)) {
-                    for (idx = 0, length = column.command.length; idx < length; idx++) {
-                        if (column.command[idx].visible) {
-                            html += kendo.format("#= {0}(data)? '{1}':'' #",column.command[idx].visible, that._createButton(column.command[idx]).replace(templateHashRegExp, "\\#").replace(/'/ig,"\\'"));
-                        } else {
-                            html += that._createButton(column.command[idx]).replace(templateHashRegExp, "\\#");
+                    return (data) => {
+                        let html = "";
+                        for (idx = 0, length = column.command.length; idx < length; idx++) {
+                            if (column.command[idx].visible) {
+                                html += column.command[idx].visible(data) ? that._createButton(column.command[idx]) : '';
+                            } else {
+                                html += that._createButton(column.command[idx]);
+                            }
                         }
-                    }
-                    return html;
+                        return html;
+                    };
                 }
-                return that._createButton(column.command).replace(templateHashRegExp, "\\#");
+                return () => that._createButton(column.command);
             }
 
             if (column.selectable) {
@@ -9786,58 +9776,46 @@ var __meta__ = {
                 return DRAGHANDLECOLUMNTMPL;
             }
 
-            html += that._dirtyIndicatorTemplate(field, paramName);
+            return (data) => {
+                let html = that._dirtyIndicatorTemplate(field)(data);
 
-            if (type === FUNCTION) {
-                state.storage["tmpl" + state.count] = template;
-                html += "#=this.tmpl" + state.count + "(" + paramName + ")#";
-                state.count ++;
-            } else if (type === STRING) {
-                html += template;
-            } else if (columnValues && columnValues.length && isPlainObject(columnValues[0]) && "value" in columnValues[0] && field) {
-                html += "#var v =" + kendo.stringify(convertToObject(columnValues)).replace(templateHashRegExp, "\\#") + "#";
-                html += "#var f = v[";
-
-                if (!settings.useWithBlock) {
-                    html += paramName + ".";
-                }
-
-                html += field + "]#";
-                html += "${f != null ? f : ''}";
-            } else {
-                html += column.encoded ? "#:" : "#=";
-
-                if (format) {
-                    html += 'kendo.format(\"' + format.replace(formatRegExp,"\\$1") + '\",';
-                }
-
-                if (field) {
-                    field = kendo.expr(field, paramName);
-                    html += field + "==null?'':" + field;
+                if (type === FUNCTION) {
+                    state.storage["tmpl" + state.count] = template;
+                    html += template(data);
+                    state.count++;
+                } else if (type === STRING) {
+                    html += kendo.template(template, settings)(data);
+                } else if (columnValues && columnValues.length && isPlainObject(columnValues[0]) && "value" in columnValues[0] && field) {
+                    var v = convertToObject(columnValues);
+                    var f = v[settings.useWithBlock ? kendo.getter(field)(data) : field];
+                    html += f != null ? f : '';
                 } else {
-                    html += "''";
+                    let fieldValue = '';
+                    if (field) {
+                        field = kendo.getter(field)(data);
+                        fieldValue = field == null ? '' : field;
+                    }
+
+                    if (format) {
+                        fieldValue = kendo.format(format.replace(formatRegExp, "$1"), fieldValue);
+                    }
+
+                    html += column.encoded ? encode(fieldValue) : fieldValue;
                 }
 
-                if (format) {
-                    html += ")";
-                }
-
-                html += "#";
-            }
-            return html;
+                return html;
+            };
         },
 
-        _dirtyIndicatorTemplate: function(field, paramName) {
-            var dirtyField;
+        _dirtyIndicatorTemplate: function(field) {
+            return (data) => {
+                if (field && data && data.dirty && data.dirtyFields) {
+                    let dirtyField = field.charAt(0) === "[" ? kendo.getter(field)(data.dirtyFields) : data.dirtyFields[field];
+                    return dirtyField ? '<span class=\"k-dirty\"></span>' : '';
+                }
 
-            if (field && paramName) {
-                dirtyField = field.charAt(0) === "[" ? kendo.expr(field, paramName + ".dirtyFields") : paramName + ".dirtyFields['" + field + "']";
-
-                return "#= " + paramName + " && " + paramName + ".dirty && " + paramName + ".dirtyFields && " + dirtyField +
-                    " ? '<span class=\"k-dirty\"></span>' : '' #";
-            }
-
-            return "";
+                return "";
+            };
         },
 
         _virtualCols: function(columns) {
@@ -9932,7 +9910,7 @@ var __meta__ = {
             }
 
             if (that._hasDetails()) {
-                that.detailTemplate = that._detailTmpl(options.detailTemplate || "");
+                that.detailTemplate = that._detailTmpl(options.detailTemplate || (() => ""));
             }
 
             if ((that._group && !isEmptyObject(aggregates)) || (!isEmptyObject(aggregates) && !footer.length) ||
@@ -9964,7 +9942,7 @@ var __meta__ = {
                 that.lockedGroupHeaderColumnTemplate = null;
             }
 
-                if (that.options.noRecords) {
+            if (that.options.noRecords) {
                 that.noRecordsTemplate = that._noRecordsTmpl();
             }
         },
@@ -9977,9 +9955,10 @@ var __meta__ = {
             var settings = $.extend({}, kendo.Template, this.options.templateSettings);
             var paramName = settings.paramName;
             var template;
-            var html = "";
+            // var html = "";
             var type;
             var tmpl;
+            let resultTemplate;
 
             if (this.options.noRecords.template) {
                 template = this.options.noRecords.template;
@@ -9989,14 +9968,17 @@ var __meta__ = {
 
             type = typeof template;
             if (type === "function") {
-                state.storage["tmpl" + state.count] = template;
-                html += "#=this.tmpl" + state.count + "(" + paramName + ")#";
-                state.count ++;
+                let currentCustomTemplate = state.storage["tmpl" + state.count] = template;
+                state.count++;
+                resultTemplate = (data) => kendo.format(wrapper, NORECORDSCLASS, currentCustomTemplate(data));
+
             } else if (type === "string") {
-                html += template;
+                resultTemplate = this.options.noRecords.template ?
+                    kendo.format(wrapper, NORECORDSCLASS, template)
+                    : () => kendo.format(wrapper, NORECORDSCLASS, template);
             }
 
-            tmpl = kendo.template(kendo.format(wrapper, NORECORDSCLASS, html), settings);
+            tmpl = kendo.template(resultTemplate, settings);
 
             if (state.count > 0) {
                 tmpl = tmpl.bind(state.storage);
@@ -10009,7 +9991,7 @@ var __meta__ = {
             var that = this,
                 settings = extend({}, kendo.Template, that.options.templateSettings),
                 paramName = settings.paramName,
-                html = "",
+                // html = "",
                 idx,
                 length,
                 template,
@@ -10021,48 +10003,51 @@ var __meta__ = {
                 fieldsMap = that.dataSource._emptyAggregates(aggregates),
                 column;
 
-            html += '<tr class="' + rowClass + '">';
+            let footerTemplateFunction = (data) => {
+                let html = '<tr class="' + rowClass + '">';
 
-            if (groups > 0 && !skipGroupCells) {
-                html += groupCells(groups);
-            }
-
-            if (that._hasDetails()) {
-                html += '<td class="k-hierarchy-cell">&nbsp;</td>';
-            }
-
-            for (idx = 0, length = columns.length; idx < length; idx++) {
-                column = columns[idx];
-                template = column[templateName];
-                type = typeof template;
-
-                html += "<td" + stringifyAttributes(column.footerAttributes) + ">";
-
-                if (template) {
-                    if (type !== FUNCTION) {
-                        scope = fieldsMap[column.field] ? extend({}, settings, { paramName: paramName + "['" + column.field + "']" }) : {};
-                        template = kendo.template(template, scope);
-                    }
-
-                    storage["tmpl" + count] = template;
-                    html += "#=this.tmpl" + count + "(" + paramName + ")#";
-                    count ++;
-                } else {
-                    html += "&nbsp;";
+                if (groups > 0 && !skipGroupCells) {
+                    html += groupCells(groups);
                 }
 
-                html += "</td>";
-            }
+                if (that._hasDetails()) {
+                    html += '<td class="k-hierarchy-cell">&nbsp;</td>';
+                }
 
-            html += '</tr>';
+                for (idx = 0, length = columns.length; idx < length; idx++) {
+                    column = columns[idx];
+                    template = column[templateName];
+                    type = typeof template;
 
-            html = kendo.template(html, settings);
+                    html += "<td" + stringifyAttributes(column.footerAttributes) + ">";
+
+                    if (template) {
+                        if (type !== FUNCTION) {
+                            scope = fieldsMap[column.field] ? extend({}, settings, { paramName: paramName + "['" + column.field + "']" }) : {};
+                            template = kendo.template(template, scope);
+                        }
+
+                        storage["tmpl" + count] = template;
+                        html += template(data);
+                        count++;
+                    } else {
+                        html += "&nbsp;";
+                    }
+
+                    html += "</td>";
+                }
+
+                html += '</tr>';
+                return html;
+            };
+
+            let resultTemplate = kendo.template(footerTemplateFunction, settings);
 
             if (count > 0) {
-                return html.bind(storage);
+                return resultTemplate.bind(storage);
             }
 
-            return html;
+            return resultTemplate;
         },
 
         _groupHeaderTmpl: function(columns, aggregates, templateName, rowClass, skipGroupCells, groupHeaderColumnTemplateColumns) {
@@ -10082,74 +10067,75 @@ var __meta__ = {
                 headerTemplateIndex = groupHeaderColumnTemplateColumns.length ? inArray(groupHeaderColumnTemplateColumns[0], columns) : -1,
                 groupHeaderColumnTemplateClass;
 
-            html += '<tr class="' + rowClass + '">';
-
-            if (!skipGroupCells) {
-                html += '# for (var i = 0; i < data.groupCells; i++) { #' +
-                '<td class="k-group-cell">' +
-                  '&nbsp;' +
-                '</td>' +
-                '# } #';
-            }
-
-            if (that._hasDetails()) {
-                html += '<td class="k-hierarchy-cell">&nbsp;</td>';
-            }
-
             if (headerTemplateIndex < 0) {
-                html += !skipGroupCells ? groupCellBuilder(columns.length) : '';
                 return;
             }
+            var groupHeaderTemplFunc = (data) => {
+                var resultHtml = '<tr class="' + rowClass + '">';
 
-            if (headerTemplateIndex < MINCOLSPANVALUE && groupHeaderColumnTemplateColumns.length <= 1 && !skipGroupCells) {
-                html += !skipGroupCells ? groupCellBuilder(columns.length) : '';
-                return kendo.template(html, settings);
-            }
-
-            if (headerTemplateIndex < MINCOLSPANVALUE) {
-                headerTemplateIndex = !skipGroupCells ? 1 : 0;
-                html += !skipGroupCells ? groupCellBuilder(headerTemplateIndex) : '';
-            }
-            else {
-                html += !skipGroupCells ? groupCellBuilder(headerTemplateIndex) : groupCellLockedContentBuilder(headerTemplateIndex);
-            }
-
-            for (idx = headerTemplateIndex, length = columns.length; idx < length; idx++) {
-                column = columns[idx];
-                template = column[templateName];
-                type = typeof template;
-
-                if (column.sticky) {
-                    groupHeaderColumnTemplateClass = (column.groupHeaderColumnTemplateClass || '');
-
-                    if (!groupHeaderColumnTemplateClass) {
-                        groupHeaderColumnTemplateClass = column.groupHeaderColumnTemplateClass = "group-header-column-template-" + kendo.guid();
+                if (!skipGroupCells) {
+                    for (var i = 0; i < data.groupCells; i++) {
+                        resultHtml += '<td class="k-group-cell">&nbsp;</td>';
                     }
-
-                    html += "<td class='" + STICKY_CELL_CLASS + " " + groupHeaderColumnTemplateClass + "' style='" + (column.stickyStyle || '') + "'>";
-                } else {
-                    html += "<td>";
                 }
 
-                if (template) {
-                    if (type !== FUNCTION) {
-                        scope = fieldsMap[column.field] ? extend({}, settings, { paramName: paramName + "['" + column.field + "']" }) : {};
-                        template = kendo.template(template, scope);
-                    }
-
-                    storage["tmpl" + count] = template;
-                    html += "#=this.tmpl" + count + "(" + paramName + ")#";
-                    count ++;
-                } else {
-                    html += "&nbsp;";
+                if (that._hasDetails()) {
+                    resultHtml += '<td class="k-hierarchy-cell">&nbsp;</td>';
                 }
 
-                html += "</td>";
-            }
+                if (headerTemplateIndex < MINCOLSPANVALUE && groupHeaderColumnTemplateColumns.length <= 1 && !skipGroupCells) {
+                    resultHtml += !skipGroupCells ? groupCellBuilder(columns.length)(data) : '';
+                    return resultHtml;
+                    // return kendo.template(resultHtml, settings);
+                }
 
-            html += '</tr>';
+                if (headerTemplateIndex < MINCOLSPANVALUE) {
+                    headerTemplateIndex = !skipGroupCells ? 1 : 0;
+                    resultHtml += !skipGroupCells ? groupCellBuilder(headerTemplateIndex)(data) : '';
+                }
+                else {
+                    resultHtml += !skipGroupCells ? groupCellBuilder(headerTemplateIndex)(data) : groupCellLockedContentBuilder(headerTemplateIndex);
+                }
 
-            html = kendo.template(html, settings);
+                for (idx = headerTemplateIndex, length = columns.length; idx < length; idx++) {
+                    column = columns[idx];
+                    template = column[templateName];
+                    type = typeof template;
+
+                    if (column.sticky) {
+                        groupHeaderColumnTemplateClass = (column.groupHeaderColumnTemplateClass || '');
+
+                        if (!groupHeaderColumnTemplateClass) {
+                            groupHeaderColumnTemplateClass = column.groupHeaderColumnTemplateClass = "group-header-column-template-" + kendo.guid();
+                        }
+
+                        resultHtml += "<td class='" + STICKY_CELL_CLASS + " " + groupHeaderColumnTemplateClass + "' style='" + (column.stickyStyle || '') + "'>";
+                    } else {
+                        resultHtml += "<td>";
+                    }
+
+                    if (template) {
+                        if (type !== FUNCTION) {
+                            scope = fieldsMap[column.field] ? extend({}, settings, { paramName: paramName + "['" + column.field + "']" }) : {};
+                            template = kendo.template(template, scope);
+                        }
+
+                        storage["tmpl" + count] = template;
+                        resultHtml += storage["tmpl" + count](data);
+                        count++;
+                    } else {
+                        resultHtml += "&nbsp;";
+                    }
+
+                    resultHtml += "</td>";
+                }
+
+                resultHtml += '</tr>';
+
+                return resultHtml;
+            };
+
+            html = kendo.template(groupHeaderTemplFunc, settings);
 
             if (count > 0) {
                 return html.bind(storage);
@@ -10160,7 +10146,6 @@ var __meta__ = {
 
         _detailTmpl: function(template) {
             var that = this,
-                html = "",
                 settings = extend({}, kendo.Template, that.options.templateSettings),
                 paramName = settings.paramName,
                 templateFunctionStorage = {},
@@ -10169,29 +10154,32 @@ var __meta__ = {
                 colspan = visibleColumns(leafColumns(that.columns)).length,
                 type = typeof template;
 
-            html += '<tr role="row" class="k-detail-row">';
-            if (groups > 0) {
-                html += groupCells(groups);
-            }
-            html += '<td role="gridcell" class="k-hierarchy-cell"></td><td role="gridcell" class="k-detail-cell"' + (colspan ? ' colspan="' + colspan + '"' : '') + ">";
+            let detailTemplateFunction = (data) => {
+                let html = '<tr role="row" class="k-detail-row">';
+                if (groups > 0) {
+                    html += groupCells(groups);
+                }
 
-            if (type === FUNCTION) {
-                templateFunctionStorage["tmpl" + templateFunctionCount] = template;
-                html += "#=this.tmpl" + templateFunctionCount + "(" + paramName + ")#";
-                templateFunctionCount ++;
-            } else {
-                html += template;
-            }
+                html += `<td role="gridcell" class="k-hierarchy-cell"></td><td role="gridcell" class="k-detail-cell"${colspan ? ` colspan="${colspan}"` : ''}>`;
+                if (type === FUNCTION) {
+                    templateFunctionStorage["tmpl" + templateFunctionCount] = template;
+                    html += template(data);
+                    templateFunctionCount++;
+                } else {
+                    html += kendo.template(template, settings)(data);
+                }
 
-            html += "</td></tr>";
+                html += "</td></tr>";
+                return html;
+            };
 
-            html = kendo.template(html, settings);
+            let resultTemplate = kendo.template(detailTemplateFunction, settings);
 
             if (templateFunctionCount > 0) {
-                return html.bind(templateFunctionStorage);
+                return resultTemplate.bind(templateFunctionStorage);
             }
 
-            return html;
+            return resultTemplate;
         },
 
         _hasDetails: function() {
@@ -12856,11 +12844,9 @@ var __meta__ = {
     }
 
    function groupCellBuilder(headerTemplateIndex) {
-    return '<td colspan="#=data.colspan +' + headerTemplateIndex + '#">' +
+    return ({ colspan, text }) => `<td colspan="${colspan + headerTemplateIndex}">` +
     '<p class="k-reset">' +
-    '<a class="k-icon k-i-collapse" href="\\#" tabindex="-1" ' +
-    ARIA_LABEL + '="' + COLLAPSE +
-    '"></a>#=data.text#' +
+        `<a class="k-icon k-i-collapse" href="\\#" tabindex="-1" ${ARIA_LABEL}="${COLLAPSE}"></a>${text}` +
     '</p></td>';
    }
 

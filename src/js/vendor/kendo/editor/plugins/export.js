@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -150,8 +150,8 @@ var ExportAsTool = Tool.extend({
                 sender.unbind("open");
             },
             highlightFirst: false,
-            template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>'),
-            valueTemplate: '<span class="k-editor-export"><span class="k-icon k-i-export"></span><span class="k-export-tool-text">' + displayName + '</span></span>'
+            template: kendo.template((data) => `<span unselectable="on" style="display:block;${data.style || '' }">${kendo.htmlEncode(data.text)}</span>`),
+            valueTemplate: () => `<span class="k-editor-export"><span class="k-icon k-i-export"></span><span class="k-export-tool-text">${displayName}</span></span>`
         }).data("kendoSelectBox");
 
         ui.attr("title", initOptions.title);

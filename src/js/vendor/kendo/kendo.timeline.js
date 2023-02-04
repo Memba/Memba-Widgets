@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2022.3.1109 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -26,6 +26,7 @@ var __meta__ = {
         Transition = kendo.effects.Transition,
         keys = kendo.keys,
         isArray = Array.isArray,
+        encode = kendo.htmlEncode,
 
         LEFT_PAGE = -1,
         CETER_PAGE = 0,
@@ -39,123 +40,131 @@ var __meta__ = {
         SCROLLABLEWRAPCLASS = "k-timeline-scrollable-wrap",
         NS = ".kendoTimeline",
         CHANGE = "change",
-        DEFAULTHORIZONTALCARDTEMPLATE =
-        '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, altField = data.altField, data = data.data; #' +
-        '<div class="k-card-inner">' +
-            '<div class="k-card-header">' +
-                '# if(data[titleField]) { #' +
-                    '<div class="k-card-title">#: data[titleField] #</div>' +
-                '# }' +
-                'if(data[subtitleField]) { #' +
-                    '<div class="k-card-subtitle">#: data[subtitleField] #</div>' +
-                '# } #' +
-            '</div>' +
-            '<div class="k-card-body">' +
-                '<div class="k-card-description">' +
-                    '# if(data[descriptionField]) { #' +
-                        '<p>#: data[descriptionField] #</p>' +
-                    '# }' +
-                    'if(data[imagesField] && data[imagesField].length > 0) { #' +
-                        '<img src="#: data[imagesField][0].src #"  #if(data[altField]){# alt="#:data[altField]#" #}# class="k-card-image" />' +
-                    '# } #' +
-                '</div>' +
-            '</div>' +
-            '# if(data[actionsField] && data[actionsField].length > 0) { #' +
-                '<div class="k-card-actions">' +
-                    '# for (var i = 0; i < data[actionsField].length; i++) { #' +
-                        '<a class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary" href="#: data[actionsField][i].url ? data[actionsField][i].url : "\\#" #"><span class="k-button-text">#: data[actionsField][i].text #</span></a>' +
-                    '# } #' +
-                '</div>' +
-            '# } #' +
-        '</div>',
-        DEFAULTVERTICALCARDTEMPLATE =
-        '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, navigatable = data.navigatable, collapsibleEvents = data.collapsibleEvents, actionsField = data.actionsField, altField = data.altField, data = data.data; #' +
-        '<div class="k-card-inner">' +
-            '<div class="k-card-header">' +
-                '<div class="k-card-title">' +
-                    '# if(data[titleField]) { #' +
-                        '<span class="k-event-title">#: data[titleField] #</span>' +
-                    '# } #' +
-                '<span class="k-event-collapse k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
-                    '<span class="k-button-icon k-icon k-i-arrow-chevron-right"></span>' +
-                '</span></div>' +
-                '# if(data[subtitleField]) { #' +
-                    '<div class="k-card-subtitle">#: data[subtitleField] #</div>' +
-                '# } #' +
-            '</div>' +
-            '<div class="k-card-body">' +
-                '<div class="k-card-description">' +
-                    '# if(data[descriptionField]) { #' +
-                        '<p>#: data[descriptionField] #</p>' +
-                    '# } #' +
-                    '# if(data[imagesField] && data[imagesField].length > 0) { #' +
-                        '<img src="#: data[imagesField][0].src #" #if(data[altField]){# alt="#:data[altField]#" #}# class="k-card-image" />' +
-                    '# } #' +
-                '</div>' +
-            '</div>' +
-            '# if(data[actionsField] && data[actionsField].length > 0) { #' +
-                '<div class="k-card-actions">' +
-                    '# for (var i = 0; i < data[actionsField].length; i++) { #' +
-                        '<a class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary" href="#: data[actionsField][i].url ? data[actionsField][i].url : "\\#" #"><span class="k-button-text">#: data[actionsField][i].text #</span></a>' +
-                    '# } #' +
-                '</div>' +
-            '# } #' +
-        '</div>',
-        HORIZONTALTRACKTEMPLATE =
-        '# var itemTemplate = data.itemTemplate, dateField = data.dateField, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, year = 0; #' +
-            '# for (var i = 0; i < data.length; i++) {' +
-                    'if(!(data[i][dateField] instanceof Date)) {' +
-                        'continue;' +
-                    '}' +
-                    'var currentYear = data[i][dateField].getFullYear();' +
-                    'if(year != currentYear) {' +
-                        'year = currentYear; #' +
-                        '<li class="k-timeline-track-item k-timeline-flag-wrap">' +
-                            '<span class="k-timeline-flag">#= year #</span>' +
-                        '</li>' +
-                    '# } #' +
-                    '<li class="k-timeline-track-item">' +
-                        '<div class="k-timeline-date-wrap">' +
-                            '# if(showDateLabels) { #' +
-                                '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' +
-                            '# } #' +
-                        '</div>' +
-                        '<a class="k-timeline-circle"></a>' +
-                    '</li>' +
-            '# } #',
-        VERTICALEVENTSTEMPLATE =
-        '# var itemTemplate = data.itemTemplate, dateField = data.dateField, titleField = data.titleField, descriptionField = data.descriptionField, subtitleField = data.subtitleField, imagesField = data.imagesField, actionsField = data.actionsField, alterMode = data.alterMode, collapsibleEvents = data.collapsibleEvents, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, navigatable = data.navigatable, altField = data.altField, data = data.data, counter = 0, year = 0, reverse = false;' +
-            'for (var i = 0; i < data.length; i++) {' +
-                'if(!(data[i][dateField] instanceof Date)) {' +
-                    'continue;' +
-                '}' +
-                'var currentYear = data[i][dateField].getFullYear();' +
-                'if(currentYear != year) {' +
-                    'year = currentYear; #' +
-                    '<li class="k-timeline-flag-wrap">' +
-                        '<span class="k-timeline-flag">#= year #</span>' +
-                    '</li>' +
-                '# } ' +
-                'reverse = counter % 2 === 0 && alterMode; #' +
-            '<li class="#= reverse ? \'k-timeline-event k-reverse\' : \'k-timeline-event\' #" data-uid="#: data[i].uid #">' +
-            '<div class="k-timeline-date-wrap">' +
-                '# if(showDateLabels) { #' +
-                    '<div class="k-timeline-date-wrap">' +
-                        '<span id="#:data[i].uid#-date" class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' +
-                    '</div>' +
-                '# } #' +
-                '</div>' +
-                '<a class="k-timeline-circle"></a>' +
-                '<div class="#= collapsibleEvents ? \'k-timeline-card k-collapsed\' : \'k-timeline-card\' #">' +
-                    '<div class="k-card" #if (navigatable) {# aria-describedby="#:data[i].uid#-date" tabindex="0" role="button" aria-live="polite" aria-atomic="true"  #}#>' +
-                        '<span class="#= reverse ? \'k-timeline-card-callout k-card-callout k-callout-e\' : \'k-timeline-card-callout k-card-callout k-callout-w\' #"></span>' +
-                        '#= itemTemplate({titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i], altField: altField, navigatable: navigatable, collapsibleEvents: collapsibleEvents}) #' +
-                    '</div>' +
+        DEFAULTHORIZONTALCARDTEMPLATE = (args) => {
+            let titleField = args.titleField, subtitleField = args.subtitleField, descriptionField = args.descriptionField, imagesField = args.imagesField, actionsField = args.actionsField, altField = args.altField, data = args.data;
 
+            return '<div class="k-card-inner">' +
+                '<div class="k-card-header">' +
+                    (data[titleField] ? `<div class="k-card-title">${encode(data[titleField])}</div>` : '') +
+                    (data[subtitleField] ? `<div class="k-card-subtitle">${encode(data[subtitleField])}</div>` : '') +
                 '</div>' +
-            '</li>' +
-            '# counter ++;' +
-        '} #',
+                '<div class="k-card-body">' +
+                    '<div class="k-card-description">' +
+                        (data[descriptionField] ? `<p>${encode(data[descriptionField])}</p>` : '') +
+                        (data[imagesField] && data[imagesField].length > 0 ?
+                        `<img src="${encode(data[imagesField][0].src)}" ${data[altField] ? `alt="${encode(data[altField])}"` : ''} class="k-card-image" />`
+                        : '' ) +
+                    '</div>' +
+                '</div>' +
+                (data[actionsField] && data[actionsField].length > 0 ?
+                '<div class="k-card-actions">' +
+                    data[actionsField].map(action =>
+                        `<a class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary" href="${action.url ? encode(action.url) : "#"}">` +
+                            `<span class="k-button-text">${encode(action.text)}</span>` +
+                        '</a>'
+                        ).join('') +
+                '</div>'
+                : '') +
+            '</div>';
+        },
+        DEFAULTVERTICALCARDTEMPLATE = (args) => {
+            let titleField = args.titleField, subtitleField = args.subtitleField, descriptionField = args.descriptionField, imagesField = args.imagesField, navigatable = args.navigatable, collapsibleEvents = args.collapsibleEvents, actionsField = args.actionsField, altField = args.altField, data = args.data;
+            return '<div class="k-card-inner">' +
+                '<div class="k-card-header">' +
+                    '<div class="k-card-title">' +
+                        (data[titleField] ? `<span class="k-event-title">${encode(data[titleField])}</span>` : '') +
+                        '<span class="k-event-collapse k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
+                            '<span class="k-button-icon k-icon k-i-arrow-chevron-right"></span>' +
+                        '</span>' +
+                    '</div>' +
+                    (data[subtitleField] ? `<div class="k-card-subtitle">${encode(data[subtitleField])}</div>` : '') +
+                '</div>' +
+                '<div class="k-card-body">' +
+                    '<div class="k-card-description">' +
+                        (data[descriptionField] ? `<p>${encode(data[descriptionField])}</p>` : '') +
+                        (data[imagesField] && data[imagesField].length > 0 ?
+                            `<img src="${encode(data[imagesField][0].src)}" ${data[altField] ? `alt="${encode(data[altField])}"` : ''} class="k-card-image" />`
+                        : '') +
+                    '</div>' +
+                '</div>' +
+                (data[actionsField] && data[actionsField].length > 0 ?
+                '<div class="k-card-actions">' +
+                    data[actionsField].map(action =>
+                        `<a class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary" href="${action.url ? encode(action.url) : "#"}">` +
+                            `<span class="k-button-text">${encode(action.text)}</span>` +
+                        '</a>'
+                        ).join('') +
+                '</div>'
+                : '') +
+            '</div>';
+        },
+        HORIZONTALTRACKTEMPLATE = (args) => {
+            let itemTemplate = args.itemTemplate, dateField = args.dateField, dateFormat = args.dateFormat, showDateLabels = args.showDateLabels, data = args.data, year = 0;
+            let result = '';
+            for (var i = 0; i < data.length; i++) {
+                if (!(data[i][dateField] instanceof Date)) {
+                    continue;
+                }
+                let currentYear = data[i][dateField].getFullYear();
+                if (year != currentYear) {
+                    year = currentYear;
+                    result +=
+                    '<li class="k-timeline-track-item k-timeline-flag-wrap">' +
+                        `<span class="k-timeline-flag">${year}</span>` +
+                    '</li>';
+                }
+
+                result +=
+                '<li class="k-timeline-track-item">' +
+                    '<div class="k-timeline-date-wrap">' +
+                         (showDateLabels ? `<span class="k-timeline-date">${kendo.toString(data[i][dateField], dateFormat)}</span>` : '') +
+                    '</div>' +
+                    '<a class="k-timeline-circle"></a>' +
+                '</li>';
+            }
+
+            return result;
+        },
+        VERTICALEVENTSTEMPLATE = (args) => {
+            let itemTemplate = args.itemTemplate, dateField = args.dateField, titleField = args.titleField, descriptionField = args.descriptionField, subtitleField = args.subtitleField, imagesField = args.imagesField, actionsField = args.actionsField, alterMode = args.alterMode, collapsibleEvents = args.collapsibleEvents, dateFormat = args.dateFormat, showDateLabels = args.showDateLabels, navigatable = args.navigatable, altField = args.altField, data = args.data, counter = 0, year = 0, reverse = false;
+            let result = '';
+
+            for (var i = 0; i < data.length; i++) {
+                if (!(data[i][dateField] instanceof Date)) {
+                    continue;
+                }
+                var currentYear = data[i][dateField].getFullYear();
+                if (currentYear != year) {
+                    year = currentYear;
+                    result +=
+                    '<li class="k-timeline-flag-wrap">' +
+                        `<span class="k-timeline-flag">${year}</span>` +
+                    '</li>';
+                }
+
+                reverse = counter % 2 === 0 && alterMode;
+                result +=
+                `<li class="${reverse ? 'k-timeline-event k-reverse' : 'k-timeline-event'}" data-uid="${encode(data[i].uid)}">` +
+                    '<div class="k-timeline-date-wrap">' +
+                        (showDateLabels ?
+                        '<div class="k-timeline-date-wrap">' +
+                            `<span id="${encode(data[i].uid)}-date" class="k-timeline-date">${kendo.toString(data[i][dateField], dateFormat)}</span>` +
+                        '</div>'
+                        : '') +
+                    '</div>' +
+                    '<a class="k-timeline-circle"></a>' +
+                    `<div class="${collapsibleEvents ? 'k-timeline-card k-collapsed' : 'k-timeline-card'}">` +
+                        `<div class="k-card" ${navigatable ? `aria-describedby="${encode(data[i].uid)}-date" tabindex="0" role="button" aria-live="polite" aria-atomic="true"` : ''} >` +
+                            `<span class="${reverse ? 'k-timeline-card-callout k-card-callout k-callout-e' : 'k-timeline-card-callout k-card-callout k-callout-w'}"></span>` +
+                            `${itemTemplate({ titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i], altField: altField, navigatable: navigatable, collapsibleEvents: collapsibleEvents })}` +
+                        '</div>' +
+                    '</div>' +
+                '</li>';
+                counter ++;
+            }
+
+            return result;
+        },
         ARROWSHTML =
         '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-left k-disabled" title="previous">' +
             '<span class="k-button-icon k-icon k-i-arrow-60-left"></span>' +

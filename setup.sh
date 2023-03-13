@@ -38,7 +38,7 @@ sudo npm install -g sass
 
 # selenium
 sudo npm install -g selenium-standalone
-sudo selenium-standalone install --version 4.6.0
+sudo selenium-standalone install --version 4.8.0
 
 # sloc
 sudo npm install -g sloc

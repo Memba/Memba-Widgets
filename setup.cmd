@@ -37,7 +37,7 @@ call npm install -g sass
 
 REM selenium
 call npm install -g selenium-standalone
-call selenium-standalone install --version 4.6.0
+call selenium-standalone install --version 4.8.0
 
 REM sloc
 call npm install -g sloc

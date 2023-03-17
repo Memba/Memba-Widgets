@@ -128,7 +128,8 @@
 }
 
 .cm-s-default .cm-string {
-    color: contrast-wcag($series-e);
+    // color: contrast-wcag($series-e);
+    color: $series-e;
 }
 
 .cm-s-default .cm-string-2 {

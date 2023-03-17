@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// Kendo UI Themes v5.0.0
+// Kendo UI Themes v6.2.0
 // ~ tilde only works with webpack module resolution
 // @import "~@progress/kendo-theme-bootstrap/dist/all";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/dist/all.scss";
@@ -17,14 +17,13 @@
 // Typography and utils
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/typography/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/utils/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/cursor/_index.scss";
 
 // Generic content
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/styling/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/icons/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/messagebox/_index.scss";
 
 // Primitive components
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/draggable/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/list/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listgroup/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/overlay/_index.scss";
@@ -49,6 +48,8 @@
 
 // Native forms
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/button/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/split-button/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/menu-button/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/input/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/textbox/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/textarea/_index.scss";
@@ -146,4 +147,10 @@
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/pdf-viewer/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scroller/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scrollview/_index.scss";
+
+// Dataviz
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dataviz/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/map/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/orgchart/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/signature/_index.scss";
 */

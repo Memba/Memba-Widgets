@@ -21,9 +21,9 @@
  *
  */
 .hljs {
-    background: $component-bg;
-    border: $component-border;
-    color: $component-text;
+    background: $kendo-component-bg;
+    border: $kendo-component-border;
+    color: $kendo-component-text;
     display: block;
     overflow-x: auto;
     padding: 0.5em;
@@ -40,19 +40,19 @@
 }
 
 .hljs-tag {
-    color: $series-a;
+    color: $kendo-series-a;
 }
 
 .hljs-variable,
 .hljs-template-variable,
 .hljs-selector-id,
 .hljs-selector-class {
-    color: $series-b;
+    color: $kendo-series-b;
 }
 
 .hljs-string,
 .hljs-bullet {
-    color: $series-c;
+    color: $kendo-series-c;
 }
 
 .hljs-type,
@@ -62,46 +62,46 @@
 .hljs-quote,
 .hljs-built_in,
 .hljs-builtin-name {
-    color: $series-d;
+    color: $kendo-series-d;
 }
 
 .hljs-number,
 .hljs-symbol,
 .hljs-bullet {
-    color: $series-e;
+    color: $kendo-series-e;
 }
 
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-literal {
-    color: $series-f;
+    color: $kendo-series-f;
 }
 
 .hljs-comment,
 .hljs-deletion,
 .hljs-code {
     /* stylelint-disable-next-line at-rule-no-unknown */
-    @include disabled( $disabled-styling );
-    color: $component-text;
+    @include disabled( $kendo-disabled-styling );
+    color: $kendo-component-text;
 }
 
 .hljs-regexp,
 .hljs-link {
-    color: $link-text;
+    color: $kendo-link-text;
 }
 
 .hljs-meta {
-    color: $series-b;
+    color: $kendo-series-b;
 }
 
 .hljs-deletion {
-    background-color: $component-bg;
-    color: $danger;
+    background-color: $kendo-component-bg;
+    color: $kendo-color-error;
 }
 
 .hljs-addition {
-    background-color: $component-bg;
-    color: $success;
+    background-color: $kendo-component-bg;
+    color: $kendo-color-success;
 }
 
 .hljs a {

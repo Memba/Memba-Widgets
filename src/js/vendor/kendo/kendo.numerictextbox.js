@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,13 +10,14 @@ import "./kendo.core.js";
 import "./kendo.userevents.js";
 import "./kendo.floatinglabel.js";
 import "./kendo.html.button.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "numerictextbox",
     name: "NumericTextBox",
     category: "web",
     description: "The NumericTextBox widget can format and display numeric, percentage or currency textbox.",
-    depends: [ "core", "userevents", "floatinglabel", "html.button" ]
+    depends: [ "core", "userevents", "floatinglabel", "html.button", "icons" ]
 };
 
 (function($, undefined) {
@@ -434,7 +435,7 @@ var __meta__ = {
             var that = this;
             var element = that.element;
 
-            that._validationIcon = $("<span class='k-input-validation-icon " + CLASS_ICON + " k-i-warning k-hidden'></span>").insertAfter(element);
+            that._validationIcon = $(kendo.ui.icon({ icon: "exclamation-circle", iconClass: "k-input-validation-icon k-hidden" })).insertAfter(element);
         },
 
         _blur: function() {
@@ -969,7 +970,7 @@ var __meta__ = {
     }]);
 
     function buttonHtml(direction, text, options) {
-        var className = direction === "increase" ? "arrow-n" : "arrow-s";
+        var className = direction === "increase" ? "caret-alt-up" : "caret-alt-down";
         var dir = direction === "increase" ? "increase" : "decrease";
 
         return html.renderButton('<button role="button" tabindex="-1" unselectable="on" class="k-spinner-' + dir + '" aria-label="' + text + '" title="' + text + '"></button>', extend({}, options, {

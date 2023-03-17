@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "../kendo.listview.js";
 import "../kendo.treeview.js";
+import "../kendo.icons.js";
 
 (function($, undefined) {
 
@@ -131,10 +132,10 @@ import "../kendo.treeview.js";
             fileManagerDraggables = selectedItems;
 
             if (selectedItems.length > 1) {
-                return kendo.format("<div class='k-filemanager-drag-hint'><span class='k-icon k-i-{0}'></span> <span>{1} {2}</span></div>", "file", selectedItems.length, that.options.messages.items);
+                return `<div class='k-filemanager-drag-hint'>${kendo.ui.icon("file")} <span>${selectedItems.length} ${that.options.messages.items}</span></div>`;
             }
 
-            return kendo.format("<div class='k-filemanager-drag-hint'><span class='k-icon k-i-{0}'></span> <span>{1}</span></div>", (item.isDirectory ? "folder" : "file"), item.name);
+            return `<div class='k-filemanager-drag-hint'>${kendo.ui.icon((item.isDirectory ? "folder" : "file"))} <span>${item.name}</span></div>`;
         },
 
         _onDrop: function(ev) {
@@ -209,12 +210,12 @@ import "../kendo.treeview.js";
             selectable: kendo.support.mobileOS ? "row" : "multiple",
             template: ({ name, extension, isDirectory }) =>
                     `<div class='k-listview-item' title='${encode(name)}${encode(extension)}'>` +
-                        `<div class='k-file-preview'><span class='k-file-icon k-icon k-i-${ !isDirectory ? kendo.getFileGroup(extension, true) : 'folder'}'></span></div>` +
+                        `<div class='k-file-preview'>${kendo.ui.icon({ icon: (!isDirectory ? kendo.getFileGroup(extension, true) : 'folder'), iconClass: "k-file-icon", size: "xxxlarge" })}</div>` +
                         `<div class='k-file-name file-name'>${encode(name)}${encode(extension)}</div>` +
                     "</div>",
             editTemplate: ({ extension, isDirectory }) =>
                         "<div class='k-listview-item'>" +
-                            `<div class='k-file-preview'><span class='k-file-icon k-icon k-i-${ !isDirectory ? kendo.getFileGroup(extension, true) : 'folder' }'></span></div>` +
+                            `<div class='k-file-preview'>${kendo.ui.icon({ icon: (!isDirectory ? kendo.getFileGroup(extension, true) : 'folder'), iconClass: "k-file-icon", size: "xxxlarge" })}</div>` +
                             "<div class='k-file-name'><span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input type='text' class='k-input-inner' data-bind='value:name' name='name' required='required' /><span></div>" +
                         "</div>",
             dropFilter: ".k-listview-item",
@@ -578,7 +579,7 @@ import "../kendo.treeview.js";
                             var icon = !item.isDirectory ? kendo.getFileGroup(item.extension, true) : "folder";
 
                             var template = "<div class='file-group-icon'>" +
-                                                "<span class='k-icon k-i-" + icon + "'></span>" +
+                                                kendo.ui.icon(icon) +
                                             "</div>" +
                                             "<div class='file-name'>" + kendo.htmlEncode(item.name + item.extension) + "<div>";
 

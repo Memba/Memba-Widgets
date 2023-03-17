@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11,13 +11,14 @@ import "./kendo.menu.js";
 import "./kendo.window.js";
 import "./kendo.treeview.js";
 import "./kendo.dropdownlist.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "pivot.fieldmenu",
     name: "PivotFieldMenu",
     category: "web",
     description: "The PivotFieldMenu widget allows the user to filter on fields displayed in PivotGrid",
-    depends: [ "menu", "window", "treeview", "treeview.draganddrop", "dropdownlist" ],
+    depends: [ "menu", "window", "treeview", "treeview.draganddrop", "dropdownlist", "icons" ],
     advanced: true
 };
 
@@ -283,13 +284,13 @@ var __meta__ = {
         },
 
         _click: function(e) {
-            var item = $(e.currentTarget);
+            var item = $(e.currentTarget).closest(":not(path,svg)");
             var next = item.next();
             if (item.hasClass("k-expander")) {
                 this._toggle(next, item);
-            } else if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-asc-sm").length) {
+            } else if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-asc-small,.k-svg-i-sort-asc-small").length) {
                 this._sort("asc");
-            } else if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-desc-sm").length) {
+            } else if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-desc-small,.k-svg-i-sort-desc-small").length) {
                 this._sort("desc");
             }
         },
@@ -305,7 +306,7 @@ var __meta__ = {
 
         _includesHandler: function(e) {
             e.preventDefault();
-            if ($(e.target).hasClass("k-button-includes-reset")) {
+            if ($(e.target).closest(":not(path,svg)").hasClass("k-button-includes-reset")) {
                 this._resetIncludes();
             } else {
                 this._applyIncludes();
@@ -434,8 +435,7 @@ var __meta__ = {
         },
 
         _collapseItems: function(items) {
-            items.find(".k-expander-indicator").removeClass("k-i-arrow-chevron-down")
-                    .addClass("k-i-arrow-chevron-up");
+            items.find(".k-expander-indicator").each((ind,el) => kendo.ui.icon($(el), { icon: "chevron-up" }));
 
             items.nextAll().hide();
         },
@@ -446,14 +446,7 @@ var __meta__ = {
             var shouldExpand = content.is(":visible");
             var animation = !shouldExpand ? animations.expand : animations.collapse;
 
-            if (!shouldExpand) {
-
-                item.find(".k-expander-indicator").removeClass("k-i-arrow-chevron-down")
-                    .addClass("k-i-arrow-chevron-up");
-            } else {
-                item.find(".k-expander-indicator").removeClass("k-i-arrow-chevron-up")
-                    .addClass("k-i-arrow-chevron-down");
-            }
+            item.find(".k-expander-indicator").each((ind,el) => kendo.ui.icon($(el), { icon: !shouldExpand ? "chevron-up" : "chevron-down" }));
 
             content
                 .kendoStop(true, true)
@@ -484,7 +477,7 @@ var __meta__ = {
             var that = this;
             var schemaCube = that.dataSource.cubeSchema;
             var filterBox;
-            that.currentMember = $(e.event.target).prev().text();
+            that.currentMember = $(e.event.target).closest(":not(path,svg)").prev().text();
             that.menu.popup._hovered = true;
 
             if (that.options.filterable) {
@@ -1087,7 +1080,7 @@ var __meta__ = {
                         `${Object.keys(messages.operators).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
                     '</select>' +
                     `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" type="text" ${ARIA_LABEL}="${messages.filter}" title="${messages.filter}" /></span>` +
-                    '<div class="k-action-buttons">' +
+                    '<div class="k-actions">' +
                         `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter" href="#"><span class="k-button-text">${messages.filter}</span></a>` +
                         `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-clear" href="#"><span class="k-button-text">${messages.clear}</span></a>` +
                     '</div>' +
@@ -1101,18 +1094,18 @@ var __meta__ = {
                 '<div>' +
                     '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-columnmenu-item k-item">' +
-                            `<span class="k-icon k-i-sort-asc-sm"></span>${encode(messages.sortAscending)}` +
+                            `${kendo.ui.icon("sort-asc-small")}${encode(messages.sortAscending)}` +
                         '</div>' +
                         '<div class="k-columnmenu-item k-item">' +
-                            `<span class="k-icon k-i-sort-desc-sm"></span>${encode(messages.sortDescending)}` +
+                            `${kendo.ui.icon("sort-desc-small")}${encode(messages.sortDescending)}` +
                         '</div>' +
                     '</div>' +
                     '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-widget k-expander k-item">' +
                             '<div class="k-columnmenu-item">' +
-                                `<span class="k-icon k-i-grid-layout"></span>${encode(messages.include)}` +
+                                `${kendo.ui.icon("grid-layout")}${encode(messages.include)}` +
                                 '<span class="k-expander-spacer"></span>' +
-                                '<span class="k-expander-indicator k-icon k-i-arrow-chevron-down"></span>' +
+                                kendo.ui.icon($('<span class="k-expander-indicator"></span>'), { icon: "chevron-down" }) +
                             '</div>' +
                         '</div>' +
                         '<div class="k-columnmenu-item-content" style="width: 100%; height: auto; display:none">' +
@@ -1131,9 +1124,9 @@ var __meta__ = {
                     '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-widget k-expander k-item">' +
                             '<div class="k-columnmenu-item">' +
-                                `<span class="k-icon k-i-filter"></span>${encode(messages.filterFields)}` +
+                                `${kendo.ui.icon("filter")}${encode(messages.filterFields)}` +
                                 '<span class="k-expander-spacer"></span>' +
-                                '<span class="k-expander-indicator k-icon k-i-arrow-chevron-down"></span>' +
+                                kendo.ui.icon($('<span class="k-expander-indicator"></span>'), { icon: "chevron-down" }) +
                             '</div>' +
                         '</div>' +
                         '<div class="k-columnmenu-item-content" style="display:none">' +
@@ -1167,13 +1160,13 @@ var __meta__ = {
         if (sortable) {
             result += '<li class="k-item k-menu-item k-sort-asc">' +
             '<span class="k-link k-menu-link">' +
-            '<span class="k-icon k-i-sort-asc-sm"></span>' +
+            kendo.ui.icon("sort-asc-small") +
             `<span class="k-menu-link-text">${messages.sortAscending}</span>` +
             '</span>' +
             '</li>' +
             '<li class="k-item k-menu-item k-sort-desc">' +
             '<span class="k-link k-menu-link">' +
-            '<span class="k-icon k-i-sort-desc-sm"></span>' +
+            kendo.ui.icon("sort-desc-small") +
             `<span class="k-menu-link-text">${messages.sortDescending}</span>` +
             '</span>' +
             '</li>';
@@ -1192,14 +1185,14 @@ var __meta__ = {
         if (filterable) {
             result += '<li class="k-item k-menu-item k-include-item">' +
                 '<span class="k-link k-menu-link">' +
-                '<span class="k-icon k-i-filter"></span>' +
+                kendo.ui.icon("filter") +
                 `<span class="k-menu-link-text">${messages.include}</span>` +
                 '</span>' +
                 '</li>' +
                 '<li class="k-separator"></li>' +
                 '<li class="k-item k-menu-item ' + FILTER_ITEM + '">' +
                 '<span class="k-link k-menu-link">' +
-                '<span class="k-icon k-i-filter"></span>' +
+                kendo.ui.icon("filter") +
                 `<span class="k-menu-link-text">${messages.filterFields}</span>` +
                 '</span>' +
                 '<ul>' +

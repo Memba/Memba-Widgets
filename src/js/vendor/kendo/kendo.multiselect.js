@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -370,8 +370,8 @@ var __meta__ = {
             var that = this;
             var notInput = e.target.nodeName.toLowerCase() !== "input";
             var target = $(e.target);
-            var closeButton = target.closest(".k-multiselect-toggle-button, .k-chip").children(".k-i-arrow-s")[0];
-            var removeButton = target.closest(".k-i-x, .k-i-x-circle")[0];
+            var closeButton = target.closest(".k-multiselect-toggle-button, .k-chip").children("[class*='-i-caret-alt-down']")[0];
+            var removeButton = target.closest("[class*='-i-x']")[0];
 
             if (notInput && !(removeButton && kendo.support.mobileOS) && e.cancelable) {
                 e.preventDefault();
@@ -483,7 +483,7 @@ var __meta__ = {
             e.stopPropagation();
             var target = $(e.currentTarget);
 
-            if (target.is(".k-i-x-circle")) {
+            if (target.is("[class*='-i-x-circle']")) {
                 this._removeTag(target.closest(CHIP), true);
             }
         },
@@ -575,7 +575,7 @@ var __meta__ = {
                 tagList
                     .on(MOUSEENTER, CHIP, function() { $(this).addClass(HOVERCLASS); })
                     .on(MOUSELEAVE, CHIP, function() { $(this).removeClass(HOVERCLASS); })
-                    .on(CLICK + " touchend" + ns, ".k-chip .k-icon", that._tagListClick.bind(that));
+                    .on(CLICK + " touchend" + ns, ".k-chip .k-icon,.k-chip .k-svg-icon", that._tagListClick.bind(that));
             } else {
 
                 wrapper.toggleClass(STATEDISABLED, disable)
@@ -1562,6 +1562,7 @@ var __meta__ = {
                 '</span>', $.extend({}, options, {
                         fillMode: "solid",
                         rounded: "medium",
+                        enabled: !that.element.is("[disabled]"),
                         themeColor: "base",
                         text: tagTemplate(data),
                         attr: {
@@ -1574,7 +1575,7 @@ var __meta__ = {
                             "aria-label": that.options.messages.deleteTag,
                             title: that.options.messages.deleteTag
                         },
-                        icon: !isMultiple ? "arrow-s" : "",
+                        icon: !isMultiple ? "caret-alt-down" : "",
                         iconAttr: {
                             unselectable: "on",
                             "aria-hidden": true,
@@ -1601,7 +1602,7 @@ var __meta__ = {
         _arrowButton: function() {
             var arrowTitle = this.options.messages.downArrow,
                 arrow = $(html.renderButton('<button type="button" aria-label="' + arrowTitle + '" class="k-input-button k-multiselect-toggle-button"></button>', $.extend({}, this.options, {
-                    icon: "arrow-s"
+                    icon: "caret-alt-down"
                 })));
 
             if (this._arrow) {

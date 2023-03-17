@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -135,9 +135,9 @@ var literals = {
 
 function arabicToRoman(n) {
     var values = [ 1000,
-                   900 , 800, 700, 600, 500, 400, 300, 200, 100,
-                   90  , 80 , 70 , 60 , 50 , 40 , 30 , 20 , 10 ,
-                   9   , 8  , 7  , 6  , 5  , 4  , 3  , 2  , 1 ];
+        900 , 800, 700, 600, 500, 400, 300, 200, 100,
+        90  , 80 , 70 , 60 , 50 , 40 , 30 , 20 , 10 ,
+        9   , 8  , 7  , 6  , 5  , 4  , 3  , 2  , 1 ];
 
     var roman = "";
     while (n > 0) {
@@ -484,7 +484,7 @@ var Matrix = (function (Class$$1) {
         }
 
         return new Matrix(e / det, -b / det, -d / det, a / det,
-                          (d * h - e * g) / det, (b * g - a * h) / det);
+            (d * h - e * g) / det, (b * g - a * h) / det);
     };
 
     Matrix.prototype.clone = function clone () {
@@ -497,8 +497,8 @@ var Matrix = (function (Class$$1) {
         }
 
         return this.a === other.a && this.b === other.b &&
-               this.c === other.c && this.d === other.d &&
-               this.e === other.e && this.f === other.f;
+            this.c === other.c && this.d === other.d &&
+            this.e === other.e && this.f === other.f;
     };
 
     Matrix.prototype.round = function round$1 (precision) {
@@ -5238,8 +5238,24 @@ var SVG_NS = "http://www.w3.org/2000/svg";
 var NONE = "none";
 var POINT_DIGITS = 3;
 
+var applyStyle = function (styleString, element) { return styleString.split(';').filter(function (s) { return s !== ''; }).forEach(function (s) {
+        var parts = s.split(':');
+        element.style[parts[0].trim()] = parts[1].trim();
+    }); };
+
+var styleAttr = 'data-style';
+var replaceStyleAttr = function (html) { return html.replace(/\sstyle=/g, ' ' + styleAttr + '='); };
+var restoreStyleAttr = function (container) {
+    Array.from(container.querySelectorAll('[' + styleAttr +']')).forEach(function (element) {
+        var styleString = element.getAttribute(styleAttr);
+        element.removeAttribute(styleAttr);
+        applyStyle(styleString, element);
+    });
+};
+
 var renderSVG = function(container, svg) {
-    container.innerHTML = svg;
+    container.innerHTML = replaceStyleAttr(svg);
+    restoreStyleAttr(container);
 };
 
 if (typeof document !== "undefined") {
@@ -5252,7 +5268,8 @@ if (typeof document !== "undefined") {
     if (hasParser && testContainer.firstChild.namespaceURI !== SVG_NS) {
         renderSVG = function(container, svg) {
             var parser = new DOMParser();
-            var chartDoc = parser.parseFromString(svg, "text/xml");
+            var chartDoc = parser.parseFromString(replaceStyleAttr(svg), "text/xml");
+            restoreStyleAttr(chartDoc);
             var importedDoc = document.adoptNode(chartDoc.documentElement);
 
             container.innerHTML = "";
@@ -5981,36 +5998,36 @@ var PathNode = (function (Node$$1) {
 
     PathNode.prototype.optionsChange = function optionsChange (e) {
         switch (e.field) {
-            case "fill":
-                if (e.value) {
-                    this.allAttr(this.mapFill(e.value));
-                } else {
-                    this.removeAttr("fill");
-                }
-                break;
+        case "fill":
+            if (e.value) {
+                this.allAttr(this.mapFill(e.value));
+            } else {
+                this.removeAttr("fill");
+            }
+            break;
 
-            case "fill.color":
-                this.allAttr(this.mapFill({ color: e.value }));
-                break;
+        case "fill.color":
+            this.allAttr(this.mapFill({ color: e.value }));
+            break;
 
-            case "stroke":
-                if (e.value) {
-                    this.allAttr(this.mapStroke(e.value));
-                } else {
-                    this.removeAttr("stroke");
-                }
-                break;
+        case "stroke":
+            if (e.value) {
+                this.allAttr(this.mapStroke(e.value));
+            } else {
+                this.removeAttr("stroke");
+            }
+            break;
 
-            case "transform":
-                this.transformChange(e.value);
-                break;
+        case "transform":
+            this.transformChange(e.value);
+            break;
 
-            default:
-                var name = ATTRIBUTE_MAP[e.field];
-                if (name) {
-                    this.attr(name, e.value);
-                }
-                break;
+        default:
+            var name = ATTRIBUTE_MAP[e.field];
+            if (name) {
+                this.attr(name, e.value);
+            }
+            break;
         }
 
         Node$$1.prototype.optionsChange.call(this, e);
@@ -6103,7 +6120,7 @@ var PathNode = (function (Node$$1) {
 
     PathNode.prototype.template = function template () {
         return "<path " + (this.renderId()) + " " + (this.renderStyle()) + " " + (this.renderOpacity()) + " " + (renderAttr('d', this.renderData())) +
-                    "" + (this.renderStroke()) + (this.renderFill()) + (this.renderDefinitions()) + (this.renderTransform()) + "></path>";
+                "" + (this.renderStroke()) + (this.renderFill()) + (this.renderDefinitions()) + (this.renderTransform()) + "></path>";
     };
 
     return PathNode;
@@ -6582,8 +6599,8 @@ function renderPath(ctx, path) {
 
         if (prevOut && controlIn) {
             ctx.bezierCurveTo(prevOut.x, prevOut.y,
-                              controlIn.x, controlIn.y,
-                              anchor.x, anchor.y);
+                controlIn.x, controlIn.y,
+                anchor.x, anchor.y);
         } else {
             ctx.lineTo(anchor.x, anchor.y);
         }
@@ -9166,6 +9183,7 @@ function parseColor$1(str, css) {
 
 function whenImagesAreActuallyLoaded(elements, callback) {
     var pending = 0;
+    var done = false;
     elements.forEach(function(el){
         var images = el.querySelectorAll("img");
         for (var i = 0; i < images.length; ++i) {
@@ -9176,12 +9194,12 @@ function whenImagesAreActuallyLoaded(elements, callback) {
             }
         }
     });
-    if (!pending) {
-        next();
-    }
+    next();
+
     function next() {
-        if (--pending <= 0) {
+        if (!done && --pending <= 0) {
             callback();
+            done = true;
         }
     }
 }
@@ -10860,7 +10878,7 @@ function renderText(element, node, group) {
     fontSize = parseFloat(fontSize);
     lineHeight = parseFloat(lineHeight);
 
-    if (fontSize === 0) {
+    if (fontSize === 0 || isNaN(fontSize)) {
         return;
     }
 

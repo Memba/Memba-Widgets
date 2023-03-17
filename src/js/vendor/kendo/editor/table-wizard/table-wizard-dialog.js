@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,7 +7,10 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./table-wizard-command.js";
+import "../../kendo.html.button.js";
 import "../../kendo.tabstrip.js";
+import "../../kendo.textarea.js";
+import "../../kendo.icons.js";
 
 (function($, undefined) {
 
@@ -21,310 +24,111 @@ var DEFAULT_NUMBER_OF_COLS_AND_ROWS = 4;
 
 var tableAlignmentDropDownSettings = {
     dataSource: [{
-        className: "k-icon k-i-table-align-middle-left",
+        className: "table-align-middle-left",
         value: "left"
     }, {
-        className: "k-icon k-i-table-align-middle-center",
+        className: "table-align-middle-center",
         value: "center"
     }, {
-        className: "k-icon k-i-table-align-middle-right",
+        className: "table-align-middle-right",
         value: "right"
     }, {
-        className: "k-icon k-i-align-remove",
+        className: "align-remove",
         value: ""
     }],
     dataTextField: "className",
     dataValueField: "value",
-    template: ({ className, tooltip }) => `<span class="${encode(className)}" title="${encode(tooltip)}"></span>`,
-    valueTemplate: ({ className, tooltip }) => `<span class="k-align-group ${encode( className )}" title="${encode( tooltip )}"></span>`
+    template: ({ className, tooltip }) => kendo.ui.icon($(`<span title="${encode(tooltip)}"></span>`), { icon: encode(className) }),
+    valueTemplate: ({ className, tooltip }) => kendo.ui.icon($(`<span title="${encode(tooltip)}"></span>`), { icon: encode(className), iconClass: "k-align-group" })
 };
 
 var cellAlignmentDropDownSettings = {
     dataSource: [{
-        className: "k-icon k-i-table-align-top-left",
+        className: "table-align-top-left",
         value: "left top"
     }, {
-        className: "k-icon k-i-table-align-top-center",
+        className: "table-align-top-center",
         value: "center top"
     }, {
-        className: "k-icon k-i-table-align-top-right",
+        className: "table-align-top-right",
         value: "right top"
     }, {
-        className: "k-icon k-i-table-align-middle-left",
+        className: "table-align-middle-left",
         value: "left middle"
     }, {
-        className: "k-icon k-i-table-align-middle-center",
+        className: "table-align-middle-center",
         value: "center middle"
     }, {
-        className: "k-icon k-i-table-align-middle-right",
+        className: "table-align-middle-right",
         value: "right middle"
     }, {
-        className: "k-icon k-i-table-align-bottom-left",
+        className: "table-align-bottom-left",
         value: "left bottom"
     }, {
-        className: "k-icon k-i-table-align-bottom-center",
+        className: "table-align-bottom-center",
         value: "center bottom"
     }, {
-        className: "k-icon k-i-table-align-bottom-right",
+        className: "table-align-bottom-right",
         value: "right bottom"
     }, {
-        className: "k-icon k-i-align-remove",
+        className: "align-remove",
         value: ""
     }],
     dataTextField: "className",
     dataValueField: "value",
-    template: ({ className, tooltip }) => `<span class="${encode( className )}' title='${encode( tooltip )}'></span>`,
-    valueTemplate: ({ className, tooltip }) => `<span class='k-align-group ${encode( className )}' title='${encode( tooltip )}'></span>`
+    template: ({ className, tooltip }) => kendo.ui.icon($(`<span title="${encode(tooltip)}"></span>`), { icon: encode(className) }),
+    valueTemplate: ({ className, tooltip }) => kendo.ui.icon($(`<span title="${encode(tooltip)}"></span>`), { icon: encode(className), iconClass: "k-align-group" })
 };
 
 var accessibilityAlignmentDropDownSettings = {
     dataSource: [{
-        className: "k-icon k-i-table-align-top-left",
+        className: "table-align-top-left",
         value: "left top"
     }, {
-        className: "k-icon k-i-table-align-top-center",
+        className: "table-align-top-center",
         value: "center top"
     }, {
-        className: "k-icon k-i-table-align-top-right",
+        className: "table-align-top-right",
         value: "right top"
     }, {
-        className: "k-icon k-i-table-align-bottom-left",
+        className: "table-align-bottom-left",
         value: "left bottom"
     }, {
-        className: "k-icon k-i-table-align-bottom-center",
+        className: "table-align-bottom-center",
         value: "center bottom"
     }, {
-        className: "k-icon k-i-table-align-bottom-right",
+        className: "table-align-bottom-right",
         value: "right bottom"
     }, {
-        className: "k-icon k-i-align-remove",
+        className: "align-remove",
         value: ""
     }],
     dataTextField: "className",
     dataValueField: "value",
-    template: ({ className, tooltip }) => `<span class="${encode( className )}" title="${encode( tooltip )}"></span>`,
-    valueTemplate: ({ className, tooltip }) => `<span class="k-align-group ${encode( className )}" title="${encode( tooltip )}"></span>`
+    template: ({ className, tooltip }) => kendo.ui.icon($(`<span title="${encode(tooltip)}"></span>`), { icon: encode(className) }),
+    valueTemplate: ({ className, tooltip }) => kendo.ui.icon($(`<span title="${encode(tooltip)}"></span>`), { icon: encode(className), iconClass: "k-align-group" })
 };
 
 var dialogTemplate = ({ messages }) =>
-    '<div class="k-editor-dialog k-editor-table-wizard-dialog k-action-window k-popup-edit-form">' +
-        '<div class="k-edit-form-container">' +
-            '<div id="k-table-wizard-tabs" class="k-root-tabs">' +
-                '<ul>' +
-                    `<li class="k-active">${ messages.tableTab }</li>` +
-                    `<li>${ messages.cellTab }</li>` +
-                    `<li>${ messages.accessibilityTab }</li>` +
-                '</ul>' +
-                '<div id="k-table-properties">' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-width">${ messages.width }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-width" />' +
-                        `<input id="k-editor-table-width-type" aria-label="${ messages.units }" />` +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-height">${ messages.height }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-height" />' +
-                        `<input id="k-editor-table-height-type" aria-label="${ messages.units }" />` +
-                    '</div>' +
-
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-columns">${ messages.columns }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-columns" />' +
-                    '</div>' +
-
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-rows">${ messages.rows }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-rows" />' +
-                    '</div>' +
-
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-cell-spacing">${ messages.cellSpacing }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-cell-spacing" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-cell-padding">${ messages.cellPadding }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-cell-padding" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-alignment">${ messages.alignment }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-table-alignment" class="k-align" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-bg">${ messages.background }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-table-bg" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-css-class">${ messages.cssClass }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-css-class" class="k-input-inner" type="text" /></span>' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-id">${ messages.id }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-id" class="k-input-inner" type="text" /></span>' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-border-width">${ messages.border }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-border-width" />' +
-                        '<input id="k-editor-border-color" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-border-style">${ messages.borderStyle }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-border-style" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">&nbsp;</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-collapse-borders" type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" />' +
-                        `<label for="k-editor-collapse-borders" class="k-checkbox-label">${ messages.collapseBorders }</label>` +
-                    '</div>' +
-                '</div>' +
-
-                '<div id="k-cell-properties">' +
-
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-selectAllCells" type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" />' +
-                        `<label for="k-editor-selectAllCells" class="k-checkbox-label">${ messages.selectAllCells }</label>` +
-                    '</div>' +
-
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-width">${ messages.width }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-cell-width" />' +
-                        `<input id="k-editor-cell-width-type" aria-label="${ messages.units }" />` +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-height">${ messages.height }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-cell-height" />' +
-                        `<input id="k-editor-cell-height-type" aria-label="${ messages.units }" />` +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-cell-margin">${ messages.cellMargin }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-cell-margin" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-cells-padding">${ messages.cellPadding }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-cells-padding" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-alignment">${ messages.alignment }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-cell-alignment" class="k-align" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-bg">${ messages.background }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-cell-bg" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-css-class">${ messages.cssClass }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-cell-css-class" class="k-input-inner" type="text" /></span>' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-id">${ messages.id }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-cell-id" class="k-input-inner" type="text" /></span>' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-border-width">${ messages.border }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-cell-border-width" />' +
-                        '<input id="k-editor-cell-border-color" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cell-border-style">${ messages.borderStyle }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-cell-border-style" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">&nbsp;</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-wrap-text" type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" />' +
-                        `<label for="k-editor-wrap-text" class="k-checkbox-label">${ messages.wrapText }</label>` +
-                    '</div>' +
-                '</div>' +
-
-                '<div id="k-accessibility-properties">' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-header-rows">${ messages.headerRows }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-header-rows" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-header-columns">${ messages.headerColumns }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input type="numeric" id="k-editor-table-header-columns" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-table-caption">${ messages.caption }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input id="k-editor-table-caption" class="k-input-inner" type="text"/></span>' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-accessibility-alignment">${ messages.alignment }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<input id="k-editor-accessibility-alignment" class="k-align" />' +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-accessibility-summary">${ messages.summary }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        `<span class="k-input k-textarea k-input-solid k-input-md k-rounded-md"><textarea id="k-editor-accessibility-summary" rows="5" class="k-input-inner k-editor-accessibility-summary" placeholder="${ messages.tableSummaryPlaceholder }"></textarea></span>` +
-                    '</div>' +
-                    '<div class="k-edit-label">' +
-                        `<label for="k-editor-cells-headers">${ messages.associateCellsWithHeaders }</label>` +
-                    '</div>' +
-                    '<div class="k-edit-field">' +
-                        '<select id="k-editor-cells-headers">' +
-                            `<option value="none">${ messages.associateNone }</option>` +
-                            `<option value="scope">${ messages.associateScope }</option>` +
-                            `<option value="ids">${ messages.associateIds }</option>` +
-                        '</select>' +
-                    '</div>' +
-                '</div>' +
-                '</div>' +
-                '<div class="k-edit-buttons">' +
-                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-dialog-ok"><span class="k-button-text">${ messages.dialogOk }</span></button>` +
-                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-dialog-close"><span class="k-button-text">${ messages.dialogCancel }</span></button>` +
-            '</div>' +
+    '<div class="k-editor-dialog k-editor-table-wizard-window k-action-window k-popup-edit-form">' +
+        '<div id="k-table-wizard-tabs" class="k-root-tabs">' +
+            '<ul>' +
+                `<li class="k-active">${ messages.tableTab }</li>` +
+                `<li>${ messages.cellTab }</li>` +
+                `<li>${ messages.accessibilityTab }</li>` +
+            '</ul>' +
+            '<div id="k-table-properties"></div>' +
+            '<div id="k-cell-properties"></div>' +
+            '<div id="k-accessibility-properties"></div>' +
+        '</div>' +
+        '<div class="k-actions k-actions-start k-actions-horizontal k-window-buttons">' +
+                kendo.html.renderButton(`<button class="k-dialog-ok"><span class="k-button-text">${ messages.dialogOk }</span></button>`, {
+                    icon: 'check',
+                        themeColor: "primary"
+                    }) +
+                    kendo.html.renderButton(`<button class="k-dialog-close"><span class="k-button-text">${ messages.dialogCancel }</span></button>`, {
+                        icon: 'cancel-outline'
+                    }) +
         '</div>' +
     '</div>';
 
@@ -365,11 +169,13 @@ var TableWizardDialog = kendo.Class.extend({
         }
 
         dialogOptions.close = closeHandler;
+        dialogOptions.minWidth = 400;
         dialogOptions.title = messages.tableWizard;
         dialogOptions.visible = options.visible;
 
         dialog = $(that._dialogTemplate(messages)).appendTo(document.body)
             .kendoWindow(dialogOptions)
+            .addClass("k-editor-window")
             .closest(".k-window").toggleClass("k-rtl", options.isRtl).end()
             .find(".k-dialog-ok").on("click", okHandler).end()
             .find(".k-dialog-close").on("click", closeHandler).end()
@@ -377,9 +183,9 @@ var TableWizardDialog = kendo.Class.extend({
 
         var element = dialog.element;
         that._initTabStripComponent(element);
-        that._initTableViewComponents(element, tableData);
-        that._initCellViewComponents(element, tableData);
-        that._initAccessibilityViewComponents(element, tableData);
+        that._tablePropertiesForm = that._createTablePropertiesForm(dialog, messages);
+        that._cellPropertiesForm = that._createCellPropertiesForm(dialog, messages);
+        that._accessibilityPropertiesForm = that._createAccessibilityPropertiesForm(dialog, messages);
 
         dialog.center();
         dialog.open();
@@ -418,19 +224,19 @@ var TableWizardDialog = kendo.Class.extend({
         tableProperties.cellPadding = tableView.cellPadding.value();
         tableProperties.alignment = tableView.alignment.value();
         tableProperties.bgColor = tableView.bgColor.value();
-        tableProperties.className = tableView.className.value;
-        tableProperties.id = tableView.id.value;
+        tableProperties.className = tableView.className.value();
+        tableProperties.id = tableView.id.value();
         tableProperties.borderWidth = tableView.borderWidth.value();
         tableProperties.borderColor = tableView.borderColor.value();
         tableProperties.borderStyle = tableView.borderStyle.value();
-        tableProperties.collapseBorders = tableView.collapseBorders.checked;
+        tableProperties.collapseBorders = tableView.collapseBorders.check();
     },
 
     _collectCellViewValues: function(table) {
         var cellData = table.cellProperties = {};
         var cellView = this.components.cellView;
 
-        cellData.selectAllCells = cellView.selectAllCells.checked;
+        cellData.selectAllCells = cellView.selectAllCells.check();
         cellData.width = cellView.width.value();
         cellData.widthUnit = cellView.widthUnit.value();
         cellData.height = cellView.height.value();
@@ -439,12 +245,12 @@ var TableWizardDialog = kendo.Class.extend({
         cellData.cellPadding = cellView.cellPadding.value();
         cellData.alignment = cellView.alignment.value();
         cellData.bgColor = cellView.bgColor.value();
-        cellData.className = cellView.className.value;
-        cellData.id = cellView.id.value;
+        cellData.className = cellView.className.value();
+        cellData.id = cellView.id.value();
         cellData.borderWidth = cellView.borderWidth.value();
         cellData.borderColor = cellView.borderColor.value();
         cellData.borderStyle = cellView.borderStyle.value();
-        cellData.wrapText = cellView.wrapText.checked;
+        cellData.wrapText = cellView.wrapText.check();
 
         if (!cellData.width) {
             cellData.selectAllCells = true;
@@ -456,9 +262,9 @@ var TableWizardDialog = kendo.Class.extend({
    _collectAccessibilityViewValues: function(table) {
         var tableProperties = table.tableProperties;
         var accessibilityView = this.components.accessibilityView;
-        tableProperties.captionContent = accessibilityView.captionContent.value;
+        tableProperties.captionContent = accessibilityView.captionContent.value();
         tableProperties.captionAlignment = accessibilityView.captionAlignment.value();
-        tableProperties.summary = accessibilityView.summary.value;
+        tableProperties.summary = accessibilityView.summary.value();
         tableProperties.cellsWithHeaders = accessibilityView.cellsWithHeaders.value();
 
         tableProperties.headerRows = accessibilityView.headerRows.value();
@@ -468,97 +274,6 @@ var TableWizardDialog = kendo.Class.extend({
         if (value && $.inArray(value, units) == -1) {
             units.push(value);
         }
-    },
-    _initTableViewComponents: function(element, table) {
-        var that = this;
-        var components = that.components;
-        var tableView = components.tableView = {};
-        var tableProperties = table.tableProperties = table.tableProperties || {};
-        tableProperties.borderStyle = tableProperties.borderStyle || "";
-
-        var onColumnsNumberChange = function(args) {
-            var accessibilityView = that.components.accessibilityView;
-            var headerColumnsNumeric = accessibilityView.headerColumns;
-            var currentNumberOfColumnsHeaders = headerColumnsNumeric.value();
-            var numberOfColumns = args.sender.value();
-
-            if (numberOfColumns < currentNumberOfColumnsHeaders) {
-                headerColumnsNumeric.value(numberOfColumns);
-            }
-
-            headerColumnsNumeric.max(numberOfColumns);
-        };
-
-        var onRowsNumberChange = function(args) {
-            var accessibilityView = that.components.accessibilityView;
-            var headerRowsNumeric = accessibilityView.headerRows;
-            var currentNumberOfRowHeaders = headerRowsNumeric.value();
-            var numberOfRows = args.sender.value();
-
-            if (numberOfRows < currentNumberOfRowHeaders) {
-                headerRowsNumeric.value(numberOfRows);
-            }
-
-            headerRowsNumeric.max(numberOfRows);
-        };
-
-        that._addUnit(units, tableProperties.widthUnit);
-        that._addUnit(units, tableProperties.heightUnit);
-
-        that._initNumericTextbox(element.find("#k-editor-table-width"), "width", tableProperties, tableView);
-        that._initNumericTextbox(element.find("#k-editor-table-height"), "height", tableProperties, tableView);
-        that._initNumericTextbox(element.find("#k-editor-table-columns"), "columns", tableProperties, tableView, { min: 1, value: DEFAULT_NUMBER_OF_COLS_AND_ROWS, change: onColumnsNumberChange });
-        that._initNumericTextbox(element.find("#k-editor-table-rows"), "rows", tableProperties, tableView, { min: 1, value: DEFAULT_NUMBER_OF_COLS_AND_ROWS, change: onRowsNumberChange });
-        that._initDropDownList(element.find("#k-editor-table-width-type"), "widthUnit", tableProperties, tableView, units);
-        that._initDropDownList(element.find("#k-editor-table-height-type"), "heightUnit", tableProperties, tableView, units);
-        that._initNumericTextbox(element.find("#k-editor-table-cell-spacing"), "cellSpacing", tableProperties, tableView);
-        that._initNumericTextbox(element.find("#k-editor-table-cell-padding"), "cellPadding", tableProperties, tableView);
-        that._initTableAlignmentDropDown(element.find("#k-editor-table-alignment"), tableProperties);
-        that._initColorPicker(element.find("#k-editor-table-bg"), "bgColor", tableProperties, tableView);
-        that._initInput(element.find("#k-editor-css-class"), "className", tableProperties, tableView);
-        that._initInput(element.find("#k-editor-id"), "id", tableProperties, tableView);
-        that._initNumericTextbox(element.find("#k-editor-border-width"), "borderWidth", tableProperties, tableView);
-        that._initColorPicker(element.find("#k-editor-border-color"), "borderColor", tableProperties, tableView);
-        that._initBorderStyleDropDown(element.find("#k-editor-border-style"), "borderStyle", tableProperties, tableView, borderStyles);
-        that._initCheckbox(element.find("#k-editor-collapse-borders"), "collapseBorders", tableProperties, tableView);
-    },
-
-    _initCellViewComponents: function(element, table) {
-        var components = this.components;
-        var cellView = components.cellView = {};
-        table.selectedCells = table.selectedCells = table.selectedCells || [];
-        var cellProperties = table.selectedCells[0] || { borderStyle: "", wrapText: true };
-        this._addUnit(units, cellProperties.widthUnit);
-        this._addUnit(units, cellProperties.heightUnit);
-
-        this._initCheckbox(element.find("#k-editor-selectAllCells"), "selectAllCells", table.tableProperties, cellView);
-        this._initNumericTextbox(element.find("#k-editor-cell-width"), "width", cellProperties, cellView);
-        this._initNumericTextbox(element.find("#k-editor-cell-height"), "height", cellProperties, cellView);
-        this._initDropDownList(element.find("#k-editor-cell-width-type"), "widthUnit", cellProperties, cellView, units);
-        this._initDropDownList(element.find("#k-editor-cell-height-type"), "heightUnit", cellProperties, cellView, units);
-        this._initNumericTextbox(element.find("#k-editor-table-cell-margin"), "cellMargin", cellProperties, cellView);
-        this._initNumericTextbox(element.find("#k-editor-table-cells-padding"), "cellPadding", cellProperties, cellView);
-        this._initCellAlignmentDropDown(element.find("#k-editor-cell-alignment"), cellProperties);
-        this._initColorPicker(element.find("#k-editor-cell-bg"), "bgColor", cellProperties, cellView);
-        this._initInput(element.find("#k-editor-cell-css-class"), "className", cellProperties, cellView);
-        this._initInput(element.find("#k-editor-cell-id"), "id", cellProperties, cellView);
-        this._initNumericTextbox(element.find("#k-editor-cell-border-width"), "borderWidth", cellProperties, cellView);
-        this._initColorPicker(element.find("#k-editor-cell-border-color"), "borderColor", cellProperties, cellView);
-        this._initBorderStyleDropDown(element.find("#k-editor-cell-border-style"), "borderStyle", cellProperties, cellView, borderStyles);
-        this._initCheckbox(element.find("#k-editor-wrap-text"), "wrapText", cellProperties, cellView);
-    },
-
-    _initAccessibilityViewComponents: function(element, table) {
-        var components = this.components;
-        var accessibilityView = components.accessibilityView = {};
-        var tableProperties = table.tableProperties;
-
-        this._initInput(element.find("#k-editor-table-caption"), "captionContent", tableProperties, accessibilityView);
-        this._initAccessibilityAlignmentDropDown(element.find("#k-editor-accessibility-alignment"), tableProperties);
-        this._initInput(element.find("#k-editor-accessibility-summary"), "summary", tableProperties, accessibilityView);
-        this._initAssociationDropDown(element.find("#k-editor-cells-headers"), "cellsWithHeaders", { valuePrimitive: true }, tableProperties, accessibilityView);
-        this._initNumericTextbox(element.find("#k-editor-table-header-rows"), "headerRows", tableProperties, accessibilityView, { max: tableProperties.rows || DEFAULT_NUMBER_OF_COLS_AND_ROWS });
-        this._initNumericTextbox(element.find("#k-editor-table-header-columns"), "headerColumns", tableProperties, accessibilityView, { max: tableProperties.columns || DEFAULT_NUMBER_OF_COLS_AND_ROWS });
     },
 
     _initNumericTextbox: function(element, property, data, storage, settings) {
@@ -633,7 +348,7 @@ var TableWizardDialog = kendo.Class.extend({
         var component = storage[name] =
             element.kendoDropDownList(settings).data("kendoDropDownList");
 
-        component.list.addClass('k-align').css('width', '110px');
+        component.list.addClass('k-align');
         this._setComponentValue(component, data, name);
     },
     _initAssociationDropDown: function(element, name, settings, data, storage) {
@@ -656,27 +371,32 @@ var TableWizardDialog = kendo.Class.extend({
             component.value(data[property]);
         }
     },
-    _initInput: function(element, property, data, storage) {
-        var component = storage[property] = element.get(0);
+    _initInput: function(element, property, data, storage, settings) {
+        var component = storage[property] = element.kendoTextBox(settings || {}).data("kendoTextBox");
         if (property in data) {
-            component.value = data[property];
+            component.value(data[property]);
         }
     },
 
-    _initCheckbox: function(element, property, data, storage) {
-        var component = storage[property] = element.get(0);
+    _initCheckbox: function(element, property, data, storage, settings) {
+        var component = storage[property] = element.kendoCheckBox(settings || {}).data("kendoCheckBox");
         if (property in data) {
-            component.checked = data[property];
+            component.check(data[property]);
+        }
+    },
+
+    _initTextArea: function(element, property, data, storage, settings) {
+        var component = storage[property] = element.kendoTextArea(settings || {}).data("kendoTextArea");
+        if (property in data) {
+            component.value(data[property]);
         }
     },
 
     destroy: function() {
-        this._destroyComponents(this.components.tableView);
-        this._destroyComponents(this.components.cellView);
-        this._destroyComponents(this.components.accessibilityView);
-        this._destroyComponents(this.components);
+        var that = this;
+        that._destroyComponents(this.components);
 
-        delete this.components;
+        delete that.components;
     },
     _destroyComponents: function(components) {
         for (var widget in components) {
@@ -689,6 +409,349 @@ var TableWizardDialog = kendo.Class.extend({
 
     _dialogTemplate: function(messages) {
         return kendo.template(dialogTemplate)({ messages: messages });
+    },
+
+    _onColumnsNumberChange: function(args) {
+        var that = this;
+        var accessibilityView = that.components.accessibilityView;
+        var headerColumnsNumeric = accessibilityView.headerColumns;
+        var currentNumberOfColumnsHeaders = headerColumnsNumeric.value();
+        var numberOfColumns = args.sender.value();
+
+        if (numberOfColumns < currentNumberOfColumnsHeaders) {
+            headerColumnsNumeric.value(numberOfColumns);
+        }
+
+        headerColumnsNumeric.max(numberOfColumns);
+    },
+
+    _onRowsNumberChange: function(args) {
+        var that = this;
+        var accessibilityView = that.components.accessibilityView;
+        var headerRowsNumeric = accessibilityView.headerRows;
+        var currentNumberOfRowHeaders = headerRowsNumeric.value();
+        var numberOfRows = args.sender.value();
+
+        if (numberOfRows < currentNumberOfRowHeaders) {
+            headerRowsNumeric.value(numberOfRows);
+        }
+
+        headerRowsNumeric.max(numberOfRows);
+    },
+
+    _createTablePropertiesForm: function(dialog, messages) {
+        var that = this;
+        var table = that.options.table;
+        var formElement = dialog.element.find("#k-table-properties");
+        var components = that.components;
+        var tableView = components.tableView = {};
+        var tableProperties = table.tableProperties = table.tableProperties || {};
+        var form;
+
+        that._addUnit(units, tableProperties.widthUnit);
+        that._addUnit(units, tableProperties.heightUnit);
+        tableProperties.borderStyle = tableProperties.borderStyle || "";
+        form = formElement.kendoForm({
+            renderButtons: false,
+            items: [
+                {
+                    field: "k-editor-table-width",
+                    label: encode(messages.width),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-width" />').appendTo(container), "width", tableProperties, tableView);
+                        that._initDropDownList($(`<input id="k-editor-table-width-type" aria-label="${ messages.units }" />`).appendTo(container),
+                            "widthUnit",
+                            tableProperties,
+                            tableView,
+                            units);
+                    }
+                },{
+                    field: "k-editor-table-height",
+                    label: encode(messages.height),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-height" />').appendTo(container), "height", tableProperties, tableView);
+                        that._initDropDownList($(`<input id="k-editor-table-height-type" aria-label="${ messages.units }" />`).appendTo(container),
+                            "heightUnit",
+                            tableProperties,
+                            tableView,
+                            units);
+                    }
+                },{
+                    field: "k-editor-table-columns",
+                    label: encode(messages.columns),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input type="numeric" id="k-editor-table-columns" />').appendTo(container),
+                            "columns",
+                            tableProperties,
+                            tableView,
+                            {
+                                min: 1,
+                                value: DEFAULT_NUMBER_OF_COLS_AND_ROWS,
+                                change: that._onColumnsNumberChange.bind(that)
+                            });
+                    }
+                },{
+                    field: "k-editor-table-rows",
+                    label: encode(messages.rows),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input type="numeric" id="k-editor-table-rows" />').appendTo(container),
+                            "rows",
+                            tableProperties,
+                            tableView,
+                            {
+                                min: 1,
+                                value: DEFAULT_NUMBER_OF_COLS_AND_ROWS,
+                                change: that._onRowsNumberChange.bind(that)
+                            });
+                    }
+                },{
+                    field: "k-editor-table-cell-spacing",
+                    label: encode(messages.cellSpacing),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-cell-spacing" />').appendTo(container), "cellSpacing", tableProperties, tableView);
+                    }
+                },{
+                    field: "k-editor-table-cell-padding",
+                    label: encode(messages.cellPadding),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-cell-padding" />').appendTo(container), "cellPadding", tableProperties, tableView);
+                    }
+                },{
+                    field: "k-editor-table-alignment",
+                    label: encode(messages.alignment),
+                    editor: function(container, options) {
+                        that._initTableAlignmentDropDown($('<input id="k-editor-table-alignment" class="k-align" />').appendTo(container), tableProperties);
+                    }
+                },{
+                    field: "k-editor-table-bg",
+                    label: encode(messages.background),
+                    editor: function(container, options) {
+                        that._initColorPicker($('<input id="k-editor-table-bg" />').appendTo(container), "bgColor", tableProperties, tableView);
+                    }
+                },{
+                    field: "k-editor-css-class",
+                    label: encode(messages.cssClass),
+                    editor: function(container, options) {
+                        that._initInput($('<input id="k-editor-css-class" />').appendTo(container), "className", tableProperties, tableView);
+                    }
+                },{
+                    field: "k-editor-id",
+                    label: encode(messages.id),
+                    editor: function(container, options) {
+                        that._initInput($('<input id="k-editor-id" />').appendTo(container), "id", tableProperties, tableView);
+                    }
+                },{
+                    field: "k-editor-border-width",
+                    label: encode(messages.border),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-border-width" />').appendTo(container), "borderWidth", tableProperties, tableView);
+                        that._initColorPicker($('<input id="k-editor-border-color" />').appendTo(container), "borderColor", tableProperties, tableView);
+                    }
+                },{
+                    field: "k-editor-border-style",
+                    label: encode(messages.borderStyle),
+                    editor: function(container, options) {
+                        that._initBorderStyleDropDown($('<input id="k-editor-border-style" />').appendTo(container),
+                            "borderStyle",
+                            tableProperties,
+                            tableView,
+                            borderStyles);
+                    }
+                },{
+                    field: "k-editor-collapse-borders",
+                    label: "",
+                    editor: function(container, options) {
+                        that._initCheckbox($('<input id="k-editor-collapse-borders"/>').appendTo(container), "collapseBorders", tableProperties, tableView, { label: encode(messages.collapseBorders) });
+                    }
+                }
+            ]
+        }).data("kendoForm");
+
+        return form;
+    },
+
+    _createCellPropertiesForm: function(dialog, messages) {
+        var that = this;
+        var table = that.options.table;
+        var formElement = dialog.element.find("#k-cell-properties");
+        var components = that.components;
+        var cellView = components.cellView = {};
+        var cellProperties = (table.selectedCells && table.selectedCells[0]) || { borderStyle: "", wrapText: true };
+        var form;
+
+        that._addUnit(units, cellProperties.widthUnit);
+        that._addUnit(units, cellProperties.heightUnit);
+        form = formElement.kendoForm({
+            renderButtons: false,
+            items: [
+                {
+                    field: "k-editor-selectAllCells",
+                    label: "",
+                    editor: function(container, options) {
+                        that._initCheckbox($('<input id="k-editor-selectAllCells" />').appendTo(container), "selectAllCells", table.tableProperties, cellView, { label: encode(messages.selectAllCells) });
+                    }
+                },{
+                    field: "k-editor-cell-width",
+                    label: encode(messages.width),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-cell-width" />').appendTo(container), "width", cellProperties, cellView);
+                        that._initDropDownList($(`<input id="k-editor-cell-width-type" aria-label="${ messages.units }" />`).appendTo(container),
+                            "widthUnit",
+                            cellProperties,
+                            cellView,
+                            units);
+                    }
+                },{
+                    field: "k-editor-cell-height",
+                    label: encode(messages.height),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-cell-height" />').appendTo(container), "height", cellProperties, cellView);
+                        that._initDropDownList($(`<input id="k-editor-cell-height-type" aria-label="${ messages.units }" />`).appendTo(container),
+                            "heightUnit",
+                            cellProperties,
+                            cellView,
+                            units);
+                    }
+                },{
+                    field: "k-editor-table-cell-margin",
+                    label: encode(messages.cellMargin),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-cell-margin" />').appendTo(container), "cellMargin", cellProperties, cellView);
+                    }
+                },{
+                    field: "k-editor-table-cells-padding",
+                    label: encode(messages.cellPadding),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-cells-padding" />').appendTo(container), "cellPadding", cellProperties, cellView);
+                    }
+                },{
+                    field: "k-editor-cell-alignment",
+                    label: encode(messages.alignment),
+                    editor: function(container, options) {
+                        that._initCellAlignmentDropDown($('<input id="k-editor-cell-alignment" class="k-align" />').appendTo(container), cellProperties);
+                    }
+                },{
+                    field: "k-editor-cell-bg",
+                    label: encode(messages.background),
+                    editor: function(container, options) {
+                        that._initColorPicker($('<input id="k-editor-cell-bg" />').appendTo(container), "bgColor", cellProperties, cellView);
+                    }
+                },{
+                    field: "k-editor-cell-css-class",
+                    label: encode(messages.cssClass),
+                    editor: function(container, options) {
+                        that._initInput($('<input id="k-editor-cell-css-class" />').appendTo(container), "className", cellProperties, cellView);
+                    }
+                },{
+                    field: "k-editor-cell-id",
+                    label: encode(messages.id),
+                    editor: function(container, options) {
+                        that._initInput($('<input id="k-editor-cell-id" />').appendTo(container), "id", cellProperties, cellView);
+                    }
+                },{
+                    field: "k-editor-cell-border-width",
+                    label: encode(messages.border),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-cell-border-width" />').appendTo(container), "borderWidth", cellProperties, cellView);
+                        that._initColorPicker($('<input id="k-editor-cell-border-color" />').appendTo(container), "borderColor", cellProperties, cellView);
+                    }
+                },{
+                    field: "k-editor-cell-border-style",
+                    label: encode(messages.borderStyle),
+                    editor: function(container, options) {
+                        that._initBorderStyleDropDown($('<input id="k-editor-cell-border-style" />').appendTo(container),
+                            "borderStyle",
+                            cellProperties,
+                            cellView,
+                            borderStyles);
+                    }
+                },{
+                    field: "k-editor-wrap-text",
+                    label: "",
+                    editor: function(container, options) {
+                        that._initCheckbox($('<input id="k-editor-wrap-text" />').appendTo(container), "wrapText", cellProperties, cellView, { label: encode(messages.wrapText) });
+                    }
+                }
+            ]
+        }).data("kendoForm");
+
+        return form;
+    },
+
+    _createAccessibilityPropertiesForm: function(dialog, messages) {
+        var that = this;
+        var table = that.options.table;
+        var formElement = dialog.element.find("#k-accessibility-properties");
+        var components = that.components;
+        var accessibilityView = components.accessibilityView = {};
+        var tableProperties = table.tableProperties;
+        var form;
+
+        form = formElement.kendoForm({
+            renderButtons: false,
+            items: [
+                {
+                    field: "k-editor-table-header-rows",
+                    label: encode(messages.headerRows),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-header-rows" />').appendTo(container),
+                        "headerRows",
+                        tableProperties,
+                        accessibilityView,
+                        {
+                            max: tableProperties.rows || DEFAULT_NUMBER_OF_COLS_AND_ROWS
+                        });
+                    }
+                },{
+                    field: "k-editor-table-header-columns",
+                    label: encode(messages.headerColumns),
+                    editor: function(container, options) {
+                        that._initNumericTextbox($('<input id="k-editor-table-header-columns" />').appendTo(container),
+                        "headerColumns",
+                        tableProperties,
+                        accessibilityView,
+                        {
+                            max: tableProperties.columns || DEFAULT_NUMBER_OF_COLS_AND_ROWS
+                        });
+                    }
+                },{
+                    field: "k-editor-table-caption",
+                    label: encode(messages.caption),
+                    editor: function(container, options) {
+                        that._initInput($('<input id="k-editor-table-caption" />').appendTo(container), "captionContent", tableProperties, accessibilityView);
+                    }
+                },{
+                    field: "k-editor-accessibility-alignment",
+                    label: encode(messages.alignment),
+                    editor: function(container, options) {
+                        that._initAccessibilityAlignmentDropDown($('<input id="k-editor-accessibility-alignment" />').appendTo(container), tableProperties);
+                    }
+                },{
+                    field: "k-editor-accessibility-summary",
+                    label: encode(messages.summary),
+                    editor: function(container, options) {
+                        that._initTextArea($('<textarea id="k-editor-accessibility-summary"></textarea>').appendTo(container), "summary", tableProperties, accessibilityView, {
+                            rows: 5,
+                            placeholder: messages.tableSummaryPlaceholder
+                        });
+                    }
+                },{
+                    field: "k-editor-cells-headers",
+                    label: encode(messages.associateCellsWithHeaders),
+                    editor: function(container, options) {
+                        var element = $(`<select id="k-editor-cells-headers">
+                            <option value="none">${ messages.associateNone }</option>
+                            <option value="scope">${ messages.associateScope }</option>
+                            <option value="ids">${ messages.associateIds }</option>
+                        </select>`).appendTo(container);
+
+                        that._initAssociationDropDown(element, "cellsWithHeaders", { valuePrimitive: true }, tableProperties, accessibilityView);
+                    }
+                }
+            ]
+        }).data("kendoForm");
+
+        return form;
     }
 });
 

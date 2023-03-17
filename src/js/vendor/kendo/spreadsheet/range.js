@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -976,11 +976,11 @@ import "../util/main.js";
         return !(/^=/.test(str)) && (/number|percent/).test(kendo.spreadsheet.calc.parse(null, 0, 0, str).type);
     }
 
-    var measureBox = $('<div style="position: absolute !important; top: -4000px !important; height: auto !important;' +
-                        'padding: 1px 3px !important; box-sizing: border-box; margin: 0 !important; border: 1px solid black !important;' +
-                        'line-height: normal !important; visibility: hidden !important;' +
-                        'white-space: pre-wrap;"></div>'
-                      )[0];
+    var measureBox = $('<div></div>')[0];
+    measureBox.style.cssText = 'position: absolute !important; top: -4000px !important; height: auto !important;' +
+    'padding: 1px 3px !important; box-sizing: border-box; margin: 0 !important; border: 1px solid black !important;' +
+    'line-height: normal !important; visibility: hidden !important;' +
+    'white-space: pre-wrap;';
 
     function getTextHeight(text, width, fontFamily, fontSize, wrap) {
         var styles = {

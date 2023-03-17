@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.scheduler.view.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "scheduler.monthview",
     name: "Scheduler Month View",
     category: "web",
     description: "The Scheduler Month View",
-    depends: [ "scheduler.view" ],
+    depends: [ "scheduler.view", "icons" ],
     hidden: true
 };
 
@@ -34,14 +35,14 @@ var __meta__ = {
             `<div role="button" data-${task.ns}uid="${task.uid}" aria-label="${encode(task.ariaLabel)}" ` +
             (task.resources[0] ? `style="background-color: ${task.resources[0].color}; border-color: ${task.resources[0].color}" class="k-event">` : 'class="k-event">') +
                 '<span class="k-event-actions">' +
-                    `${task.tail || task.middle ? '<span class="k-icon k-i-arrow-60-left"></span>' : ''}` +
-                    `${task.isException() ? '<span class="k-icon k-i-non-recurrence"></span>' :
-                        (task.isRecurring() ? '<span class="k-icon k-i-reload"></span>' : '')}` +
+                    `${task.tail || task.middle ? kendo.ui.icon("caret-alt-left") : ''}` +
+                    `${task.isException() ? kendo.ui.icon("arrows-no-repeat") :
+                        (task.isRecurring() ? kendo.ui.icon("arrow-rotate-cw") : '')}` +
                 '</span>' +
                 `${kendo.template(task.template)(task)}` +
                 '<span class="k-event-actions">' +
-                    `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}"><span class="k-icon k-i-close"></span></a>` : ''}` +
-                    `${task.head || task.middle ? '<span class="k-icon k-i-arrow-60-right"></span>' : ''}` +
+                    `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}">${kendo.ui.icon("x")}</a>` : ''}` +
+                    `${task.head || task.middle ? kendo.ui.icon("caret-alt-right") : ''}` +
                 '</span>' +
                 (task.resizable && !task.tail && !task.middle ? '<span class="k-resize-handle k-resize-w"></span>' : '') +
                 (task.resizable && !task.head && !task.middle ? '<span class="k-resize-handle k-resize-e"></span>' : '') +
@@ -53,7 +54,7 @@ var __meta__ = {
     var CELL_INNER_SPACING = 2;
 
     var MORE_BUTTON_TEMPLATE = kendo.template(({ width, left, top }) =>
-        `<div style="width:${width}px;left:${left}px;top:${top}px" class="k-more-events k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-icon k-icon k-i-more-horizontal"></span></div>`
+        `<div style="width:${width}px;left:${left}px;top:${top}px" class="k-more-events k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">${kendo.ui.icon({ icon: "more-horizontal", iconClass: "k-button-icon" })}</div>`
     );
 
     var MonthGroupedView = kendo.Class.extend({
@@ -789,6 +790,8 @@ var __meta__ = {
 
             this._initSlotHeight();
 
+            this._initTimesHeight();
+
             this.refreshLayout();
 
             if (this._isVirtualized()) {
@@ -819,7 +822,7 @@ var __meta__ = {
 
         _mouseEditable: function() {
             var that = this;
-            that.element.on("click" + NS, ".k-scheduler-monthview .k-event a:has(.k-i-close)", function(e) {
+            that.element.on("click" + NS, ".k-scheduler-monthview .k-event a:has(.k-i-x),.k-scheduler-monthview .k-event a:has(.k-svg-i-x)", function(e) {
                 that.trigger("remove", { uid: $(this).closest(".k-event").attr(kendo.attr("uid")) });
                 e.preventDefault();
             });
@@ -1108,6 +1111,17 @@ var __meta__ = {
                 });
 
             });
+        },
+
+        _initTimesHeight: function() {
+            var that = this;
+            var times = that.times;
+            var isSetHeight = that._isSchedulerHeightSet();
+            var contentDiv = that.content[0];
+
+            if (times && !isSetHeight) {
+                times.height(contentDiv.clientHeight);
+            }
         },
 
         _createCalendar: function(verticalGroupIndex) {

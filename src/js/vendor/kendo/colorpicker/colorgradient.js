@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,12 +9,14 @@
 import "../kendo.core.js";
 import "../kendo.popup.js";
 import "./contrastToolUtils.js";
+import "../kendo.icons.js";
+
     var __meta__ = {
         id: "colorgradient",
         name: "ColorGradient",
         category: "web", // suite
         description: "ColorGradient allows selection of a color from an HSV canvas.",
-        depends: ["core", "popup", "textbox"] // dependencies
+        depends: ["core", "popup", "textbox", "icons"] // dependencies
     };
 (function($, undefined) {
     // WARNING: removing the following jshint declaration and turning
@@ -85,7 +87,7 @@ import "./contrastToolUtils.js";
 
                 vStackElement =
                 '<div class="k-vstack">' +
-                    `<button class="k-colorgradient-toggle-mode" data-${ns}role="button" data-${ns}icon="arrows-kpi" data data-${ns}bind="click: switchMode" data-${ns}fill-mode="flat" data-${ns}size="${optionsSize}" title="${optionsMessagesToggleFormat}">` +
+                    `<button class="k-colorgradient-toggle-mode" data-${ns}role="button" data-${ns}icon="caret-alt-expand" data data-${ns}bind="click: switchMode" data-${ns}fill-mode="flat" data-${ns}size="${optionsSize}" title="${optionsMessagesToggleFormat}">` +
                     '</button>' +
                 '</div>';
             }
@@ -541,16 +543,16 @@ import "./contrastToolUtils.js";
                                             '<div class="k-contrast-ratio">' +
                                                 `<span class="k-contrast-ratio-text">${encode(messages.contrastRatio)} ${encode(kendo.toString(ratio, "n2"))}</span>` +
                                                 '<span class="k-contrast-validation k-text-success">' +
-                                                    (ratio > 4.5 ?  '<span class="k-icon k-i-check"></span>' : '') +
-                                                    (ratio > 7 ?  '<span class="k-icon k-i-check"></span>' : '') +
+                                                    (ratio > 4.5 ?  kendo.ui.icon("check") : '') +
+                                                    (ratio > 7 ?  kendo.ui.icon("check") : '') +
                                             '</span></div>'),
                 labelTemplate = kendo.template(({ messages, ratio, limit, level }) =>
                                             '<div>' +
                                                 `<span>${encode(level)}: ${encode(limit)} </span>` +
                                                 (ratio > limit ?
-                                                `<span class="k-contrast-validation k-text-success">${encode(messages.pass)} <span class="k-icon k-i-check"></span></span>`
+                                                `<span class="k-contrast-validation k-text-success">${encode(messages.pass)} ${kendo.ui.icon("check")}</span>`
                                                 :
-                                                `<span class="k-contrast-validation k-text-error">${encode(messages.fail)} <span class="k-icon k-i-close"></span></span>`) +
+                                                `<span class="k-contrast-validation k-text-error">${encode(messages.fail)} ${kendo.ui.icon("x")}</span>`) +
                                             '</div>'),
                 output = "";
 

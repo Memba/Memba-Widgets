@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../../kendo.core.js";
+import "../../kendo.icons.js";
 
 (function($) {
     var kendo = window.kendo;
@@ -17,10 +18,9 @@ import "../../kendo.core.js";
 
     // Helper functions =======================================================
     function button(dir) {
-       return kendo.format(
-           '<button class="k-button k-rounded-full k-button-flat k-button-flat-base k-icon-button k-navigator-{0}" aria-label="move {0}">' +
-               '<span class="k-button-icon k-icon k-i-arrow-60-{0}"></span>' +
-           '</button>', dir);
+       return `<button class="k-button k-rounded-full k-button-flat k-button-flat-base k-icon-button k-navigator-${dir}" aria-label="move ${dir}">` +
+               kendo.ui.icon({ icon: `caret-alt-${dir}`, iconClass: "k-button-icon" }) +
+           '</button>';
     }
 
     var BUTTONS = button("up") + button("right") + button("down") + button("left");

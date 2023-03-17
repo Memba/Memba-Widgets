@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "../kendo.core.js";
 import "../kendo.form.js";
+import "../kendo.html.button.js";
 import "../kendo.buttongroup.js";
 import "../kendo.draganddrop.js";
 
@@ -53,8 +54,14 @@ import "../kendo.draganddrop.js";
 
             imageeditor.paneWrapper.append(that.element);
             that.formWidget = new kendo.ui.Form(that.element, extend(that.formSettings(), {
-                buttonsTemplate: () => `<button class='${paneStyles.button} k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-action='cancel'><span class='k-button-text'>${commonMessages.cancel}</span></button>` +
-                                                `<button class='${paneStyles.button} ${paneStyles.confirmButton} k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-action='confirm'><span class='k-button-text'>${commonMessages.confirm}</span></button>`
+                buttonsTemplate: () =>
+                    kendo.html.renderButton(`<button class='${paneStyles.button} ${paneStyles.confirmButton}' data-action='confirm'>${commonMessages.confirm}</button>`, {
+                        icon: 'check',
+                        themeColor: 'primary'
+                    }) +
+                    kendo.html.renderButton(`<button class='${paneStyles.button}' data-action='cancel'>${commonMessages.cancel}</button>`, {
+                        icon: 'cancel-outline'
+                    })
             }));
 
             that.bindButtonEvents();

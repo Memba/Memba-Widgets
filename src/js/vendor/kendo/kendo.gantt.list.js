@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -73,8 +73,8 @@ var __meta__ = {
             gridHeader: "k-grid-header",
             gridContentWrap: "k-grid-content",
             editCell: "k-edit-cell",
-            iconCollapse: "k-i-collapse",
-            iconExpand: "k-i-expand"
+            iconCollapse: "caret-alt-down",
+            iconExpand: "caret-alt-right"
         };
 
     var GanttList = ui.GanttList = TreeList.extend({
@@ -270,7 +270,7 @@ var __meta__ = {
                                 that._mouseDownHandler(e.touch);
                             },
                             doubletap: function(e) {
-                                if (e.event.target.classList.contains("k-icon")) {
+                                if (e.event.target.classList.contains("k-icon") || e.event.target.classList.contains("k-svg-icon")) {
                                     return;
                                 }
                                 that._openEditorHandler(e.touch);
@@ -541,8 +541,8 @@ var __meta__ = {
                 td.has("button.k-grid-delete").length ||
                 (td.closest("tbody")[0] !== that.tbody[0] && !isLockedCell) ||
                 $(e.target).is(":input") ||
-                $(e.target).hasClass(listStyles.iconExpand) ||
-                $(e.target).hasClass(listStyles.iconCollapse)) {
+                $(e.target).is(`[class*=${listStyles.iconExpand}]`) ||
+                $(e.target).is(`[class*=${listStyles.iconCollapse}]`)) {
 
                 return;
             }

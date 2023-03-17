@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -13,7 +13,6 @@ import "./inlineformat.js";
 var kendo = window.kendo,
     Editor = kendo.ui.editor,
     Tool = Editor.Tool,
-    ToolTemplate = Editor.ToolTemplate,
     DelayedExecutionTool = Editor.DelayedExecutionTool,
     Command = Editor.Command,
     dom = Editor.Dom,
@@ -27,7 +26,7 @@ var FormattingTool = DelayedExecutionTool.extend({
         var that = this;
         Tool.fn.init.call(that, kendo.deepExtend({}, that.options, options));
 
-        that.type = "kendoSelectBox";
+        that.type = "kendoDropDownList";
 
         that.finder = {
             getFormat: function() { return ""; }
@@ -101,52 +100,68 @@ var FormattingTool = DelayedExecutionTool.extend({
         });
     },
 
-    initialize: function(ui, initOptions) {
-        var editor = initOptions.editor;
+    decorate: function(body) {
+        var component = this.component,
+            dataSource = component.dataSource,
+            items = dataSource.data(),
+            i, tag, className, style;
+
+        if (body) {
+            component.list.css("background-color", dom.getEffectiveBackground($(body)));
+        }
+
+        for (i = 0; i < items.length; i++) {
+            tag = items[i].tag || "span";
+            className = items[i].className;
+
+            style = dom.inlineStyle(body, tag, { className: className });
+
+            style = style.replace(/"/g, "'");
+
+            items[i].style = style + ";display:inline-block";
+        }
+
+        dataSource.trigger("change");
+    },
+
+    initialize: function(ui, editor) {
         var options = this.options;
         var toolName = options.name;
         var that = this;
-        var selectBox;
+        var component = ui.getKendoDropDownList();
+
+        if (!component) {
+            return;
+        }
 
         that.editor = editor;
+        that.component = component;
 
-        ui.width(options.width);
+        // must be moved to themes
+        ui.closest(".k-dropdownlist").width(options.width);
 
-        selectBox = ui.kendoSelectBox({
-            autoWidth: true,
-            dataTextField: "text",
-            dataValueField: "value",
-            dataSource: options.items || editor.options[toolName],
-            title: editor.options.messages[toolName],
-            autoSize: true,
-            change: function() {
-                var dataItem = this.dataItem();
+        component.setOptions({
+            optionLabel: editor.options.messages.formatting,
+            change: () => {
+                var dataItem = component.dataItem();
 
                 if (dataItem) {
                     Tool.exec(editor, toolName, dataItem.toJSON());
                 }
             },
             dataBound: function() {
-                var i, items = this.dataSource.data();
+                var i, items = component.dataSource.data(),
+                    optionLabel = component.list.parent().find(".k-list-optionlabel");
 
                 for (i = 0; i < items.length; i++) {
                     items[i] = that.toFormattingItem(items[i]);
                 }
-            },
-            highlightFirst: false,
-            template: kendo.template(
-                (data) => `<span unselectable="on" style="display:block;${data.style || ""}#">${kendo.htmlEncode(data.text)}</span>`
-            )
-        }).data("kendoSelectBox");
 
-        ui.attr("title", initOptions.title);
-        selectBox.wrapper.attr("title", initOptions.title);
-
-        ui.addClass("k-decorated")
-            .closest(".k-dropdownlist, .k-combobox")
-                .removeClass("k-" + toolName)
-                .find("*").addBack()
-                    .attr("unselectable", "on");
+                if (optionLabel.length) {
+                    optionLabel.remove();
+                }
+            }
+        });
     },
 
     getFormattingValue: function(items, nodes) {
@@ -180,7 +195,6 @@ var FormattingTool = DelayedExecutionTool.extend({
 
     update: function(ui, nodes) {
         var selectBox = $(ui).data(this.type);
-
         // necessary until formatBlock is deleted
         if (!selectBox) {
             return;
@@ -296,7 +310,23 @@ $.extend(Editor, {
     CleanFormatCommand: CleanFormatCommand
 });
 
-registerTool("formatting", new FormattingTool({ template: new ToolTemplate({ template: EditorUtils.dropDownListTemplate, title: "Format" }) }));
-registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Clean formatting" }) }));
+registerTool("formatting", new FormattingTool({
+    ui: {
+        type: "component",
+        component: "DropDownList",
+        componentOptions: {
+            dataTextField: "text",
+            dataValueField: "value",
+            highlightFirst: false,
+            autoWidth: true,
+            template: kendo.template(
+                (data) => `<span unselectable="on" style="display:block;${data.style || ""}">${kendo.htmlEncode(data.text)}</span>`
+            )
+        },
+        overflow: "never"
+    }
+}));
+
+registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand }));
 
 })(window.kendo.jQuery);

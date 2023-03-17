@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.core.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "badge",
     name: "Badge",
     category: "web", // suite
     description: "The Badge decorates avatars, navigation menus, or other components in the application when visual notification is needed",
-    depends: ["core"] // dependencies
+    depends: ["core", "icons"] // dependencies
 };
 
 (function($, undefined) {
@@ -22,7 +23,7 @@ var __meta__ = {
     var ui = kendo.ui;
     var HIDDEN = 'k-hidden';
 
-    var iconTemplate = ({ icon }) => `<span class='k-badge-icon k-icon k-i-${icon}'></span>`;
+    var iconTemplate = ({ icon }) => kendo.ui.icon($(`<span class='k-badge-icon'></span>`), { icon: icon });
     var svgIconTemplate = ({ icon }) => `<span class='k-badge-icon k-svg-icon'>${icon}</span>`;
 
     var Badge = Widget.extend({

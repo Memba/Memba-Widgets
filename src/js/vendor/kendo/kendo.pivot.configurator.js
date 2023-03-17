@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,12 +10,13 @@ import "./kendo.dom.js";
 import "./kendo.html.chip.js";
 import "./kendo.html.chiplist.js";
 import "./kendo.pivot.common.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "pivot.configurator",
     name: "PivotConfigurator",
     category: "web",
-    depends: [ "dropdownlist", "treeview", "treeview.draganddrop", "pivot.fieldmenu", "html.chip", "html.chiplist", "pivot.common" ],
+    depends: [ "dropdownlist", "treeview", "treeview.draganddrop", "pivot.fieldmenu", "html.chip", "html.chiplist", "pivot.common", "icons" ],
     hidden: true
 };
 
@@ -62,7 +63,7 @@ var __meta__ = {
         '</div>',
         TARGET_ITEM_TEMPLATE = ({ name, menuenabled }) => '<span>' +
                 `<span class="k-chip-label">${encode(name)}</span>` +
-                `${menuenabled ? '<span class="k-icon k-i-more-vertical"></span>' : ''}` +
+                `${menuenabled ? kendo.ui.icon("more-vertical") : ''}` +
             '</span>',
         ACTIONS_TEMPLATE = ({ cancelText, applyText }) =>
                 '<div class="k-pivotgrid-configurator-actions k-actions k-hstack k-justify-content-end">' +
@@ -127,14 +128,14 @@ var __meta__ = {
         var result = '';
 
         if (sortable) {
-            result += `${sortIcon ? '<span class="k-chip-action"><span class="k-icon ' + sortIcon + '-sm"></span></span>' : ''}`;
+            result += sortIcon ? `<span class="k-chip-action">${kendo.ui.icon(sortIcon + "-sm")}</span>` : '';
         }
 
         if (options.filterable || sortable) {
-            result += '<span class="k-setting-fieldmenu k-chip-action"><span class="k-icon k-i-more-vertical"></span></span>';
+            result += `<span class="k-setting-fieldmenu k-chip-action">${kendo.ui.icon("more-vertical")}</span>`;
         }
 
-        result += '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
+        result += `<span class="k-setting-delete k-chip-action">${kendo.ui.icon("x")}</span>`;
 
         return result;
     }
@@ -247,7 +248,7 @@ var __meta__ = {
         _actions: function(e) {
             e.preventDefault();
 
-            var target = $(e.currentTarget);
+            var target = $(e.currentTarget).closest(":not(path,svg)");
             if (target.index()) {
                 this.columns._applyState();
                 this.rows._applyState();
@@ -273,7 +274,7 @@ var __meta__ = {
                 themeColor: "base",
                 rounded: "full",
                 removable: true,
-                removeIcon: "close-circle"
+                removeIcon: "x-circle"
             }));
 
             this.columns = this._createTarget(columns, {
@@ -745,9 +746,9 @@ var __meta__ = {
                 var result = '';
 
                 if (item.type == 2 || item.uniqueName == "[KPIs]") {
-                    result += `<span class="k-icon k-i-${(item.type == 2 ? "sum" : "kpi")}"></span>`;
+                    result += kendo.ui.icon(item.type == 2 ? "sum" : "caret-alt-expand"/* "kpi" */);
                 } else if (item.type && item.type !== "kpi") {
-                    result += `<span class="k-icon k-i-arrows-dimensions"></span>`;
+                    result += kendo.ui.icon("arrows-axes");
                 }
 
                 result += `${encode(item.caption || item.name)}`;
@@ -770,11 +771,11 @@ var __meta__ = {
                         }
                     },
                     drag: function(e) {
-                        var status = "k-i-cancel";
+                        var status = "cancel";
                         var setting = settingTargetFromNode(e.dropTarget);
 
                         if (setting && setting.validate(this.dataItem(e.sourceNode))) {
-                            status = "k-i-plus";
+                            status = "plus";
                         }
 
                         e.setStatusClass(status);
@@ -832,13 +833,13 @@ var __meta__ = {
         _targets: function() {
             var container = $('<div class="k-pivotgrid-targets"/>').appendTo(this.form);
 
-            var columnsContainer = $(SETTING_CONTAINER_TEMPLATE({ name: this.options.messages.columnsLabel, icon: "k-i-columns" })).appendTo(container);
+            var columnsContainer = $(SETTING_CONTAINER_TEMPLATE({ name: this.options.messages.columnsLabel, icon: "columns" })).appendTo(container);
             var columns = $('<div class="k-column-fields k-chip-list" />').appendTo(columnsContainer.find('.k-pivotgrid-target-wrap'));
 
-            var rowsContainer = $(SETTING_CONTAINER_TEMPLATE({ name: this.options.messages.rowsLabel, icon: "k-i-rows" })).appendTo(container);
+            var rowsContainer = $(SETTING_CONTAINER_TEMPLATE({ name: this.options.messages.rowsLabel, icon: "rows" })).appendTo(container);
             var rows = $('<div class="k-column-fields k-chip-list" />').appendTo(rowsContainer.find('.k-pivotgrid-target-wrap'));
 
-            var measuresContainer = $(SETTING_CONTAINER_TEMPLATE({ name: this.options.messages.measuresLabel, icon: "k-i-sum" })).appendTo(container);
+            var measuresContainer = $(SETTING_CONTAINER_TEMPLATE({ name: this.options.messages.measuresLabel, icon: "sum" })).appendTo(container);
             var measures = $('<div class="k-column-fields k-chip-list" />').appendTo(measuresContainer.find('.k-pivotgrid-target-wrap'));
 
             var options = this.options;
@@ -878,7 +879,7 @@ var __meta__ = {
         },
 
         _toggleHover: function(e) {
-            $(e.currentTarget).toggleClass("k-hover", e.type === "mouseenter");
+            $(e.currentTarget).closest(":not(path,svg)").toggleClass("k-hover", e.type === "mouseenter");
         },
 
         _resize: function() {

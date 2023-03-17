@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -239,7 +239,7 @@ var __meta__ = {
                     {
                         togglable: true,
                         command: "EnableSelectionCommand",
-                        icon: "cursor",
+                        icon: "pointer",
                         showText: "overflow",
                         name: "toggleSelection",
                         group: "toggle-pan",
@@ -302,8 +302,8 @@ var __meta__ = {
             {
                 type: "buttonGroup",
                 buttons: [
-                    { type: "button", icon: "arrow-end-left", name: "first", showText: "overflow", options: "{ \"value\": \"first\" }", fillMode: "flat", attributes: { class: "k-first-link" } },
-                    { type: "button", icon: "arrow-60-left", name: "previous", showText: "overflow", options: "{ \"value\": \"prev\" }", fillMode: "flat", attributes: { class: "k-prev-link" }, rounded: "none" },
+                    { type: "button", icon: "caret-alt-to-left", name: "first", showText: "overflow", options: "{ \"value\": \"first\" }", fillMode: "flat", attributes: { class: "k-first-link" } },
+                    { type: "button", icon: "caret-alt-left", name: "previous", showText: "overflow", options: "{ \"value\": \"prev\" }", fillMode: "flat", attributes: { class: "k-prev-link" }, rounded: "none" },
                 ]
             },
             {
@@ -332,8 +332,8 @@ var __meta__ = {
             {
                 type: "buttonGroup",
                 buttons: [
-                    { type: "button", icon: "arrow-60-right", name: "next", showText: "overflow", options: "{ \"value\": \"next\" }", fillMode: "flat", attributes: { class: "k-next-link" }, rounded: "none" },
-                    { type: "button", icon: "arrow-end-right", name: "last", showText: "overflow", options: "{ \"value\": \"last\" }", fillMode: "flat", attributes: { class: "k-last-link" } }
+                    { type: "button", icon: "caret-alt-right", name: "next", showText: "overflow", options: "{ \"value\": \"next\" }", fillMode: "flat", attributes: { class: "k-next-link" }, rounded: "none" },
+                    { type: "button", icon: "caret-alt-to-right", name: "last", showText: "overflow", options: "{ \"value\": \"last\" }", fillMode: "flat", attributes: { class: "k-last-link" } }
                 ]
             },
         ],

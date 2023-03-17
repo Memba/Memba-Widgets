@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "../../kendo.filebrowser.js";
 import "./link.js";
+import "../../kendo.form.js";
 
 (function($, undefined) {
 
@@ -18,7 +19,6 @@ var kendo = window.kendo,
     EditorUtils = Editor.EditorUtils,
     dom = Editor.Dom,
     registerTool = EditorUtils.registerTool,
-    ToolTemplate = Editor.ToolTemplate,
     RangeUtils = Editor.RangeUtils,
     Command = Editor.Command,
     LinkFormatter = Editor.LinkFormatter,
@@ -69,43 +69,6 @@ var FileCommand = Command.extend({
         return false;
     },
 
-    _dialogTemplate: function(showBrowser) {
-        return kendo.template(({ messages }) =>
-            '<div class="k-editor-dialog k-popup-edit-form">' +
-                '<div class="k-edit-form-container">' +
-                    '<div class="k-edit-form-content">' +
-                        `${showBrowser ? '<div class="k-filebrowser"></div>' : ''}` +
-                        '<div class="k-edit-label">' +
-                            `<label for="k-editor-file-url">${encode(messages.fileWebAddress)}</label>` +
-                        '</div>' +
-                        '<div class="k-edit-field">' +
-                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-file-url"></span>' +
-                        '</div>' +
-                        "<div class='k-edit-label'>" +
-                            `<label for="k-editor-file-text">${encode(messages.fileText)}</label>` +
-                        '</div>' +
-                        "<div class='k-edit-field'>" +
-                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-file-text"></span>' +
-                        '</div>' +
-                        "<div class='k-edit-label'>" +
-                            `<label for="k-editor-file-title">${encode(messages.fileTitle)}</label>` +
-                        '</div>' +
-                        "<div class='k-edit-field'>" +
-                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-file-title"></span>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="k-edit-buttons">' +
-                        `<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${messages.dialogInsert}</span></button>` +
-                        `<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${messages.dialogCancel}</span></button>` +
-                    '</div>' +
-                '</div>' +
-            '</div>'
-        )({
-            messages: this.editor.options.messages,
-            showBrowser: showBrowser
-        });
-    },
-
     redo: function() {
         var that = this,
             range = that.lockRange();
@@ -121,6 +84,7 @@ var FileCommand = Command.extend({
             applied = false,
             file = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null,
             dialog,
+            form,
             isIE = kendo.support.browser.msie,
             options = that.editor.options,
             messages = options.messages,
@@ -157,6 +121,7 @@ var FileCommand = Command.extend({
 
         function close(e) {
             e.preventDefault();
+            form.destroy();
             dialog.destroy();
 
             dom.windowFromDocument(RangeUtils.documentFromRange(range)).focus();
@@ -178,17 +143,20 @@ var FileCommand = Command.extend({
         if (showBrowser) {
             dialogOptions.width = 750;
         }
+        dialogOptions.minWidth = 350;
 
-        dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions)
-            .toggleClass("k-filebrowser-dialog", showBrowser)
-            .find(".k-dialog-insert").on("click", apply).end()
-            .find(".k-dialog-close").on("click", close).end()
-            .find(".k-edit-field input").on("keydown", keyDown).end()
-            // IE < 8 returns absolute url if getAttribute is not used
-            .find(KEDITORFILEURL).val(file ? file.getAttribute("href", 2) : "http://").end()
-            .find(KEDITORFILETEXT).val(file ? file.innerText : "").end()
-            .find(KEDITORFILETITLE).val(file ? file.title : "").end()
-            .data("kendoWindow");
+        dialog = this.createDialog("<div/>", dialogOptions).data("kendoWindow");
+        form = that._createForm(dialog, showBrowser);
+
+        dialog.element.toggleClass("k-filebrowser-dialog", showBrowser);
+        dialog.wrapper
+        .find(".k-dialog-insert").on("click", apply).end()
+        .find(".k-dialog-close").on("click", close).end()
+        .find(".k-form-field input").on("keydown", keyDown).end()
+        // IE < 8 returns absolute url if getAttribute is not used
+        .find(KEDITORFILEURL).val(file ? file.getAttribute("href", 2) : "http://").end()
+        .find(KEDITORFILETEXT).val(file ? file.innerText : "").end()
+        .find(KEDITORFILETITLE).val(file ? file.title : "").end();
 
         var element = dialog.element;
         if (showBrowser) {
@@ -212,12 +180,47 @@ var FileCommand = Command.extend({
         }
         dialog.center().open();
         element.find(KEDITORFILEURL).trigger("focus").select();
+    },
+
+    _createForm: function(dialog, showBrowser) {
+        var that = this;
+        var formElement = $("<div/>").appendTo(dialog.element);
+        var messages = that.editor.options.messages;
+
+        var form = formElement.kendoForm({
+            renderButtons: false,
+            items: [
+                {
+                    field: "k-editor-file-url",
+                    label: encode(messages.fileWebAddress),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-file-text",
+                    label: encode(messages.fileText),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-file-title",
+                    label: encode(messages.fileTitle),
+                    editor: "TextBox"
+                }
+            ]
+        }).data("kendoForm");
+
+        if (showBrowser) {
+            formElement.prepend($('<div class="k-filebrowser"></div>'));
+        }
+
+        dialog.element.after($(that._actionButtonsTemplate({ messages, insertButtonIcon: "file-add", cancelButtonIcon: "cancel-outline" })));
+
+        return form;
     }
 
 });
 
 kendo.ui.editor.FileCommand = FileCommand;
 
-registerTool("insertFile", new Editor.Tool({ command: FileCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert File" }) }));
+registerTool("insertFile", new Editor.Tool({ command: FileCommand }));
 
 })(window.kendo.jQuery);

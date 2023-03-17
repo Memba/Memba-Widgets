@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.fx.js";
 import "./kendo.data.js";
 import "./kendo.draganddrop.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "timeline",
     name: "Timeline",
     category: "web",
     description: "The Kendo Timeline widget display events over time",
-    depends: [ "userevents" ]
+    depends: [ "userevents", "icons" ]
 };
 
 (function($, undefined) {
@@ -74,7 +75,7 @@ var __meta__ = {
                     '<div class="k-card-title">' +
                         (data[titleField] ? `<span class="k-event-title">${encode(data[titleField])}</span>` : '') +
                         '<span class="k-event-collapse k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
-                            '<span class="k-button-icon k-icon k-i-arrow-chevron-right"></span>' +
+                            kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" }) +
                         '</span>' +
                     '</div>' +
                     (data[subtitleField] ? `<div class="k-card-subtitle">${encode(data[subtitleField])}</div>` : '') +
@@ -167,10 +168,10 @@ var __meta__ = {
         },
         ARROWSHTML =
         '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-left k-disabled" title="previous">' +
-            '<span class="k-button-icon k-icon k-i-arrow-60-left"></span>' +
+            kendo.ui.icon({ icon: "caret-alt-left", iconClass: "k-button-icon" }) +
         '</a>' +
         '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-right k-disabled" title="next">' +
-            '<span class="k-button-icon k-icon k-i-arrow-60-right"></span>' +
+            kendo.ui.icon({ icon: "caret-alt-right", iconClass: "k-button-icon" }) +
         '</a>';
 
         function className(name) {

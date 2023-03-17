@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -26,6 +26,18 @@ import "../kendo.togglebutton.js";
             "bottomBorder",
             "noBorders"
         ];
+        var BORDER_TYPES_ICONS = {
+           allBorders: "bordersAll",
+           insideBorders: "bordersInside",
+           insideHorizontalBorders: "bordersInsideHorizontal",
+           insideVerticalBorders: "bordersInsideVertical",
+           outsideBorders: "bordersOutside",
+           leftBorder: "borderLeft",
+           topBorder: "borderTop",
+           rightBorder: "borderRight",
+           bottomBorder: "borderBottom",
+           noBorders: "bordersNone"
+        };
 
         var BORDER_PALETTE_MESSAGES = kendo.spreadsheet.messages.borderPalette = {
             allBorders: "All borders",
@@ -95,7 +107,7 @@ import "../kendo.togglebutton.js";
                     $('<button title="' + messages[type] + '" aria-label="' + messages[type] + '" data-border-type="' + type + '">')
                         .appendTo(element)
                         .kendoToggleButton({
-                            icon: kendo.toHyphens(type),
+                            icon: kendo.toHyphens(BORDER_TYPES_ICONS[type]),
                             toggle: that._toggle.bind(that)
                         })
                 });

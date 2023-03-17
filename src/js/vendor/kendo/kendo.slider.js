@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.draganddrop.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "slider",
     name: "Slider",
     category: "web",
     description: "The Slider widget provides a rich input for selecting values or ranges of values.",
-    depends: [ "draganddrop" ]
+    depends: [ "draganddrop", "icons" ]
 };
 
 (function($, undefined) {
@@ -552,26 +553,27 @@ var __meta__ = {
     }
 
     function createButton(options, type, isHorizontal) {
-        var buttonCssClass = "";
+        var buttonIconName = "";
 
         if (isHorizontal) {
             if (type === "increase") {
-                buttonCssClass = "k-i-arrow-e";
+                buttonIconName = "caret-alt-right";
             } else {
-                buttonCssClass = "k-i-arrow-w";
+                buttonIconName = "caret-alt-left";
             }
         } else {
             if (type == "increase") {
-                buttonCssClass = "k-i-arrow-n";
+                buttonIconName = "caret-alt-up";
             } else {
-                buttonCssClass = "k-i-arrow-s";
+                buttonIconName = "caret-alt-down";
             }
         }
 
         return "<a role='button' class='k-button k-button-md k-rounded-full k-button-solid k-button-solid-base k-icon-button k-button-" + type + "' " +
                 "title='" + options[type + "ButtonTitle"] + "' " +
                 "aria-label='" + options[type + "ButtonTitle"] + "'>" +
-                "<span class='k-button-icon k-icon " + buttonCssClass + "'></span></a>";
+                    kendo.ui.icon({ icon: buttonIconName, iconClass: "k-button-icon" }) +
+                "</a>";
     }
 
     function createSliderItems(options, distance) {

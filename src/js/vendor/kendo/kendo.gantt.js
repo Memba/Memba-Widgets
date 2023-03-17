@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,19 +14,20 @@ import "./kendo.gantt.editors.js";
 import "./kendo.gantt.list.js";
 import "./kendo.gantt.timeline.js";
 import "./kendo.pdf.js";
+import "./kendo.toolbar.js";
+import "./kendo.html.button.js";
 
 var __meta__ = {
     id: "gantt",
     name: "Gantt",
     category: "web",
     description: "The Gantt component.",
-    depends: [ "data", "resizable", "switch", "gantt.data", "gantt.editors", "gantt.list", "gantt.timeline", "pdf" ]
+    depends: [ "data", "resizable", "switch", "gantt.data", "gantt.editors", "gantt.list", "gantt.timeline", "pdf", "toolbar", "html.button" ]
 };
-
 (function($, undefined) {
 
     var kendo = window.kendo,
-        keys = $.extend({ F10: 121 }, kendo.keys),
+        keys = kendo.keys,
         supportsMedia = "matchMedia" in window,
         mobileOS = kendo.support.mobileOS,
         Widget = kendo.ui.Widget,
@@ -34,7 +35,6 @@ var __meta__ = {
         ObservableArray = kendo.data.ObservableArray,
         Query = kendo.data.Query,
         isArray = Array.isArray,
-        inArray = $.inArray,
         isFunction = kendo.isFunction,
         extend = $.extend,
         isPlainObject = $.isPlainObject,
@@ -45,35 +45,31 @@ var __meta__ = {
         NS = ".kendoGantt",
         PERCENTAGE_FORMAT = "p0",
         TABINDEX = "tabIndex",
-        CLICK = "click",
         STRING = "string",
         ARIA_DESCENDANT = "aria-activedescendant",
-        ARIA_LABEL = "aria-label",
         ACTIVE_CELL = "gantt_active_cell",
         DOT = ".",
         TASK_DELETE_CONFIRM = "Are you sure you want to delete this task?",
         DEPENDENCY_DELETE_CONFIRM = "Are you sure you want to delete this dependency?",
-        TOGGLE_BUTTON_TEMPLATE = ({ styles }) => `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-gantt-toggle" type="button" ${ARIA_LABEL}="Toggle"><span class="k-button-icon ${styles.iconToggle}"></span></button>`,
-        BUTTON_TEMPLATE = ({ text, styles, className, action, iconClass }) => `<button aria-label="${text}" class="${styles.button} ${styles.buttonDefaults} ${className}" type="button" ` +
-            `${action ? 'data-action="' + action + '"' : ''}` +
-        '>' +
-            `<span class="k-button-icon ${iconClass}"></span>` +
-            `<span class="k-button-text">${text}</span>` +
-        '</button>',
-        COMMAND_BUTTON_TEMPLATE = ({ className, attr, text }) => `<a class="${className}" ${attr} href="#"><span class="k-button-text">${text}</span></a>`,
         VIEWS_DROPDOWN_TEMPLATE = ({ label, styles, views }) => `<select aria-label="${label}" class="k-dropdown k-picker k-dropdown-list ${styles.viewsDropdown}">` +
             `${Object.keys(views).map(view => '<option value="' + view + '">' + views[view].title + '</option>').join("")}` +
         '</select>',
-        HEADER_VIEWS_TEMPLATE = ({ styles, views, ns }) => `<div class="${styles.viewsWrapper}">` +
-            `<span class="k-button-group ${styles.views}">` +
-                `${Object.keys(views).map(view => '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-' + view.toLowerCase() + '" data-' + ns + 'name="' + view + '">' +
-                    '<span class="k-button-text">' + views[view].title + '</span>' +
-                '</button>').join("")}` +
-            '</span>' +
-        '</div>';
+        MIN_SCREEN = "(max-width: 480px)",
+        ADD_ACTIONS = [{
+            data: "add",
+            text: "addChild"
+        },
+        {
+            data: "insert-before",
+            text: "insertBefore"
+        },
+        {
+            data: "insert-after",
+            text: "insertAfter"
+        }];
 
     var ganttStyles = {
-        wrapper: "k-widget k-gantt",
+        wrapper: "k-gantt",
         plannedTasks: "k-gantt-planned",
         rowHeight: "k-gantt-rowheight",
         content: "k-gantt-content",
@@ -117,8 +113,8 @@ var __meta__ = {
             resourcesField: "k-gantt-resources"
         },
         toolbar: {
-            headerWrapper: "k-gantt-header k-toolbar k-gantt-toolbar",
-            footerWrapper: "k-gantt-footer k-toolbar k-gantt-toolbar",
+            headerWrapper: "k-gantt-header k-gantt-toolbar",
+            footerWrapper: "k-gantt-footer k-gantt-toolbar",
             toolbar: "k-gantt-toolbar",
             views: "k-gantt-views",
             viewsWrapper: "k-gantt-views-wrapper",
@@ -126,9 +122,9 @@ var __meta__ = {
             button: "k-button",
             buttonToggle: "k-gantt-toggle",
             buttonDefaults: "k-button-md k-rounded-md k-button-solid",
-            iconPlus: "k-icon k-i-plus",
-            iconPdf: "k-icon k-i-file-pdf",
-            iconToggle: "k-icon k-i-layout-1-by-4",
+            iconPlus: "plus",
+            iconPdf: "file-pdf",
+            iconToggle: "layout-1-by-4",
             viewButton: "k-view",
             link: "k-link",
             pdfButton: "k-gantt-pdf",
@@ -188,27 +184,11 @@ var __meta__ = {
                 .add(window);
     }
 
-    var defaultCommands;
-
     var Gantt = Widget.extend({
         init: function(element, options, events) {
             if (isArray(options)) {
                 options = { dataSource: options };
             }
-
-            defaultCommands = {
-                append: {
-                    text: "Add Task",
-                    action: "add",
-                    className: Gantt.styles.toolbar.appendButton + " k-button-solid-base",
-                    iconClass: Gantt.styles.toolbar.iconPlus
-                },
-                pdf: {
-                    text: "Export to PDF",
-                    className: Gantt.styles.toolbar.pdfButton + " k-button-solid-base",
-                    iconClass: Gantt.styles.toolbar.iconPdf
-                }
-            };
 
             Widget.fn.init.call(this, element, options);
 
@@ -226,8 +206,8 @@ var __meta__ = {
 
             this._timeline();
 
+            this._processDefaults();
             this._toolbar();
-
             this._footer();
 
             this._adjustDimensions();
@@ -242,8 +222,6 @@ var __meta__ = {
             this._dataSource();
 
             this._assignments();
-
-            this._dropDowns();
 
             this._list();
 
@@ -322,7 +300,8 @@ var __meta__ = {
                     addChild: "Add Child",
                     insertBefore: "Add Above",
                     insertAfter: "Add Below",
-                    pdf: "Export to PDF"
+                    pdf: "Export to PDF",
+                    toggle: "Toggle pane"
                 },
                 editor: {
                     editorTitle: "Task",
@@ -336,7 +315,20 @@ var __meta__ = {
                     resources: "Resources",
                     assignButton: "Assign",
                     resourcesHeader: "Resources",
-                    unitsHeader: "Units"
+                    unitsHeader: "Units",
+                    parent: "Parent",
+                    addNew: "Add",
+                    name: "Name",
+                    percentCompleteHint: "value from 0 to 1",
+                    remove: "Remove",
+                    actualStart: "Actual Start",
+                    actualEnd: "Actual End",
+                    parentOptionLabel: "-None-",
+                    general: "General",
+                    predecessors: "Predecessors",
+                    successors: "Successors",
+                    other: "Other",
+                    dependencyType: "Type"
                 },
                 plannedTasks: {
                     switchText: "Planned Tasks",
@@ -410,16 +402,20 @@ var __meta__ = {
                 this.list.destroy();
             }
 
-            if (this.footerDropDown) {
-                this.footerDropDown.destroy();
+            if (this.toolbar && this.toolbar.getKendoToolBar()) {
+                this.toolbar.getKendoToolBar().destroy();
             }
 
-            if (this.headerDropDown) {
-                this.headerDropDown.destroy();
+            if (this.footer && this.footer.getKendoToolBar()) {
+                this.footer.getKendoToolBar().destroy();
             }
 
             if (this._editor) {
                 this._editor.destroy();
+            }
+
+            if (this._resourceEditorWindow) {
+                this._resourceEditorWindow.destroy();
             }
 
             if (this._resizeDraggable) {
@@ -486,8 +482,8 @@ var __meta__ = {
             this._resizeHandler = this.resize.bind(this, false);
             $(window).on("resize" + NS, this._resizeHandler);
 
-            if (supportsMedia && this._mediaQuery.matches === true) {
-                this._mediaQueryHandler({ matches: true });
+            if (supportsMedia) {
+                this._mediaQueryHandler({ matches: this._mediaQuery.matches });
             }
         },
 
@@ -528,206 +524,310 @@ var __meta__ = {
             this.timelineWrapper.css("width", this.wrapper.width() - this.treelistWrapper.outerWidth() - this.splitbar.outerWidth() );
         },
 
-        _toolbar: function() {
+        _viewClickHandler: function(e) {
+            var list = this.list;
+            var name = e.target.attr(kendo.attr("name"));
+
+            if (list.editor && !list.editor.end()) {
+                return;
+            }
+
+            if (!this.trigger("navigate", { view: name })) {
+                this.view(name);
+            } else {
+                e.preventDefault();
+            }
+        },
+
+        _togglePane: function(e) {
+            var that = this,
+                treelist = that.treelistWrapper,
+                timeline = that.timelineWrapper,
+                contentSelector = DOT + ganttStyles.gridContent;
+
+            e.preventDefault();
+
+            if (treelist.is(":visible")) {
+                treelist.addClass("k-hidden");
+                timeline.removeClass("k-hidden");
+
+                that.refresh();
+
+                timeline
+                    .find(contentSelector)
+                    .scrollTop(that.scrollTop);
+            } else {
+                treelist.removeClass("k-hidden");
+                timeline.addClass("k-hidden");
+
+                treelist
+                    .find(contentSelector)
+                    .scrollTop(that.scrollTop);
+            }
+
+            that._resize();
+        },
+
+        _processDefaults: function() {
+            var that = this,
+                views = that.timeline.views,
+                ns = kendo.ns,
+                viewsButtons = [],
+                toolbarStyles = Gantt.styles.toolbar,
+                actionsMessages = this.options.messages.actions,
+                items = ADD_ACTIONS.map((m) => ({
+                    text: actionsMessages[m.text],
+                    attributes: { "data-type": m.data }
+                })),
+                defaults = {
+                    append: {
+                        name: "append",
+                        type: "dropDownButton",
+                        menuButtons: items,
+                        icon: toolbarStyles.iconPlus,
+                        attributes: {
+                            class: toolbarStyles.appendButton
+                        },
+                        click: that._addClickHandler.bind(that),
+                        open: that._openAddClickHandler.bind(that)
+                    },
+                    pdf: {
+                        name: "pdf",
+                        type: "button",
+                        attributes: {
+                            class: toolbarStyles.pdfButton
+                        },
+                        icon: toolbarStyles.iconPdf,
+                        click: that.saveAsPDF.bind(that)
+                    },
+                    toggle: {
+                        name: "toggle",
+                        type: "button",
+                        showText: "overflow",
+                        attributes: {
+                            class: "k-gantt-toggle"
+                        },
+                        icon: toolbarStyles.iconToggle,
+                        click: that._togglePane.bind(that)
+                    },
+                    switchLabel: {
+                        template: "<label for=planned-switch>" + that.options.messages.plannedTasks.switchText + "</label>"
+                    },
+                    plannedTasks: {
+                        type: "component",
+                        component: "Switch",
+                        element: "<input id='planned-switch' class='k-gantt-planned-switch'>",
+                        componentOptions: {
+                            checked: that.options.showPlannedTasks,
+                            change: that._togglePlannedTasks.bind(that),
+                            messages: {
+                                checked: "",
+                                unchecked: ""
+                            }
+                        }
+                    },
+                    viewsDdl: {
+                        template: VIEWS_DROPDOWN_TEMPLATE({
+                            views: that.timeline.views,
+                            styles: toolbarStyles,
+                            label: that.options.messages.selectView
+                        })
+                    },
+                    view: {
+                        name: "view",
+                        type: "button",
+                        togglable: true,
+                        group: "views"
+                    },
+                    viewsGroup: {
+                        type: "buttonGroup",
+                        attributes: {
+                            class: toolbarStyles.views
+                        }
+                    }
+                };
+
+            Object.keys(views).map(name => {
+                var current = $.extend(true, {}, defaults.view);
+
+                current.text = views[name].title;
+                current.attributes = {
+                    class: "k-view-" + name.toLowerCase()
+                };
+                current.attributes["data" + ns + "-name"] = name;
+
+                defaults[name] = current;
+
+                viewsButtons.push(name);
+            });
+
+            Object.values(defaults).map(t => {
+                if (t.name === "view") {
+                    t.click = that._viewClickHandler.bind(that);
+                }
+            });
+
+            defaults.viewsGroup.buttons = viewsButtons;
+
+            that._viewsButtons = viewsButtons;
+            that.defaultCommands = defaults;
+        },
+
+        _processTools: function(items) {
+            var editable = this.options.editable,
+                commands = [],
+                tools = ["toggle"],
+                spacerPresent = false,
+                defaults = this.defaultCommands;
+
+            if (!Array.isArray(items)) {
+                if (editable && editable.create !== false) {
+                    tools.push("append");
+                }
+            } else {
+                commands = items;
+            }
+
+            commands.map(c => {
+                if (c === "plannedTasks" || c.name === "plannedTasks") {
+                    spacerPresent = true;
+
+                    tools.push({
+                        type: "spacer"
+                    });
+
+                    tools.push("switchLabel");
+                }
+
+                if (!defaults[c] && !defaults[c.name] && !c.template) {
+                    if (typeof c === STRING) {
+                        c = {
+                            name: c,
+                            type: "button",
+                            text: c,
+                            attributes: {
+                                class: "k-gantt-" + c
+                            }
+                        };
+                    } else {
+                        c = $.extend({}, {
+                            type: "button",
+                            text: c.name,
+                            attributes: {
+                                class: "k-gantt-" + c.name
+                            }
+                        }, c);
+                    }
+                }
+
+                tools.push(c);
+            });
+
+            if (!spacerPresent) {
+                tools.push({
+                    type: "spacer"
+                });
+            }
+
+            if (this._viewsButtons && this._viewsButtons.length > 0) {
+                if (this._viewsButtons.length > 1) {
+                    tools.push("viewsDdl");
+                }
+
+                tools.push("viewsGroup");
+            }
+
+            return tools;
+        },
+
+        _mediaQueryHandler: function(e) {
             var that = this;
-            var ganttStyles = Gantt.styles;
-            var viewsSelector = DOT + ganttStyles.toolbar.views + " > button";
-            var viewsDropdownSelector = DOT + ganttStyles.toolbar.viewsDropdown;
-            var pdfSelector = DOT + ganttStyles.toolbar.pdfButton;
-            var toggleSelector = DOT + ganttStyles.buttonToggle;
-            var contentSelector = DOT + ganttStyles.gridContent;
             var splitbar = that.splitbar;
             var treelist = that.treelistWrapper;
             var timeline = that.timelineWrapper;
-            var actions = this.options.toolbar;
+            var contentSelector = DOT + ganttStyles.gridContent;
+
+            var toolbarEl = that.toolbar;
+            var toolbar = toolbarEl.getKendoToolBar();
+
+            if (e.matches) {
+                treelist.addClass("k-hidden");
+                splitbar.addClass("k-hidden");
+
+                toolbar.hide(toolbarEl.find(".k-gantt-views"));
+                toolbar.show(toolbarEl.find(".k-views-dropdown"));
+
+                treelist.width("100%");
+            } else {
+                treelist.removeClass("k-hidden");
+                splitbar.removeClass("k-hidden");
+                timeline.removeClass("k-hidden");
+
+                toolbar.show(toolbarEl.find(".k-gantt-views"));
+                toolbar.hide(toolbarEl.find(".k-views-dropdown"));
+
+                treelist.width(treelist.outerWidth());
+
+                timeline
+                    .find(contentSelector)
+                    .scrollTop(that.scrollTop);
+            }
+
+            that._resize();
+        },
+
+        _toolbar: function() {
+            var that = this;
+            var ganttStyles = Gantt.styles;
+            var viewsDropdownSelector = DOT + ganttStyles.toolbar.viewsDropdown;
+            var toolsOptions = this.options.toolbar;
+            var tools;
             var toolbar;
-            var views;
-            var toggleButton;
-            var mediaQueryHandler = function(e) {
 
-                if (e.matches) {
-                    treelist.addClass("k-hidden");
-                    splitbar.addClass("k-hidden");
-
-                    treelist.width("100%");
-                } else {
-                    treelist.removeClass("k-hidden");
-                    splitbar.removeClass("k-hidden");
-                    timeline.removeClass("k-hidden");
-
-                    treelist.width(treelist.outerWidth());
-
-                    that.refresh();
-
-                    timeline
-                        .find(contentSelector)
-                        .scrollTop(that.scrollTop);
-                }
-
-                that._resize();
-            };
-
-            if (!isFunction(actions)) {
-                actions = (typeof actions === STRING ? actions : this._actions(actions));
-                actions = kendo.template(actions).bind(this);
+            if (typeof toolsOptions === STRING) {
+                toolsOptions = kendo.template(toolsOptions).bind(this);
             }
 
-            toggleButton = $(TOGGLE_BUTTON_TEMPLATE({ styles: ganttStyles.toolbar }));
-
-            views = $(HEADER_VIEWS_TEMPLATE({
-                ns: kendo.ns,
-                views: this.timeline.views,
-                styles: ganttStyles.toolbar
-            }));
-
-            toolbar = $("<div role='toolbar' class='" + ganttStyles.toolbar.headerWrapper + "'>")
-                .append(toggleButton)
-                .append(actions({}))
-                .append("<span class='k-spacer k-toolbar-spacer' />")
-                .append(views);
-
-            if (views.find("button").length > 1) {
-                views.prepend(VIEWS_DROPDOWN_TEMPLATE({
-                    ns: kendo.ns,
-                    views: this.timeline.views,
-                    styles: ganttStyles.toolbar,
-                    label: this.options.messages.selectView
-                }));
+            if (isFunction(toolsOptions)) {
+                tools = this._processTools([{
+                    template: toolsOptions({})
+                }]);
+            } else {
+                tools = this._processTools(toolsOptions);
             }
 
-            if (this.toggeSwitchWrap) {
-                this.toggeSwitchWrap.insertBefore(views);
-            }
+            toolbar = $("<div class='" + ganttStyles.toolbar.headerWrapper + "'>");
 
             this.wrapper.prepend(toolbar);
             this.toolbar = toolbar;
 
+            toolbar.kendoToolBar({
+                resizable: false,
+                tools: tools,
+                size: "medium",
+                defaultTools: this.defaultCommands,
+                parentMessages: this.options.messages.actions
+            });
+
             if (supportsMedia) {
-                this._mediaQueryHandler = mediaQueryHandler.bind(this);
-                this._mediaQuery = window.matchMedia("(max-width: 480px)");
-                this._mediaQuery.addListener(this._mediaQueryHandler);
+                this._mediaQuery = window.matchMedia(MIN_SCREEN);
+                this._mediaQuery.addListener(this._mediaQueryHandler.bind(this));
             }
 
-            toolbar
-                .on("change" + NS, viewsDropdownSelector, function() {
-                    var list = that.list;
-                    var name = $(this).val();
+            toolbar.on("change" + NS, viewsDropdownSelector, function() {
+                var list = that.list;
+                var name = $(this).val();
 
-                    if (list.editable && list.editable.trigger("validate")) {
-                        return;
-                    }
-
-                    if (!that.trigger("navigate", { view: name })) {
-                        that.view(name);
-                    }
-
-                    that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused);
-                })
-                .on(CLICK + NS, viewsSelector, function(e) {
-                    e.preventDefault();
-
-                    var list = that.list;
-                    var name = $(this).attr(kendo.attr("name"));
-
-                    if (list.editor && !list.editor.end()) {
-                        return;
-                    }
-
-                    if (!that.trigger("navigate", { view: name })) {
-                        that.view(name);
-                    }
-
-                    that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused);
-                })
-                .on("keydown" + NS, viewsSelector, function(e) {
-                    var views = $(DOT + ganttStyles.toolbar.views).children(":not(.k-current-view)");
-                    var focusedViewIndex = views.index((that._focusedView && that._focusedView[0]) || views.closest(DOT + ganttStyles.selected)[0]);
-
-                    if (e.keyCode === keys.RIGHT) {
-                        $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
-                        that._focusedView = focusedViewIndex + 1 === views.length ? $(views[0]) : $(views[focusedViewIndex + 1]);
-                        that._focusedView.trigger("focus").addClass(ganttStyles.focused);
-                        e.preventDefault();
-                    } else if (e.keyCode === keys.LEFT) {
-                        $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
-                        that._focusedView = focusedViewIndex === 0 ? $(views[views.length - 1]) : $(views[focusedViewIndex - 1]);
-                        that._focusedView.trigger("focus").addClass(ganttStyles.focused);
-                        e.preventDefault();
-                    } else if ((e.keyCode === keys.ENTER || e.keyCode === keys.SPACEBAR) && that._focusedView) {
-                        that.view(that._focusedView.text().toLowerCase());
-                        e.preventDefault();
-                    } else if (e.keyCode >= 49 && e.keyCode <= 57) {
-                        that.view(that.timeline._viewByIndex(e.keyCode - 49));
-                    }
-                })
-                .on(CLICK + NS, pdfSelector, function(e) {
-                    e.preventDefault();
-
-                    that.saveAsPDF();
-                })
-                .on(CLICK + NS, toggleSelector, function(e) {
-                    e.preventDefault();
-
-                    if (treelist.is(":visible")) {
-                        treelist.addClass("k-hidden");
-                        timeline.removeClass("k-hidden");
-
-                        that.refresh();
-
-                        timeline
-                            .find(contentSelector)
-                            .scrollTop(that.scrollTop);
-                    } else {
-                        treelist.removeClass("k-hidden");
-                        timeline.addClass("k-hidden");
-
-                        treelist
-                            .find(contentSelector)
-                            .scrollTop(that.scrollTop);
-                    }
-
-                    that._resize();
-                });
-
-            this.wrapper
-                .on("focusout" + NS, function(e) {
-                    if (!$(e.relatedTarget).closest(DOT + ganttStyles.toolbar.toolbar).length) {
-                        that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused);
-                    }
-                    if (!$(e.relatedTarget).closest(DOT + ganttStyles.toolbar.views).length) {
-                        that.toolbar.find(DOT + ganttStyles.toolbar.views).removeClass(ganttStyles.toolbar.expanded);
-                    }
-                });
-
-        },
-
-        _actions: function() {
-            var options = this.options;
-            var editable = options.editable;
-            var actions = options.toolbar;
-            var html = "";
-            var action;
-
-            if (!isArray(actions)) {
-                if (editable && editable.create !== false) {
-                    actions = ["append"];
-                } else {
-                    return () => html;
-                }
-            }
-
-            for (var i = 0, length = actions.length; i < length; i++) {
-                action = actions[i];
-
-                if (action === "plannedTasks" || action.name === "plannedTasks") {
-                    this._createPlannedTasksSwitch();
-                    continue;
+                if (list.editable && list.editable.trigger("validate")) {
+                    return;
                 }
 
-                html += this._createButton(action);
-            }
+                if (!that.trigger("navigate", { view: name })) {
+                    that.view(name);
+                }
+            });
 
-            return () => html;
+            this.toggleSwitch = toolbar.find('input.k-gantt-planned-switch').data("kendoSwitch");
         },
 
         _footer: function() {
@@ -739,47 +839,27 @@ var __meta__ = {
 
             var ganttStyles = Gantt.styles.toolbar;
             var messages = this.options.messages.actions;
-            var button = $(kendo.template(BUTTON_TEMPLATE)(extend(true, { styles: ganttStyles }, defaultCommands.append, { text: messages.append })));
-            var footer = $("<div role='toolbar' class='" + ganttStyles.footerWrapper + "'>").append(button);
+            var footer = $("<div class='" + ganttStyles.footerWrapper + "'>");
 
             this.wrapper.append(footer);
             this.footer = footer;
-        },
 
-        _createButton: function(command) {
-            var template = command.template || BUTTON_TEMPLATE;
-            var messages = this.options.messages.actions;
-            var commandName = typeof command === STRING ? command : command.name || command.text;
-            var className = defaultCommands[commandName] ? defaultCommands[commandName].className : "k-gantt-" + (commandName || "").replace(/\s/g, "");
-            var options = {
-                iconClass: "",
-                action: "",
-                text: commandName,
-                className: className,
-                styles: Gantt.styles.toolbar
-            };
-
-            if (!options.className) {
-                options.className = "k-button-solid-base";
-            } else if (options.className.indexOf("k-button-solid-primary") === -1) {
-                options.className += " k-button-solid-base";
-            }
-
-            if (!commandName && !(isPlainObject(command) && command.template)) {
-                throw new Error("Custom commands should have name specified");
-            }
-
-            options = extend(true, options, defaultCommands[commandName], { text: messages[commandName] });
-
-            if (isPlainObject(command)) {
-                if (command.className && inArray(options.className, command.className.split(" ")) < 0) {
-                    command.className += " " + options.className;
-                }
-
-                options = extend(true, options, command);
-            }
-
-            return kendo.template(template)(options);
+            footer.kendoToolBar({
+                resizable: false,
+                size: "medium",
+                tools: ["append"],
+                defaultTools: {
+                    append: extend(true, {}, this.defaultCommands.append, {
+                        direction: "up",
+                        animation: {
+                            open: {
+                                effects: "slideIn:up"
+                            }
+                        }
+                    })
+                },
+                parentMessages: messages
+            });
         },
 
         _adjustDimensions: function() {
@@ -829,73 +909,57 @@ var __meta__ = {
             scrollIntoView();
         },
 
-        _dropDowns: function() {
-            var that = this;
-            var actionsSelector = DOT + Gantt.styles.toolbar.appendButton;
-            var actionMessages = this.options.messages.actions;
-            var timeline = this.timeline;
-            var editable = this.options.editable;
+        _addTask: function(selected, parent, type) {
+            var dataSource = this.dataSource,
+                task = dataSource._createNewModel({}),
+                timeline = this.timeline,
+                firstSlot = timeline.view()._timeSlots()[0],
+                editable = this.list.editor,
+                orderId;
 
-            var handler = function(e) {
-                var type = e.type;
-                var orderId;
-                var dataSource = that.dataSource;
-                var task = dataSource._createNewModel({});
-                var selected = that.dataItem(that.select());
-                var parent = dataSource.taskParent(selected);
-                var firstSlot = timeline.view()._timeSlots()[0];
-                var target = type === "add" ? selected : parent;
-                var editable = that.list.editor;
-
-                if (editable && editable.trigger("validate")) {
-                    return;
-                }
-
-                task.set("title", "New task");
-
-                if (target) {
-                    task.set("parentId", target.get("id"));
-                    task.set("start", target.get("start"));
-                    task.set("end", target.get("end"));
-                    task.set("plannedStart", target.get("plannedStart"));
-                    task.set("plannedEnd", target.get("plannedEnd"));
-                } else {
-                    task.set("start", firstSlot.start);
-                    task.set("end", firstSlot.end);
-                }
-
-                if (type !== "add") {
-                    orderId = selected.get("orderId");
-                    orderId = type === "insert-before" ? orderId : orderId + 1;
-                }
-
-                that._createTask(task, orderId);
-            };
-
-            if (!editable || editable.create === false) {
+            if (editable && editable.trigger("validate")) {
                 return;
             }
 
-            this.footerDropDown = new kendo.gantt.TaskDropDown(this.footer.children(actionsSelector).eq(0), {
-                messages: {
-                    actions: actionMessages
-                },
-                direction: "up",
-                animation: {
-                    open: {
-                        effects: "slideIn:up"
-                    }
-                }
-            });
+            task.set("title", "New task");
 
-            this.headerDropDown = new kendo.gantt.TaskDropDown(this.toolbar.children(actionsSelector).eq(0), {
-                messages: {
-                    actions: actionMessages
-                }
-            });
+            if (parent) {
+                task.set("parentId", parent.get("id"));
+                task.set("start", parent.get("start"));
+                task.set("end", parent.get("end"));
+                task.set("plannedStart", parent.get("plannedStart"));
+                task.set("plannedEnd", parent.get("plannedEnd"));
+            } else {
+                task.set("start", firstSlot.start);
+                task.set("end", firstSlot.end);
+            }
 
-            this.footerDropDown.bind("command", handler);
-            this.headerDropDown.bind("command", handler);
+            if (type && type !== "add") {
+                orderId = selected.get("orderId");
+                orderId = type === "insert-before" ? orderId : orderId + 1;
+            }
+
+            this._createTask(task, orderId);
+        },
+
+        _addClickHandler: function(e) {
+            var type = e.target.data("type");
+            var dataSource = this.dataSource;
+            var selected = this.dataItem(this.select());
+            var parent = dataSource.taskParent(selected);
+            var target = type === "add" ? selected : parent;
+
+            this._addTask(selected, target, type);
+        },
+
+        _openAddClickHandler: function(e) {
+            var selected = this.select();
+
+            if (!selected || selected.length === 0) {
+                e.preventDefault();
+
+                this._addTask();
+            }
         },
 
         _getListEditable: function() {
@@ -951,7 +1015,7 @@ var __meta__ = {
                 column = columns[i];
 
                 if (column.field === this.resources.field && typeof column.editor !== "function") {
-                    column.editor = this._createResourceEditor.bind(this);
+                    column.editor = this._resourcePopupEditor.bind(this);
                 }
             }
         },
@@ -1149,14 +1213,11 @@ var __meta__ = {
 
         _selectionUpdate: function() {
             var that = this,
-                selection = that.list.select(),
-                toggleButtons = this.wrapper.find(DOT + ganttStyles.toolbar.toolbar + " " + DOT + ganttStyles.toolbar.appendButton);
+                selection = that.list.select();
 
             if (selection.length) {
-                toggleButtons.removeAttr("data-action", "add");
                 that.timeline.select("[data-uid='" + selection.attr("data-uid") + "']");
             } else {
-                toggleButtons.attr("data-action", "add");
                 that.timeline.clearSelection();
             }
         },
@@ -1185,13 +1246,12 @@ var __meta__ = {
             this.timeline
                 .bind("navigate", function(e) {
                     var viewName = e.view.replace(/\./g, "\\.").toLowerCase();
+                    var viewsEl = that.toolbar.find(DOT + ganttStyles.toolbar.views);
+                    var viewsGroup = viewsEl.getKendoButtonGroup();
 
-                    that.toolbar
-                        .find(DOT + ganttStyles.toolbar.views + " > button")
-                        .removeClass(ganttStyles.selected)
-                        .end()
-                        .find(DOT + ganttStyles.toolbar.viewButton + "-" + viewName)
-                        .addClass(ganttStyles.selected);
+                    if (viewsGroup) {
+                        viewsGroup.select(viewsEl.find(DOT + ganttStyles.toolbar.viewButton + "-" + viewName));
+                    }
 
                     that.toolbar
                         .find(DOT + ganttStyles.toolbar.viewsDropdown)
@@ -1430,8 +1490,7 @@ var __meta__ = {
                 resources: {
                     field: this.resources.field,
                     editor: this._createResourceEditor.bind(this)
-                },
-                createButton: this._createPopupButton.bind(this)
+                }
             }));
 
             editor
@@ -1441,6 +1500,10 @@ var __meta__ = {
                     if (that.trigger("cancel", { container: e.container, task: task })) {
                         e.preventDefault();
                         return;
+                    }
+
+                    if (that.dependencies) {
+                        that.dependencies.filter({});
                     }
 
                     that.cancelTask();
@@ -1455,7 +1518,7 @@ var __meta__ = {
                 .bind("save", function(e) {
                     var task = that.dataSource.getByUid(e.model.uid);
 
-                    that.saveTask(task, e.updateInfo);
+                    that.saveTask(task, e.updateInfo, e.updateDependencies);
                 })
                 .bind("remove", function(e) {
                     that.removeTask(e.model.uid);
@@ -1465,14 +1528,72 @@ var __meta__ = {
 
         _onDialogClose: function() {},
 
+        _resourcePopupEditor: function(container, options) {
+            var that = this,
+                editor = that._createResourceEditor($("<div>"), options),
+                popupStyles = ganttStyles.popup,
+                wrapper = that.element,
+                dialogEl = $(kendo.format('<div class="' + popupStyles.formContainer + '">')).appendTo(wrapper),
+                messages = that.options.messages,
+                buttonsEl, dialog;
+
+            dialogEl.append(editor.wrapper);
+            buttonsEl = $('<div class="' + popupStyles.buttonsContainer + '">');
+            dialogEl.append(buttonsEl);
+
+            buttonsEl.append($("<button class='" + ganttStyles.buttonSave + "'>" + messages.save + "</button>").kendoButton({
+                name: "save",
+                themeColor: "primary",
+                icon: "save",
+                click: () => {
+                    if (!editor.updateModel()) {
+                        return;
+                    }
+                    editor.trigger("save", { model: editor.model });
+                    that._updateAssignments(editor.model.get("id"), editor.model.get(that.resources.field));
+
+                    dialog.trigger("close");
+                    dialog.close();
+                }
+            }));
+
+            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + messages.cancel + "</button>").kendoButton({
+                name: "cancel",
+                icon: "cancel",
+                click: () => {
+                    dialog.trigger("close");
+                    dialog.close();
+                }
+            }));
+
+            this._resourceEditorWindow = dialog = dialogEl.kendoWindow({
+                modal: true,
+                resizable: false,
+                draggable: true,
+                visible: false,
+                title: messages.editor.resourcesEditorTitle,
+                deactivate: () => {
+                    editor.destroy();
+                    dialog.destroy();
+                    dialog.element.closest(".k-window").remove();
+                }
+            }).data("kendoWindow");
+
+            dialog.center().open();
+
+            return editor;
+        },
+
         _createResourceEditor: function(container, options) {
             var that = this;
             var model = options instanceof ObservableObject ? options : options.model;
-            var id = model.get("id");
             var messages = this.options.messages;
             var resourcesField = this.resources.field;
-            var unitsValidation = { step: 0.01 };
+            var unitsValidation = { step: 0.01, min: 0.01, max: 1 };
             var assignmentsModel = this.assignments.dataSource.options.schema.model;
+            var resourceTextField = that.resources.dataTextField;
+            var resources = this.resources.dataSource.view();
+
 
             if (assignmentsModel && assignmentsModel.fields.Units && assignmentsModel.fields.Units.validation) {
                 extend(true, unitsValidation, assignmentsModel.fields.Units.validation);
@@ -1481,49 +1602,12 @@ var __meta__ = {
             var editor = this._resourceEditor = new kendo.gantt.ResourceEditor(container, {
                 resourcesField: resourcesField,
                 unitsValidation: unitsValidation,
-                data: this._wrapResourceData(id),
+                resources: resources.map(r => ({ value: r.id, text: r[resourceTextField] })),
                 model: model,
-                messages: extend({}, messages.editor),
-                buttons: [
-                    { name: "update", text: messages.save, className: Gantt.styles.primary },
-                    { name: "cancel", text: messages.cancel }
-                ],
-                createButton: this._createPopupButton.bind(this),
-                save: function(e) {
-                    that._updateAssignments(e.model.get("id"), e.model.get(resourcesField));
-                }
+                messages: extend({}, messages.editor)
             });
 
-            editor.open();
-        },
-
-        _createPopupButton: function(command) {
-            var commandName = command.name || command.text;
-            var options = {
-                className: Gantt.styles.popup.button + " " + Gantt.styles.buttonDefaults + " k-gantt-" + (commandName || "").replace(/\s/g, ""),
-                text: commandName,
-                attr: ""
-            };
-
-            if (!commandName && !(isPlainObject(command) && command.template)) {
-                throw new Error("Custom commands should have name specified");
-            }
-
-            if (isPlainObject(command)) {
-                if (command.className) {
-                    command.className += " " + options.className;
-                }
-
-                options = extend(true, options, command);
-            }
-
-            if (!options.className) {
-                options.className = "k-button-solid-base";
-            } else if (options.className.indexOf("k-button-solid-primary") === -1) {
-                options.className += " k-button-solid-base";
-            }
-
-            return kendo.template(COMMAND_BUTTON_TEMPLATE)(options);
+            return editor;
         },
 
         view: function(type) {
@@ -1640,7 +1724,10 @@ var __meta__ = {
 
             for (var j = 0, newLength = resources.length; j < newLength; j++) {
                 resource = resources[j];
-                this._createAssignment(resource, id);
+
+                if (resource.id !== undefined && resource.value) {
+                    this._createAssignment(resource, id);
+                }
             }
 
             dataSource.sync();
@@ -1652,6 +1739,10 @@ var __meta__ = {
 
             if (container) {
                 editor.close();
+            }
+
+            if (this.dependencies) {
+                this.dependencies.cancelChanges();
             }
         },
 
@@ -1674,14 +1765,95 @@ var __meta__ = {
             this._editor.editTask(task, this.options.editable.plannedTasks);
         },
 
-        saveTask: function(task, updateInfo) {
-            var editor = this._editor;
-            var container = editor.container;
-            var editable = editor.editable;
+        saveTask: function(task, updateInfo, updateDependencies) {
+            var that = this,
+                editor = this._editor,
+                container = editor.container,
+                editable = editor.editable,
+                hasChanges = false,
+                hasResourceChanges = false,
+                updateInfo = updateInfo || {},
+                resourcesField = that.options.resources.field,
+                difference;
 
-            if (container && editable && editable.end()) {
-                this._updateTask(task, updateInfo);
+            Object.keys(updateInfo).map(k => {
+                var updated = updateInfo[k],
+                    current = task.get(k);
+
+                if (updated instanceof Date) {
+                    updated = updated.getTime();
+                    current = current ? current.getTime() : undefined;
+                }
+
+                if (updated !== current) {
+                    if (k === resourcesField) {
+                        difference = updated
+                            .filter(u => !current.some(c => c.id === u.id && c.value === u.value))
+                            .concat(current.filter(c => !updated.some(u => u.id === c.id && c.value === u.value)));
+
+                        if (difference && difference.length > 0) {
+                            hasResourceChanges = true;
+                        }
+                    } else {
+                        hasChanges = true;
+                    }
+                }
+            });
+
+            if (container &&
+                editable &&
+                editable.end() &&
+                (hasChanges || hasResourceChanges || updateDependencies)) {
+                    if (!that.trigger("save", { task: task, values: updateInfo, updateDependencies: updateDependencies })) {
+                        if (hasChanges) {
+                            that._preventRefresh = true;
+
+                            that.dataSource.update(task, updateInfo);
+                        }
+
+                        if (hasResourceChanges) {
+                            this._updateAssignments(task.get("id"), updateInfo[resourcesField]);
+                        }
+
+                        that._syncDataSource();
+
+                        if (this.dependencies) {
+                            this._updateDependency(updateDependencies);
+                        }
+
+                        this._editor.close();
+                    } else {
+                        if (task && task.dirty) {
+                            that.dataSource.cancelChanges(task);
+                            that._preventRefresh = false;
+                            that.refresh();
+                        }
+
+                        if (that.dependencies) {
+                            that.dependencies.cancelChanges();
+                        }
+                    }
+            } else if (editable && editable.end()) {
+                this._editor.close();
             }
+        },
+
+        _updateDependency: function(updateDependencies) {
+            this.dependencies.filter({});
+
+            if (updateDependencies) {
+                updateDependencies.created.map(d => {
+                    this._preventDependencyRefresh = true;
+                    this.dependencies.add(d);
+                    this._preventDependencyRefresh = false;
+                });
+
+                updateDependencies.destroyed.map(d => {
+                    this.dependencies.remove(d);
+                });
+            }
+
+            this.dependencies.sync();
         },
 
         _updateTask: function(task, updateInfo) {
@@ -1700,10 +1872,16 @@ var __meta__ = {
                 }
 
                 that._syncDataSource();
-            } else if (task && task.dirty) {
-                that.dataSource.cancelChanges(task);
-                that._preventRefresh = false;
-                that.refresh();
+            } else {
+                if (task && task.dirty) {
+                    that.dataSource.cancelChanges(task);
+                    that._preventRefresh = false;
+                    that.refresh();
+                }
+
+                if (that.dependencies) {
+                    that.dependencies.cancelChanges();
+                }
             }
         },
 
@@ -1843,6 +2021,10 @@ var __meta__ = {
                     this._syncDataSource();
                 }
 
+                if (this.dependencies) {
+                    this.dependencies.filter({});
+                }
+
                 this._preventRefresh = false;
             }
         },
@@ -1884,17 +2066,9 @@ var __meta__ = {
 
         _confirm: function(callback, options) {
             var editable = this.options.editable;
-            var messages;
-            var buttons;
 
             if (editable === true || editable.confirmation !== false) {
-                messages = this.options.messages;
-                buttons = [
-                    { name: "delete", text: messages.destroy, className: Gantt.styles.primary, click: function() { callback(); } },
-                    { name: "cancel", text: messages.cancel, click: function() { callback(true); } }
-                ];
-
-                this.showDialog(extend(true, {}, options, { buttons: buttons }));
+                this.showDialog(extend(true, {}, options, { callback: callback }));
             } else {
                 callback();
             }
@@ -2016,7 +2190,8 @@ var __meta__ = {
                         name: resource.get(resources.dataTextField),
                         color: resource.get(resources.dataColorField),
                         value: resourceValue,
-                        formatedValue: formatedValue
+                        formatedValue: formatedValue,
+                        format: valueFormat
                     }));
                 }
             };
@@ -2250,7 +2425,7 @@ var __meta__ = {
             $(this.wrapper)
                 .on("mousedown" + NS, "tr" + attr + ", div" + attr + ":not(" + DOT + ganttStyles.line + ")", function(e) {
                     var currentTarget = $(e.currentTarget);
-                    var isInput = $(e.target).is(":button,a,:input,a>.k-icon,textarea,span.k-icon:not(.k-i-none),span.k-link,.k-input,.k-multiselect-wrap,.k-input-value-text,.k-input-inner");
+                    var isInput = $(e.target).is(":button,a,:input,a>.k-icon,.k-svg-icon,k-svg-icon,svg,path,textarea,span.k-icon:not(.k-i-none),span.k-svg-icon:not(.k-svg-i-none),span.k-link,.k-input,.k-multiselect-wrap,.k-input-value-text,.k-input-inner");
                     var current;
 
                     if (e.ctrlKey) {
@@ -2274,27 +2449,14 @@ var __meta__ = {
                         }, 2);
                     }
                 })
-
                 .on("keydown" + NS, function(e) {
                     var key = e.keyCode;
                     var that = this;
-                    var focusableItems = $(that._getToolbarItems());
-                    var idx = focusableItems.index(that.toolbar.find(DOT + ganttStyles.focused)[0]);
-                    if (idx === -1 && $(e.target).closest(DOT + ganttStyles.toolbar.views).length) {
-                        idx = focusableItems.index(that.toolbar.find(".k-gantt-views > .k-selected:visible, .k-views-dropdown:visible")[0]);
-                    }
-                    var itemToFocus = e.shiftKey ? focusableItems[idx - 1] : focusableItems[idx + 1];
 
                     if (key === keys.F10) {
-                        that.toolbar.find(".k-button:visible").first().addClass(ganttStyles.focused).trigger("focus");
+                        that.toolbar.find("[tabindex=0]:visible").first().addClass(ganttStyles.focused).trigger("focus");
                         e.preventDefault();
                     } else if (key == keys.TAB && $(e.target).closest(DOT + ganttStyles.toolbar.toolbar).length) {
-                        that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused).trigger("blur");
-                        if (itemToFocus) {
-                            $(itemToFocus).addClass(ganttStyles.focused).trigger("focus");
-                            e.preventDefault();
-                            return;
-                        }
                         if (this.list.element.is(":visible")) {
                             this.list.element.find("table[role=treegrid]").trigger("focus");
                         } else {
@@ -2420,13 +2582,6 @@ var __meta__ = {
                 });
         },
 
-        _getToolbarItems: function() {
-            return this.toolbar.find("> .k-button:visible").toArray().concat(
-                this.toolbar.find(".k-views-dropdown:visible").toArray(),
-                this.toolbar.find(".k-gantt-views > .k-selected:visible").toArray()
-            );
-        },
-
         _current: function(element) {
             var ganttStyles = Gantt.styles;
             var activeElement;
@@ -2485,25 +2640,6 @@ var __meta__ = {
             this.timeline.view()._adjustHeight();
             this.timeline.view()._renderCurrentTime();
             this.list._adjustHeight();
-        },
-
-        _createPlannedTasksSwitch: function() {
-            var that = this;
-            var switchLabel = that.options.messages.plannedTasks.switchText;
-            var toggeSwitchWrap = $("<span class='k-gantt-planned-wrap'><label>" + switchLabel + "</label></span>");
-            var plannedToggle = new kendo.ui.Switch($("<input id='planned-switch' class='k-gantt-planned-switch'>"), {
-                checked: that.options.showPlannedTasks,
-                change: that._togglePlannedTasks.bind(that),
-                messages: {
-                    checked: "",
-                    unchecked: ""
-                }
-            });
-
-            toggeSwitchWrap.append(plannedToggle.wrapper);
-
-            that.toggeSwitchWrap = toggeSwitchWrap;
-            that.toggleSwitch = plannedToggle;
         },
 
         _togglePlannedTasks: function(e) {

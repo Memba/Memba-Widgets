@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,6 +12,7 @@ import "../../kendo.dataviz.core.js";
 import "../../kendo.dataviz.themes.js";
 import "../../kendo.drawing.js";
 import "../../kendo.userevents.js";
+import "../../kendo.icons.js";
 
 (function($, undefined) {
 
@@ -886,7 +887,7 @@ import "../../kendo.userevents.js";
                     `${border ? "border:" + border.width + "px solid;" : ""}` +
                     `opacity: ${opacity};'>` +
                     '<div class="k-tooltip-content"></div>' +
-                    `${autoHide ? '' : '<div class="k-tooltip-button"><a href="#" class="k-icon k-i-close" title="Close"></a></div>'}` +
+                    `${autoHide ? '' : '<div class="k-tooltip-button">' + kendo.ui.icon($('<a href="#" title="Close"></a>'), { icon: "x" }) + '</div>'}` +
                     "</div>";
             }
 

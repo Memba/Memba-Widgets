@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "../kendo.popup.js";
 import "./kendo-drawing.js";
+import "../kendo.icons.js";
 
 (function($) {
 
@@ -24,7 +25,7 @@ import "./kendo-drawing.js";
     var TOOLTIP_TEMPLATE = '<div class="k-tooltip">' +
             '<div class="k-tooltip-content"></div>' +
         '</div>';
-    var TOOLTIP_CLOSE_TEMPLATE = '<div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div>';
+    var TOOLTIP_CLOSE_TEMPLATE = `<div class="k-tooltip-button">${kendo.ui.icon($('<a href="#">close</a>'), { icon: "x" })}</div>`;
 
     var SurfaceTooltip = kendo.Class.extend({
         init: function(surface, options) {

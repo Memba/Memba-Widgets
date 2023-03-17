@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -16,7 +16,6 @@ var kendo = window.kendo,
     Editor = kendo.ui.editor,
     formats = kendo.ui.Editor.fn.options.formats,
     dom = Editor.Dom,
-    ToolTemplate = Editor.ToolTemplate,
     FormatTool = Editor.FormatTool,
     EditorUtils = Editor.EditorUtils,
     registerTool = EditorUtils.registerTool,
@@ -383,10 +382,10 @@ registerFormat("justifyLeft", [
 ]);
 registerTool("justifyLeft", new BlockFormatTool({
     format: formats.justifyLeft,
-    template: new ToolTemplate({
-        template: EditorUtils.buttonTemplate,
-        title: "Justify Left"
-    })
+    ui: {
+        togglable: true,
+        group: "align"
+    }
 }));
 
 registerFormat("justifyCenter", [
@@ -397,10 +396,10 @@ registerFormat("justifyCenter", [
 ]);
 registerTool("justifyCenter", new BlockFormatTool({
     format: formats.justifyCenter,
-    template: new ToolTemplate({
-        template: EditorUtils.buttonTemplate,
-        title: "Justify Center"
-    })
+    ui: {
+        togglable: true,
+        group: "align"
+    }
 }));
 
 registerFormat("justifyRight", [
@@ -411,10 +410,10 @@ registerFormat("justifyRight", [
 ]);
 registerTool("justifyRight", new BlockFormatTool({
     format: formats.justifyRight,
-    template: new ToolTemplate({
-        template: EditorUtils.buttonTemplate,
-        title: "Justify Right"
-    })
+    ui: {
+        togglable: true,
+        group: "align"
+    }
 }));
 
 registerFormat("justifyFull", [
@@ -425,10 +424,10 @@ registerFormat("justifyFull", [
 ]);
 registerTool("justifyFull", new BlockFormatTool({
     format: formats.justifyFull,
-    template: new ToolTemplate({
-        template: EditorUtils.buttonTemplate,
-        title: "Justify Full"
-    })
+    ui: {
+        togglable: true,
+        group: "align"
+    }
 }));
 
 })(window.kendo.jQuery);

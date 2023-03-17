@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.pivot.common.js";
 import "./kendo.dom.js";
 import "./kendo.data.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "pivotgrid",
     name: "PivotGrid",
     category: "web",
     description: "The PivotGrid widget is a data summarization tool.",
-    depends: [ "dom", "data", "data.xml", "sortable", "pivot.common" ],
+    depends: [ "dom", "data", "data.xml", "sortable", "pivot.common", "icons" ],
     features: [{
         id: "pivotgrid-configurator",
         name: "Configurator",
@@ -93,15 +94,24 @@ var __meta__ = {
         DATABINDING = "dataBinding",
         DATABOUND = "dataBound",
         EXPANDMEMBER = "expandMember",
-        HEADERTEMPLATE = ({ key, headerClass, colspan, rowspan, expandable, iconClass }) => `<th data-key="${encode(key)}" class="${encode(headerClass)}" ${colspan ? 'colspan="' + encode(colspan) + '"' : ''} ${rowspan ? 'rowspan="' + encode(rowspan) + '"' : ''}>` +
-                                    `${expandable ? '<span class="k-icon k-i-arrow-chevron-' + encode(iconClass) + ' k-color-inherit" role="presentation"></span>' : ''}` +
+        HEADERTEMPLATE = ({ key, headerClass, colspan, rowspan, expandable, iconClass }) => `<th data-key="${encode(key)}" class="k-table-th ${encode(headerClass)}" ${colspan ? 'colspan="' + encode(colspan) + '"' : ''} ${rowspan ? 'rowspan="' + encode(rowspan) + '"' : ''}>` +
+                                    `${expandable ? kendo.ui.icon($('<span role="presentation"></span>'), { icon: `chevron-${encode(iconClass)}` }) : ''}` +
                                 '</th>',
         COLLAPSEMEMBER = "collapseMember",
-        STATE_EXPANDED = "k-i-collapse",
-        STATE_COLLAPSED = "k-i-expand",
+        STATE_EXPANDED = "k-i-caret-alt-down",
+        STATE_EXPANDED_ICONNAME = "caret-alt-down",
+        STATE_EXPANDED_SELECTOR = `.k-i-${STATE_EXPANDED_ICONNAME},.k-svg-i-${STATE_EXPANDED_ICONNAME}`,
+        STATE_COLLAPSED = "k-i-caret-alt-right",
+        STATE_COLLAPSED_ICONNAME = "caret-alt-right",
+        STATE_COLLAPSED_SELECTOR = `.k-i-${STATE_COLLAPSED_ICONNAME},.k-svg-i-${STATE_COLLAPSED_ICONNAME}`,
         HEADER_TEMPLATE = ({ member }) => `<span>${encode(member.caption || member.name)}</span>`,
-        KPISTATUS_TEMPLATE = ({ dataItem }) => `<span class="k-icon k-i-kpi-status-${dataItem.value > 0 ? "open" : dataItem.value < 0 ? "deny" : "hold"}" title="${encode(dataItem.value)}"></span>`,
-        KPITREND_TEMPLATE = ({ dataItem }) => `<span class="k-icon k-i-kpi-trend-${dataItem.value > 0 ? "increase" : dataItem.value < 0 ? "decrease" : "equal"}" title="${encode(dataItem.value)}"></span>`,
+        PIVOTGRID_TREND_ICONS_MAP = {
+            "kpi-trend-decrease": "caret-alt-down",
+            "kpi-trend-increase": "caret-alt-up",
+            "kpi-trend-equal": "minus",
+        },
+        KPISTATUS_TEMPLATE = ({ dataItem }) => kendo.ui.icon($(`<span title="${encode(dataItem.value)}"></span>`), { icon: `kpi-status-${dataItem.value > 0 ? "open" : dataItem.value < 0 ? "deny" : "hold"}` }),
+        KPITREND_TEMPLATE = ({ dataItem }) => kendo.ui.icon($(`<span title="${encode(dataItem.value)}"></span>`), { icon: PIVOTGRID_TREND_ICONS_MAP[`kpi-trend-${dataItem.value > 0 ? "increase" : dataItem.value < 0 ? "decrease" : "equal"}`] }),
         DATACELL_TEMPLATE = ({ dataItem }) => `${dataItem ? encode(dataItem.fmtValue || dataItem.value) || "&nbsp;" : "&nbsp;"}`,
         LAYOUT_TABLE = '<table class="k-pivot-layout">' +
                             '<tr>' +
@@ -115,6 +125,16 @@ var __meta__ = {
                         '</table>';
         var AXIS_ROWS = "rows";
         var AXIS_COLUMNS = "columns";
+
+        var tableStyles = {
+            tableRow: "k-table-row",
+            header: "k-header k-table-th",
+            headerTable: "k-grid-header-table k-table k-table-md",
+            table: "k-table k-table-md",
+            contentTable: "k-grid-table k-table k-table-md",
+            tbody: "k-table-tbody",
+            tableCell: "k-table-td"
+        };
 
     function normalizeMeasures(measure) {
         var descriptor = typeof measure === "string" ? [{ name: measure }] : measure;
@@ -345,14 +365,14 @@ var __meta__ = {
             result = "";
 
         if (sortable) {
-            result += `${sortIcon ? '<span class="k-chip-action"><span class="k-icon ' + sortIcon + '-sm"></span></span>' : ''}`;
+            result += sortIcon ? `<span class="k-chip-action">${kendo.ui.icon(sortIcon + "-sm")}</span>` : '';
         }
 
         if (filterable || sortable) {
-            result += '<span class="k-setting-fieldmenu k-chip-action"><span class="k-icon k-i-more-vertical"></span></span>';
+            result += `<span class="k-setting-fieldmenu k-chip-action">${kendo.ui.icon("more-vertical")}</span>`;
         }
         if (reorderable) {
-            result += '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
+            result += `<span class="k-setting-delete k-chip-action">${kendo.ui.icon("x")}</span>`;
         }
 
         return result;
@@ -4019,7 +4039,7 @@ var __meta__ = {
                 var actions = '';
 
                 if (that.options.enabled) {
-                    actions = '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
+                    actions = `<span class="k-setting-delete k-chip-action">${kendo.ui.icon("x")}</span>`;
                 }
 
                 that.options.template = (data) => ''
@@ -4037,7 +4057,7 @@ var __meta__ = {
             that._sortable();
 
             that.element.on("click" + NS, '.k-chip, .k-button' , function(e) {
-                var target = $(e.target);
+                var target = $(e.target).closest(":not(path,svg)");
                 var action = target.closest('.k-chip-action');
                 var name = target.closest("[" + kendo.attr("name") + "]")
                                  .attr(kendo.attr("name"));
@@ -4056,7 +4076,7 @@ var __meta__ = {
                 }
 
                 if (that.options.sortable) {
-                    var sortDirection = $(e.currentTarget).find('.k-i-sort-asc-sm').length ? 'desc' : 'asc';
+                    var sortDirection = $(e.currentTarget).closest(":not(path,svg)").find('.k-i-sort-asc-small,.k-svg-i-sort-asc-small').length ? 'desc' : 'asc';
 
                     that.sort({
                         field: name,
@@ -4278,7 +4298,7 @@ var __meta__ = {
             var icon = "";
 
             if (expr) {
-                icon = "k-i-sort-" + expr.dir;
+                icon = "sort-" + expr.dir;
             }
 
             return icon;
@@ -4300,8 +4320,8 @@ var __meta__ = {
 
             that._sortable();
 
-            that.element.on("click" + NS, ".k-i-close-circle", function(e) {
-                var target = $(e.target);
+            that.element.on("click" + NS, ".k-i-x-circle,.k-svg-i-x-circle", function(e) {
+                var target = $(e.target).closest(":not(path,svg)");
                 var parent = target.closest(".k-chip");
                 var name = parent.find(".k-chip-label").text();
 
@@ -4318,7 +4338,7 @@ var __meta__ = {
                 that.fieldMenu = new ui.PivotFieldMenuV2(that.element, {
                     messages: that.options.messages.fieldMenu,
                     filterable: options.filterable,
-                    filter: ".k-i-more-vertical",
+                    filter: ".k-i-more-vertical,.k-svg-i-more-vertical",
                     sortable: options.sortable,
                     dataSource: that.dataSource
                 });
@@ -4594,7 +4614,7 @@ var __meta__ = {
         _element: function() {
             var options = this.options;
             this.element.addClass("k-pivotgrid-configurator-button");
-            this.element.html(kendo.format("<span>{0}<span class='k-icon k-i-gear k-color-inherit'></span></span>",options.text));
+            this.element.html(kendo.format("<span>{0}<span class='k-icon k-i-gear'></span></span>",options.text));
         }
     });
 
@@ -4675,10 +4695,10 @@ var __meta__ = {
             that._scrollable();
             that._rowHeadersWrapper
                 .add(that._columnHeadersWrapper)
-                .on("click", "span.k-icon", function() {
+                .on("click", "span.k-icon,span.k-svg-icon", function() {
                     var button = $(this);
                     var path = button.parent().attr(kendo.attr("key"));
-                    var expanded = button.hasClass("k-i-arrow-chevron-up");
+                    var expanded = button.is(".k-i-chevron-up,.k-svg-i-chevron-up");
                     var isRow = button.closest(".k-pivotgrid-row-headers").length !== 0;
                     var paths = path.split(",");
                     var eventName = expanded ? COLLAPSEMEMBER : EXPANDMEMBER;
@@ -4803,7 +4823,7 @@ var __meta__ = {
         _wrapper: function() {
             var height = this.options.height;
 
-            this.wrapper = this.element.addClass("k-widget k-pivotgrid");
+            this.wrapper = this.element.addClass("k-pivotgrid");
 
             this.wrapper.append('<span class="k-pivotgrid-empty-cell" />');
 
@@ -4937,7 +4957,7 @@ var __meta__ = {
 
             that.columnsHeader
                 .add(that.rowsHeader)
-                .on("click", "span.k-icon", function() {
+                .on("click", "span.k-icon,span.k-svg-icon", function() {
                     var button = $(this);
                     var builder = columnBuilder;
                     var action = "expandColumn";
@@ -4954,7 +4974,7 @@ var __meta__ = {
                         eventArgs.axis = "rows";
                     }
 
-                    var expanded = button.hasClass(STATE_EXPANDED);
+                    var expanded = button.is(STATE_EXPANDED_SELECTOR);
                     var metadata = builder.metadata[path];
                     var request = metadata.expanded === undefined;
 
@@ -4966,9 +4986,7 @@ var __meta__ = {
                     }
 
                     builder.metadata[path].expanded = !expanded;
-
-                    button.toggleClass(STATE_EXPANDED, !expanded)
-                          .toggleClass(STATE_COLLAPSED, expanded);
+                    kendo.ui.icon(button,{ icon: !expanded ? STATE_EXPANDED_ICONNAME : STATE_COLLAPSED_ICONNAME });
 
                     if (!expanded && request) {
                         that.dataSource[action](eventArgs.path);
@@ -5138,7 +5156,7 @@ var __meta__ = {
         _wrapper: function() {
             var height = this.options.height;
 
-            this.wrapper = this.element.addClass("k-widget k-pivot");
+            this.wrapper = this.element.addClass("k-pivot");
 
             if (height) {
                 this.wrapper.css("height", height);
@@ -5146,7 +5164,7 @@ var __meta__ = {
         },
 
         _measureFields: function() {
-            this.measureFields = $(DIV).addClass("k-pivot-toolbar k-toolbar k-settings-measures");
+            this.measureFields = $(DIV).addClass("k-pivot-toolbar k-toolbar k-toolbar-md k-settings-measures");
 
             this.measuresTarget = this._createSettingTarget(this.measureFields, {
                 setting: "measures",
@@ -5207,18 +5225,18 @@ var __meta__ = {
             var layoutTable = $(LAYOUT_TABLE);
             var leftContainer = layoutTable.find(".k-pivot-rowheaders");
             var rightContainer = layoutTable.find(".k-pivot-table");
-            var gridWrapper = $(DIV).addClass("k-grid k-widget");
+            var gridWrapper = $(DIV).addClass("k-grid");
 
             that._measureFields();
-            that.columnFields = $(DIV).addClass("k-pivot-toolbar k-toolbar k-settings-columns");
+            that.columnFields = $(DIV).addClass("k-pivot-toolbar k-toolbar k-toolbar-md k-settings-columns");
 
-            that.rowFields = $(DIV).addClass("k-pivot-toolbar k-toolbar k-settings-rows");
+            that.rowFields = $(DIV).addClass("k-pivot-toolbar k-toolbar k-toolbar-md k-settings-rows");
             that.columnsHeader = $('<div class="k-grid-header-wrap" />')
                                     .wrap('<div class="k-grid-header" />');
 
             that.columnsHeader.parent().css("padding-right", kendo.support.scrollbar());
 
-            that.rowsHeader = $('<div class="k-grid k-widget k-alt"/>');
+            that.rowsHeader = $('<div class="k-grid k-alt"/>');
             that.content = $('<div class="k-grid-content" />');
 
             leftContainer.append(that.measureFields);
@@ -5477,7 +5495,7 @@ var __meta__ = {
             if (delta) {
                 e.preventDefault();
                 //In Firefox DOMMouseScroll event cannot be canceled
-                $(e.currentTarget).one("wheel" + NS, false);
+                $(e.currentTarget).closest(":not(path,svg)").one("wheel" + NS, false);
 
                 this.rowsHeader.scrollTop(scrollTop + (-delta));
                 this.content.scrollTop(scrollTop + (-delta));
@@ -5553,7 +5571,7 @@ var __meta__ = {
             var row;
 
             for (var index = 0; index < data.length; index++) {
-                row = $('<tr class="k-pivotgrid-row"></tr>');
+                row = $(`<tr class="${tableStyles.tableRow} k-pivotgrid-row"></tr>`);
                 body.append(row);
                 that.addColumCell(row, data[index], index);
             }
@@ -5566,7 +5584,7 @@ var __meta__ = {
             for (var index = 0; index < rowItem.cells.length; index++) {
                 var cell = rowItem.cells[index];
                 if (cell) {
-                    var cellEl = $('<td class="k-pivotgrid-cell"></td>');
+                    var cellEl = $(`<td class="${tableStyles.tableCell} k-pivotgrid-cell"></td>`);
                     if (this.rowHeaderLeafs[rowIndex].total || this.columnHeaderLeafs[index].total) {
                         cellEl.addClass("k-pivotgrid-header-total");
                     }
@@ -5585,7 +5603,7 @@ var __meta__ = {
             var data = toData((this.data || []).slice(), this.columnHeaderLeafs, this.rowHeaderLeafs, this.columnHeaderBreadth, this.rowHeaderDepth);
             var that = this;
 
-            var table = $("<table class='k-pivotgrid-table'><colgroup></colgroup><tbody class='k-pivotgrid-tbody'></tbody></table>");
+            var table = $(`<table class='${tableStyles.contentTable} k-pivotgrid-table'><colgroup></colgroup><tbody class='${tableStyles.tbody} k-pivotgrid-tbody'></tbody></table>`);
 
             that.table = table;
             that.addColElements(this.columnHeaderLeafs.length);
@@ -5627,7 +5645,7 @@ var __meta__ = {
             var row;
 
             for (var index = 0; index < columnHeaderRows.length; index++) {
-                row = $('<tr class="k-pivotgrid-row"></tr>');
+                row = $('<tr class="k-table-row k-pivotgrid-row"></tr>');
                 body.append(row);
                 that.addColumCell(row, columnHeaderRows[index]);
             }
@@ -5667,7 +5685,7 @@ var __meta__ = {
             that._breadth = breadth;
             that._headerLeafs = headerLeafs;
 
-            var table = $("<table class='k-pivotgrid-table'><colgroup></colgroup><tbody class='k-pivotgrid-tbody'></tbody></table>");
+            var table = $(`<table class='${tableStyles.headerTable} k-pivotgrid-table'><colgroup></colgroup><tbody class='${tableStyles.tbody} k-pivotgrid-tbody'></tbody></table>`);
 
             that.table = table;
             that.addColElements(this.axes == "columns" ? headerLeafs.length : rowHeaderBreadth);
@@ -5700,7 +5718,7 @@ var __meta__ = {
             var colgroup = this._colGroup();
 
             return [
-                element("table", null, [colgroup, tbody])
+                element("table", { className: tableStyles.headerTable }, [colgroup, tbody])
             ];
         },
 
@@ -5733,10 +5751,10 @@ var __meta__ = {
                 this._buildRows(root, 0);
                 this._normalize();
             } else {
-                this.rows.push(element("tr", null, [ element("th", null, [ htmlNode("&nbsp;") ]) ]));
+                this.rows.push(element("tr", { className: tableStyles.tableRow }, [ element("th", { className: tableStyles.header } , [ htmlNode("&nbsp;") ]) ]));
             }
 
-            return element("tbody", null, this.rows);
+            return element("tbody", { className: tableStyles.tbody }, this.rows);
         },
 
         _normalize: function() {
@@ -5816,7 +5834,7 @@ var __meta__ = {
             var row = map[rowKey];
 
             if (!row) {
-                row = element("tr", null, []);
+                row = element("tr", { className: tableStyles.tableRow }, []);
 
                 row.parentMember = parentMember;
                 row.collapsed = 0;
@@ -5856,7 +5874,7 @@ var __meta__ = {
             var measure;
 
             if (!row) {
-                row = element("tr", null, []);
+                row = element("tr", { className: tableStyles.tableRow }, []);
                 map.measureRow = row;
                 this.rows.push(row);
             }
@@ -5873,11 +5891,11 @@ var __meta__ = {
             return htmlNode(this.template({
                 member: member,
                 tuple: tuple
-            }));
+            }), true);
         },
 
         _cell: function(className, children, member) {
-            var cell = element("th", { className: "k-header" + className }, children);
+            var cell = element("th", { className: tableStyles.header + " " + className }, children);
             cell.value = member.caption || member.name;
             return cell;
         },
@@ -5930,10 +5948,10 @@ var __meta__ = {
                     childrenLength = 0;
                 }
 
-                cellAttr = { className: "k-icon " + (childrenLength ? STATE_EXPANDED : STATE_COLLAPSED) };
-                cellAttr[kendo.attr("path")] = path;
+                let cellIconEl = $("<span></span>");
+                cellIconEl.attr(kendo.attr("path"), path);
 
-                cellChildren.push(element("span", cellAttr));
+                cellChildren.push(kendo.dom.html(kendo.ui.icon(cellIconEl, { icon: childrenLength ? STATE_EXPANDED_ICONNAME : STATE_COLLAPSED_ICONNAME })));
             }
 
             cellChildren.push(this._content(member, tuple));
@@ -6024,7 +6042,7 @@ var __meta__ = {
             var colgroup = this._colGroup();
 
             return [
-                element("table", null, [colgroup, tbody])
+                element("table", { className: tableStyles.table }, [colgroup, tbody])
             ];
         },
 
@@ -6072,10 +6090,10 @@ var __meta__ = {
                 this._buildRows(root, 0);
                 this._normalize();
             } else {
-                this.rows.push(element("tr", null, [ element("td", null, [ htmlNode("&nbsp;") ]) ]));
+                this.rows.push(element("tr", { className: tableStyles.tableRow }, [ element("td", { className: tableStyles.tableCell }, [ htmlNode("&nbsp;") ]) ]));
             }
 
-            return element("tbody", null, this.rows);
+            return element("tbody", { className: tableStyles.tbody }, this.rows);
         },
 
         _normalize: function() {
@@ -6111,16 +6129,16 @@ var __meta__ = {
             allRow = map[firstMemberName + "all"];
 
             if (row) {
-                row.children[0].attr.className = "k-first";
+                row.children[0].attr.className = tableStyles.tableCell + " k-first";
             }
 
             if (allRow) {
-                allRow.children[0].attr.className += " k-first";
+                allRow.children[0].attr.className += " k-first " + tableStyles.tableCell;
             }
         },
 
         _row: function(children) {
-            var row = element("tr", null, children);
+            var row = element("tr", { className: tableStyles.tableRow }, children);
             row.rowSpan = 1;
             row.colSpan = {};
 
@@ -6133,11 +6151,11 @@ var __meta__ = {
             return htmlNode(this.template({
                 member: member,
                 tuple: tuple
-            }));
+            }), true);
         },
 
         _cell: function(className, children, member) {
-            var cell = element("td", { className: className }, children);
+            var cell = element("td", { className: tableStyles.tableCell + " " + className }, children);
             cell.value = member.caption || member.name;
             return cell;
         },
@@ -6209,10 +6227,10 @@ var __meta__ = {
                     metadata.children = 0;
                 }
 
-                expandIconAttr = { className: "k-icon " + (childrenLength ? STATE_EXPANDED : STATE_COLLAPSED) };
-                expandIconAttr[kendo.attr("path")] = path;
+                let cellIconEl = $("<span></span>");
+                cellIconEl.attr(kendo.attr("path"), path);
 
-                cellChildren.push(element("span", expandIconAttr));
+                cellChildren.push(kendo.dom.html(kendo.ui.icon(cellIconEl, { icon: childrenLength ? STATE_EXPANDED_ICONNAME : STATE_COLLAPSED_ICONNAME })));
             }
 
             cellChildren.push(this._content(member, tuple));
@@ -6310,7 +6328,7 @@ var __meta__ = {
             var colgroup = this._colGroup();
 
             return [
-                element("table", null, [colgroup, tbody])
+                element("table", { className: tableStyles.contentTable }, [colgroup, tbody])
             ];
         },
 
@@ -6339,10 +6357,10 @@ var __meta__ = {
 
                 this._buildRows();
             } else {
-                this.rows.push(element("tr", null, [ element("td", null, [ htmlNode("&nbsp;") ]) ]));
+                this.rows.push(element("tr", { className: tableStyles.tableRow }, [ element("td", { className: tableStyles.tableCell }, [ htmlNode("&nbsp;") ]) ]));
             }
 
-            return element("tbody", null, this.rows);
+            return element("tbody", { className: tableStyles.tbody }, this.rows);
         },
 
         _indexes: function(axisInfo, total) {
@@ -6458,9 +6476,9 @@ var __meta__ = {
                     continue;
                 }
 
-                attr = {};
+                attr = { className: tableStyles.tableCell };
                 if (columnInfo.children) {
-                    attr.className = "k-alt";
+                    attr.className += " k-alt";
                 }
 
                 cellContent = "";
@@ -6491,9 +6509,9 @@ var __meta__ = {
                 cells.push(cell);
             }
 
-            attr = {};
+            attr = { className: tableStyles.tableRow };
             if (rowInfo.children) {
-                attr.className = "k-grid-footer";
+                attr.className += " k-grid-footer";
             }
 
             return element("tr", attr, cells);

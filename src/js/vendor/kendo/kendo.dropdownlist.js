@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,13 +10,14 @@ import "./kendo.list.js";
 import "./kendo.mobile.scroller.js";
 import "./kendo.virtuallist.js";
 import "./kendo.html.button.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "dropdownlist",
     name: "DropDownList",
     category: "web",
     description: "The DropDownList widget displays a list of values and allows the selection of a single value from the list.",
-    depends: [ "list", "html.button" ],
+    depends: [ "list", "html.button", "icons" ],
     features: [ {
         id: "mobile-scroller",
         name: "Mobile scroller",
@@ -898,8 +899,12 @@ var __meta__ = {
             that._search();
         },
 
-        _popupOpen: function() {
+        _popupOpen: function(e) {
             var popup = this.popup;
+
+            if (e.isDefaultPrevented()) {
+                return;
+            }
 
             popup.wrapper = kendo.wrap(popup.element);
 
@@ -1233,7 +1238,7 @@ var __meta__ = {
         _filterHeader: function() {
             var filterTemplate = '<div class="k-list-filter">' +
                 '<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid" type="text" autocomplete="off">' +
-                    '<span class="k-input-icon k-icon k-i-search"></span>' +
+                    kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
                 '</span>' +
             '</div>';
 
@@ -1277,7 +1282,7 @@ var __meta__ = {
 
             if (!span[0]) {
                 arrowBtn = html.renderButton('<span role="button" class="k-input-button" aria-label="select"></span>', {
-                    icon: "arrow-s",
+                    icon: "caret-alt-down",
                     size: options.size,
                     fillMode: options.fillMode,
                     shape: "none",
@@ -1295,7 +1300,7 @@ var __meta__ = {
 
             that.span = span;
             that._arrow = wrapper.find(".k-input-button");
-            that._arrowIcon = that._arrow.find(".k-icon");
+            that._arrowIcon = that._arrow.find(".k-icon,.k-svg-icon");
         },
 
         _wrapper: function() {

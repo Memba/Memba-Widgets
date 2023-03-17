@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.data.js";
 import "./kendo.treeview.draganddrop.js";
 import "./kendo.html.input.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "treeview",
     name: "TreeView",
     category: "web",
     description: "The TreeView widget displays hierarchical data in a traditional tree structure,with support for interactive drag-and-drop operations.",
-    depends: [ "data", "html.input" ],
+    depends: [ "data", "html.input", "icons" ],
     features: [{
         id: "treeview-dragging",
         name: "Drag & Drop",
@@ -62,6 +63,8 @@ var __meta__ = {
         KTREEVIEW = "k-treeview",
         VISIBLE = ":visible",
         NODE = ".k-item",
+        TOGGLE_ICON = "k-toggle-icon",
+        TOGGLE_ICON_ELM = `<span class='${TOGGLE_ICON}'></span>`,
         STRING = "string",
         ARIA_CHECKED = "aria-checked",
         ARIA_SELECTED = "aria-selected",
@@ -108,7 +111,7 @@ var __meta__ = {
     subGroup = contentChild(".k-group");
     nodeContents = contentChild(".k-group,.k-content");
     nodeIcon = function(node) {
-        return node.children("div").find(".k-treeview-toggle > .k-icon");
+        return node.children("div").find(`.k-treeview-toggle > .${TOGGLE_ICON}`);
     };
 
     function checkboxes(node) {
@@ -159,7 +162,7 @@ var __meta__ = {
     function updateNodeHtml(node) {
         var wrapper = node.children("div"),
             group = node.children("ul"),
-            toggleButton = wrapper.find(".k-treeview-toggle > .k-icon"),
+            toggleButton = wrapper.find(`.k-treeview-toggle > .${TOGGLE_ICON}`),
             checkbox = node.children("input[type=checkbox]"),
             innerWrapper = wrapper.children(".k-in");
 
@@ -172,7 +175,7 @@ var __meta__ = {
         }
 
         if (!toggleButton.length && group.length) {
-            toggleButton = $("<span class='k-treeview-toggle'><span class='k-icon' /></span>").prependTo(wrapper);
+            toggleButton = $(`<span class='k-treeview-toggle'>${TOGGLE_ICON_ELM}</span>`).prependTo(wrapper);
         } else if (!group.length || !group.children().length) {
             toggleButton.parent().remove();
             group.remove();
@@ -296,12 +299,12 @@ var __meta__ = {
                 .on("mouseleave" + NS, clickableItems, function() { $(this).removeClass(KSTATEHOVER); })
                 .on(CLICK + NS, clickableItems, that._clickHandler)
                 .on("dblclick" + NS, ".k-in:not(.k-disabled)", that._toggleButtonClick.bind(that))
-                .on(CLICK + NS, ".k-i-expand,.k-i-collapse", that._toggleButtonClick.bind(that))
+                .on(CLICK + NS, `.${TOGGLE_ICON}`, that._toggleButtonClick.bind(that))
                 .on("keydown" + NS, that, that._keydown.bind(that))
                 .on("keypress" + NS, that._keypress.bind(that))
                 .on("focus" + NS, that._focus.bind(that))
                 .on("blur" + NS, that._blur.bind(that))
-                .on("mousedown" + NS, ".k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse", that._mousedown.bind(that))
+                .on("mousedown" + NS, `.k-in,.k-checkbox-wrapper :checkbox,.${TOGGLE_ICON}`, that._mousedown.bind(that))
                 .on("change" + NS, ".k-checkbox-wrapper :checkbox", that._checkboxChange.bind(that))
                 .on("click" + NS, ".k-request-retry", that._retryRequest.bind(that))
                 .on("click" + NS, ".k-link.k-disabled", function(e) { e.preventDefault(); })
@@ -587,16 +590,30 @@ var __meta__ = {
 
                     return result;
                 },
-                toggleButtonClass: function(item) {
-                    var result = "k-icon";
+                checkboxClass: function(item) {
+                    var result = "k-checkbox";
 
-                    if (item.expanded !== true) {
-                        result += " k-i-expand";
-                    } else {
-                        result += " k-i-collapse";
+                    if (item.enabled === false) {
+                        result += " k-disabled";
                     }
 
                     return result;
+                },
+                toggleButtonClass: function(item) {
+                    var result = "k-treeview-toggle";
+
+                    if (item.enabled === false) {
+                        result += " k-disabled";
+                    }
+
+                    return result;
+                },
+                toggleIcon: function(icon, item) {
+                    if (item.expanded !== true) {
+                        return ui.icon(icon, { icon: 'caret-alt-right' });
+                    } else {
+                        return ui.icon(icon, { icon: 'caret-alt-down' });
+                    }
                 },
                 groupAttributes: function(group) {
                     var attributes = "";
@@ -639,7 +656,8 @@ var __meta__ = {
                     return result;
                 },
                 itemElement: (data) => {
-                    var item = data.item,
+                    var that = this,
+                        item = data.item,
                         r = data.r;
                     var url = fieldAccessor("url")(item),
                         tag = url ? 'a' : 'span',
@@ -647,8 +665,8 @@ var __meta__ = {
                     var result = `<div class="${r.cssClass(data.group, item)}">`;
 
                     if (item.hasChildren) {
-                        result += `<span class='k-treeview-toggle'>` +
-                                    `<span class='${r.toggleButtonClass(item)}'></span>` +
+                        result += `<span class='${r.toggleButtonClass(item)}'>` +
+                                    r.toggleIcon($(TOGGLE_ICON_ELM), item) +
                                   `</span>`;
                     }
 
@@ -1526,6 +1544,10 @@ var __meta__ = {
             wrapper.removeClass("k-treeview-top k-treeview-mid k-treeview-bot")
                    .addClass(templates.cssClass(groupData, nodeData));
 
+            // chekbox
+            var checkbox = wrapper.find(".k-checkbox");
+            checkbox.removeClass("k-checkbox k-disabled").addClass(templates.checkboxClass(nodeData));
+
             // span / a
             var textWrap = wrapper.children(".k-in");
             var isLink = textWrap[0] && textWrap[0].nodeName.toLowerCase() == "a";
@@ -1534,8 +1556,13 @@ var __meta__ = {
 
             // toggle button
             if (group.length || node.attr("data-hasChildren") == "true") {
-                wrapper.find(".k-treeview-toggle > .k-icon").removeClass("k-i-expand k-i-collapse")
-                    .addClass(templates.toggleButtonClass(nodeData));
+                var toggleButton = wrapper.find(".k-treeview-toggle");
+                var toggleIcon = toggleButton.children(`.${TOGGLE_ICON}`);
+                toggleButton.removeClass("k-treeview-toggle k-disabled").addClass(templates.toggleButtonClass(nodeData));
+
+                // renderv icon
+                templates.toggleIcon(toggleIcon, nodeData);
+
 
                 group.addClass("k-group k-treeview-group");
             }
@@ -1933,7 +1960,7 @@ var __meta__ = {
             if (node) {
                 this._progress(node, false);
                 this._expanded(node, false);
-                nodeIcon(node).addClass("k-i-reload");
+                nodeIcon(node).replaceWith(ui.icon($(TOGGLE_ICON_ELM), { icon: "arrow-rotate-cw" }));
                 e.node.loaded(false);
             } else {
                 this._progress(false);
@@ -2083,7 +2110,7 @@ var __meta__ = {
         toggle: function(node, expand) {
             node = $(node);
 
-            if (!nodeIcon(node).is(".k-i-expand, .k-i-collapse")) {
+            if (!nodeIcon(node)) {
                 return;
             }
 
@@ -2165,7 +2192,10 @@ var __meta__ = {
 
                 element.attr(ARIA_BUSY, showProgress);
             } else {
-                nodeIcon(node).toggleClass("k-i-loading", showProgress).removeClass("k-i-reload");
+                nodeIcon(node).replaceWith(
+                    $(TOGGLE_ICON_ELM)
+                        .toggleClass('k-i-loading', showProgress)
+                        .toggleClass('k-icon', showProgress));
                 node.attr(ARIA_BUSY, showProgress);
             }
         },

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -17,9 +17,7 @@ var kendo = window.kendo,
     Editor = kendo.ui.editor,
     dom = Editor.Dom,
     RangeUtils = Editor.RangeUtils,
-    EditorUtils = Editor.EditorUtils,
     Command = Editor.Command,
-    ToolTemplate = Editor.ToolTemplate,
     FormatTool = Editor.FormatTool,
     BlockFormatFinder = Editor.BlockFormatFinder,
     textNodes = RangeUtils.textNodes,
@@ -516,9 +514,9 @@ extend(Editor, {
     ListTool: ListTool
 });
 
-registerTool("insertUnorderedList", new ListTool({ tag: 'ul', attr: { style: { listStyleType: "" }, type: "" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert unordered list" }) }));
-registerTool("insertOrderedList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "" }, type: "" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert ordered list" }) }));
-registerTool("insertUpperRomanList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "upper-roman" } }, altAttr: { type: "I" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert upper roman list" }) }));
-registerTool("insertLowerRomanList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "lower-roman" } }, altAttr: { type: "i" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert lower roman list" }) }));
+registerTool("insertUnorderedList", new ListTool({ tag: 'ul', attr: { style: { listStyleType: "" }, type: "" }, ui: { togglable: true, group: "lists" } }));
+registerTool("insertOrderedList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "" }, type: "" }, ui: { togglable: true, group: "lists" } }));
+registerTool("insertUpperRomanList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "upper-roman" } }, altAttr: { type: "I" }, ui: { togglable: true, group: "lists" } }));
+registerTool("insertLowerRomanList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "lower-roman" } }, altAttr: { type: "i" }, ui: { togglable: true, group: "lists" } }));
 
 })(window.kendo.jQuery);

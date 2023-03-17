@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -18,7 +18,6 @@ import "../command.js";
         EditorUtils = editorNS.EditorUtils,
         registerTool = EditorUtils.registerTool,
         Tool = editorNS.Tool,
-        ToolTemplate = editorNS.ToolTemplate,
         RestorePoint = editorNS.RestorePoint,
         extend = $.extend;
 
@@ -54,24 +53,30 @@ var InsertHtmlCommand = Command.extend({
 });
 
 var InsertHtmlTool = Tool.extend({
-    initialize: function(ui, initOptions) {
-        var editor = initOptions.editor,
-            options = this.options,
-            dataSource = options.items ? options.items : editor.options.insertHtml;
+    initialize: function(ui, editor) {
+        var options = this.options,
+            dataSource = options.items ? options.items : editor.options.insertHtml,
+            component = ui.getKendoDropDownList();
 
-        this._selectBox = new editorNS.SelectBox(ui, {
-            dataSource: dataSource,
-            dataTextField: "text",
-            dataValueField: "value",
-            change: function() {
-                Tool.exec(editor, 'insertHtml', this.value());
-            },
-            title: editor.options.messages.insertHtml,
-            highlightFirst: false
+        if (!component) {
+            return;
+        }
+
+        component.one("open", () => {
+            var optionLabel = component.list.parent().find(".k-list-optionlabel");
+
+            if (optionLabel.length) {
+                optionLabel.remove();
+            }
         });
 
-        ui.attr("title", initOptions.title);
-        this._selectBox.wrapper.attr("title", initOptions.title);
+        component.setOptions({
+            dataSource: dataSource,
+            optionLabel: editor.options.messages.insertHtml
+        });
+        component.bind("change", () => {
+            Tool.exec(editor, 'insertHtml', component.value());
+        });
     },
 
     command: function(commandArguments) {
@@ -79,9 +84,9 @@ var InsertHtmlTool = Tool.extend({
     },
 
     update: function(ui) {
-        var selectbox = ui.data("kendoSelectBox") || ui.find("select").data("kendoSelectBox");
-        selectbox.close();
-        selectbox.value(selectbox.options.title);
+        var component = ui.data("kendoDropDownList");
+        component.close();
+        component.value(null);
     }
 });
 
@@ -90,6 +95,19 @@ extend(editorNS, {
     InsertHtmlTool: InsertHtmlTool
 });
 
-registerTool("insertHtml", new InsertHtmlTool({ template: new ToolTemplate({ template: EditorUtils.dropDownListTemplate, title: "Insert HTML", initialValue: "Insert HTML" }) }));
+registerTool("insertHtml", new InsertHtmlTool({
+    ui: {
+        initialValue: "Insert HTML",
+        type: "component",
+        component: "DropDownList",
+        componentOptions: {
+            dataTextField: "text",
+            dataValueField: "value",
+            autoSize: true,
+            highlightFirst: false
+        },
+        overflow: "never"
+    }
+}));
 
 })(window.kendo.jQuery);

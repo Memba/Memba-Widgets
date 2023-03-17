@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,13 +10,14 @@ import "./kendo.slider.js";
 import "./kendo.toolbar.js";
 import "./kendo.dropdownlist.js";
 import "./kendo.tooltip.js";
+import "./kendo.icons.js";
 
     var __meta__ = {
         id: "mediaplayer",
         name: "MediaPlayer",
         category: "web",
         description: "",
-        depends: ["slider", "toolbar", "dropdownlist", "tooltip"]
+        depends: ["slider", "toolbar", "dropdownlist", "tooltip", "icons"]
     };
 
     (function($, undefined) {
@@ -27,14 +28,14 @@ import "./kendo.tooltip.js";
             READY = "ready",
             TIMECHANGE = "timeChange",
             VOLUMECHANGE = "volumeChange",
-            FULLSCREEN_ENTER = "k-i-full-screen",
-            FULLSCREEN_EXIT = "k-i-full-screen-exit",
-            MUTE = "k-i-volume-off",
-            LOW_VOLUME = "k-i-volume-down",
-            HIGH_VOLUME = "k-i-volume-up",
+            FULLSCREEN_ENTER = "fullscreen",
+            FULLSCREEN_EXIT = "fullscreen-exit",
+            MUTE = "volume-mute",
+            LOW_VOLUME = "volume-down",
+            HIGH_VOLUME = "volume-up",
             VIDEO_QUALITY = "k-mediaplayer-quality",
-            STATE_PLAY = "k-i-play",
-            STATE_PAUSE = "k-i-pause",
+            STATE_PLAY = "play",
+            STATE_PAUSE = "pause",
             TITLEBAR = "k-mediaplayer-titlebar",
             TITLE = "k-title",
             TOOLBARWRAP = "k-mediaplayer-toolbar-wrap",
@@ -45,6 +46,13 @@ import "./kendo.tooltip.js";
             OVERLAY = "k-mediaplayer-overlay",
             YTPLAYER = "k-mediaplayer-yt",
             DOT = ".",
+            STATE_PLAY_SELECTOR = 'span[class*="i-' + STATE_PLAY + '"]',
+            STATE_PAUSE_SELECTOR = 'span[class*="i-' + STATE_PAUSE + '"]',
+            FULLSCREEN_ENTER_SELECTOR = 'span[class*="i-' + FULLSCREEN_ENTER + '"]',
+            FULLSCREEN_EXIT_SELECTOR = 'span[class*="i-' + FULLSCREEN_EXIT + '"]',
+            MUTE_SELECTOR = 'span[class*="i-' + MUTE + '"]',
+            LOW_VOLUME_SELECTOR = 'span[class*="i-' + LOW_VOLUME + '"]',
+            HIGH_VOLUME_SELECTOR = 'span[class*="i-' + HIGH_VOLUME + '"]',
             ui = kendo.ui,
             ns = ".kendoMediaPlayer",
             baseTime = new Date(1970, 0, 1),
@@ -303,7 +311,7 @@ import "./kendo.tooltip.js";
                             {
                                 type: "button",
                                 attributes: { "class": "k-fullscreen-button" },
-                                icon: "full-screen",
+                                icon: "fullscreen",
                                 fillMode: "flat"
                             }
                         ]
@@ -323,7 +331,7 @@ import "./kendo.tooltip.js";
                     this._currentTimeElement = toolBarElement.find(".k-mediaplayer-currenttime");
                     this._durationElement = toolBarElement.find(".k-mediaplayer-duration");
                     this._playButton = toolBarElement.find(".k-play-button");
-                    this._playButtonSpan = this._playButton.find(".k-i-play");
+                    this._playButtonSpan = this._playButton.find(STATE_PLAY_SELECTOR);
 
                     if (this.options.autoPlay) {
                         this._playStateToggle(true);
@@ -341,6 +349,7 @@ import "./kendo.tooltip.js";
             },
 
             _createDropDown: function() {
+                var hdIcon = kendo.ui.icon("hd");
                 var dropDownElement = this.wrapper.find(DOT + VIDEO_QUALITY);
                 var media = this.media();
                 if (typeof dropDownElement.data("kendoDropDownList") === "undefined") {
@@ -369,9 +378,8 @@ import "./kendo.tooltip.js";
 
                     this._dropDown.wrapper.addClass("k-button k-button-md k-rounded-md k-button-flat k-button-flat-base");
                     this._dropDown.wrapper.attr("title", this.options.messages.quality).hide();
-                    this._dropDown.wrapper.find("span.k-i-arrow-s")
-                        .removeClass('k-i-arrow-s')
-                        .addClass('k-icon k-i-hd');
+                    this._dropDown.wrapper.find('span[class*="i-caret-alt-down"]')
+                        .replaceWith(hdIcon);
                     this._dropDown.list.addClass("k-quality-list");
                 }
             },
@@ -385,13 +393,13 @@ import "./kendo.tooltip.js";
 
             _toolbarClick: function(e) {
                 var target = $(e.target).children().first();
-                var isPaused = target.hasClass(STATE_PLAY);
+                var isPaused = target.is(STATE_PLAY_SELECTOR);
 
                 if (!this.media()) {
                     return;
                 }
 
-                if (target.hasClass(STATE_PLAY) || target.hasClass(STATE_PAUSE)) {
+                if (target.is(STATE_PLAY_SELECTOR) || target.is(STATE_PAUSE_SELECTOR)) {
                     if (isPaused) {
                         this.play();
                     }
@@ -400,21 +408,17 @@ import "./kendo.tooltip.js";
                     }
                 }
 
-                if (target.hasClass(FULLSCREEN_ENTER) || target.hasClass(FULLSCREEN_EXIT)) {
+                if (target.is(FULLSCREEN_ENTER_SELECTOR) || target.is(FULLSCREEN_EXIT_SELECTOR)) {
                     if (this._isInFullScreen) {
-                        target
-                            .removeClass(FULLSCREEN_EXIT)
-                            .addClass(FULLSCREEN_ENTER);
+                        kendo.ui.icon(target, { icon: FULLSCREEN_ENTER });
                         this.fullScreen(false);
                     } else {
-                        target
-                            .removeClass(FULLSCREEN_ENTER)
-                            .addClass(FULLSCREEN_EXIT);
+                        kendo.ui.icon(target, { icon: FULLSCREEN_EXIT });
                         this.fullScreen(true);
                     }
                 }
 
-                if (target.hasClass(MUTE) || target.hasClass(LOW_VOLUME) || target.hasClass(HIGH_VOLUME)) {
+                if (target.is(MUTE_SELECTOR) || target.is(LOW_VOLUME_SELECTOR) || target.is(HIGH_VOLUME_SELECTOR)) {
                     var muted = this.mute();
                     this.mute(!muted);
                 }
@@ -456,19 +460,17 @@ import "./kendo.tooltip.js";
             _changeVolumeButtonImage: function(volume) {
                 var volumeButton = this._volumeButton;
                 var volumeElement = volumeButton.find("span");
-                var cssClass = volumeElement.attr("class");
-                cssClass = cssClass.substring(0, cssClass.lastIndexOf(" "));
 
                 if (volume === 0) {
-                    volumeElement.attr("class", cssClass + " " + MUTE);
+                    kendo.ui.icon(volumeElement, { icon: MUTE });
                     volumeButton.attr("title", this.options.messages.unmute);
                     volumeButton.attr("aria-label", this.options.messages.unmute);
                 } else if (volume > 0 && volume < 51) {
-                    volumeElement.attr("class", cssClass + " " + LOW_VOLUME);
+                    kendo.ui.icon(volumeElement, { icon: LOW_VOLUME });
                     volumeButton.attr("title", this.options.messages.mute);
                     volumeButton.attr("aria-label", this.options.messages.mute);
                 } else {
-                    volumeElement.attr("class", cssClass + " " + HIGH_VOLUME);
+                    kendo.ui.icon(volumeElement, { icon: HIGH_VOLUME });
                     volumeButton.attr("title", this.options.messages.mute);
                     volumeButton.attr("aria-label", this.options.messages.mute);
                 }
@@ -507,20 +509,16 @@ import "./kendo.tooltip.js";
 
             _playStateToggle: function(play) {
                 if (typeof play === "undefined") {
-                    play = this._playButtonSpan.is(DOT + STATE_PLAY);
+                    play = this._playButtonSpan.is(STATE_PLAY_SELECTOR);
                 }
 
                 if (play) {
-                    this._playButtonSpan
-                        .removeClass(STATE_PLAY)
-                        .addClass(STATE_PAUSE);
+                    kendo.ui.icon(this._playButtonSpan, { icon: STATE_PAUSE });
                     this._playButton.attr("title", this.options.messages.pause);
                     this._playButton.attr("aria-label", this.options.messages.pause);
                 }
                 else {
-                    this._playButtonSpan
-                        .removeClass(STATE_PAUSE)
-                        .addClass(STATE_PLAY);
+                    kendo.ui.icon(this._playButtonSpan, { icon: STATE_PLAY });
                     this._playButton.attr("title", this.options.messages.play);
                     this._playButton.attr("aria-label", this.options.messages.play);
                 }
@@ -1081,22 +1079,22 @@ import "./kendo.tooltip.js";
             _fullscreen: function() {
                 var isFullScreen = document.fullScreen ||
                     document.mozFullScreen ||
-                    document.webkitIsFullScreen;
+                    document.webkitIsFullScreen,
+                    fullscreenSpan = this.wrapper.find(FULLSCREEN_ENTER_SELECTOR);
 
                 this._uiDisplay(true);
                 this._slider.resize();
 
                 if (!isFullScreen) {
-                    this.wrapper.find('span[class*="k-i-fullscreen"]')
-                        .removeClass(FULLSCREEN_EXIT)
-                        .addClass(FULLSCREEN_ENTER);
+                    kendo.ui.icon(fullscreenSpan, { icon: FULLSCREEN_ENTER });
                     this.fullScreen(false);
                 }
             },
 
             _keyDown: function(e) {
                 e.preventDefault();
-                var fsButton = this.wrapper.find('span[class*="k-i-fullscreen"]');
+                var fsButton = this.wrapper.find(FULLSCREEN_ENTER_SELECTOR);
+
                 if (e.keyCode === keys.SPACEBAR) {
                     if (this.isPlaying()) {
                         this.pause();
@@ -1106,9 +1104,7 @@ import "./kendo.tooltip.js";
                     }
                 }
                 else if (e.keyCode === keys.ENTER && !this._isInFullScreen) {
-                    fsButton
-                        .removeClass(FULLSCREEN_ENTER)
-                        .addClass(FULLSCREEN_EXIT);
+                    kendo.ui.icon(fsButton, { icon: FULLSCREEN_EXIT });
                     this.fullScreen(true);
                 }
                 else if (e.keyCode === 77) {
@@ -1116,9 +1112,7 @@ import "./kendo.tooltip.js";
                     this.mute(!muted);
                 }
                 else if (e.keyCode === keys.ESC && this._isInFullScreen) {
-                    fsButton
-                        .removeClass(FULLSCREEN_EXIT)
-                        .addClass(FULLSCREEN_ENTER);
+                    kendo.ui.icon(fsButton, { icon: FULLSCREEN_ENTER });
                     this.fullScreen(false);
                 }
             },

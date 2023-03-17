@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -16,7 +16,6 @@ var kendo = window.kendo,
     RangeUtils = Editor.RangeUtils,
     dom = Editor.Dom,
     registerTool = EditorUtils.registerTool,
-    ToolTemplate = Editor.ToolTemplate,
     Command = Editor.Command;
 
 var tableFormatFinder = new Editor.BlockFormatFinder([{ tags: ["table"] }]);
@@ -643,16 +642,13 @@ var TableWizardTool = Editor.Tool.extend({
 
 var TableWizardEditTool = TableWizardTool.extend({
     update: function(ui, nodes) {
-        var isFormatted = !tableFormatFinder.isFormatted(nodes);
+        var isFormatted = !tableFormatFinder.isFormatted(nodes),
+            toolbar = ui.closest(".k-toolbar").getKendoToolBar();
 
         if (isFormatted === true) {
-            ui.parent().addClass("k-hidden k-disabled");
-            ui.attr("disabled", "disabled");
-            ui.addClass("k-disabled");
+            toolbar.hide(ui);
         } else {
-            ui.parent().removeClass("k-hidden k-disabled");
-            ui.prop("disabled", false);
-            ui.removeClass("k-disabled");
+            toolbar.show(ui);
         }
     }
 });
@@ -660,6 +656,6 @@ var TableWizardEditTool = TableWizardTool.extend({
 kendo.ui.editor.TableWizardTool = TableWizardTool;
 kendo.ui.editor.TableWizardCommand = TableWizardCommand;
 
-registerTool("tableWizard", new TableWizardEditTool({ command: TableWizardCommand, insertNewTable: false, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Table Wizard" }) }));
+registerTool("tableWizard", new TableWizardEditTool({ command: TableWizardCommand, insertNewTable: false }));
 
 })(window.kendo.jQuery);

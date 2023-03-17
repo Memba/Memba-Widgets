@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -20,13 +20,15 @@ import "./kendo.pager.js";
 import "./kendo.filtercell.js";
 import "./kendo.textbox.js";
 import "./kendo.form.js";
+import "./kendo.toolbar.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "treelist",
     name: "TreeList",
     category: "web",
     description: "The TreeList widget displays self-referencing data and offers rich support for interacting with data, sorting, filtering, and selection.",
-    depends: [ "dom", "data", "pager" ],
+    depends: [ "dom", "data", "pager", "toolbar", "icons" ],
     features: [ {
         id: "treelist-sorting",
         name: "Sorting",
@@ -88,7 +90,7 @@ var __meta__ = {
     var kendoTextElement = kendoDom.text;
     var kendoHtmlElement = kendoDom.html;
     var outerWidth = kendo._outerWidth;
-    var keys = kendo.keys;
+    var keys = $.extend({ F10: 121 }, kendo.keys);
     var outerHeight = kendo._outerHeight;
     var ui = kendo.ui;
     var DataBoundWidget = ui.DataBoundWidget;
@@ -172,45 +174,54 @@ var __meta__ = {
     var SELECTED = "k-selected";
     var whitespaceRegExp = "[\\x20\\t\\r\\n\\f]";
     var filterRowRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-filter-row)" + "(" + whitespaceRegExp + "|$)");
+    var ICON_REFRESH_SELECTOR = "[class*='-i-arrow-rotate-cw']";
+    var ICON_FILTER_SELECTOR = "[class*='-i-filter']";
+    var ICON_COLLAPSE_SELECTOR = "[class*='-i-caret-alt-down']";
+    var ICON_EXPAND_SELECTOR = "[class*='-i-caret-alt-right']";
+    var ICON_DROP_TOP_SELECTOR = "[class*='-i-insert-top']";
+    var ICON_DROP_BOTTOM_SELECTOR = "[class*='-i-insert-bottom']";
+    var ICON_DROP_MIDDLE_SELECTOR = "[class*='-i-insert-middle']";
+    var ICON_DROP_ADD_SELECTOR = "[class*='-i-insert-plus']";
+    var ICON_DROP_DENIED_SELECTOR = "[class*='-i-insert-cancel']";
 
     var classNames = {
-        wrapper: "k-treelist k-grid k-widget k-grid-display-block",
-        header: "k-header",
+        wrapper: "k-treelist k-grid k-grid-md k-grid-display-block",
+        header: "k-header k-table-th",
         button: "k-button",
-        alt: "k-alt",
+        alt: "k-alt k-table-alt-row",
         editCell: "k-edit-cell",
         editRow: "k-grid-edit-row",
         dirtyCell: "k-dirty-cell",
-        group: "k-treelist-group",
+        group: "k-treelist-group k-table-group-row",
         toolbar: "k-toolbar",
         gridToolbar: "k-grid-toolbar",
         gridHeader: "k-grid-header",
         gridHeaderWrap: "k-grid-header-wrap",
         gridContent: "k-grid-content",
         gridContentWrap: "k-grid-content",
-        gridFilter: "k-grid-filter",
+        gridFilter: "k-grid-filter-menu",
         footerTemplate: "k-footer-template",
         focused: "k-focus",
         loading: "k-i-loading",
-        refresh: "k-i-reload",
+        refresh: "arrow-rotate-cw",
         retry: "k-request-retry",
         selected: "k-selected",
         status: "k-status",
         link: "k-link",
         filterable: "k-filterable",
         icon: "k-icon",
-        iconFilter: "k-i-filter",
-        iconCollapse: "k-i-collapse",
-        iconExpand: "k-i-expand",
+        iconFilter: "filter",
+        iconCollapse: "caret-alt-down",
+        iconExpand: "caret-alt-right",
         iconHidden: "k-i-none",
         iconPlaceHolder: "k-icon k-i-none",
         input: "k-input",
-        dropPositions: "k-i-insert-up k-i-insert-down k-i-plus k-i-insert-middle",
-        dropTop: "k-i-insert-up",
-        dropBottom: "k-i-insert-down",
-        dropAdd: "k-i-plus",
-        dropMiddle: "k-i-insert-middle",
-        dropDenied: "k-i-cancel",
+        dropPositions: "k-i-insert-top k-i-insert-bottom k-i-plus k-i-insert-middle",
+        dropTop: "insert-top",
+        dropBottom: "insert-bottom",
+        dropAdd: "plus",
+        dropMiddle: "insert-middle",
+        dropDenied: "cancel",
         dragStatus: "k-drag-status",
         dragClue: "k-drag-clue",
         dragClueText: "k-clue-text",
@@ -220,54 +231,54 @@ var __meta__ = {
 
     var defaultCommands = {
         create: {
-            imageClass: "k-i-plus",
+            icon: "plus",
             className: "k-grid-add",
             methodName: "addRow"
         },
         createchild: {
-            imageClass: "k-i-plus",
+            icon: "plus",
             className: "k-grid-add",
             methodName: "addRow"
         },
         destroy: {
-            imageClass: "k-i-close",
-            className: "k-grid-delete",
+            icon: "x",
+            className: "k-grid-remove-command",
             methodName: "removeRow"
         },
         edit: {
-            imageClass: "k-i-edit",
-            className: "k-grid-edit",
+            icon: "pencil",
+            className: "k-button-solid-primary k-grid-edit-command",
             methodName: "editRow"
         },
         update: {
-            imageClass: "k-i-check",
-            className: "k-button-solid-primary k-grid-update",
+            icon: "save",
+            className: "k-button-solid-primary k-grid-save-command",
             methodName: "saveRow"
         },
         canceledit: {
-            imageClass: "k-i-cancel",
-            className: "k-grid-cancel",
+            icon: "cancel-outline",
+            className: "k-grid-cancel-command",
             methodName: "_cancelEdit"
         },
         cancel: {
-            imageClass: "k-icon k-i-cancel",
+            icon: "cancel-outline",
             text: "Cancel changes",
             className: "k-grid-cancel-changes",
             methodName: "cancelChanges"
         },
         save: {
-            imageClass: "k-icon k-i-check",
+            icon: "check",
             text: "Save changes",
             className: "k-grid-save-changes",
             methodName: "saveChanges"
         },
         excel: {
-            imageClass: "k-i-file-excel",
+            icon: "excel",
             className: "k-grid-excel",
             methodName: "saveAsExcel"
         },
         pdf: {
-            imageClass: "k-i-file-pdf",
+            icon: "pdf",
             className: "k-grid-pdf",
             methodName: "saveAsPDF"
         },
@@ -275,7 +286,7 @@ var __meta__ = {
             template: ({ message }) =>
             "<span class='k-spacer'></span>" +
             "<span class='k-searchbox k-input k-input-md k-rounded-md k-input-solid k-grid-search'>" +
-                "<span class='k-input-icon k-icon k-i-search'></span>" +
+                kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
                 `<input autocomplete='off' placeholder='${message}' title='${message}' class='k-input-inner' />` +
             "</span>"
         }
@@ -2137,10 +2148,10 @@ var __meta__ = {
 
         _attachHandlers: function() {
             var closeHandler = this._cancelProxy = this._cancel.bind(this);
-            this.wrapper.on(CLICK + NS, ".k-grid-cancel", this._cancelProxy);
+            this.wrapper.on(CLICK + NS, ".k-grid-cancel-command", this._cancelProxy);
 
             this._saveProxy = this._save.bind(this);
-            this.wrapper.on(CLICK + NS, ".k-grid-update", this._saveProxy);
+            this.wrapper.on(CLICK + NS, ".k-grid-save-command", this._saveProxy);
 
             this.window.bind("close", function(e) {
                 if (e.userTriggered) {
@@ -2517,6 +2528,7 @@ var __meta__ = {
                     lockedContent.scrollTop(this.scrollTop);
                 });
 
+                this.element.find(".k-grid-content, .k-grid-content-locked").wrapAll("<div class='k-grid-container' />");
 
                 var touchScroller = kendo.touchScroller(this.content);
 
@@ -2917,7 +2929,7 @@ var __meta__ = {
                 retry: "Retry",
                 commands: {
                     edit: "Edit",
-                    update: "Update",
+                    update: "Save",
                     canceledit: "Cancel",
                     create: "Add new record",
                     createchild: "Add child record",
@@ -3220,7 +3232,7 @@ var __meta__ = {
 
         _openHeaderMenu: function(e) {
             if (e.altKey && e.keyCode == keys.DOWN) {
-                this.current().find(".k-grid-filter, .k-header-column-menu").click();
+                this.current().find(".k-grid-filter-menu, .k-grid-column-menu").click();
                 e.stopImmediatePropagation();
             }
         },
@@ -3563,9 +3575,14 @@ var __meta__ = {
             var handled = false;
             var current = this.current();
             var target = $(e.target);
-            var canHandle = !e.isDefaultPrevented() && !target.is(":button,a,:input,a>.k-icon");
+            var canHandle = !e.isDefaultPrevented() && !target.is(":button,a,:input,a>.k-icon,a>.k-svg-icon");
 
             current = current ? current : $(this.lockedTable).add(this.table).find(NAVROW + " > td:visible").first();
+
+            if (e.keyCode === keys.F10) {
+                this.toolbar.find("[tabindex=0]:visible").first().trigger("focus");
+                handled = true;
+            }
 
             if (canHandle && e.keyCode == keys.UP) {
                 handled = this._moveUp(current, e.shiftKey);
@@ -4164,11 +4181,11 @@ var __meta__ = {
 
         _onPress: function(e) {
             var that = this;
-            var icons = DOT + classNames.iconCollapse +
-                ", ." + classNames.iconExpand +
-                ", ." + classNames.refresh;
+            var icons = ICON_COLLAPSE_SELECTOR +
+                "," + ICON_EXPAND_SELECTOR +
+                "," + ICON_REFRESH_SELECTOR;
 
-            if ($(e.event.target).is(icons)) {
+            if ($(e.event.target).closest(":not(path,svg)").is(icons)) {
                 that._toggleChildren.call(that, e.event);
             }
         },
@@ -4206,8 +4223,8 @@ var __meta__ = {
                             td.has("button.k-grid-delete").length ||
                             (td.closest("tbody")[0] !== that.tbody[0] && !isLockedCell) ||
                             $(e.target).is(":input") ||
-                            $(e.target).hasClass(classNames.iconExpand) ||
-                            $(e.target).hasClass(classNames.iconCollapse)) {
+                            $(e.target).is(ICON_EXPAND_SELECTOR) ||
+                            $(e.target).is(ICON_COLLAPSE_SELECTOR)) {
 
                             if (!that.editor) {
                                 that.dataSource._restorePageSizeAfterAddChild();
@@ -4311,7 +4328,9 @@ var __meta__ = {
                     command.click.call(this, e);
                 }
 
-                e.preventDefault();
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
             }
         },
 
@@ -4475,43 +4494,43 @@ var __meta__ = {
                 var layout = `<div class='${gridHeader}'>`;
                 if (this._hasLockedColumns) {
                     layout += "<div class='k-grid-header-locked'>" +
-                                    "<table role='grid'>" +
+                                    "<table class='k-grid-header-table k-table k-table-md' role='grid'>" +
                                         "<colgroup></colgroup>" +
-                                        "<thead role='rowgroup'></thead>" +
+                                        "<thead class='k-table-thead' role='rowgroup'></thead>" +
                                     "</table>" +
                                 "</div>";
                 }
 
                 layout += `<div class='${gridHeaderWrap}'>` +
-                                "<table role='grid'>" +
+                                "<table class='k-grid-header-table k-table k-table-md' role='grid'>" +
                                     "<colgroup></colgroup>" +
-                                    "<thead role='rowgroup'></thead>" +
+                                    "<thead class='k-table-thead' role='rowgroup'></thead>" +
                                 "</table>" +
                             "</div>" +
                         "</div>";
 
                 if (this._hasLockedColumns) {
                     layout += "<div class='k-grid-content-locked'>" +
-                                    "<table role='treegrid' tabindex='0'>" +
+                                    "<table class='k-grid-table k-table k-table-md' role='treegrid' tabindex='0'>" +
                                         "<colgroup></colgroup>" +
-                                        "<tbody></tbody>" +
+                                        "<tbody class='k-table-tbody'></tbody>" +
                                     "</table>" +
                                 "</div>";
                 }
 
                 layout += `<div class='${gridContentWrap} k-auto-scrollable'>` +
-                                "<table role='treegrid' tabindex='0'>" +
+                                "<table class='k-grid-table k-table k-table-md' role='treegrid' tabindex='0'>" +
                                     "<colgroup></colgroup>" +
-                                    "<tbody></tbody>" +
+                                    "<tbody class='k-table-tbody'></tbody>" +
                                 "</table>" +
                             "</div>";
 
                 if (!this.options.scrollable) {
                     layout =
-                        "<table role='treegrid' tabindex='0'>" +
+                        "<table class='k-grid-table k-table k-table-md' role='treegrid' tabindex='0'>" +
                             "<colgroup></colgroup>" +
-                            `<thead class='${gridHeader}' role='rowgroup'></thead>` +
-                            "<tbody></tbody>" +
+                            `<thead class='k-table-thead ${gridHeader}' role='rowgroup'></thead>` +
+                            "<tbody class='k-table-tbody'></tbody>" +
                         "</table>";
                 }
 
@@ -4549,13 +4568,13 @@ var __meta__ = {
                 this.content = content;
             }
 
-            this.table = content.find(">table");
+            this.table = content.find(">table").addClass("k-grid-table");
             this.tbody = this.table.find(">tbody");
 
             if (this._hasLockedColumns) {
                 this.lockedHeader = header.first().closest(".k-grid-header-locked");
                 this.lockedContent = element.find(".k-grid-content-locked");
-                this.lockedTable = this.lockedContent.children();
+                this.lockedTable = this.lockedContent.children().addClass("k-grid-table");
             }
 
             this._initVirtualTrees();
@@ -4586,6 +4605,64 @@ var __meta__ = {
             }
         },
 
+        _processToolbarItems: function(commands) {
+            var that = this,
+                messages = that.options.messages.commands,
+                items = [];
+
+            commands.map(command => {
+                var name = (isPlainObject(command) ? command.name || "" : command).toLowerCase(),
+                    text = messages[name];
+
+                if (!name && !(isPlainObject(command) && command.template)) {
+                    throw new Error("Commands should have name specified");
+                }
+
+                command = extend({}, defaultCommands[name], {
+                    name: name,
+                    text: (defaultCommands[name] || {}).text || text || capitalize(name),
+                    type: command.template ? null : "button"
+                }, command);
+
+                if (name === "search") {
+                    items.push({ type: "spacer" });
+                    command.template = command.template({ message: command.text || messages.search });
+                }
+
+                if (command.imageClass) {
+                    command.spriteCssClass = command.imageClass;
+                }
+
+                if (that._commandByName(name)) {
+                    if (!command.attributes) {
+                        command.attributes = {};
+                    }
+
+                    command.attributes["data-command"] = name;
+                    command.click = (e) => {
+                        e.event.preventDefault();
+                        e.event.stopPropagation();
+
+                        that._commandClick({
+                            currentTarget: e.target
+                        });
+                    };
+                }
+
+                if (command.className) {
+                    if (!command.attributes) {
+                        command.attributes = {};
+                    }
+
+                    command.attributes["class"] = command.className;
+                }
+
+                items.push(command);
+            });
+
+            return items;
+        },
+
         _toolbar: function() {
             var options = this.options.toolbar;
             var toolbar = this.toolbar;
@@ -4595,8 +4672,11 @@ var __meta__ = {
             }
 
             if (Array.isArray(options)) {
-                var buttons = this._buildCommands(options);
-                new kendoDom.Tree(toolbar[0]).render(buttons);
+                toolbar.kendoToolBar({
+                    size: "medium",
+                    navigateOnTab: !this.options.navigatable,
+                    items: this._processToolbarItems(options)
+                });
             } else {
                 toolbar.append(kendo.template(options)({}));
             }
@@ -5196,15 +5276,15 @@ var __meta__ = {
                 this._prepareColumns(rows, columns);
                 this._updateRowSpans(rows);
                 for (idx = 0; idx < rows.length; idx++) {
-                    rowsToRender.push(kendoDomElement("tr", { "role": "row" }, this._ths(rows[idx].cells, rows[idx].rowSpan)));
+                    rowsToRender.push(kendoDomElement("tr", { "role": "row", "class": "k-table-row" }, this._ths(rows[idx].cells, rows[idx].rowSpan)));
                 }
             } else {
-                rowsToRender.push(kendoDomElement("tr", { "role": "row" }, this._ths(columns)));
+                rowsToRender.push(kendoDomElement("tr", { "role": "row", "class": "k-table-row" }, this._ths(columns)));
             }
 
             if (this._hasFilterRow()) {
                 this._filterThs(columns, filterThs);
-                rowsToRender.push(kendoDomElement("tr", { "class": "k-filter-row" }, filterThs));
+                rowsToRender.push(kendoDomElement("tr", { "class": "k-filter-row k-table-row" }, filterThs));
             }
 
             tree.render(rowsToRender);
@@ -5319,7 +5399,7 @@ var __meta__ = {
             var childrenMap = options.childrenMap || dataSource.childrenMap(dataSource._getData());
 
             for (i = 0, length = data.length; i < length; i++) {
-                className = [];
+                className = [ "k-table-row" ];
 
                 model = data[i];
                 modelId = model[idField];
@@ -5412,7 +5492,7 @@ var __meta__ = {
 
             if (options.hasFooterTemplate && model) {
                 attr = {
-                    className: classNames.footerTemplate,
+                    className: classNames.footerTemplate + " k-table-row",
                     "data-parentId": model[parentIdField]
                 };
 
@@ -5498,7 +5578,7 @@ var __meta__ = {
         _createCellElement: function(element) {
             var attributes = this.parseAttributes(element);
             var spaceElements = $(element).find('.' + classNames.iconHidden).remove();
-            var iconElement = $(element).find('.' + classNames.iconExpand + ',.' + classNames.iconCollapse).remove()[0];
+            var iconElement = $(element).find(ICON_EXPAND_SELECTOR + ',' + ICON_COLLAPSE_SELECTOR).remove()[0];
             var children = [];
 
             for (var i = 0; i < spaceElements.length; i++) {
@@ -5541,6 +5621,7 @@ var __meta__ = {
             var aggregates = options.model[column.field] || {};
             var attr = {
                 "role": "gridcell",
+                "class": "k-table-td",
                 "style": column.hidden === true ? { "display": "none" } : {}
             };
 
@@ -5597,8 +5678,10 @@ var __meta__ = {
             var model = options.model;
             var column = options.column;
             var iconClass;
+            var iconType = "svg";
             var attr = {
                 "role": "gridcell",
+                "class": "k-table-td",
                 "style": column.hidden === true ? { "display": "none" } : {}
             };
             var incellEditing = this._isIncellEditable();
@@ -5617,30 +5700,31 @@ var __meta__ = {
 
                 if (incellEditing) {
                     if (attr.className && attr.className.indexOf(classNames.editCell) !== -1) {
-                        attr.className += " " + classNames.editCell;
+                        attr.className += " k-table-td" + classNames.editCell;
                     } else if (!attr.className) {
-                        attr.className = classNames.editCell;
+                        attr.className = "k-table-td " + classNames.editCell;
                     }
                 }
             } else {
                 if (column.expandable) {
                     children = createPlaceholders({ level: options.level, className: classNames.iconPlaceHolder });
-                    iconClass = [classNames.icon];
 
                     if (model.hasChildren) {
-                        iconClass.push(model.expanded ? classNames.iconCollapse : classNames.iconExpand);
+                        iconClass = model.expanded ? classNames.iconCollapse : classNames.iconExpand;
                     } else {
-                        iconClass.push(classNames.iconHidden);
+                        iconClass = "none";
+                        iconType = "font";
                     }
 
                     if (model._error) {
-                        iconClass.push(classNames.refresh);
+                        iconClass = classNames.refresh;
                     } else if (!model.loaded() && model.expanded) {
-                        iconClass.push(classNames.loading);
+                        iconClass = "loading";
+                        iconType = "font";
                         attr["aria-busy"] = true;
                     }
 
-                    children.push(kendoDomElement("span", { className: iconClass.join(" ") }));
+                    children.push(kendoHtmlElement(kendo.ui.icon({ icon: iconClass, type: iconType })));
 
                     attr.style["white-space"] = "nowrap";
                 }
@@ -5708,12 +5792,12 @@ var __meta__ = {
             }
 
             if (column.template || !column.encoded) {
-                return kendoHtmlElement(value);
+                return kendoHtmlElement(value, true);
             } else {
                 if (incellEditing) {
-                    return kendoHtmlElement(value);
+                    return kendoHtmlElement(value, true);
                 } else {
-                    return kendoTextElement(value);
+                    return kendoTextElement(value, true);
                 }
             }
         },
@@ -5773,20 +5857,14 @@ var __meta__ = {
         _handleCommand: function(command) {
             var name = (command.name || command).toLowerCase();
             var text = this.options.messages.commands[name];
-            var icon = [];
 
             command = extend({}, defaultCommands[name], { text: text }, command);
 
-            if (command.imageClass) {
-                icon.push(kendoDomElement("span", {
-                    className: [ "k-icon", "k-button-icon", command.imageClass ].join(" ")
-                }));
-            }
 
             if (command.template) {
                 return kendoHtmlElement(kendo.template(command.template)({ message: command.text || this.options.messages.commands.search }));
             } else {
-                return this._button(command, name, icon);
+                return this._button(command, name, command.icon);
             }
         },
 
@@ -5798,17 +5876,11 @@ var __meta__ = {
             if (!command.className || command.className.indexOf("k-button-solid-primary") === -1) {
                 command.className += " k-button-solid-base";
             }
+            var buttonHTML = '<button data-command="' + name + '" class="' + command.className + '">' + (command.text || command.name) + '</button>';
 
-            var button = kendoDomElement(
-                "button", {
-                    "type": "button",
-                    "data-command": name,
-                    className: [ "k-button k-button-md k-rounded-md k-button-solid", command.className ].join(" ")
-                }, icon.concat([ kendoDomElement("span", {
-                    type: "span",
-                    className: "k-button-text"
-                }, [ kendoTextElement(command.text || command.name) ]) ])
-            );
+            var button = kendoHtmlElement(kendo.html.renderButton(buttonHTML, {
+                icon: icon,
+            }));
 
             return button;
         },
@@ -6612,7 +6684,7 @@ var __meta__ = {
             var that = this,
                 checkBox = $(e.target),
                 checked = checkBox.prop("checked"),
-                parentGrid = checkBox.closest(".k-grid.k-widget").getKendoTreeList();
+                parentGrid = checkBox.closest(".k-grid").getKendoTreeList();
 
             if (that !== parentGrid) {
                 return;
@@ -6634,7 +6706,7 @@ var __meta__ = {
                 children = [],
                 selector = "";
 
-            if (that !== row.closest(".k-grid.k-widget").getKendoTreeList()) {
+            if (that !== row.closest(".k-grid").getKendoTreeList()) {
                 return;
             }
 
@@ -7087,6 +7159,10 @@ var __meta__ = {
                 }
             });
 
+            if (that.lockedTable) {
+                that._syncLockedContentHeight();
+            }
+
             // refresh the current element as the DOM element reference can be changed after render()
             that._current = editedCell;
 
@@ -7261,7 +7337,7 @@ var __meta__ = {
                 hint: function(target) {
                     return $('<div class="k-reorder-clue k-drag-clue" />')
                     .html(target.attr(kendo.attr("title")) || target.attr(kendo.attr("field")) || target.text())
-                    .prepend('<span class="k-icon k-drag-status k-i-cancel" />');
+                    .prepend(kendo.ui.icon({ icon: "cancel", iconClass: "k-drag-status" }));
                 }
             });
 
@@ -7432,9 +7508,9 @@ var __meta__ = {
                        }
 
                        if (this._hasFilterRow()) {
-                           $("<tr role='row'></tr>").insertBefore(destTarget.find('tr.k-filter-row'));
+                           $("<tr class='k-table-row' role='row'></tr>").insertBefore(destTarget.find('tr.k-filter-row'));
                        } else {
-                           destTarget.append("<tr role='row'></tr>");
+                           destTarget.append("<tr class='k-table-row' role='row'></tr>");
                        }
                     }
                 }
@@ -7688,7 +7764,7 @@ var __meta__ = {
                 wrapper = that.wrapper.children("div.k-grid-pager");
 
                 if (!wrapper.length) {
-                    wrapper = $('<div class="k-pager-wrap k-grid-pager"/>').appendTo(that.wrapper);
+                    wrapper = $('<div class="k-pager k-grid-pager"/>').appendTo(that.wrapper);
                 }
 
                 that._destroyPager();
@@ -7714,6 +7790,7 @@ var __meta__ = {
 
             that.pager = new TreeListPager(element, extend({}, that.options.pageable, {
                 dataSource: that.dataSource,
+                size: "medium",
                 navigatable: that.options.navigatable
             }, options));
         },
@@ -7745,7 +7822,7 @@ var __meta__ = {
     }
 
     function isInputElement(element) {
-       return $(element).is(":button,a,:input,a>.k-icon,textarea,span.k-select,span.k-icon,span.k-link,.k-input,.k-multiselect-wrap,.k-tool-icon");
+       return $(element).is(":button,a,:input,a>.k-icon,a>.k-svg-icon,textarea,span.k-select,span.k-icon,span.k-svg-icon,span.k-link,.k-input,.k-multiselect-wrap,.k-tool-icon");
     }
 
     function isLocked(column) {
@@ -8174,6 +8251,10 @@ var __meta__ = {
         }
 
         return (column.field && model.editable && model.editable(column.field));
+    }
+
+    function capitalize(word) {
+        return word.charAt(0).toUpperCase() + word.slice(1);
     }
 
     function isDirtyColumn(column, model) {

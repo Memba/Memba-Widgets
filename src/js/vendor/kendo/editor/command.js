@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -25,7 +25,7 @@ function finishUpdate(editor, startRestorePoint) {
     command.editor = editor;
 
     editor.undoRedoStack.push(command);
-    editor.toolbar.refreshTools();
+    editor._refreshTools();
 
     return endRestorePoint;
 }
@@ -66,7 +66,9 @@ var Command = Class.extend({
 
         return $(content).appendTo(document.body)
             .kendoWindow(extend({}, editor.options.dialogOptions, options))
-            .closest(".k-window").toggleClass("k-rtl", kendo.support.isRtl(editor.wrapper)).end();
+            .closest(".k-window")
+            .addClass("k-editor-window")
+            .toggleClass("k-rtl", kendo.support.isRtl(editor.wrapper)).end();
     },
 
     exec: function() {
@@ -85,6 +87,13 @@ var Command = Class.extend({
             kendo.ui.editor.Immutables.expandImmutablesIn(range);
             this.restorePoint = new RestorePoint(range, this.editor.body);
         }
+    },
+
+    _actionButtonsTemplate: function({ messages, insertButtonIcon, cancelButtonIcon }) {
+        return '<div class="k-actions k-actions-start k-actions-horizontal k-window-buttons">' +
+        kendo.html.renderButton(`<button class="k-dialog-insert">${messages.dialogInsert}</button>`, { themeColor: "primary", icon: insertButtonIcon }) +
+        kendo.html.renderButton(`<button class="k-dialog-close">${messages.dialogCancel}</button>`, { icon: cancelButtonIcon }) +
+    '</div>';
     }
 });
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,12 +7,13 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.core.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "columnsorter",
     name: "Column Sorter",
     category: "framework",
-    depends: ["core"],
+    depends: ["core", "icons"],
     advanced: true
 };
 
@@ -118,13 +119,13 @@ var __meta__ = {
                 }
             }
             element.toggleClass("k-sorted", dir !== undefined);
-            element.find(".k-i-sort-asc-sm,.k-i-sort-desc-sm,.k-sort-order").remove();
+            element.find(".k-i-sort-asc-small,.k-i-sort-desc-small,.k-svg-i-sort-asc-small,.k-svg-i-sort-desc-small,.k-sort-order,.k-sort-icon").remove();
 
             if (dir === ASC) {
-                $('<span class="k-icon k-i-sort-asc-sm" />').appendTo(that.link);
+                $('<span class="k-sort-icon">' + kendo.ui.icon("sort-asc-small") + '</span>').appendTo(that.link);
                 element.attr(ARIASORT, "ascending");
             } else if (dir === DESC) {
-                $('<span class="k-icon k-i-sort-desc-sm" />').appendTo(that.link);
+                $('<span class="k-sort-icon">' + kendo.ui.icon("sort-desc-small") + '</span>').appendTo(that.link);
                 element.attr(ARIASORT, "descending");
             }
             if (that.options.showIndexes && sort.length > 1 && sortOrder) {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -30,6 +30,8 @@ var __meta__ = {
         PUSH = "push",
         OVERLAY = "overlay",
         LEFT = "left",
+        START = "start",
+        END = "end",
         RIGHT = "right";
 
     var Drawer = kendo.ui.Widget.extend({
@@ -331,6 +333,10 @@ var __meta__ = {
 
             drawerWrapper.width(options.width);
 
+            if (options.mini) {
+                drawerContainer.removeClass("k-drawer-mini");
+            }
+
             if (options.mode === OVERLAY) {
                 this.overlayContainer.show();
                 this.visible = true;
@@ -353,6 +359,7 @@ var __meta__ = {
             }
 
             if (options.mini) {
+                drawerContainer.addClass("k-drawer-mini");
                 if (miniWidth) {
                     drawerWrapper.width(miniWidth);
                 } else {
@@ -376,15 +383,14 @@ var __meta__ = {
             var that = this;
             var options = that.options;
             var position = value || options.position;
-            var drawerContainer = that.drawerContainer;
 
             if (position == RIGHT) {
-                drawerContainer.removeClass('k-drawer-' + LEFT);
-                drawerContainer.addClass('k-drawer-' + RIGHT);
+                that.element.removeClass('k-drawer-' + START);
+                that.element.addClass('k-drawer-' + END);
             }
             else {
-                drawerContainer.removeClass('k-drawer-' + RIGHT);
-                drawerContainer.addClass('k-drawer-' + LEFT);
+                that.element.removeClass('k-drawer-' + END);
+                that.element.addClass('k-drawer-' + START);
             }
 
             this.leftPositioned = position === LEFT;

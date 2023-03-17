@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,12 +8,13 @@
  */
 import "./kendo.core.js";
 import "./kendo.draganddrop.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "reorderable",
     name: "Reorderable",
     category: "framework",
-    depends: [ "core", "draganddrop" ],
+    depends: [ "core", "draganddrop", "icons" ],
     advanced: true
 };
 
@@ -149,8 +150,8 @@ var __meta__ = {
             name: "Reorderable",
             filter: "*",
             orientation: "horizontal",
-            deniedIcon: "k-i-cancel",
-            allowIcon: "k-i-plus",
+            deniedIcon: "cancel",
+            allowIcon: "plus",
             reorderDropCue: $('<div class="k-reorder-cue"></div></div>'),
             smartPosition: true
         },
@@ -165,10 +166,8 @@ var __meta__ = {
 
             hint = $(hint);
 
-            if (denied) {
-                hint.find(".k-drag-status").removeClass(options.allowIcon).addClass(options.deniedIcon);
-            } else {
-                hint.find(".k-drag-status").removeClass(options.deniedIcon).addClass(options.allowIcon);
+            if (hint.find(".k-drag-status").length > 0) {
+                kendo.ui.icon(hint.find(".k-drag-status").eq(0), { icon: denied ? options.deniedIcon : options.allowIcon });
             }
         },
 
@@ -268,7 +267,7 @@ var __meta__ = {
 
             target = $(e.currentTarget).closest(draggableFilter);
 
-            if (!that._dropTarget || (that.options.smartPosition && e.sender.hint.find(".k-drag-status").hasClass("k-i-cancel"))) {
+            if (!that._dropTarget || (that.options.smartPosition && e.sender.hint.find(".k-drag-status").is(".k-i-cancel,.k-svg-i-cancel"))) {
                 return;
             }
 

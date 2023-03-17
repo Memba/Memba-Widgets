@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./inlineformat.js";
+import "../../kendo.form.js";
 
 (function($, undefined) {
 
@@ -17,10 +18,8 @@ var kendo = window.kendo,
     Editor = kendo.ui.editor,
     dom = Editor.Dom,
     RangeUtils = Editor.RangeUtils,
-    EditorUtils = Editor.EditorUtils,
     Command = Editor.Command,
     Tool = Editor.Tool,
-    ToolTemplate = Editor.ToolTemplate,
     InlineFormatter = Editor.InlineFormatter,
     InlineFormatFinder = Editor.InlineFormatFinder,
     textNodes = RangeUtils.textNodes,
@@ -121,44 +120,6 @@ var LinkCommand = Command.extend({
         }
     },
 
-    _dialogTemplate: function() {
-        return kendo.template( ({ messages }) =>
-            '<div class="k-editor-dialog k-popup-edit-form">' +
-                '<div class="k-edit-form-container">' +
-                    "<div class='k-edit-label'>" +
-                        `<label for="k-editor-link-url">${encode( messages.linkWebAddress )}</label>` +
-                    "</div>" +
-                    "<div class='k-edit-field'>" +
-                        "<span class=\"k-textbox k-input k-input-md k-rounded-md k-input-solid\"><input type='text' class='k-input-inner' id='k-editor-link-url'></span>" +
-                    "</div>" +
-                    "<div class='k-edit-label k-editor-link-text-row'>" +
-                        `<label for="k-editor-link-text">${encode( messages.linkText )}</label>` +
-                    "</div>" +
-                    "<div class='k-edit-field k-editor-link-text-row'>" +
-                        "<span class=\"k-textbox k-input k-input-md k-rounded-md k-input-solid\"><input type='text' class='k-input-inner' id='k-editor-link-text'></span>" +
-                    "</div>" +
-                    "<div class='k-edit-label'>" +
-                        `<label for="k-editor-link-title">${encode( messages.linkToolTip )}</label>` +
-                    "</div>" +
-                    "<div class='k-edit-field'>" +
-                        "<span class=\"k-textbox k-input k-input-md k-rounded-md k-input-solid\"><input type='text' class='k-input-inner' id='k-editor-link-title'></span>" +
-                    "</div>" +
-                    "<div class='k-edit-label'></div>" +
-                    "<div class='k-edit-field'>" +
-                        "<input type='checkbox' class='k-checkbox k-checkbox-md k-rounded-md' id='k-editor-link-target'>" +
-                        `<label for="k-editor-link-target" class="k-checkbox-label">${encode( messages.linkOpenInNewWindow )}</label>` +
-                    "</div>" +
-                    "<div class='k-edit-buttons'>" +
-                        `<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${encode(messages.dialogInsert)}</span></button>` +
-                        `<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${encode(messages.dialogCancel)}</span></button>` +
-                    "</div>" +
-                "</div>" +
-            "</div>"
-        )({
-            messages: this.editor.options.messages
-        });
-    },
-
     exec: function() {
         var messages = this.editor.options.messages;
         this._initialText = "";
@@ -169,11 +130,14 @@ var LinkCommand = Command.extend({
         var a = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null;
         var img = nodes.length && dom.name(nodes[0]) == "img";
 
-        var dialog = this.createDialog(this._dialogTemplate(), {
+        var dialog = this.createDialog("<div/>", {
             title: messages.createLink,
+            minWidth: 340,
             close: this._close.bind(this),
             visible: false
-        });
+        }).data("kendoWindow");
+
+        this._form = this._createForm(dialog);
 
         if (a) {
             this._range.selectNodeContents(a);
@@ -182,19 +146,59 @@ var LinkCommand = Command.extend({
 
         this._initialText = this.linkText(nodes);
 
-        dialog
+        dialog.wrapper
             .find(".k-dialog-insert").on("click", this._apply.bind(this)).end()
             .find(".k-dialog-close").on("click", this._close.bind(this)).end()
-            .find(".k-edit-field input").on("keydown", this._keydown.bind(this)).end()
+            .find(".k-form-field input").on("keydown", this._keydown.bind(this)).end()
             .find("#k-editor-link-url").val(this.linkUrl(a)).end()
             .find("#k-editor-link-text").val(this._initialText).end()
             .find("#k-editor-link-title").val(a ? a.title : "").end()
-            .find("#k-editor-link-target").attr("checked", a ? a.target == "_blank" : false).end()
+            .find("#k-editor-link-target").prop("checked", a ? a.target == "_blank" : false).end()
             .find(".k-editor-link-text-row").toggle(!img);
 
-        this._dialog = dialog.data("kendoWindow").center().open();
+        this._dialog = dialog.center().open();
 
-        $("#k-editor-link-url", dialog).trigger("focus").select();
+        $("#k-editor-link-url", dialog.element).trigger("focus").select();
+    },
+
+    _createForm: function(dialog) {
+        var that = this;
+        var formElement = $("<div/>").appendTo(dialog.element);
+        var messages = that.editor.options.messages;
+        var form = formElement.kendoForm({
+            renderButtons: false,
+            items: [
+                {
+                    field: "k-editor-link-url",
+                    label: encode(messages.linkWebAddress),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-link-text",
+                    label: encode(messages.linkText),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-link-title",
+                    label: encode(messages.linkToolTip),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-link-target",
+                    editorOptions: {
+                        label: encode(messages.linkOpenInNewWindow)
+                    },
+                    label: "",
+                    editor: "CheckBox"
+                }
+            ]
+        }).data("kendoForm");
+
+        formElement.find("#k-editor-link-text").parents(".k-form-field").addClass("k-editor-link-text-row");
+
+        dialog.element.after($(that._actionButtonsTemplate({ messages, insertButtonIcon: "link", cancelButtonIcon: "cancel-outline" })));
+
+        return form;
     },
 
     _keydown: function(e) {
@@ -250,6 +254,7 @@ var LinkCommand = Command.extend({
 
     _close: function(e) {
         e.preventDefault();
+        this._form.destroy();
         this._dialog.destroy();
 
         dom.windowFromDocument(RangeUtils.documentFromRange(this._range)).focus();
@@ -362,14 +367,15 @@ var UnlinkTool = Tool.extend({
         Tool.fn.init.call(this, $.extend(options, { command: UnlinkCommand }));
     },
 
-    initialize: function(ui, options) {
-        Tool.fn.initialize.call(this, ui, options);
-        ui.addClass("k-disabled");
-    },
-
     update: function(ui, nodes) {
-        ui.toggleClass("k-disabled", !this.finder.isFormatted(nodes))
-          .removeClass("k-hover");
+        var isLink = this.finder.isFormatted(nodes),
+            toolbar = ui.closest(".k-toolbar").data("kendoToolBar");
+
+        if (isLink) {
+            toolbar.enable(ui, true);
+        } else {
+            toolbar.enable(ui, false);
+        }
     }
 });
 
@@ -598,8 +604,8 @@ extend(kendo.ui.editor, {
     RightDomTextTraverser: RightDomTextTraverser
 });
 
-registerTool("createLink", new Tool({ key: "K", ctrl: true, command: LinkCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Create Link" }) }));
-registerTool("unlink", new UnlinkTool({ key: "K", ctrl: true, shift: true, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Remove Link" }) }));
+registerTool("createLink", new Tool({ key: "K", ctrl: true, command: LinkCommand }));
+registerTool("unlink", new UnlinkTool({ key: "K", ctrl: true, shift: true, ui: { enable: false } }));
 registerTool("autoLink", new Tool({ key: [keys.ENTER, keys.SPACEBAR], keyPressCommand: true, command: AutoLinkCommand }));
 
 })(window.kendo.jQuery);

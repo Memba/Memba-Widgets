@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -250,7 +250,7 @@ var __meta__ = {
             var options = this.options;
             var height = options.height;
 
-            this.element.addClass("k-widget k-listview");
+            this.element.addClass("k-listview");
 
 
             if (options.contentElement) {
@@ -270,7 +270,7 @@ var __meta__ = {
             var flex = options.flex;
             var grid = options.grid;
             var element = that.element;
-            var elementClassNames = ["k-widget", "k-listview"];
+            var elementClassNames = ["k-listview"];
             var content = that.content;
             var contentClassNames = ["k-listview-content"];
 
@@ -698,7 +698,7 @@ var __meta__ = {
                 content = that.content,
                 clickCallback = function(e) {
                     that.current($(e.currentTarget));
-                    if (!$(e.target).is(":button, a, :input, a > .k-icon, textarea")) {
+                    if (!$(e.target).is(":button, a, :input, a > .k-icon, a > k-svg-icon, textarea")) {
                         kendo.focusElement(element);
                     }
                 };

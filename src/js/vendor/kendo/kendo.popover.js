@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.tooltip.js";
+import "./kendo.html.button.js";
 
 var __meta__ = {
     id: "popover",
     name: "Popover",
     category: "web",
     description: "The Popover widget displays a popup with additional information for an element.",
-    depends: [ "tooltip"],
+    depends: [ "tooltip", "html.button" ],
     features: [ {
         id: "popover-fx",
         name: "Animation",
@@ -30,12 +31,18 @@ var __meta__ = {
         DOCUMENT = $(document),
         NS = ".kendoPopover",
         ARROWWIDTH = 28,
-        TEXTBUTTONTEMPLATE = ({ index, text }) => `<button ${index} class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary"><span class="k-button-text">${text}</span></button>`,
-        ICONTEXTBUTTONTEMPLATE = ({ index, text, iconClass }) => `<button ${index} class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">` +
-            `<span class="k-button-icon ${iconClass}"></span>` +
-            `<span class="k-button-text">${text}</span>` +
-        '</button>',
-        ICONBUTTON = ({ index, iconClass }) => `<button ${index} class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button"><span class="k-button-icon ${iconClass}"></span></button>`,
+        TEXTBUTTONTEMPLATE = ({ index, text }) => kendo.html.renderButton(`<button ${index}>${text}</button>`, {
+            fillMode: "flat",
+            themeColor: 'primary'
+        }),
+        ICONTEXTBUTTONTEMPLATE = ({ index, text, icon, iconClass }) => kendo.html.renderButton(`<button ${index}>${text}</button>`, {
+            icon: icon,
+            iconClass: 'k-button-icon' + (iconClass ? ` ${iconClass}` : '')
+        }),
+        ICONBUTTON = ({ index, icon, iconClass }) => kendo.html.renderButton(`<button ${index}></button>`, {
+            icon: icon,
+            iconClass: 'k-button-icon' + (iconClass ? ` ${iconClass}` : '')
+        }),
         CARDTEMPLATE = ({ header, actions, body, positioning }) => `${header ? '<div class="k-popover-header">' + header + '</div>' : ''}` +
         `<div class="k-popover-body">${body}</div>` +
         `${actions ? '<div class="k-popover-actions k-actions k-hstack k-justify-content-' + positioning + '">' + actions + '</div>' : ''}`,
@@ -233,10 +240,10 @@ var __meta__ = {
             for (var index = 0; index < actions.length; index++) {
                 action = actions[index];
 
-                if (action.text && action.iconClass) {
-                    html += kendo.template(ICONTEXTBUTTONTEMPLATE)( { text: action.text, index: kendo.attr("index") + "=" + index, iconClass: action.iconClass });
-                } else if (action.iconClass && !action.text) {
-                    html += kendo.template(ICONBUTTON)( { index: kendo.attr("index") + "=" + index, iconClass: action.iconClass });
+                if (action.text && (action.icon || action.iconClass)) {
+                    html += kendo.template(ICONTEXTBUTTONTEMPLATE)( { text: action.text, index: kendo.attr("index") + "=" + index, icon: action.icon, iconClass: action.iconClass });
+                } else if ((action.icon || action.iconClass) && !action.text) {
+                    html += kendo.template(ICONBUTTON)( { index: kendo.attr("index") + "=" + index, icon: action.icon, iconClass: action.iconClass });
                 } else {
                     html += kendo.template(TEXTBUTTONTEMPLATE)( { text: action.text, index: kendo.attr("index") + "=" + index });
                 }

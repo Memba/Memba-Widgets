@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.dom.js";
 import "./kendo.touch.js";
 import "./kendo.draganddrop.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "gantt.timeline",
     name: "Gantt Timeline",
     category: "web",
     description: "The Gantt Timeline",
-    depends: [ "dom", "touch", "draganddrop" ],
+    depends: [ "dom", "touch", "draganddrop", "icons" ],
     hidden: true
 };
 
@@ -129,10 +130,10 @@ var __meta__ = {
     }
 
     var viewStyles = {
-        alt: "k-alt",
+        alt: "k-alt k-table-row k-table-alt-row",
         reset: "k-reset",
         nonWorking: "k-nonwork-hour",
-        header: "k-header",
+        header: "k-header k-table-td",
         gridHeader: "k-grid-header",
         gridHeaderWrap: "k-grid-header-wrap",
         gridContent: "k-grid-content",
@@ -143,6 +144,11 @@ var __meta__ = {
         dependenciesWrapper: "k-gantt-dependencies",
         resource: "k-resource",
         resourceAlt: "k-resource k-alt",
+        headerTable: "k-grid-header-table k-table k-table-md",
+        table: "k-table k-table-md",
+        tbody: "k-table-tbody",
+        tableRow: "k-table-row",
+        tableCell: "k-table-td",
         task: "k-task",
         taskSingle: "k-task-single",
         taskMilestone: "k-task-milestone",
@@ -172,8 +178,7 @@ var __meta__ = {
         taskDetails: "k-task-details",
         taskDetailsPercent: "k-task-pct",
         link: "k-link",
-        icon: "k-icon",
-        iconDelete: "k-i-close",
+        iconDelete: "x",
         taskResizeHandle: "k-resize-handle",
         taskResizeHandleWest: "k-resize-w",
         taskResizeHandleEast: "k-resize-e",
@@ -284,8 +289,8 @@ var __meta__ = {
             var headers = this._headers(rows);
             var colgroup = this._colgroup();
             var tree = this._headerTree;
-            var header = kendoDomElement("tbody", null, headers);
-            var table = kendoDomElement("table", { style: { width: this._tableWidth + "px" }, role: "presentation" }, [colgroup, header]);
+            var header = kendoDomElement("tbody", { className: GanttView.styles.tbody }, headers);
+            var table = kendoDomElement("table", { className: GanttView.styles.headerTable, style: { width: this._tableWidth + "px" }, role: "presentation" }, [colgroup, header]);
 
             tree.render([table]);
 
@@ -342,11 +347,11 @@ var __meta__ = {
             var rows = [];
             var row;
             var styles = GanttView.styles;
-            var attributes = [null, { className: styles.alt }];
+            var attributes = [{ className: styles.tableRow }, { className: styles.alt }];
 
             for (var i = 0; i < rowCount; i++) {
                 row = kendoDomElement("tr", attributes[i % 2], [
-                    kendoDomElement("td", null, [
+                    kendoDomElement("td", { className: styles.tableCell }, [
                         kendoTextElement("\u00a0")
                     ])
                 ]);
@@ -354,7 +359,7 @@ var __meta__ = {
                 rows.push(row);
             }
 
-            return this._createTable(1, rows, { className: styles.rowsTable });
+            return this._createTable(1, rows, { className: styles.rowsTable + " k-grid-table " + styles.table });
         },
 
         _columnsTable: function() {
@@ -371,7 +376,7 @@ var __meta__ = {
             for (var i = 0; i < slotsCount; i++) {
                 slot = slots[i];
 
-                attributes = {};
+                attributes = { className: styles.tableCell };
 
                 slotSpan = slot.span;
 
@@ -382,7 +387,7 @@ var __meta__ = {
                 }
 
                 if (slot.isNonWorking) {
-                    attributes.className = styles.nonWorking;
+                    attributes.className += " " + styles.nonWorking;
                 }
 
                 cells.push(kendoDomElement("td", attributes, [
@@ -390,9 +395,9 @@ var __meta__ = {
                 ]));
             }
 
-            row = kendoDomElement("tr", null, cells);
+            row = kendoDomElement("tr", { className: styles.tableRow }, cells);
 
-            return this._createTable(totalSpan, [row], { className: styles.columnsTable });
+            return this._createTable(totalSpan, [row], { className: styles.columnsTable + " " + styles.table });
         },
 
         _tasksTable: function(tasks) {
@@ -414,6 +419,7 @@ var __meta__ = {
             var taskBorderWidth = this._calculateTaskBorderWidth();
             var resourceStyle;
             var showPlannedTasks = this.options.showPlannedTasks;
+            var attributes = [{ className: styles.tableRow }, { className: styles.alt }];
 
             var addCoordinates = function(rowIndex) {
                 var taskLeft;
@@ -445,8 +451,8 @@ var __meta__ = {
                 }
                 position.borderWidth = taskBorderWidth;
 
-                row = kendoDomElement("tr", null);
-                cell = kendoDomElement("td");
+                row = kendoDomElement("tr", attributes[i % 2]);
+                cell = kendoDomElement("td", { className: styles.tableCell });
 
                 if (task.start <= this.end && task.end >= this.start) {
                     cell.children.push(this._renderTask(tasks[i], position, plannedPosition));
@@ -483,7 +489,7 @@ var __meta__ = {
                 rows.push(row);
             }
 
-            return this._createTable(1, rows, { className: GanttView.styles.tasksTable });
+            return this._createTable(1, rows, { className: GanttView.styles.tasksTable + " " + styles.table });
         },
 
         _createTable: function(colspan, rows, styles) {
@@ -497,7 +503,7 @@ var __meta__ = {
 
             colgroup = kendoDomElement("colgroup", null, cols);
 
-            tbody = kendoDomElement("tbody", null, rows);
+            tbody = kendoDomElement("tbody", { className: GanttView.styles.tbody }, rows);
 
             if (!styles.style) {
                 styles.style = {};
@@ -648,7 +654,7 @@ var __meta__ = {
                     if (editable.destroy !== false) {
                         offsetElement.children.push(kendoDomElement("span", { className: styles.taskActions, "aria-hidden": "true" }, [
                             kendoDomElement("a", { className: styles.link + " " + styles.taskDelete, href: "#", "aria-label": "Delete" }, [
-                                kendoDomElement("span", { className: styles.icon + " " + styles.iconDelete })
+                                kendoDomElement($(kendo.ui.icon(styles.iconDelete))[0])
                             ])
                         ]));
                     }
@@ -758,7 +764,7 @@ var __meta__ = {
                 if (editable.destroy !== false && (!plannedPosition || !task.plannedEnd || (task.end <= task.plannedEnd || task.start >= task.plannedEnd))) {
                     content.children.push(kendoDomElement("span", { className: styles.taskActions, "aria-hidden": "true" }, [
                         kendoDomElement("a", { className: styles.link + " " + styles.taskDelete, href: "#", "aria-label": "Delete" }, [
-                            kendoDomElement("span", { className: styles.icon + " " + styles.iconDelete })
+                            kendoDomElement($(kendo.ui.icon(styles.iconDelete))[0])
                         ])
                     ]));
                 }
@@ -1706,7 +1712,7 @@ var __meta__ = {
                     headers.push(kendoDomElement("td", { colspan: column.span, className: styles.header + (column.isNonWorking ? (" " + styles.nonWorking) : "") }, [headerText]));
                 }
 
-                rows.push(kendoDomElement("tr", null, headers));
+                rows.push(kendoDomElement("tr", { className: styles.tableRow }, headers));
             }
 
             return rows;
@@ -2193,7 +2199,7 @@ var __meta__ = {
     });
 
     var timelineStyles = {
-        wrapper: "k-timeline k-grid k-widget",
+        wrapper: "k-timeline k-grid",
         gridHeader: "k-grid-header",
         gridHeaderWrap: "k-grid-header-wrap",
         gridContent: "k-grid-content",

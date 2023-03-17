@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11,6 +11,7 @@ import "../kendo.window.js";
 import "../kendo.binder.js";
 import "../kendo.numerictextbox.js";
 import "../kendo.dropdownlist.js";
+import "../kendo.icons.js";
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -84,7 +85,7 @@ import "../kendo.dropdownlist.js";
                 "<div class='k-edit-field'>" +
                     `<input data-role='numerictextbox' data-format='n0' data-min='1' data-max='${encode(total)}' data-bind='value: page' />` +
                 "</div>" +
-                "<div class='k-action-buttons'>" +
+                "<div class='k-actions'>" +
                     `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-bind='click: apply'><span class='k-button-text'>${encode(messages.save)}</span></button>` +
                     `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-bind='click: close'><span class='k-button-text'>${encode(messages.cancel)}</span></button>` +
                 "</div>"
@@ -148,15 +149,15 @@ import "../kendo.dropdownlist.js";
         options: {
             resizable: false,
             template: ({ messages }) => "<div class='k-search-container'>" +
-                          `<button aria-label='${encode(messages.dragHandle)}' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-search-dialog-draghandle'><span class='k-button-icon k-icon k-i-handler-drag'></span></button>` +
+                          `<button aria-label='${encode(messages.dragHandle)}' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-search-dialog-draghandle'>${kendo.ui.icon({ icon: "handle-drag", iconClass: "k-button-icon" })}</button>` +
                           "<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'>" +
                               `<input class='k-search-dialog-input k-input-inner' data-bind='value: boundValue, events: { keyup: onKeyup, input: onInput }' aria-label='${encode( messages.inputLabel)}' title='${encode(messages.inputLabel)}' />` +
-                              `<span class='k-input-suffix'><button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-match-case-button k-match-case-button' data-bind='css: {k-selected: matchCase}, click: matchCaseClick' aria-label='${encode(messages.matchCase)}' title='${encode(messages.matchCase)}'><span class='k-icon k-i-convert-lowercase'></span></button></span>` +
+                              `<span class='k-input-suffix'><button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-match-case-button k-match-case-button' data-bind='css: {k-selected: matchCase}, click: matchCaseClick' aria-label='${encode(messages.matchCase)}' title='${encode(messages.matchCase)}'>${kendo.ui.icon({ icon: "convert-lowercase", iconClass: "k-button-icon" })}</button></span>` +
                           "</span>" +
                           `<span class='k-search-matches'><span data-bind='text: matchIndex'></span> ${encode(messages.of)} <span data-bind='text: matches'></span></span>` +
-                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: prev' aria-label='${encode(messages.previous)}' title='${encode(messages.previous)}'><span class='k-button-icon k-icon k-i-arrow-up'></span></button>` +
-                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: next' aria-label='${encode(messages.next)}' title='${encode(messages.next)}'><span class='k-button-icon k-icon k-i-arrow-down'></span></button>` +
-                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: close' aria-label='${encode(messages.close)}' title='${encode(messages.close)}'><span class='k-button-icon k-icon k-i-close'></<span></button>` +
+                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: prev' aria-label='${encode(messages.previous)}' title='${encode(messages.previous)}'>${kendo.ui.icon({ icon: "arrow-up", iconClass: "k-button-icon" })}</button>` +
+                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: next' aria-label='${encode(messages.next)}' title='${encode(messages.next)}'>${kendo.ui.icon({ icon: "arrow-down", iconClass: "k-button-icon" })}</button>` +
+                          `<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: close' aria-label='${encode(messages.close)}' title='${encode(messages.close)}'>${kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" })}</button>` +
                       "</div>"
         },
         open: function() {

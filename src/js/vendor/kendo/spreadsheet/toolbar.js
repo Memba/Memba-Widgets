@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,9 +12,14 @@ import "../kendo.combobox.js";
 import "../kendo.dropdownlist.js";
 import "../kendo.popup.js";
 import "./borderpalette.js";
+import "../kendo.icons.js";
 
 (function(kendo) {
     var $ = kendo.jQuery;
+
+    function getDefaultToolElement(firstIconName) {
+        return `<button role="button">${kendo.ui.icon({ icon: firstIconName, iconClass: "k-button-icon" })}<span class="k-button-text">${kendo.ui.icon("caret-alt-down")}</span></button>`
+    };
 
     var ToolBar = kendo.ui.ToolBar;
 
@@ -253,14 +258,14 @@ import "./borderpalette.js";
             type: "button",
             name: "paste",
             command: "ToolbarPasteCommand",
-            icon: "paste"
+            icon: "clipboard"
         },
         alignment: {
             type: "component",
             name: "alignment",
             property: "alignment",
             component: "DropDownButton",
-            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-align-left"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            element: getDefaultToolElement("align-left"),
             overflowComponent: {
                 type: "button",
                 dialog: "alignment",
@@ -289,7 +294,7 @@ import "./borderpalette.js";
             component: "ColorPicker",
             componentOptions: {
                 view: "palette",
-                toolIcon: "k-i-paint",
+                toolIcon: "droplet",
                 palette: colorPickerPalette,
                 clearButton: true,
                 messages: COLOR_PICKER_MESSAGES,
@@ -299,7 +304,7 @@ import "./borderpalette.js";
             overflowComponent: {
                 type: "button",
                 dialog: "colorPicker",
-                icon: "paint"
+                icon: "droplet"
             }
         },
         textColor: {
@@ -311,7 +316,7 @@ import "./borderpalette.js";
             component: "ColorPicker",
             componentOptions: {
                 view: "palette",
-                toolIcon: "k-i-foreground-color",
+                toolIcon: "foreground-color",
                 palette: colorPickerPalette,
                 clearButton: true,
                 messages: COLOR_PICKER_MESSAGES,
@@ -362,7 +367,7 @@ import "./borderpalette.js";
             type: "component",
             name: "format",
             component: "DropDownButton",
-            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-custom-format"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            element: getDefaultToolElement("custom-format"),
             overflowComponent: {
                 type: "button",
                 dialog: "formatCells",
@@ -405,7 +410,7 @@ import "./borderpalette.js";
             type: "component",
             name: "merge",
             component: "DropDownButton",
-            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-cells-merge"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            element: getDefaultToolElement("cells-merge"),
             overflowComponent: {
                 type: "button",
                 dialog: "merge",
@@ -425,7 +430,7 @@ import "./borderpalette.js";
             type: "component",
             name: "freeze",
             component: "DropDownButton",
-            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-pane-freeze"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            element: getDefaultToolElement("pane-freeze"),
             overflowComponent: {
                 type: "button",
                 dialog: "freeze",
@@ -462,7 +467,7 @@ import "./borderpalette.js";
             type: "button",
             name: "hyperlink",
             dialog: "hyperlink",
-            icon: "link-horizontal"
+            icon: "link"
         },
         toggleGridlines: {
             type: "button",
@@ -470,7 +475,7 @@ import "./borderpalette.js";
             command: "GridLinesChangeCommand",
             property: "gridLines",
             value: true,
-            icon: "border-no",
+            icon: "borders-none",
             togglable: true,
             selected: true
         },
@@ -536,7 +541,7 @@ import "./borderpalette.js";
             type: "component",
             name: "sort",
             component: "DropDownButton",
-            element: '<button role="button"><span class="k-button-icon k-icon k-icon k-i-sort-desc"></span><span class="k-button-text"><span class="k-icon k-i-arrow-s"></span></span></button>',
+            element: getDefaultToolElement("sort-desc"),
             overflowComponent: {
                 type: "button",
                 dialog: "sort",
@@ -554,7 +559,7 @@ import "./borderpalette.js";
             type: "button",
             name: "validation",
             dialog: "validation",
-            icon: "exception"
+            icon: "exclamation-circle"
         }
     };
 
@@ -573,7 +578,7 @@ import "./borderpalette.js";
             ToolBar.fn.init.call(this, element, options);
             var handleClick = this._click.bind(this);
 
-            this.element.addClass("k-spreadsheet-toolbar");
+            this.element.addClass("k-spreadsheet-toolbar k-toolbar-md");
 
             this.bind({
                 click: handleClick,
@@ -756,11 +761,14 @@ import "./borderpalette.js";
             this.trigger("dialog", args);
         },
 
-        refreshTools: function(range) {
+        refreshTools: function(range, reason) {
             var toolbars = this.toolbars;
-            for (var name in toolbars) {
-                if (toolbars.hasOwnProperty(name)) {
-                    toolbars[name].refresh(range);
+
+            if (!reason.overElement && !reason.comment) {
+                for (var name in toolbars) {
+                    if (toolbars.hasOwnProperty(name)) {
+                        toolbars[name].refresh(range);
+                    }
                 }
             }
         },
@@ -770,7 +778,7 @@ import "./borderpalette.js";
                 { title: MESSAGES.quickAccess.undo, icon: "undo", action: "undo" },
                 { title: MESSAGES.quickAccess.redo, icon: "redo", action: "redo" }
             ];
-            var buttonTemplate = kendo.template("<a role='button' href='\\#' title='#= title #' data-action='#= action #' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' aria-label='#= title #'><span class='k-button-icon k-icon k-i-#=icon#'></span></a>");
+            var buttonTemplate = kendo.template("<a role='button' href='\\#' title='#= title #' data-action='#= action #' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' aria-label='#= title #'>#=kendo.ui.icon(icon)#</a>");
 
             this.quickAccessToolBar = $("<div />", {
                 "class": "k-spreadsheet-quick-access-toolbar",

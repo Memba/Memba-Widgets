@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.html.base.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "html.chip",
     name: "Html.Chip",
     category: "web",
     description: "HTML rendering utility for Kendo UI for jQuery.",
-    depends: [ "html.base" ],
+    depends: [ "html.base", "icons" ],
     features: []
 };
 
@@ -63,7 +64,7 @@ var __meta__ = {
             that._addClasses();
 
             if (options.icon) {
-                that.wrapper.prepend($("<span class='k-chip-icon k-icon k-i-" + options.icon + "'></span>").attr(options.iconAttr));
+                that.wrapper.prepend($(kendo.ui.icon({ icon: options.icon, iconClass: `k-chip-icon${options.iconClass ? ` ${options.iconClass}` : '' }` })).attr(options.iconAttr));
             } else if (options.iconClass) {
                 that.wrapper.prepend($("<span class='" + options.iconClass + "'></span>").attr(options.iconAttr));
             } else if (options.avatarClass) {
@@ -88,8 +89,7 @@ var __meta__ = {
             }
 
             if (options.removable) {
-                var removeIconClass = options.removeIconClass ? options.removeIconClass : "k-chip-icon k-icon k-i-" + options.removeIcon;
-                that.wrapper.append($("<span class='k-chip-action k-chip-remove-action'><span class='" + removeIconClass + "'></span></span>").attr(options.removableAttr));
+                that.wrapper.append($(`<span class='k-chip-action k-chip-remove-action'>${kendo.ui.icon({ icon: options.removeIcon, iconClass: "k-chip-icon" })}</span>`).attr(options.removableAttr));
             }
         }
     });

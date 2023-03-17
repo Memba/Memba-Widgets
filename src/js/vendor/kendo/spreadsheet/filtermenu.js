@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,6 +12,7 @@ import "../kendo.treeview.js";
 import "../kendo.numerictextbox.js";
 import "../kendo.datepicker.js";
 import "../kendo.datetimepicker.js";
+import "../kendo.icons.js";
 
     (function(kendo) {
 
@@ -23,15 +24,15 @@ import "../kendo.datetimepicker.js";
             detailsSummary: "k-details-summary",
             detailsContent: "k-details-content",
             icon: "k-icon",
-            iconCollapse: "k-i-arrow-45-down-right",
-            iconExpand: "k-i-arrow-60-right",
-            iconSearch: "k-i-zoom",
+            iconCollapseName: "caret-br",
+            iconExpandName: "caret-alt-right",
+            iconSearchName: "search",
             textbox: "k-textbox",
             wrapper: "k-spreadsheet-filter-menu",
             filterByCondition: "k-spreadsheet-condition-filter",
             filterByValue: "k-spreadsheet-value-filter",
             valuesTreeViewWrapper: "k-spreadsheet-value-treeview-wrapper",
-            actionButtons: "k-action-buttons"
+            actionButtons: "k-actions"
         };
 
         kendo.spreadsheet.messages.filterMenu = {
@@ -83,8 +84,8 @@ import "../kendo.datetimepicker.js";
                 this._summary = this.element.find("." + FilterMenu.classNames.detailsSummary)
                     .on("click", this._toggle.bind(this));
 
-                var iconClass = options.expanded ? FilterMenu.classNames.iconCollapse : FilterMenu.classNames.iconExpand;
-                this._icon = $("<span />", { "class": FilterMenu.classNames.icon + " " + iconClass })
+                var iconName = options.expanded ? FilterMenu.classNames.iconCollapseName : FilterMenu.classNames.iconExpandName;
+                this._icon = $(kendo.ui.icon(iconName))
                     .prependTo(this._summary);
 
                 this._container = kendo.wrap(this._summary.next(), true);
@@ -104,9 +105,7 @@ import "../kendo.datetimepicker.js";
                 var animation = kendo.fx(this._container).expand("vertical");
 
                 animation.stop()[show ? "reverse" : "play"]();
-
-                this._icon.toggleClass(FilterMenu.classNames.iconExpand, show)
-                          .toggleClass(FilterMenu.classNames.iconCollapse, !show);
+                kendo.ui.icon(this._icon, { icon: show ? FilterMenu.classNames.iconExpandName : FilterMenu.classNames.iconCollapseName });
 
                 this.options.expanded = !show;
             },
@@ -168,7 +167,7 @@ import "../kendo.datetimepicker.js";
                 "<div class='" + classNames.detailsSummary + "'>#= messages.filterByValue #</div>" +
                 "<div class='" + classNames.detailsContent + "'>" +
                     "<div class='k-searchbox k-input k-input-md k-rounded-md k-input-solid'>" +
-                        "<span class='k-input-icon k-icon k-i-search'></span>" +
+                        kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
                         "<input class='k-input-inner' autocomplete='off' placeholder='#= messages.search #' data-#=ns#bind='events: { input: filterValues }' />" +
                     "</div>" +
                     "<div data-#=ns#bind='visible: hasActiveSearch'><input class='k-checkbox k-checkbox-md k-rounded-md' type='checkbox' data-#=ns#bind='checked: appendToSearch' id='_#=guid#'/><label class='k-checkbox-label' for='_#=guid#'>#= messages.addToCurrent #</label></div>" +
@@ -209,7 +208,7 @@ import "../kendo.datetimepicker.js";
                 "</div>",
             menuItem:
                 "<li data-command='#=command#' data-dir='#=dir#'>" +
-                    "<span class='k-icon k-i-#=iconClass#'></span>#=text#" +
+                    "#= kendo.ui.icon(iconClass) ##=text#" +
                 "</li>",
             actionButtons:
                 "<button data-#=ns#bind='click: apply' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary'><span class='k-button-text'>#=messages.apply#</span></button>" +
@@ -722,7 +721,7 @@ import "../kendo.datetimepicker.js";
                 this.element.append(wrapper);
 
                 if (details) {
-                    details = new Details(wrapper, { expanded: expanded, toggle: this._detailToggle.bind(this) }); 
+                    details = new Details(wrapper, { expanded: expanded, toggle: this._detailToggle.bind(this) });
                 }
 
                 kendo.bind(wrapper, this.viewModel);

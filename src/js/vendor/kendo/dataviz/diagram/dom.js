@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,6 +14,7 @@ import "../../kendo.window.js";
 import "../../kendo.dropdownlist.js";
 import "../../kendo.dataviz.core.js";
 import "../../kendo.dataviz.themes.js";
+import "../../kendo.html.button.js";
 import "./svg.js";
 import "./services.js";
 import "./layout.js";
@@ -113,11 +114,11 @@ import "./layout.js";
             MOUSEWHEEL_NS = "DOMMouseScroll" + NS + " mousewheel" + NS,
             MOBILE_ZOOM_RATE = 0.05,
             MOBILE_PAN_DISTANCE = 5,
-            BUTTON_TEMPLATE = ({ className, iconClass, imageClass, text }) =>
-            `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base ${className}" href="#">` +
-                `<span class="k-button-icon ${iconClass} ${imageClass}"></span>` +
-                `<span class="k-button-text">${text}</span>` +
-            '</a>',
+            BUTTON_TEMPLATE = ({ className, icon, themeColor, text }) =>
+                kendo.html.renderButton(`<button class="${className}" href="#">${text}</button>`, {
+                    icon: icon,
+                    themeColor
+                }),
             CONNECTION_CONTENT_OFFSET = 5;
 
         diagram.DefaultConnectors = [{
@@ -138,15 +139,14 @@ import "./layout.js";
         var defaultButtons = {
             cancel: {
                 text: "Cancel",
-                imageClass: "k-i-cancel",
+                icon: "cancel-outline",
                 className: "k-diagram-cancel",
-                iconClass: "k-icon"
             },
             update: {
-                text: "Update",
-                imageClass: "k-i-checkmark",
-                className: "k-diagram-update",
-                iconClass: "k-icon"
+                text: "Save",
+                imageClass: "save",
+                icon: "k-diagram-update",
+                themeColor: "primary"
             }
         };
 
@@ -4469,7 +4469,7 @@ import "./layout.js";
 
             editTool: function() {
                 this._tools.push({
-                    icon: "edit",
+                    icon: "pencil",
                     showText: "overflow",
                     type: "button",
                     text: "Edit",
@@ -4479,7 +4479,7 @@ import "./layout.js";
 
             deleteTool: function() {
                 this._tools.push({
-                    icon: "close",
+                    icon: "x",
                     showText: "overflow",
                     type: "button",
                     text: "Delete",
@@ -4512,7 +4512,7 @@ import "./layout.js";
             createShapeTool: function() {
                 this._appendGroup("create");
                 this._createGroup.buttons.push({
-                    icon: "shape",
+                    icon: "shapes",
                     showText: "overflow",
                     text: "CreateShape",
                     group: "create",
@@ -4849,10 +4849,10 @@ import "./layout.js";
 
             _attachButtonEvents: function() {
                 this._cancelClickHandler = this._cancelClick.bind(this);
-                this.window.element.on(CLICK + NS, "a.k-diagram-cancel", this._cancelClickHandler);
+                this.window.element.on(CLICK + NS, "button.k-diagram-cancel", this._cancelClickHandler);
 
                 this._updateClickHandler = this._updateClick.bind(this);
-                this.window.element.on(CLICK + NS, "a.k-diagram-update", this._updateClickHandler);
+                this.window.element.on(CLICK + NS, "button.k-diagram-update", this._updateClickHandler);
             },
 
             _updateClick: function(e) {

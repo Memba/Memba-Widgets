@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,12 +8,13 @@
  */
 import "./kendo.core.js";
 import "./kendo.buttongroup.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "filter",
     name: "Filter",
     category: "web",
-    depends: [ "core", "buttongroup"]
+    depends: [ "core", "buttongroup", "icons" ]
 };
 
 var defaultValues = {
@@ -40,26 +41,25 @@ var mainContainer =
 
 var mainLogicTemplate = ({ mainFilterLogicLabel, uid, addExpression, addGroup, close, ns, operators }) =>
     "<div class='k-filter-toolbar'>" +
-        `<div role='toolbar' aria-label='${mainFilterLogicLabel}' class='k-toolbar' id='${uid}'>` +
+        `<div role='toolbar' aria-label='${mainFilterLogicLabel}' class='k-toolbar k-toolbar-md' id='${uid}'>` +
             "<div class='k-filter-toolbar-item'>" +
                 logicTemplate({ ns, operators }) +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addExpression}' aria-label='${addExpression}' tabindex='0'>` +
-                    "<span class='k-button-icon k-icon k-i-filter-add-expression'>" +
+                `<button data-role='button' data-command='expression' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addExpression}' aria-label='${addExpression}' tabindex='0'>` +
+                    kendo.ui.icon({ icon: "filter-add-expression", iconClass: "k-button-icon" }) +
                     "</span>" +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addGroup}' aria-label='${addGroup}' tabindex='0'>` +
-                    "<span class='k-button-icon k-icon k-i-filter-add-group'>" +
+                `<button data-role='button' data-command='group' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addGroup}' aria-label='${addGroup}' tabindex='0'>` +
+                    kendo.ui.icon({ icon: "filter-add-group", iconClass: "k-button-icon" }) +
                     "</span>" +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
-                    "<span class='k-button-icon k-icon k-i-close'>" +
-                    "</span>" +
+                `<button data-role='button' data-command='x' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
+                    kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" }) +
                 "</button>" +
             "</div>" +
         "</div>" +
@@ -68,26 +68,23 @@ var mainLogicTemplate = ({ mainFilterLogicLabel, uid, addExpression, addGroup, c
 var logicItemTemplate = ({ filterLogicLabel, addExpression, addGroup, close, ns, operators }) =>
 "<li class='k-filter-item'>" +
     "<div class='k-filter-toolbar'>" +
-        `<div role='toolbar' aria-label='${filterLogicLabel}' class='k-toolbar'>` +
+        `<div role='toolbar' aria-label='${filterLogicLabel}' class='k-toolbar k-toolbar-md'>` +
             "<div class='k-filter-toolbar-item'>" +
                 logicTemplate({ ns, operators }) +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addExpression}' aria-label='${addExpression}' aria-disabled='false' tabindex='0'>` +
-                    "<span class='k-button-icon k-icon k-i-filter-add-expression'>" +
-                    "</span>" +
+                `<button data-role='button' data-command='expression' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addExpression}' aria-label='${addExpression}' aria-disabled='false' tabindex='0'>` +
+                    kendo.ui.icon({ icon: "filter-add-expression", iconClass: "k-button-icon" }) +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addGroup}' aria-label='${addGroup}' aria-disabled='false' tabindex='0'>` +
-                    "<span class='k-button-icon k-icon k-i-filter-add-group'>" +
-                    "</span>" +
+                `<button data-role='button' data-command='group' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addGroup}' aria-label='${addGroup}' aria-disabled='false' tabindex='0'>` +
+                    kendo.ui.icon({ icon: "filter-add-group", iconClass: "k-button-icon" }) +
                 "</button>" +
             "</div>" +
             "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
-                    "<span class='k-button-icon k-icon k-i-close'>" +
-                    "</span>" +
+                `<button data-role='button' data-command='x' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
+                    kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" }) +
                 "</button>" +
             "</div>" +
         "</div>" +
@@ -97,7 +94,7 @@ var logicItemTemplate = ({ filterLogicLabel, addExpression, addGroup, close, ns,
 var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fields, close }) =>
 "<li class='k-filter-item'>" +
     "<div class='k-filter-toolbar'>" +
-       `<div role='group' aria-label='${filterExpressionLabel}' class='k-toolbar' id='${uid}'>` +
+       `<div role='group' aria-label='${filterExpressionLabel}' class='k-toolbar k-toolbar-md' id='${uid}'>` +
          "<div class='k-filter-toolbar-item k-filter-field'>" +
             `<select data-${ns}bind='value: field' title='${fieldsLabel}' class='k-filter-dropdown' data-auto-width='true' data-${ns}role='dropdownlist'>` +
                 `${Object.keys(fields).map(current => "<option value='" + fields[current].name + "'>" + fields[current].label + "</option>").join("")}` +
@@ -108,9 +105,8 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
          "<div class='k-filter-toolbar-item k-filter-value'>" +
          "</div>" +
          "<div class='k-filter-toolbar-item'>" +
-            `<button data-role='button' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
-                "<span class='k-button-icon k-icon k-i-close'>" +
-                "</span>" +
+            `<button data-role='button' data-command='x' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
+                kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" }) +
             "</button>" +
          "</div>" +
        "</div>" +
@@ -327,10 +323,9 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                 e.preventDefault();
 
                 var button = $(e.currentTarget);
-                var icon = button.find("span");
-                var command = (icon.length ? icon : button).attr("class").split("-").pop();
+                var command = button.data("command");
 
-                if (command == "close") {
+                if (command == "x") {
                     that._removeExpression(button.closest(".k-toolbar"));
                 } else if (command == "expression") {
                     that._addExpression(button.closest(".k-toolbar"));
@@ -719,7 +714,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             }
 
             if (!that._applyButton) {
-                that._applyButton = $(kendo.format('<button type="button" aria-label="{0}" title="{0}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-filter-apply">{0}</button>', that.options.messages.apply)).appendTo(that.element);
+                that._applyButton = $(kendo.format('<button type="button" data-command="apply" aria-label="{0}" title="{0}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-filter-apply">{0}</button>', that.options.messages.apply)).appendTo(that.element);
             }
         },
 

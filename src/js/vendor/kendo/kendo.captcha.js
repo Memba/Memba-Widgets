@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,13 +10,14 @@ import "./kendo.core.js";
 import "./kendo.slider.js";
 import "./kendo.textbox.js";
 import "./kendo.skeletoncontainer.js";
+import "./kendo.icons.js";
 
     var __meta__ = {
         id: "captcha",
         name: "Captcha",
         category: "web",
         description: "The Captcha widget displays captcha validation image and an input so that user case be validated against captcha value.",
-        depends: ["core", "slider", "textbox", "skeletoncontainer"]
+        depends: ["core", "slider", "textbox", "skeletoncontainer", "icons"]
     };
 
     (function($, undefined) {
@@ -45,8 +46,8 @@ import "./kendo.skeletoncontainer.js";
             button: "k-button k-button-md k-rounded-md k-button-solid k-button-solid-base",
             buttonIcon: "k-button-icon",
             iconButton: "k-icon-button",
-            resetIcon: "k-icon k-i-reload",
-            audioIcon: "k-icon k-i-volume-up",
+            resetIcon: "arrow-rotate-cw",
+            audioIcon: "volume-up",
             disabled: "k-disabled",
             inputWrapper: "k-captcha-input k-vstack",
             imageWrapper: "k-captcha-image-wrap k-hstack",
@@ -219,7 +220,7 @@ import "./kendo.skeletoncontainer.js";
                     styles = Captcha.styles;
 
                 that.resetButton = $("<button type=\"button\" title=\"" + messages.reset + "\" class=\"" + styles.button + " " + styles.iconButton + "\">" +
-                                        "<span class=\"" + styles.buttonIcon + " " + styles.resetIcon + "\"></span>" +
+                                        kendo.ui.icon({ icon: styles.resetIcon, iconClass: "k-button-icon" }) +
                                     "</button>");
 
                 that.buttonsWrapper.append(that.resetButton);
@@ -233,7 +234,7 @@ import "./kendo.skeletoncontainer.js";
                     styles = Captcha.styles;
 
                 that.audioButton = $("<button type=\"button\" title=\"" + messages.audio + "\" class=\"" + styles.button + " " + styles.iconButton + "\">" +
-                                        "<span class=\"" + styles.buttonIcon + " " + styles.audioIcon + "\"></span>" +
+                                        kendo.ui.icon({ icon: styles.audioIcon, iconClass: "k-button-icon" }) +
                                     "</button>");
 
                 that.buttonsWrapper.append(that.audioButton);

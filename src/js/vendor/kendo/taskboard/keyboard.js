@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -15,7 +15,7 @@ import "../kendo.core.js";
         extend = $.extend,
 
         DOT = ".",
-        NS = DOT + "kendoKeboardManager",
+        NS = DOT + "kendoKeyboardManager",
         KEYDOWN = "keydown",
         ACTION = "action";
 

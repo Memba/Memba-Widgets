@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.timeselector.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "timedurationpicker",
@@ -42,7 +43,6 @@ var __meta__ = {
         STRING = "string",
         INPUT = "input",
         HOVER = "k-hover",
-        CLASS_ICON = "k-icon",
         STATEDISABLED = "k-disabled",
         ARIA_HIDDEN = "aria-hidden",
         ARIA_DISABLED = "aria-disabled",
@@ -640,7 +640,7 @@ var __meta__ = {
             var that = this;
             var element = that.element;
 
-            that._validationIcon = $("<span class='k-input-validation-icon " + CLASS_ICON + " k-i-warning k-hidden'></span>").insertAfter(element);
+            that._validationIcon = $(kendo.ui.icon({ icon: "exclamation-circle", iconClass: "k-input-validation-icon k-hidden" })).insertAfter(element);
         },
 
         _addInvalidState: function() {

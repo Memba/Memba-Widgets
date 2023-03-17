@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,6 +10,7 @@ import "./base.js";
 import "../location.js";
 import "../../../kendo.data.js";
 import "../../../kendo.tooltip.js";
+import "../../../kendo.icons.js";
 
 (function($, undefined) {
     // Imports ================================================================
@@ -233,11 +234,22 @@ import "../../../kendo.tooltip.js";
                 var layer = this.layer;
 
                 this.element = $(doc.createElement("span"))
-                    .addClass("k-marker k-icon k-i-marker-" + kendo.toHyphens(options.shape || "pin"))
                     .attr("title", options.title)
                     .attr(options.attributes || {})
                     .data("kendoMarker", this)
                     .css("zIndex", options.zIndex);
+
+                if (options.shape) {
+                    if (options.shape === "pinTarget") {
+                        kendo.ui.icon(this.element, { icon: "map-marker-target", iconClass: "k-marker", size: "xxlarge" });
+                    } else if (options.shape === "pin") {
+                        kendo.ui.icon(this.element, { icon: "map-marker", iconClass: "k-marker", size: "xxlarge" });
+                    } else {
+                        this.element.addClass("k-marker k-icon k-i-marker-" + kendo.toHyphens(options.shape));
+                    }
+                } else {
+                    kendo.ui.icon(this.element, { icon: "map-marker", iconClass: "k-marker", size: "xxlarge" });
+                }
 
                 if (layer) {
                     layer.element.append(this.element);

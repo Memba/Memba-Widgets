@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -22,8 +22,10 @@ var __meta__ = {
     var ui = kendo.ui;
     var extend = $.extend;
     var VISIBILITY = "visibility";
+    var DRAG_STATUS = "k-drag-status";
+    var DRAG_STATUS_ELEMENT = `<span class="${DRAG_STATUS}"></span>`;
     var KSTATEHOVER = "k-hover";
-    var INPUTSELECTOR = "input,a:not(.k-in),textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-icon.k-i-arrow-60-right,span.k-icon.k-i-arrow-45-down-right";
+    var INPUTSELECTOR = "input,a:not(.k-in),textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-toggle-icon,a.k-button>.k-svg-icon,button.k-button>.k-svg-icon";
     var DROPHINTTEMPLATE = "<div class='k-drop-hint k-drop-hint-h'>" +
                                 "<div class='k-drop-hint-start'></div>" +
                                 "<div class='k-drop-hint-line'></div>" +
@@ -57,7 +59,7 @@ var __meta__ = {
 
         _hint: function(element) {
             return "<div class='k-drag-clue'>" +
-                        "<span class='k-icon k-drag-status'></span>" +
+                        DRAG_STATUS_ELEMENT +
                         this.options.hintText(element) +
                     "</div>";
         },
@@ -70,12 +72,15 @@ var __meta__ = {
         },
 
         _hintStatus: function(newStatus) {
-            var statusElement = this._draggable.hint.find(".k-drag-status")[0];
-
+            var statusElement = this._draggable.hint.find(`.${DRAG_STATUS}`);
             if (newStatus) {
-                statusElement.className = "k-icon k-drag-status " + newStatus;
+                this.status = newStatus;
+                ui.icon(statusElement, {
+                    icon: newStatus
+                });
             } else {
-                return kendo.trim(statusElement.className.replace(/(p|k)-(icon|drag-status)/g, ""));
+                this.status = '';
+                statusElement.replaceWith(DRAG_STATUS_ELEMENT);
             }
         },
 
@@ -106,14 +111,14 @@ var __meta__ = {
 
             if (!container.length) {
                 // dragging outside of allowed elements
-                status = "k-i-cancel";
+                status = "cancel";
                 this._removeTouchHover();
             } else if (source[0] == target[0] || options.contains(source[0], target[0])) {
                 // dragging item within itself
-                status = "k-i-cancel";
+                status = "cancel";
             } else {
                 // moving or reordering item
-                status = "k-i-insert-middle";
+                status = "insert-middle";
 
                 itemData = options.itemFromTarget(target);
                 hoveredItem = itemData.item;
@@ -147,7 +152,7 @@ var __meta__ = {
                     this._lastHover = itemContent.toggleClass(KSTATEHOVER, addChild);
 
                     if (addChild) {
-                        status = "k-i-plus";
+                        status = "plus";
                     } else {
                         position = hoveredItem.position();
                         position.top += insertOnTop ? 0 : itemHeight;
@@ -157,11 +162,11 @@ var __meta__ = {
                             (options.dropHintContainer(hoveredItem));
 
                         if (insertOnTop && itemData.first) {
-                            status = "k-i-insert-up";
+                            status = "insert-top";
                         }
 
                         if (insertOnBottom && itemData.last) {
-                            status = "k-i-insert-down";
+                            status = "insert-bottom";
                         }
                     }
                 } else if (target[0] != this.dropHint[0]) {
@@ -171,9 +176,9 @@ var __meta__ = {
 
                     if (!$.contains(this.element[0], container[0])) {
                         // moving node to different element
-                        status = "k-i-plus";
+                        status = "plus";
                     } else {
-                        status = "k-i-cancel";
+                        status = "cancel";
                     }
                 }
             }
@@ -184,13 +189,13 @@ var __meta__ = {
                 target: target,
                 pageY: e.y.location,
                 pageX: e.x.location,
-                status: status.substring(2),
+                status: status,
                 setStatus: function(value) {
                     status = value;
                 }
             });
 
-            if (status.indexOf("k-i-insert") !== 0) {
+            if (status.indexOf("insert") !== 0) {
                 this.dropHint.css(VISIBILITY, "hidden");
             }
 
@@ -225,7 +230,7 @@ var __meta__ = {
                 originalEvent: e.originalEvent,
                 source: source[0],
                 destination: destination[0],
-                valid: this._hintStatus() != "k-i-cancel",
+                valid: this.status != "cancel",
                 setValid: function(newValid) {
                     this.valid = newValid;
                 },

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -35,16 +35,19 @@ var FormatTool = Tool.extend({
 
     command: function(commandArguments) {
         var that = this;
+
         return new FormatCommand(extend(commandArguments, {
-                formatter: that.options.formatter
-            }));
+            formatter: that.options.formatter
+        }));
     },
 
     update: function(ui, nodes) {
-        var isFormatted = this.options.finder.isFormatted(nodes);
+        var isFormatted = this.options.finder.isFormatted(nodes),
+            toolbar = ui.closest(".k-toolbar").getKendoToolBar();
 
-        ui.toggleClass("k-selected", isFormatted);
-        ui.attr("aria-pressed", isFormatted);
+        if (toolbar && ui.getKendoToggleButton()) {
+            toolbar.toggle(ui, isFormatted);
+        }
     }
 });
 

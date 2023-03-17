@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -13,9 +13,7 @@ var kendo = window.kendo,
     Class = kendo.Class,
     Editor = kendo.ui.editor,
     formats = kendo.ui.Editor.fn.options.formats,
-    EditorUtils = Editor.EditorUtils,
     Tool = Editor.Tool,
-    ToolTemplate = Editor.ToolTemplate,
     FormatTool = Editor.FormatTool,
     dom = Editor.Dom,
     RangeUtils = Editor.RangeUtils,
@@ -389,7 +387,7 @@ var FontTool = DelayedExecutionTool.extend({
         Tool.fn.init.call(this, options);
 
         // IE has single selection hence we are using select box instead of combobox
-        this.type = (kendo.support.browser.msie || kendo.support.touch) ? "kendoDropDownList" : "kendoComboBox";
+        this.type = "kendoComboBox";
         this.format = [{ tags: ["span", "font"] }];
         this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr, options.fontAttr);
     },
@@ -408,13 +406,17 @@ var FontTool = DelayedExecutionTool.extend({
         }));
     },
 
-    initialize: function(ui, initOptions) {
-        var editor = initOptions.editor,
-            options = this.options,
+    initialize: function(ui, editor) {
+        var options = this.options,
             toolName = options.name,
             dataSource,
             range,
+            widget = ui.data("kendoComboBox"),
             defaultValue = [];
+
+        if (!widget) {
+            return;
+        }
 
         if (options.defaultValue) {
            defaultValue = [{
@@ -424,27 +426,19 @@ var FontTool = DelayedExecutionTool.extend({
         }
 
         dataSource = defaultValue.concat(options.items ? options.items : (editor.options[toolName] || [] ));
+        widget.setDataSource(dataSource);
 
-        ui.attr({ title: initOptions.title });
-        ui[this.type]({
-            dataTextField: "text",
-            dataValueField: "value",
-            dataSource: dataSource,
-            change: function() {
-                editor._range = range;
-                Tool.exec(editor, toolName, this.value());
-            },
-            close: function() {
-                setTimeout(function() {
-                    editor._deleteSavedRange();
-                },0);
-            },
-            highlightFirst: false
+        widget.bind("change", (e) => {
+            editor._range = range;
+            Tool.exec(editor, toolName, e.sender.value());
         });
 
-        ui.closest(".k-combobox").removeClass("k-" + toolName).find("*").addBack().attr("unselectable", "on");
+        widget.bind("close", () => {
+            setTimeout(function() {
+                editor._deleteSavedRange();
+            },0);
+        });
 
-        var widget = ui.data(this.type);
         widget.value("inherit");
 
         widget.wrapper.on(MOUSEDOWN_NS, ".k-select,.k-input-button,.k-input", function() {
@@ -492,84 +486,68 @@ var ColorTool = Tool.extend({
         }));
     },
 
-    initialize: function(ui, initOptions) {
+    initialize: function(ui, editor) {
         var that = this,
-            editor = initOptions.editor,
-            toolName = this.name,
-            options = extend({}, ColorTool.fn.options, this.options),
-            palette = options.palette,
-            columns = options.columns,
-            view = palette !== undefined && !palette ? "gradient" : "palette";
+            toolName = that.options.name,
+            component = this._widget = ui.getKendoColorPicker();
 
-        ui = this._widget = new kendo.ui.ColorPicker(ui, {
-            closeOnSelect: true,
-            views: [view],
-            preview: view === "gradient",
-            input: view === "gradient",
-            buttons: view === "gradient",
-            toolIcon: "k-icon k-i-" + EditorUtils.getToolCssClass(options.name),
-            palette: palette,
-            columns: columns,
-            change: function() {
-                var color = ui.value();
+        if (!component) {
+            return;
+        }
 
-                if (kendo.support.browser.msie && that.storedRange && that._inputFocused) {
-                    editor.selectRange(that.storedRange);
-                }
+        component.bind("change", () => {
+            var color = component.value();
 
-                if (color) {
-                    Tool.exec(editor, toolName, color);
-                }
-
-                delete that.storedRange;
-                delete that._inputFocused;
-                editor.focus();
-            },
-            open: function(e) {
-                var picker = e.sender;
-                that.storedRange = editor.getRange();
-
-                picker._popup.element.on(MOUSEDOWN_NS, function(e) {
-                    if (!$(e.target).is("input.k-color-value")) {
-                        e.preventDefault();
-                    }
-                });
-
-                if (!picker._popup.element.is("[unselectable='on']")) {
-                    picker._popup.element
-                        .attr({ unselectable: "on" })
-                        .find("*:not(input)").attr("unselectable", "on")
-                        .end().find("input").on("focus", function() {
-                            that._inputFocused = true;
-                        });
-                }
-
-                setTimeout(function() {
-                    picker._popup.element.find(".k-colorpalette").trigger("focus");
-                });
-            },
-            close: function(e) {
-                e.sender._popup.element.off(MOUSEDOWN_NS);
-
-                if (kendo.support.browser.msie && that.storedRange && that._inputFocused) {
-                    editor.selectRange(that.storedRange);
-                }
-            },
-            activate: function(e) {
-                e.preventDefault();
-
-                if (e.sender._value.toCssRgba() === "rgba(255, 255, 255, 0)") {
-                    return;
-                }
-
-                ui.trigger("change");
+            if (color) {
+                Tool.exec(editor, toolName, color);
             }
+
+            delete that.storedRange;
+            delete that._inputFocused;
+
+            editor.focus();
         });
-        ui.wrapper
-            .attr({ title: initOptions.title, unselectable: "on" })
+
+        component.bind("open", () => {
+            that.storedRange = editor.getRange();
+
+            component._popup.element.on(MOUSEDOWN_NS, function(e) {
+                if (!$(e.target).is("input.k-color-value")) {
+                    e.preventDefault();
+                }
+            });
+
+            if (!component._popup.element.is("[unselectable='on']")) {
+                component._popup.element
+                    .attr({ unselectable: "on" })
+                    .find("*:not(input)").attr("unselectable", "on")
+                    .end().find("input").on("focus", function() {
+                        that._inputFocused = true;
+                    });
+            }
+
+            component._popup.one("activate", () => {
+                component._popup.element.find(".k-colorpalette").trigger("focus");
+            });
+        });
+
+        component.bind("close", (e) => {
+            component._popup.element.off(MOUSEDOWN_NS);
+        });
+
+        component.unbind("activate").bind("activate", (e) => {
+            if (!component._value || component._value.toCssRgba() === "rgba(255, 255, 255, 0)") {
+                return;
+            }
+
+            component.trigger("change");
+        });
+
+        component.wrapper
+            .attr({ unselectable: "on" })
             .find("*:not(input)").attr("unselectable", "on");
 
-        ui.value("transparent");
+        component.value("transparent");
     }
 });
 
@@ -585,29 +563,138 @@ extend(Editor, {
 });
 
 registerFormat("bold", [ { tags: ["strong", "b"] }, { tags: ["span"], attr: { style: { fontWeight: "bold" } } } ]);
-registerTool("bold", new InlineFormatTool({ key: "B", ctrl: true, format: formats.bold, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Bold" }) }));
+registerTool("bold", new InlineFormatTool({
+    key: "B",
+    ctrl: true,
+    format: formats.bold,
+    ui: {
+        togglable: true
+    }
+}));
 
 registerFormat("italic", [ { tags: ["em", "i"] }, { tags: ["span"], attr: { style: { fontStyle: "italic" } } } ]);
-registerTool("italic", new InlineFormatTool({ key: "I", ctrl: true, format: formats.italic, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Italic" }) }));
+registerTool("italic", new InlineFormatTool({
+    key: "I",
+    ctrl: true,
+    format: formats.italic,
+    ui: {
+        togglable: true
+    }
+}));
 
 registerFormat("underline", [ { tags: ["span"], attr: { style: { textDecoration: "underline" } } }, { tags: ["u"] } ]);
-registerTool("underline", new InlineFormatTool({ key: "U", ctrl: true, format: formats.underline, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Underline" }) }));
+registerTool("underline", new InlineFormatTool({
+    key: "U",
+    ctrl: true,
+    format: formats.underline,
+    ui: {
+        togglable: true
+    }
+}));
 
 registerFormat("strikethrough", [ { tags: ["del", "strike"] }, { tags: ["span"], attr: { style: { textDecoration: "line-through" } } } ]);
-registerTool("strikethrough", new InlineFormatTool({ format: formats.strikethrough, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Strikethrough" }) }));
+registerTool("strikethrough", new InlineFormatTool({
+    format: formats.strikethrough,
+    ui: {
+        togglable: true
+    }
+}));
 
 registerFormat("superscript", [ { tags: ["sup"] } ]);
-registerTool("superscript", new InlineFormatTool({ format: formats.superscript, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Superscript" }) }));
+registerTool("superscript", new InlineFormatTool({
+    format: formats.superscript,
+    ui: {
+        togglable: true
+    }
+}));
 
 registerFormat("subscript", [ { tags: ["sub"] } ]);
-registerTool("subscript", new InlineFormatTool({ format: formats.subscript, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Subscript" }) }));
+registerTool("subscript", new InlineFormatTool({
+    format: formats.subscript,
+    ui: {
+        togglable: true
+    }
+}));
 
-registerTool("foreColor", new ColorTool({ cssAttr: "color", fontAttr: "color", domAttr: "color", name: "foreColor", template: new ToolTemplate({ template: EditorUtils.colorPickerTemplate, title: "Color" }) }));
+registerTool("foreColor", new ColorTool({
+    cssAttr: "color",
+    fontAttr: "color",
+    domAttr: "color",
+    name: "foreColor",
+    ui: {
+        type: "component",
+        overflow: "never",
+        component: "ColorPicker",
+        componentOptions: {
+            views: ["palette"],
+            toolIcon: "foreground-color",
+            palette: "websafe",
+            columns: 18,
+            preview: false,
+            input: false,
+            buttons: false,
+            commandOn: "change",
+            closeOnSelect: true
+        }
+    }
+}));
 
-registerTool("backColor", new ColorTool({ cssAttr: "background-color", domAttr: "backgroundColor", name: "backColor", template: new ToolTemplate({ template: EditorUtils.colorPickerTemplate, title: "Background Color" }) }));
+registerTool("backColor", new ColorTool({
+    cssAttr: "background-color",
+    domAttr: "backgroundColor",
+    name: "backColor",
+    ui: {
+        type: "component",
+        overflow: "never",
+        component: "ColorPicker",
+        componentOptions: {
+            views: ["palette"],
+            toolIcon: "droplet",
+            palette: "websafe",
+            columns: 18,
+            preview: false,
+            input: false,
+            buttons: false,
+            commandOn: "change",
+            closeOnSelect: true
+        }
+    }
+}));
 
-registerTool("fontName", new FontTool({ cssAttr: "font-family", fontAttr: "face", domAttr: "fontFamily", name: "fontName", defaultValue: [{ text: "fontNameInherit", value: "inherit" }], template: new ToolTemplate({ template: EditorUtils.comboBoxTemplate, title: "Font Name" }) }));
+registerTool("fontName", new FontTool({
+    cssAttr: "font-family",
+    fontAttr: "face",
+    domAttr: "fontFamily",
+    name: "fontName",
+    defaultValue: [{ text: "fontNameInherit", value: "inherit" }],
+    ui: {
+        type: "component",
+        component: "ComboBox",
+        componentOptions: {
+            dataValueField: "value",
+            dataTextField: "text",
+            valuePrimitive: true
+        },
+        overflow: "never"
+    }
+}));
 
-registerTool("fontSize", new FontTool({ cssAttr: "font-size", fontAttr: "size", domAttr: "fontSize", name: "fontSize", defaultValue: [{ text: "fontSizeInherit", value: "inherit" }], template: new ToolTemplate({ template: EditorUtils.comboBoxTemplate, title: "Font Size" }) }));
+registerTool("fontSize", new FontTool({
+    cssAttr: "font-size",
+    fontAttr: "size",
+    domAttr: "fontSize",
+    name: "fontSize",
+    defaultValue: [{ text: "fontSizeInherit", value: "inherit" }],
+    ui: {
+        type: "component",
+        component: "ComboBox",
+        componentOptions: {
+            dataValueField: "value",
+            dataTextField: "text",
+            valuePrimitive: true
+        },
+        overflow: "never"
+    }
+}));
 
 })(window.kendo.jQuery);

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.core.js";
 import "./kendo.popup.js";
 import "./kendo.fx.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "floatingactionbutton",
     name: "Floating Action Button",
     category: "web",
     description: "The Floating Action Button represents the primary action of a screen and provides the ability to display related actions.",
-    depends: ["core"]
+    depends: ["core", "icons"]
 };
 
 (function($, undefined) {
@@ -76,11 +77,11 @@ var __meta__ = {
     };
 
     var templates = {
-        icon: ({ icon }) => `<span class="k-fab-icon k-icon k-i-${encode(icon)}"></span>`,
+        icon: ({ icon }) => kendo.ui.icon({ icon: encode(icon), iconClass: 'k-fab-icon' }),
         text: ({ text }) => `<span class="k-fab-text">${encode(text)}</span>`,
         item: ({ text, icon }) =>
                 (text ? `<span class="k-fab-item-text" aria-hidden="true">${encode(text)}</span>` : '') +
-                (icon ? `<span class="k-fab-item-icon k-icon k-i-${encode(icon)}"></span>` : '')
+                (icon ? kendo.ui.icon({ icon: encode(icon), iconClass: 'k-fab-item-icon' }) : '')
     };
 
     var FloatingActionButton = Widget.extend({

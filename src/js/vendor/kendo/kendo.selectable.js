@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -29,7 +29,9 @@ var __meta__ = {
         NS = ".kendoSelectable",
         UNSELECT = "unselect",
         UNSELECTING = "k-unselecting",
-        INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up,label.k-checkbox-label.k-no-text,.k-icon.k-i-collapse,.k-icon.k-i-expand,span.k-numeric-wrap,.k-focusable",
+        INPUTSELECTOR_ICONSSELECTOR_FONT = "span.k-icon.k-i-caret-alt-down,span.k-icon.k-i-caret-alt-up,.k-icon.k-i-caret-alt-down,.k-icon.k-i-caret-alt-right",
+        INPUTSELECTOR_ICONSSELECTOR_SVG = INPUTSELECTOR_ICONSSELECTOR_FONT.replaceAll('k-i', 'k-svg-i'),
+        INPUTSELECTOR = `input,a,textarea,.k-multiselect-wrap,select,button,${INPUTSELECTOR_ICONSSELECTOR_FONT},${INPUTSELECTOR_ICONSSELECTOR_SVG},.k-button>span,.k-button>img,label.k-checkbox-label.k-no-text,span.k-numeric-wrap,.k-focusable`,
         msie = kendo.support.browser.msie,
         supportEventDelegation = false,
         extend = $.extend;

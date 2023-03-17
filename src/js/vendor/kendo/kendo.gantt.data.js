@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -93,9 +93,9 @@ var __meta__ = {
         id: "id",
         fields: {
             id: { type: "number", editable: false },
-            predecessorId: { type: "number" },
-            successorId: { type: "number" },
-            type: { type: "number" }
+            predecessorId: { type: "number", validation: { required: true } },
+            successorId: { type: "number", validation: { required: true } },
+            type: { type: "number", validation: { required: true } }
         }
     });
 
@@ -145,7 +145,7 @@ var __meta__ = {
     var GanttTask = TreeListModel.define({
         fields: {
             id: { type: "number", editable: false },
-            parentId: { type: "number", defaultValue: null, validation: { required: true }, nullable: true },
+            parentId: { type: "number", defaultValue: null, nullable: true },
             orderId: { type: "number", validation: { required: true } },
             title: { type: "string", defaultValue: "New task" },
             start: { type: "date", validation: { required: true } },

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -15,7 +15,6 @@ var kendo = window.kendo,
     extend = $.extend,
     Editor = kendo.ui.editor,
     dom = Editor.Dom,
-    EditorUtils = Editor.EditorUtils,
     RangeUtils = Editor.RangeUtils,
     Command = Editor.Command,
 
@@ -37,7 +36,6 @@ var kendo = window.kendo,
     TH = "th",
 
     Tool = Editor.Tool,
-    ToolTemplate = Editor.ToolTemplate,
     InsertHtmlCommand = Editor.InsertHtmlCommand,
     BlockFormatFinder = Editor.BlockFormatFinder,
     BlockFormatTool = Editor.BlockFormatTool,
@@ -93,9 +91,9 @@ var TableCommand = InsertHtmlCommand.extend({
 });
 
 var PopupTool = Tool.extend({
-    initialize: function(ui, options) {
-        Tool.fn.initialize.call(this, ui, options);
-
+    initialize: function(ui, editor) {
+        var that = this;
+        var btn = $("<button>" + editor.options.messages.tableWizard + "</button>");
         var popup = $(this.options.popupTemplate).appendTo("body").kendoPopup({
             anchor: ui,
             copyAnchorStyles: false,
@@ -107,23 +105,26 @@ var PopupTool = Tool.extend({
         ui.on("click", this._toggle.bind(this))
           .on("keydown", this._keydown.bind(this));
 
-        var editor = this._editor = options.editor;
+        this._editor = editor;
         this._popup = popup;
 
+        editor.tablePopup = this._popup;
+
         var tableWizard = new Editor.TableWizardTool({
-            template: new ToolTemplate({ template: EditorUtils.tableWizardButtonTemplate, title: editor.options.messages.tableWizard }),
             command: Editor.TableWizardCommand,
             insertNewTable: true
         });
 
         registerTool("tableWizardInsert", tableWizard);
 
-        var twTool = $("<div>" + tableWizard.options.template.getHtml() + "</div>");
-        twTool.appendTo(popup.element);
+        btn.appendTo(popup.element);
+        btn.kendoButton({
+            icon: "table-wizard"
+        });
 
-        if (editor.toolbar) {
-            editor.toolbar.attachToolsEvents(twTool);
-        }
+        btn.on("click", () => {
+            that._editor.exec("tableWizardInsert");
+        });
     },
 
     popup: function() {
@@ -143,14 +144,17 @@ var PopupTool = Tool.extend({
     _keydown: function(e) {
         var that = this,
             keys = kendo.keys,
-            key = e.keyCode,
-            shouldContinue = true;
+            key = e.keyCode;
 
-        if ((key == keys.DOWN && e.altKey) || key == keys.ENTER || key == keys.SPACEBAR ) {
-            that._popup.open();
-            shouldContinue = false;
-        } else if (key == keys.ESC) {
+        if (key == keys.ESC) {
             that._popup.close();
+        } else if (key == keys.DOWN && e.altKey) {
+            that._popup.open();
+            that._setTableSize({ row: 1, col: 1 });
+        } else if (key === keys.ENTER) {
+            setTimeout(() => {
+                that._setTableSize({ row: 1, col: 1 });
+            });
         }
     },
 
@@ -173,7 +177,9 @@ var PopupTool = Tool.extend({
     },
 
     destroy: function() {
-        this._popup.destroy();
+        if (this._popup) {
+            this._popup.destroy();
+        }
     }
 });
 
@@ -1112,23 +1118,15 @@ var TableModificationTool = Tool.extend({
 
         return new commandsMap[options.type][options.action](options);
     },
-    initialize: function(ui, options) {
-        Tool.fn.initialize.call(this, ui, options);
-        ui.addClass("k-disabled");
-        ui.attr("disabled", "disabled");
-    },
 
     update: function(ui, nodes) {
-        var isFormatted = !tableFormatFinder.isFormatted(nodes);
+        var isFormatted = !tableFormatFinder.isFormatted(nodes),
+            toolbar = ui.closest(".k-toolbar").getKendoToolBar();
 
         if (isFormatted === true) {
-            ui.parent().addClass("k-hidden k-disabled");
-            ui.attr("disabled", "disabled");
-            ui.addClass("k-disabled");
+            toolbar.hide(ui);
         } else {
-            ui.parent().removeClass("k-hidden k-disabled");
-            ui.prop("disabled", false);
-            ui.removeClass("k-disabled");
+            toolbar.show(ui);
         }
     }
 });
@@ -1151,27 +1149,20 @@ var TableFormatCommand = FormatCommand.extend({
 // });
 
 var TableFormatTool = BlockFormatTool.extend({
-    initialize: function(ui, options) {
-        BlockFormatTool.fn.initialize.call(this, ui, options);
-        ui.addClass("k-disabled");
-        ui.attr("disabled", "disabled");
-    },
     update: function(ui, nodes) {
-        var isTable = !tableFormatFinder.isFormatted(nodes);
-        var isFormatted = this.options.finder.isFormatted(nodes, this.isTable);
+        var isTable = !tableFormatFinder.isFormatted(nodes),
+            isFormatted = this.options.finder.isFormatted(nodes, this.isTable),
+            toolbar = ui.closest(".k-toolbar").getKendoToolBar();
 
-        if (isTable === true) {
-            ui.parent().addClass("k-hidden k-disabled");
-            ui.attr("disabled", "disabled");
-            ui.addClass("k-disabled");
-        } else {
-            ui.parent().removeClass("k-hidden k-disabled");
-            ui.prop("disabled", false);
-            ui.removeClass("k-disabled");
+        if (toolbar) {
+            toolbar.toggle(ui, isFormatted);
         }
 
-        ui.toggleClass("k-selected", isFormatted);
-        ui.attr("aria-pressed", isFormatted);
+        if (isTable === true) {
+            toolbar.hide(ui);
+        } else {
+            toolbar.show(ui);
+        }
     },
     command: function(commandArguments) {
         var that = this;
@@ -1201,18 +1192,19 @@ extend(kendo.ui.editor, {
     SplitCellCommand: SplitCellCommand
 });
 
-registerTool("createTable", new InsertTableTool({ template: new ToolTemplate({ template: EditorUtils.buttonTemplate, popup: true, title: "Create table" }) }));
 
-registerTool("addColumnLeft", new TableModificationTool({ type: "column", position: "before", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add column on the left" }) }));
-registerTool("addColumnRight", new TableModificationTool({ type: "column", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add column on the right" }) }));
-registerTool("addRowAbove", new TableModificationTool({ type: "row", position: "before", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add row above" }) }));
-registerTool("addRowBelow", new TableModificationTool({ type: "row", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add row below" }) }));
-registerTool("deleteRow", new TableModificationTool({ type: "row", action: "delete", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Delete row" }) }));
-registerTool("deleteColumn", new TableModificationTool({ type: "column", action: "delete", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Delete column" }) }));
-registerTool("mergeCellsHorizontally", new TableModificationTool({ type: "row", action: "merge", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Merge Cell Right" }) }));
-registerTool("mergeCellsVertically", new TableModificationTool({ type: "column", action: "merge", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Merge Cell Down" }) }));
-registerTool("splitCellHorizontally", new TableModificationTool({ type: "row", action: "split", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Split Cell" }) }));
-registerTool("splitCellVertically", new TableModificationTool({ type: "column", action: "split", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Split Cell" }) }));
+registerTool("createTable", new InsertTableTool({ ui: { popup: true, overflow: "never" } }));
+
+registerTool("addColumnLeft", new TableModificationTool({ type: "column", position: "before" }));
+registerTool("addColumnRight", new TableModificationTool({ type: "column" }));
+registerTool("addRowAbove", new TableModificationTool({ type: "row", position: "before" }));
+registerTool("addRowBelow", new TableModificationTool({ type: "row" }));
+registerTool("deleteRow", new TableModificationTool({ type: "row", action: "delete" }));
+registerTool("deleteColumn", new TableModificationTool({ type: "column", action: "delete" }));
+registerTool("mergeCellsHorizontally", new TableModificationTool({ type: "row", action: "merge" }));
+registerTool("mergeCellsVertically", new TableModificationTool({ type: "column", action: "merge" }));
+registerTool("splitCellHorizontally", new TableModificationTool({ type: "row", action: "split" }));
+registerTool("splitCellVertically", new TableModificationTool({ type: "column", action: "split" }));
 
 registerFormat("tableAlignLeft", [
     { tags: ["table"], attr: { style: { marginLeft: "", marginRight: "auto" } } },
@@ -1220,10 +1212,10 @@ registerFormat("tableAlignLeft", [
 ]);
 registerTool("tableAlignLeft", new TableFormatTool({
     format: formats.tableAlignLeft,
-    template: new ToolTemplate({
-        template: EditorUtils.buttonTemplate,
-        title: "Table Align Left"
-    })
+    ui: {
+        togglable: true,
+        group: "tableAlign"
+    }
 }));
 
 registerFormat("tableAlignCenter", [
@@ -1232,10 +1224,10 @@ registerFormat("tableAlignCenter", [
 ]);
 registerTool("tableAlignCenter", new TableFormatTool({
     format: formats.tableAlignCenter,
-    template: new ToolTemplate({
-        template: EditorUtils.buttonTemplate,
-        title: "Table Align Center"
-    })
+    ui: {
+        togglable: true,
+        group: "tableAlign"
+    }
 }));
 
 registerFormat("tableAlignRight", [
@@ -1244,10 +1236,10 @@ registerFormat("tableAlignRight", [
 ]);
 registerTool("tableAlignRight", new TableFormatTool({
     format: formats.tableAlignRight,
-    template: new ToolTemplate({
-        template: EditorUtils.buttonTemplate,
-        title: "Table Align Left"
-    })
+    ui: {
+        togglable: true,
+        group: "tableAlign"
+    }
 }));
 
 })(window.kendo.jQuery);

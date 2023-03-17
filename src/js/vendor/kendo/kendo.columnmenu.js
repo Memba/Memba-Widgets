@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,12 +10,14 @@ import "./kendo.popup.js";
 import "./kendo.filtermenu.js";
 import "./kendo.menu.js";
 import "./kendo.expansionpanel.js";
+import "./kendo.html.button.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "columnmenu",
     name: "Column Menu",
     category: "framework",
-    depends: [ "popup", "filtermenu", "menu", 'expansionpanel' ],
+    depends: [ "popup", "filtermenu", "menu", 'expansionpanel', 'html.button', "icons" ],
     advanced: true
 };
 
@@ -302,16 +304,16 @@ var __meta__ = {
             var that = this,
                 element = that.element,
                 appendTarget = that.appendTo.length ? element.find(that.appendTo) : element,
-                link = element.find(".k-header-column-menu"),
+                link = element.find(".k-grid-column-menu"),
                 title = kendo.format(that.options.messages.buttonTitle, that.title || that.field);
 
             if (!link[0]) {
                 element.addClass("k-filterable");
 
                 link = appendTarget
-                    .append('<a class="k-header-column-menu" href="#" aria-hidden="true" title="' +
-                                title + '"><span class="k-icon k-i-more-vertical"></span></a>')
-                    .find(".k-header-column-menu");
+                    .append('<a class="k-grid-column-menu k-grid-header-menu" href="#" aria-hidden="true" title="' +
+                                title + '">' + kendo.ui.icon("more-vertical") + '</a>')
+                    .find(".k-grid-column-menu");
             }
 
             link.attr("tabindex", -1)
@@ -330,13 +332,13 @@ var __meta__ = {
             };
 
             that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title: '<span class="k-icon k-i-columns"></span><span>' + options.messages.columns + '</span>'
+                title: kendo.ui.icon("columns") + '<span>' + options.messages.columns + '</span>'
             }));
             that.wrapper.find(".k-column-menu-filter")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title: '<span class="k-icon k-i-filter"></span><span>' + options.messages.filter + '</span>'
+                title: kendo.ui.icon("filter") + '<span>' + options.messages.filter + '</span>'
             }));
             that.wrapper.find(".k-column-menu-position")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title: '<span class="k-icon k-i-set-column-position"></span><span>' + options.messages.setColumnPosition + '</span>'
+                title: kendo.ui.icon("set-column-position") + '<span>' + options.messages.setColumnPosition + '</span>'
             }));
         },
 
@@ -1338,12 +1340,12 @@ var __meta__ = {
     const SORTABLE_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
 <div>\
 <div class="k-columnmenu-item k-sort-asc" tabindex="0">\
-<span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}\
+${kendo.ui.icon("sort-asc-small")}${messages.sortAscending}\
 </div>\
 </div>\
 <div>\
 <div class="k-columnmenu-item k-sort-desc" tabindex="0">\
-<span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}\
+${kendo.ui.icon("sort-desc-small")}${messages.sortDescending}\
 </div>\
 </div>\
 </div>`;
@@ -1356,26 +1358,26 @@ var __meta__ = {
 ${modernColumnsTemplateIterator(columns, encodeTitles, ns)}\
 </div>\
 </div>\
-<div class="k-columnmenu-actions">\
-<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" type="button">${messages.reset}</button>\
-<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" type="button">${messages.apply}</button>\
-</div>\
+<div class="k-columnmenu-actions">` +
+kendo.html.renderButton(`<button>${messages.apply}</button>`, { themeColor: "primary", icon: "check" }) +
+kendo.html.renderButton(`<button>${messages.reset}</button>`, { icon: "undo" }) +
+`</div>\
 </div>\
 </div>\
 </div>`;
 
     const LOCKABLE_COLUMNS_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item k-lock" tabindex="0">\
-<span class="k-icon k-i-lock"></span>${messages.lock}\
+${kendo.ui.icon("lock")}${messages.lock}\
 </div>\
 <div class="k-columnmenu-item k-unlock" tabindex="0">\
-<span class="k-icon k-i-unlock"></span>${messages.unlock}\
+${kendo.ui.icon("unlock")}${messages.unlock}\
 </div>`;
 
     const STICKABLE_COLUMNS_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item k-stick" tabindex="0">\
-<span class="k-icon k-i-stick"></span>${messages.stick}\
+${kendo.ui.icon("stick")}${messages.stick}\
 </div>\
 <div class="k-columnmenu-item k-unstick" tabindex="0">\
-<span class="k-icon k-i-unstick"></span>${messages.unstick}\
+${kendo.ui.icon("unstick")}${messages.unstick}\
 </div>`;
 
     const LOCK_STICK_COLUMNS_PARTIAL_MODERN = ({ hasLockableColumns, hasStickableColumns, messages }) => `<div class="k-columnmenu-item-wrapper">\
@@ -1404,32 +1406,32 @@ ${hasLockableColumns || hasStickableColumns ? LOCK_STICK_COLUMNS_PARTIAL_MODERN(
     }
 
     const SORTABLE_PARTIAL_CLASSIC = ({ messages, showColumns, filterable }) => `\
-<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-menu-link-text">${messages.sortAscending}</span></span></li>\
-<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-menu-link-text">${messages.sortDescending}</span></span></li>\
+<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link">${kendo.ui.icon("sort-asc-small")}<span class="k-menu-link-text">${messages.sortAscending}</span></span></li>\
+<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link">${kendo.ui.icon("sort-desc-small")}<span class="k-menu-link-text">${messages.sortDescending}</span></span></li>\
 ${showColumns || filterable ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
 
     const COLUMNS_PARTIAL_CLASSIC = ({ columns, messages, encodeTitles, ns, omitWrapAttribute, filterable, hasLockableColumns, hasStickableColumns }) => `\
-<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span><span class="k-menu-link-text">${messages.columns}</span></span><ul>\
+<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link">${kendo.ui.icon("columns")}<span class="k-menu-link-text">${messages.columns}</span></span><ul>\
 ${classicColumnsTemplateIterator(columns, encodeTitles, ns, omitWrapAttribute)}\
 </ul></li>\
 ${filterable || hasLockableColumns || hasStickableColumns ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
 
-const FILTERABLE_PARTIAL_CLASSIC = ({ messages, hasLockableColumns, hasStickableColumns }) => `<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span><span class="k-menu-link-text">${messages.filter}</span></span><ul>\
+const FILTERABLE_PARTIAL_CLASSIC = ({ messages, hasLockableColumns, hasStickableColumns }) => `<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link">${kendo.ui.icon("filter")}<span class="k-menu-link-text">${messages.filter}</span></span><ul>\
 <li><div class="k-filterable"></div></li>\
 </ul></li>\
 ${hasLockableColumns || hasStickableColumns ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
 
     const LOCKABLE_COLUMNS_PARTIAL_CLASSIC = ({ messages, hasStickableColumns }) => `\
-<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span><span class="k-menu-link-text">${messages.lock}</span></span></li>\
-<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span><span class="k-menu-link-text">${messages.unlock}</span></span></li>\
+<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link">${kendo.ui.icon("lock")}<span class="k-menu-link-text">${messages.lock}</span></span></li>\
+<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link">${kendo.ui.icon("unlock")}<span class="k-menu-link-text">${messages.unlock}</span></span></li>\
 ${hasStickableColumns ? '<li class="k-separator k-menu-separator" role="presentation"></li>' : ''}`;
 
     const STICKABLE_COLUMNS_PARTIAL_CLASSIC = ({ messages }) => `\
-<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span><span class="k-menu-link-text">${messages.stick}</span></span></li>\
-<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span><span class="k-menu-link-text">${messages.unstick}</span></span></li>`;
+<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link">${kendo.ui.icon("stick")}<span class="k-menu-link-text">${messages.stick}</span></span></li>\
+<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link">${kendo.ui.icon("unstick")}<span class="k-menu-link-text">${messages.unstick}</span></span></li>`;
 
     const LOCK_STICK_COLUMNS_PARTIAL_CLASSIC = ({ messages, hasLockableColumns, hasStickableColumns }) => `\
-<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span><span class="k-menu-link-text">${messages.setColumnPosition}</span></span><ul>\
+<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link">${kendo.ui.icon("set-column-position")}<span class="k-menu-link-text">${messages.setColumnPosition}</span></span><ul>\
 ${hasLockableColumns ? LOCKABLE_COLUMNS_PARTIAL_CLASSIC({ messages, hasStickableColumns }) : ''}\
 ${hasStickableColumns ? STICKABLE_COLUMNS_PARTIAL_CLASSIC({ messages }) : ''}\
 </ul></li>`;
@@ -1470,20 +1472,20 @@ ${hasLockableColumns || hasStickableColumns ? LOCK_STICK_COLUMNS_PARTIAL_CLASSIC
         return result;
     }
 
-    const SORTABLE_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>\
-<li id="${kendo.guid()}" class="k-item k-listgroup-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>`;
+    const SORTABLE_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-sort-asc"><span class="k-link">${kendo.ui.icon("sort-asc-small")}<span class="k-item-title">${messages.sortAscending}</span></span></li>\
+<li id="${kendo.guid()}" class="k-item k-listgroup-item k-sort-desc"><span class="k-link">${kendo.ui.icon("sort-desc-small")}<span class="k-item-title">${messages.sortDescending}</span></span></li>`;
 
-    const LOCKABLE_COLUMNS_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>\
-<li id="${kendo.guid()}" class="k-item k-listgroup-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>`;
+    const LOCKABLE_COLUMNS_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-lock"><span class="k-link">${kendo.ui.icon("lock")}<span class="k-item-title">${messages.lock}</span></span></li>\
+<li id="${kendo.guid()}" class="k-item k-listgroup-item k-unlock"><span class="k-link">${kendo.ui.icon("unlock")}<span class="k-item-title">${messages.unlock}</span></span></li>`;
 
-    const STICKABLE_COLUMNS_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-stick"><span class="k-link"><span class="k-icon k-i-stick"></span><span class="k-item-title">${messages.stick}</span></span></li>\
-<li id="${kendo.guid()}" class="k-item k-listgroup-item k-unstick"><span class="k-link"><span class="k-icon k-i-unstick"></span><span class="k-item-title">${messages.unstick}</span></span></li>`;
+    const STICKABLE_COLUMNS_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-stick"><span class="k-link">${kendo.ui.icon("stick")}<span class="k-item-title">${messages.stick}</span></span></li>\
+<li id="${kendo.guid()}" class="k-item k-listgroup-item k-unstick"><span class="k-link">${kendo.ui.icon("unstick")}<span class="k-item-title">${messages.unstick}</span></span></li>`;
 
     const FILTERABLE_PARTIAL_MOBILE = ({ messages }) => `<li id="${kendo.guid()}" class="k-item k-listgroup-item k-filter-item">\
 <span class="k-link k-filterable">\
-<span class="k-icon k-i-filter"></span>\
+${kendo.ui.icon("filter")}\
 <span class="k-item-title">${messages.filter}</span>\
-<span class="k-select"><span class="k-icon k-i-arrow-chevron-right"></span></span>\
+<span class="k-select">${kendo.ui.icon("chevron-right")}</span>\
 </span>\
 </li>`;
 
@@ -1495,9 +1497,9 @@ ${mobileColumnsTemplateIterator(columns, groups, ns, hasGroups)}\
     var mobileTemplate = ({ messages, title, sortable, filterable, showColumns, hasLockableColumns, hasStickableColumns, hasGroups, columns, groups, ns }) => `\
 <div data-${ns}role="view" class="k-grid-column-menu">\
 <div data-${ns}role="header" class="k-header">\
-<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" aria-label="${messages.cancel}"><span class="k-icon k-i-arrow-chevron-left"></span></a>\
+<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>\
 ${messages.settings}\
-<a href="#" class="k-header-done k-link" title="${messages.done}" aria-label="${messages.done}"><span class="k-icon k-i-check"></span></a>\
+<a href="#" class="k-header-done k-link" title="${messages.done}" aria-label="${messages.done}">${kendo.ui.icon("check")}</a>\
 </div>\
 <div class="k-column-menu">\
 <ul class="k-reset">\

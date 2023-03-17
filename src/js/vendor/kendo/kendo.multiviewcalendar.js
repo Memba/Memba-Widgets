@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,7 @@
 import "./kendo.core.js";
 import "./kendo.selectable.js";
 import "./kendo.calendar.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "multiviewcalendar",
@@ -55,7 +56,7 @@ var __meta__ = {
         END = "k-range-end",
         HOVER = "k-hover",
         DISABLED = "k-disabled",
-        TODAY = "k-nav-today",
+        TODAY = "k-calendar-nav-today",
         OTHERMONTH = "k-other-month",
         OUTOFRANGE = "k-out-of-range",
         CALENDAR_VIEW = "k-calendar-view",
@@ -88,7 +89,7 @@ var __meta__ = {
         ARIA_LABEL = "aria-label",
         ARIA_OWNS = "aria-owns",
         ARIA_ACTIVEDESCENDANT = "aria-activedescendant",
-        INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
+        INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-caret-alt-down,span.k-icon.k-i-caret-alt-up,span.k-svg-icon.k-svg-i-caret-alt-down,span.k-svg-icon.k-svg-i-caret-alt-up",
         DATE = Date,
         views = {
             month: 0,
@@ -705,9 +706,9 @@ var __meta__ = {
                     lastDate = max;
                 }
 
-                title.html(view.first(value).getFullYear() + " - " + view.last(lastDate).getFullYear());
+                title.html('<span class="k-button-text">' + view.first(value).getFullYear() + " - " + view.last(lastDate).getFullYear() + "</span>");
             } else {
-                title.html(view.title(value, min, max, culture) + " - " + view.title(shiftDate(value, view.name, options.views - 1), min, max, culture));
+                title.html('<span class="k-button-text">' + view.title(value, min, max, culture) + " - " + view.title(shiftDate(value, view.name, options.views - 1), min, max, culture) + "</span>");
             }
 
             disabled = view.name === CENTURY;
@@ -724,11 +725,11 @@ var __meta__ = {
             } else {
                 if (!that._navContainer) {
                     that._navContainer = $('<span class="k-calendar-nav k-hstack">' +
-                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' +
-                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' +
+                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-prev-view" ' + ARIA_LABEL + `="Previous">${kendo.ui.icon({ icon: "chevron-left", iconClass: "k-button-icon" })}</a>` +
+                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-next-view" ' + ARIA_LABEL + `="Next">${kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" })}</a>` +
                     '</span>').appendTo(that.header);
-                    that[PREVARROW] = that._navContainer.find(".k-prev-view");
-                    that[NEXTARROW] = that._navContainer.find(".k-next-view");
+                    that[PREVARROW] = that._navContainer.find(".k-calendar-prev-view");
+                    that[NEXTARROW] = that._navContainer.find(".k-calendar-next-view");
                 }
 
                 that[PREVARROW].toggleClass(DISABLED, prevDisabled).attr(ARIA_DISABLED, prevDisabled);
@@ -1126,7 +1127,7 @@ var __meta__ = {
                 that.selectable = new Selectable(that.wrapper, {
                     aria: true,
                     dragToSelect: false,
-                    inputSelectors: "input,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
+                    inputSelectors: "input,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-caret-alt-down,span.k-icon.k-i-caret-alt-up,span.k-svg-icon.k-svg-i-caret-alt-down,span.k-svg-icon.k-svg-i-caret-alt-up",
                     multiple: Selectable.parseOptions(selectable).multiple,
                     filter: "table.k-content " + CELLSELECTORVALID,
                     change: that._selection.bind(that),
@@ -1266,7 +1267,7 @@ var __meta__ = {
                     isWeekColumnVisible: options.weekNumber,
                     otherMonth: options.otherMonth,
                     messages: options.messages,
-                    contentClasses: "k-content"
+                    contentClasses: "k-calendar-table k-content"
                 }, that[currentView.name])));
 
                 that._table.appendTo(that.tablesWrapper).addClass("k-" + currentView.name);
@@ -1436,8 +1437,8 @@ var __meta__ = {
                     '<a id="calendar-title" tabindex="-1" href="#" role="button" class="k-calendar-title k-title k-button k-button-md k-rounded-md k-button-flat k-button-flat-base" aria-live="polite"></a>' +
                     '<span class="k-spacer"></span>' +
                     '<span class="k-calendar-nav k-hstack">' +
-                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' +
-                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' +
+                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-prev-view" ' + ARIA_LABEL + `="Previous">${kendo.ui.icon({ icon: "chevron-left", iconClass: "k-button-icon" })}</a>` +
+                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-next-view" ' + ARIA_LABEL + `="Next">${kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" })}</a>` +
                     '</span>' +
                 '</div>').prependTo(element);
             }
@@ -1447,15 +1448,15 @@ var __meta__ = {
             header.on(MOUSEENTER + ns + " " + MOUSELEAVE_NS + " " + FOCUS + ns + " " + BLUR + ns, ".k-button", mousetoggle)
                 .on(CLICK, function() { return false; })
                 .on(CLICK + ns, ".k-button.k-calendar-title", that._calendarTitleClick.bind(that))
-                .on(CLICK + ns, ".k-button.k-prev-view", that._prevViewClick.bind(that))
-                .on(CLICK + ns, ".k-button.k-next-view", that._nextViewClick.bind(that));
+                .on(CLICK + ns, ".k-button.k-calendar-prev-view", that._prevViewClick.bind(that))
+                .on(CLICK + ns, ".k-button.k-calendar-next-view", that._nextViewClick.bind(that));
 
             buttons = header.find(".k-button");
 
             that._title = buttons.filter(".k-calendar-title");
             that._navContainer = header.find(".k-calendar-nav");
-            that[PREVARROW] = buttons.filter(".k-prev-view");
-            that[NEXTARROW] = buttons.filter(".k-next-view");
+            that[PREVARROW] = buttons.filter(".k-calendar-prev-view");
+            that[NEXTARROW] = buttons.filter(".k-calendar-next-view");
         },
 
         _calendarTitleClick: function() {
@@ -1512,13 +1513,19 @@ var __meta__ = {
             }
 
             if (!footer[0]) {
-                footer = $('<div class="k-footer"><a tabindex="-1" href="#" class="k-link k-nav-today"></a></div>').appendTo(element);
+                footer = $(`<div class="k-footer">
+                    <button tabindex="-1" class="k-calendar-nav-today k-flex k-button k-button-md k-button-flat k-button-flat-primary k-rounded-md">
+                        <span class="k-button-text"></span>
+                    </button>
+                </div>`).appendTo(element);
             }
 
             that._today = footer.show()
-                .find(".k-link")
-                .html(template(today))
+                .find(".k-button-flat-primary")
                 .attr("title", kendo.toString(today, "D", that.options.culture));
+
+            footer.find(".k-button-text")
+                .html(template(today));
 
             that._toggle();
         },

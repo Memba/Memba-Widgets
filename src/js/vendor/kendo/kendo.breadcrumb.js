@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.core.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "breadcrumb",
     name: "Breadcrumb",
     category: "web",
     description: "The Breadcrumb widget displays navigation breadcrumb.",
-    depends: [ "core" ]
+    depends: [ "core", "icons" ]
 };
 
 (function($, undefined) {
@@ -87,7 +88,7 @@ var __meta__ = {
             name: "Breadcrumb",
             gap: 0,
             rootIcon: "home",
-            delimiterIcon: "arrow-chevron-right",
+            delimiterIcon: "chevron-right",
             messages: {
                 rootTitle: "Go to root"
             }
@@ -376,8 +377,8 @@ var __meta__ = {
                 idx,
                 length, isLastSegment;
 
-            if (delimiterIcon == "arrow-chevron-right" && that.isRtl()) {
-                delimiterIcon = "arrow-chevron-left";
+            if (delimiterIcon == "chevron-right" && that.isRtl()) {
+                delimiterIcon = "chevron-left";
             }
 
             for (idx = 0, length = segments.length; idx < length; idx++) {
@@ -463,8 +464,8 @@ var __meta__ = {
                 return Object.keys(linkClasses).filter(i => linkClasses[i]).join(' ');
             };
 
-            const iconElm = data.showIcon ? `<span class="${(data.icon) ? `k-icon k-i-${encode(data.icon)}` : ''} ${encode(data.iconClass)}"></span>` : '';
-            const delimiterElm = data.renderDelimiter ? `<span class="k-breadcrumb-delimiter-icon k-icon k-i-${encode(data.delimiterIcon)}" aria-hidden="true"></span>` : '';
+            const iconElm = data.showIcon ? kendo.ui.icon($(`<span class="${encode(data.iconClass)}"></span>`), { icon: encode(data.icon) }) : '';
+            const delimiterElm = data.renderDelimiter ? kendo.ui.icon($(`<span class="k-breadcrumb-delimiter-icon" aria-hidden="true"></span>`), { icon: encode(data.delimiterIcon) }) : '';
             const text = `${data.showText ? (data.encoded !== false ? encode(data.text) : data.text) : '' }`;
 
             const linkElm = `<a href="${encode(data.href)}" class="${encode(data.linkClass)} ${getLinkClasses()}"

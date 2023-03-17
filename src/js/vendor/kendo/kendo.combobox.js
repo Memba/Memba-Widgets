@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -967,7 +967,7 @@ var __meta__ = {
 
             if (!input[0]) {
                 arrowBtn = html.renderButton('<button type="button" class="k-input-button" aria-label="expand combobox"></button>', {
-                    icon: "arrow-s",
+                    icon: "caret-alt-down",
                     size: options.size,
                     fillMode: options.fillMode,
                     shape: "none",
@@ -1016,7 +1016,7 @@ var __meta__ = {
                     "role": "button",
                     "tabIndex": -1
                 });
-            that._arrowIcon = that._arrow.find(".k-icon");
+            that._arrowIcon = that._arrow.find(".k-icon, .k-svg-icon");
         },
 
         _clearButton: function() {

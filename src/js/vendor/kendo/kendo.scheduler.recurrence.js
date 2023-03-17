@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,12 +10,13 @@ import "./kendo.dropdownlist.js";
 import "./kendo.datepicker.js";
 import "./kendo.numerictextbox.js";
 import "./kendo.buttongroup.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "scheduler.recurrence",
     name: "Recurrence",
     category: "web",
-    depends: [ "dropdownlist", "datepicker", "numerictextbox", "buttongroup" ],
+    depends: [ "dropdownlist", "datepicker", "numerictextbox", "buttongroup", "icons" ],
     hidden: true
 };
 
@@ -2676,7 +2677,7 @@ var __meta__ = {
             var that = this;
             var freq = that.options.messages.frequencies[this._value.freq || "never"];
 
-            that._chevronButton = $('<span class="k-icon k-i-arrow-chevron-right"></span>');
+            that._chevronButton = $(kendo.ui.icon("chevron-right"));
             that._repeatValue = $('<span class="">' + freq + '</span>');
 
             that.element.append(that._repeatValue).append(that._chevronButton);
@@ -2715,7 +2716,7 @@ var __meta__ = {
 
             var endLabelField = $(that._endLiItem()).insertAfter(that._container);
 
-            var endEditField = $('<div class="k-scheduler-recur-end-wrap k-listgroup-form-field-wrapper"><span class="k-scheduler-recur-end"></span><span class="k-icon k-i-arrow-chevron-right"></span></div>')
+            var endEditField = $(`<div class="k-scheduler-recur-end-wrap k-listgroup-form-field-wrapper"><span class="k-scheduler-recur-end"></span>${kendo.ui.icon("chevron-right")}</div>`)
                 .appendTo(endLabelField.find(".k-label"));
 
             endLabelField.on(CLICK + that._namespace, function(e) {
@@ -2834,10 +2835,10 @@ var __meta__ = {
             var html = '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form" id="recurrence">' +
                        '<div data-role="header" class="k-header">' +
                            '<a href="#" class="k-header-cancel k-scheduler-cancel k-link" title="' + messages.cancel + '"' +
-                           'aria-label="' + messages.cancel + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' +
+                           `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
                                messages.headerTitle +
                            '<a href="#" class="k-header-done k-scheduler-update k-link" title="' + messages.update + '" ' +
-                           'aria-label="' + messages.update + '"><span class="k-icon k-i-check"></span></a>' +
+                           `aria-label="${messages.update}">${kendo.ui.icon("check")}</a>` +
                        '</div>';
 
             var returnViewId = that._pane.view().id;

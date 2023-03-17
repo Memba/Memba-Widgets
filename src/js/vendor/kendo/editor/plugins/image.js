@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "../../kendo.imagebrowser.js";
 import "../command.js";
+import "../../kendo.form.js";
 
 (function($, undefined) {
 
@@ -18,7 +19,6 @@ var kendo = window.kendo,
     EditorUtils = Editor.EditorUtils,
     dom = Editor.Dom,
     registerTool = EditorUtils.registerTool,
-    ToolTemplate = Editor.ToolTemplate,
     RangeUtils = Editor.RangeUtils,
     Command = Editor.Command,
     keys = kendo.keys,
@@ -83,49 +83,6 @@ var ImageCommand = Command.extend({
         return false;
     },
 
-    _dialogTemplate: function(showBrowser) {
-        return kendo.template(({ messages }) =>
-            '<div class="k-editor-dialog k-popup-edit-form">' +
-                '<div class="k-edit-form-container">' +
-                    '<div class="k-edit-form-content">' +
-                        `${showBrowser ? '<div class="k-filebrowser k-imagebrowser"></div>' : ''}` +
-                        '<div class="k-edit-label">' +
-                            `<label for="k-editor-image-url">${encode( messages.imageWebAddress )}</label>` +
-                        '</div>' +
-                        '<div class="k-edit-field">' +
-                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-url"></span>' +
-                        '</div>' +
-                        '<div class="k-edit-label">' +
-                            `<label for="k-editor-image-title">${encode( messages.imageAltText )}</label>` +
-                        '</div>' +
-                        '<div class="k-edit-field">' +
-                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-title"></span>' +
-                        '</div>' +
-                        '<div class="k-edit-label">' +
-                            `<label for="k-editor-image-width">${encode( messages.imageWidth )}</label>` +
-                        '</div>' +
-                        '<div class="k-edit-field">' +
-                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-width"></span>' +
-                        '</div>' +
-                        '<div class="k-edit-label">' +
-                            `<label for="k-editor-image-height">${encode( messages.imageHeight )}</label>` +
-                        '</div>' +
-                        '<div class="k-edit-field">' +
-                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input type="text" class="k-input-inner" id="k-editor-image-height"></span>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="k-edit-buttons">' +
-                        `<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${encode(messages.dialogInsert)}</span></button>` +
-                        `<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${encode(messages.dialogCancel)}</span></button>` +
-                    '</div>' +
-                '</div>' +
-            '</div>'
-        )({
-            messages: this.editor.options.messages,
-            showBrowser: showBrowser
-        });
-    },
-
     redo: function() {
         var that = this,
             range = that.lockRange();
@@ -143,6 +100,7 @@ var ImageCommand = Command.extend({
             imageWidth = img && img.getAttribute("width") || "",
             imageHeight = img && img.getAttribute("height") || "",
             dialog,
+            form,
             isIE = kendo.support.browser.msie,
             options = that.editor.options,
             messages = options.messages,
@@ -188,6 +146,7 @@ var ImageCommand = Command.extend({
 
         function close(e) {
             e.preventDefault();
+            form.destroy();
             dialog.destroy();
 
             dom.windowFromDocument(RangeUtils.documentFromRange(range)).focus();
@@ -209,18 +168,22 @@ var ImageCommand = Command.extend({
         if (showBrowser) {
             dialogOptions.width = 750;
         }
+        dialogOptions.minWidth = 350;
 
-        dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions)
-            .toggleClass("k-filebrowser-dialog", showBrowser)
-            .find(".k-dialog-insert").on("click", apply).end()
-            .find(".k-dialog-close").on("click", close).end()
-            .find(".k-edit-field input").on("keydown", keyDown).end()
-            // IE < 8 returns absolute url if getAttribute is not used
-            .find(KEDITORIMAGEURL).val(img ? img.getAttribute("src", 2) : "http://").end()
-            .find(KEDITORIMAGETITLE).val(img ? img.alt : "").end()
-            .find(KEDITORIMAGEWIDTH).val(imageWidth).end()
-            .find(KEDITORIMAGEHEIGHT).val(imageHeight).end()
-            .data("kendoWindow");
+        dialog = this.createDialog("<div/>", dialogOptions).data("kendoWindow");
+
+        form = that._createForm(dialog, showBrowser);
+
+        dialog.element.toggleClass("k-filebrowser-dialog", showBrowser);
+        dialog.wrapper
+        .find(".k-dialog-insert").on("click", apply).end()
+        .find(".k-dialog-close").on("click", close).end()
+        .find(".k-form-field input").on("keydown", keyDown).end()
+        // IE < 8 returns absolute url if getAttribute is not used
+        .find(KEDITORIMAGEURL).val(img ? img.getAttribute("src", 2) : "http://").end()
+        .find(KEDITORIMAGETITLE).val(img ? img.alt : "").end()
+        .find(KEDITORIMAGEWIDTH).val(imageWidth).end()
+        .find(KEDITORIMAGEHEIGHT).val(imageHeight).end();
 
         var element = dialog.element;
         if (showBrowser) {
@@ -244,12 +207,51 @@ var ImageCommand = Command.extend({
         }
         dialog.center().open();
         element.find(KEDITORIMAGEURL).trigger("focus").select();
+    },
+
+    _createForm: function(dialog, showBrowser) {
+        var that = this;
+        var formElement = $("<div/>").appendTo(dialog.element);
+        var messages = that.editor.options.messages;
+        var form = formElement.kendoForm({
+            renderButtons: false,
+            items: [
+                {
+                    field: "k-editor-image-url",
+                    label: encode(messages.imageWebAddress),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-image-title",
+                    label: encode(messages.imageAltText),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-image-width",
+                    label: encode(messages.imageWidth),
+                    editor: "TextBox"
+                },
+                {
+                    field: "k-editor-image-height",
+                    label: encode(messages.imageHeight),
+                    editor: "TextBox"
+                }
+            ]
+        }).data("kendoForm");
+
+        if (showBrowser) {
+            formElement.prepend($('<div class="k-filebrowser k-imagebrowser"></div>'));
+        }
+
+        dialog.element.after($(that._actionButtonsTemplate({ messages, insertButtonIcon: "image-add", cancelButtonIcon: "cancel-outline" })));
+
+        return form;
     }
 
 });
 
 kendo.ui.editor.ImageCommand = ImageCommand;
 
-registerTool("insertImage", new Editor.Tool({ command: ImageCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert Image" }) }));
+registerTool("insertImage", new Editor.Tool({ command: ImageCommand }));
 
 })(window.kendo.jQuery);

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,12 +8,15 @@
  */
 import "./kendo.core.js";
 import "./kendo.draganddrop.js";
+import "./kendo.chip.js";
+import "./kendo.chiplist.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "groupable",
     name: "Groupable",
     category: "framework",
-    depends: [ "core", "draganddrop" ],
+    depends: [ "core", "draganddrop", "icons" ],
     advanced: true
 };
 
@@ -33,17 +36,9 @@ var __meta__ = {
         DESCENDING = "desc",
         REMOVEGROUP = "removeGroup",
         GROUP_SORT = "group-sort",
+        DROP_CONTAINER = "k-grouping-drop-container",
         NS = ".kendoGroupable",
         CHANGE = "change",
-        indicatorTmpl = (data) => `<div class="k-group-indicator" data-${data.ns}field="${data.field}" ${data.id ? ("data-" + data.ns + "id=" + data.id) : ""} data-${data.ns}title="${data.title || ""}" data-${data.ns}dir="${data.dir || "asc"}">
-                <a role="button" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending" : "descending"})" href="#" class="k-link">
-                    <span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending" : "descending"})"></span>
-                    ${data.title ? data.title : data.field}
-                </a>
-                <a href="#" role="button" data-role="button" aria-label="Remove grouping by ${data.title || data.field} field" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">
-                    <span class="k-button-icon k-icon k-i-close"></span>
-                </a>
-             </div>`,
         hint = function(target) {
             var title = target.attr(kendo.attr("title"));
             if (title) {
@@ -52,9 +47,16 @@ var __meta__ = {
 
             return $('<div class="k-group-clue k-drag-clue" />')
                 .html(title || target.attr(kendo.attr("field")))
-                .prepend('<span class="k-icon k-drag-status k-i-cancel"></span>');
+                .prepend(kendo.ui.icon({ icon: "cancel", iconClass: "k-drag-status" }));
         },
         dropCue = $('<div class="k-grouping-dropclue"/>');
+
+
+    function removeText(element) {
+        element.contents().filter(function() {
+            return this.nodeType === 3;
+        }).remove();
+    }
 
     var Groupable = Widget.extend({
         init: function(element, options) {
@@ -81,12 +83,13 @@ var __meta__ = {
                     group: draggable.options.group,
                     dragenter: function(e) {
                         if (that._canDrag(e.draggable.currentTarget)) {
-                            e.draggable.hint.find(".k-drag-status").removeClass("k-i-cancel").addClass("k-i-plus");
+                            kendo.ui.icon(e.draggable.hint.find(".k-drag-status"), { icon: "plus" });
                             dropCue.css(horizontalCuePosition, 0).appendTo(that.groupContainer);
                         }
                     },
                     dragleave: function(e) {
-                        e.draggable.hint.find(".k-drag-status").removeClass("k-i-plus").addClass("k-i-cancel");
+                        kendo.ui.icon(e.draggable.hint.find(".k-drag-status"), { icon: "cancel" });
+
                         dropCue.remove();
                     },
                     drop: function(e) {
@@ -97,35 +100,37 @@ var __meta__ = {
                             sourceIndicator = that.indicator(field),
                             dropCuePositions = that._dropCuePositions,
                             lastCuePosition = dropCuePositions[dropCuePositions.length - 1],
-                            position;
+                            position,
+                            method = "after",
+                            parentLeft = isRtl || !lastCuePosition ? 0 : lastCuePosition.element.parent().position().left;
                         var sortOptions = extend({}, that.options.sort, targetElement.data(GROUP_SORT));
                         var dir = sortOptions.dir;
 
-                        if (!targetElement.hasClass("k-group-indicator") && !that._canDrag(targetElement)) {
+                        if (!targetElement.hasClass("k-chip") && !that._canDrag(targetElement)) {
                             return;
                         }
                         if (lastCuePosition) {
-                            position = that._dropCuePosition(kendo.getOffset(dropCue).left + parseInt(lastCuePosition.element.css("marginLeft"), 10) * (isRtl ? -1 : 1) + parseInt(lastCuePosition.element.css("marginRight"), 10));
+                            position = that._dropCuePosition(kendo.getOffset(dropCue).left + parentLeft + parseInt(lastCuePosition.element.css("marginLeft"), 10) * (isRtl ? -1 : 1) + parseInt(lastCuePosition.element.css("marginRight"), 10));
                             if (position && that._canDrop($(sourceIndicator), position.element, position.left)) {
                                 if (position.before) {
-                                    position.element.before(sourceIndicator || that.buildIndicator(field, title, dir, colID));
-                                } else {
-                                    position.element.after(sourceIndicator || that.buildIndicator(field, title, dir, colID));
+                                    method = "before";
                                 }
 
+                                position.element[method](sourceIndicator || that.buildIndicator(field, title, dir, colID).wrapper);
                                 that._setIndicatorSortOptions(field, sortOptions);
                                 that._change();
                             }
                         } else {
-                            that.groupContainer.empty();
-                            that.groupContainer.append(that.buildIndicator(field, title, dir, colID));
+                            removeText(that._messageContainer);
+                            that._list.element.show();
+                            that._list.add(that.buildIndicator(field, title, dir, colID).element);
                             that._setIndicatorSortOptions(field, sortOptions);
                             that._change();
                         }
                     }
                 })
                 .kendoDraggable({
-                    filter: "div.k-group-indicator",
+                    filter: "div.k-chip",
                     hint: hint,
                     group: draggable.options.group,
                     dragcancel: that._dragCancel.bind(that),
@@ -137,24 +142,12 @@ var __meta__ = {
 
                         intializePositions();
                         dropCue.css("left", left).appendTo(that.groupContainer);
-                        this.hint.find(".k-drag-status").removeClass("k-i-cancel").addClass("k-i-plus");
+                        kendo.ui.icon(this.hint.find(".k-drag-status"), { icon: "plus" });
                     },
                     dragend: function() {
                         that._dragEnd(this);
                     },
                     drag: that._drag.bind(that)
-                })
-                .on("click" + NS, ".k-button", function(e) {
-                    e.preventDefault();
-                    that._removeIndicator($(this).parent());
-                })
-                .on("click" + NS,".k-link", function(e) {
-                    var indicator = $(this).parent();
-                    var newDir = indicator.attr(kendoAttr(DIR)) === ASCENDING ? DESCENDING : ASCENDING;
-
-                    indicator.attr(kendoAttr(DIR), newDir);
-                    that._change();
-                    e.preventDefault();
                 });
 
             draggable.bind([ "dragend", "dragcancel", "dragstart", "drag" ],
@@ -164,7 +157,6 @@ var __meta__ = {
                 },
                 dragcancel: that._dragCancel.bind(that),
                 dragstart: function(e) {
-                    var element, marginRight, left;
 
                     if (!that.options.allowDrag && !that._canDrag(e.currentTarget)) {
                         e.preventDefault();
@@ -172,18 +164,18 @@ var __meta__ = {
                     }
 
                     intializePositions();
-                    if (dropCuePositions.length) {
-                        element = dropCuePositions[dropCuePositions.length - 1].element;
-                        marginRight = parseInt(element.css("marginRight"), 10);
-                        left = element.position().left + outerWidth(element) + marginRight;
-                    } else {
-                        left = 0;
-                    }
                 },
                 drag: that._drag.bind(that)
             });
 
             that.dataSource = that.options.dataSource;
+            that._messageContainer = that.groupContainer.find("." + DROP_CONTAINER);
+
+            if (!that._messageContainer.length) {
+                that._messageContainer = $('<div/>').addClass(DROP_CONTAINER).appendTo(that.groupContainer);
+            }
+
+            that._createList();
 
             if (that.dataSource && that._refreshHandler) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
@@ -203,10 +195,16 @@ var __meta__ = {
             var groups = dataSource.group() || [];
             var fieldAttr = kendoAttr(FIELD);
             var titleAttr = kendoAttr(TITLE);
-            var indicatorHtml;
 
             if (that.groupContainer) {
-                that.groupContainer.empty();
+                if (that._list) {
+                    that._list.remove(that._list.items());
+                    that._list.element.hide();
+                }
+
+                if (groups.length) {
+                    removeText(that._messageContainer);
+                }
 
                 each(groups, function(index, group) {
                     var field = group.field;
@@ -216,9 +214,10 @@ var __meta__ = {
                         .filter(function() {
                             return $(this).attr(fieldAttr) === field;
                         });
+                    var indicator = that.buildIndicator(field, element.attr(titleAttr), dir, element.attr("id"));
 
-                    indicatorHtml = that.buildIndicator(field, element.attr(titleAttr), dir, element.attr("id"));
-                    that.groupContainer.append(indicatorHtml);
+                    that._list.add(indicator.element);
+                    that._list.element.show();
                     that._setIndicatorSortOptions(field, extend({}, that.options.sort, { dir: dir, compare: group.compare }));
                 });
             }
@@ -250,6 +249,10 @@ var __meta__ = {
                 that._refreshHandler = null;
             }
 
+            if (that._list) {
+                that._list.destroy();
+            }
+
             that.groupContainer = that.element = that.draggable = null;
         },
 
@@ -269,22 +272,57 @@ var __meta__ = {
         },
 
         indicator: function(field) {
-            var indicators = $(".k-group-indicator", this.groupContainer);
+            var indicators = $(".k-chip", this.groupContainer);
             return $.grep(indicators, function(item)
                 {
                     return $(item).attr(kendo.attr("field")) === field;
                 })[0];
         },
 
+        removeHandler: function(e) {
+            var that = this;
+
+            that._removeIndicator(e.sender.wrapper);
+        },
+
+        clickHandler: function(e) {
+            var that = this;
+            var indicator = e.sender.wrapper;
+            var dirIcon = indicator.find(".k-chip-icon");
+            var newDir = dirIcon.attr(kendoAttr(DIR)) === ASCENDING ? DESCENDING : ASCENDING;
+
+            dirIcon.attr(kendoAttr(DIR), newDir);
+            that._change();
+        },
+
         buildIndicator: function(field, title, dir, id) {
             var that = this;
-            var indicator = indicatorTmpl({
-                ns: kendo.ns,
-                field: field.replace(/"/g, "'"),
-                title: title,
-                id: id,
-                dir: dir || (that.options.sort || {}).dir || ASCENDING
-            });
+            var indicator;
+            var icon;
+            var wrapper;
+
+            dir = dir || (that.options.sort || {}).dir || ASCENDING;
+            indicator = $(`<div/>`)
+                            .kendoChip({
+                                icon: `sort-${(dir || "asc") == "asc" ? "asc-small" : "desc-small"}`,
+                                iconClass: 'k-chip-icon',
+                                label: `${title || field}`,
+                                removable: true,
+                                size: that.options.size || "medium",
+                                remove: that.removeHandler.bind(that),
+                                click: that.clickHandler.bind(that)
+                            }).data("kendoChip");
+            wrapper = indicator.wrapper;
+            icon = wrapper.find(".k-chip-icon").first();
+            wrapper.attr(`data-${kendo.ns}field`, field);
+            wrapper.attr(`data-${kendo.ns}title`, title || "");
+
+            if (id) {
+                wrapper.attr(`data-${kendo.ns}id`, id);
+            }
+
+            icon.attr("title", `(sorted ${dir == "asc" ? "ascending" : "descending"})`);
+            icon.attr(`data-${kendo.ns}dir`, dir);
 
             return indicator;
         },
@@ -318,7 +356,7 @@ var __meta__ = {
 
         descriptors: function() {
             var that = this,
-                indicators = $(".k-group-indicator", that.groupContainer),
+                indicators = $(".k-chip", that.groupContainer),
                 field,
                 aggregates = that.aggregates();
 
@@ -327,10 +365,11 @@ var __meta__ = {
                 field = item.attr(kendo.attr("field"));
                 var sortOptions = that.options.sort || {};
                 var indicatorSortOptions = item.data(GROUP_SORT) || {};
+                var dirIcon = item.find(".k-chip-icon");
 
                 return {
                     field: field,
-                    dir: item.attr(kendo.attr("dir")),
+                    dir: dirIcon.attr(kendo.attr("dir")),
                     aggregates: aggregates || [],
                     colID: item.attr(kendo.attr("id")),
                     compare: indicatorSortOptions.compare || sortOptions.compare
@@ -345,9 +384,9 @@ var __meta__ = {
                 field: indicator.attr(kendo.attr("field")),
                 colID: indicator.attr(kendo.attr("id")),
             });
+            that._list.remove(indicator);
             indicator.off();
             indicator.removeData();
-            indicator.remove();
             that._invalidateGroupContainer();
             that._change();
         },
@@ -365,6 +404,7 @@ var __meta__ = {
         },
 
         _dropCuePosition: function(position) {
+            var that = this;
             var dropCuePositions = this._dropCuePositions;
             if (!dropCue.is(":visible") || dropCuePositions.length === 0) {
                 return;
@@ -376,11 +416,12 @@ var __meta__ = {
                 left = lastCuePosition.left,
                 right = lastCuePosition.right,
                 marginLeft = parseInt(lastCuePosition.element.css("marginLeft"), 10),
-                marginRight = parseInt(lastCuePosition.element.css("marginRight"), 10);
+                marginRight = parseInt(lastCuePosition.element.css("marginRight"), 10),
+                parentLeft = lastCuePosition.element.parent().position().left - parseInt(that.groupContainer.css("paddingLeft"), 10);
 
             if (position >= right && !isRtl || position < left && isRtl) {
                 position = {
-                    left: lastCuePosition.element.position().left + (!isRtl ? outerWidth(lastCuePosition.element) + marginRight : - marginLeft),
+                    left: lastCuePosition.element.position().left + (!isRtl ? outerWidth(lastCuePosition.element) + marginRight : parentLeft - marginLeft),
                     element: lastCuePosition.element,
                     before: false
                 };
@@ -391,7 +432,7 @@ var __meta__ = {
 
                 if (position) {
                     position = {
-                        left: isRtl ? position.element.position().left + outerWidth(position.element) + marginRight : position.element.position().left - marginLeft,
+                        left: isRtl ? position.element.position().left + outerWidth(position.element) + marginRight + parentLeft : position.element.position().left - marginLeft,
                         element: position.element,
                         before: true
                     };
@@ -412,7 +453,7 @@ var __meta__ = {
 
             return element.attr(kendo.attr("groupable")) != "false" &&
                 field &&
-                (element.hasClass("k-group-indicator") ||
+                (element.hasClass("k-chip") ||
                     !this.indicator(field));
         },
         _canDrop: function(source, target, position) {
@@ -437,7 +478,7 @@ var __meta__ = {
         },
         _intializePositions: function() {
             var that = this,
-                indicators = $(".k-group-indicator", that.groupContainer),
+                indicators = $(".k-chip", that.groupContainer),
                 left;
 
             that._dropCuePositions = $.map(indicators, function(item) {
@@ -451,10 +492,21 @@ var __meta__ = {
             });
         },
         _invalidateGroupContainer: function() {
-            var groupContainer = this.groupContainer;
-            if (groupContainer && groupContainer.is(":empty")) {
-                groupContainer.html(this.options.messages.empty);
+            var that = this;
+            var groupContainer = that.groupContainer;
+            var list = that._list;
+
+            if (groupContainer && list && list.element.is(":empty")) {
+                this._messageContainer.text(this.options.messages.empty);
             }
+        },
+
+        _createList: function() {
+            var that = this;
+
+            that.groupContainer.find(".k-chip-list").remove();
+            that._list = $("<div/>").kendoChipList({ size: that.options.size || "meduim" }).data("kendoChipList");
+            that._list.element.insertBefore(that._messageContainer);
         }
     });
 

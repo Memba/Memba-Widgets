@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.scheduler.view.js";
+import "./kendo.icons.js";
 
     var __meta__ = {
         id: "scheduler.agendaview",
         name: "Scheduler Agenda View",
         category: "web",
         description: "The Scheduler Agenda View",
-        depends: ["scheduler.view"],
+        depends: ["scheduler.view", "icons"],
         hidden: true
     };
 
@@ -26,10 +27,10 @@ import "./kendo.scheduler.view.js";
 
         var EVENT_WRAPPER_TEMPLATE = (task) => `<div class="k-task" title="${encode((task.title || "").replace(/"/g,"\'"))}" ${kendo.attr('uid')}="${task.uid}">` +
             `${task.resources[0] ? `<span class="k-scheduler-mark" style="background-color:${task.resources[0].color}"></span>` : ''}` +
-            `${task.isException() ? '<span class="k-icon k-i-non-recurrence"></span>' :
-                (task.isRecurring() ? '<span class="k-icon k-i-reload"></span>' : '')}` +
+            `${task.isException() ? kendo.ui.icon("arrows-no-repeat") :
+                (task.isRecurring() ? kendo.ui.icon("arrow-rotate-cw") : '')}` +
             `<span class="k-scheduler-task-text">${kendo.template(task.template)(task)}</span>` +
-            `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}"><span class="k-icon k-i-close"></span></a>` : ''}` +
+            `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}">${kendo.ui.icon("x")}</a>` : ''}` +
             '</div>';
 
         var DESKTOP_EVENT_DATE_TEMPLATE = ({ date }) => '<strong class="k-scheduler-agendaday">' +
@@ -304,7 +305,7 @@ import "./kendo.scheduler.view.js";
 
                 this.element.on("mouseenter" + NS, ".k-scheduler-agenda .k-scheduler-content tr", "_mouseenter")
                     .on("mouseleave" + NS, ".k-scheduler-agenda .k-scheduler-content tr", "_mouseleave")
-                    .on("click" + NS, ".k-scheduler-agenda .k-scheduler-content .k-link:has(.k-i-close)", "_remove");
+                    .on("click" + NS, ".k-scheduler-agenda .k-scheduler-content .k-link:has(.k-i-x),.k-scheduler-agenda .k-scheduler-content .k-link:has(.k-svg-i-x)", "_remove");
 
                 this._renderLayout(options.date);
                 this.refreshLayout();
@@ -511,9 +512,9 @@ import "./kendo.scheduler.view.js";
 
                         tableRow.push(kendo.format(
                             '<td class="k-scheduler-timecolumn {4}"><div>{0}{1}{2}</div></td><td>{3}</td>',
-                            task.tail || task.middle ? '<span class="k-icon k-i-arrow-60-left"></span>' : "",
+                            task.tail || task.middle ? kendo.ui.icon("caret-alt-left") : "",
                             this._timeTemplate(task.clone({ start: task._startTime || task.start, end: task.endTime || task.end, messages: this.options.messages })),
-                            task.head || task.middle ? '<span class="k-icon k-i-arrow-60-right"></span>' : "",
+                            task.head || task.middle ? kendo.ui.icon("caret-alt-right") : "",
                             this._eventTemplate(task.clone({ showDelete: showDelete, messages: this.options.messages, template: this.options.eventTemplate })),
                             !this.groupedResources.length && isMobile ? "k-first" : ""
                         ));

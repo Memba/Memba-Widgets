@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,13 +8,14 @@
  */
 import "./kendo.core.js";
 import "./kendo.progressbar.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "stepper",
     name: "Stepper",
     category: "web",
     description: "The Stepper widget displays navigation steps.",
-    depends: [ "core", "progressbar" ]
+    depends: [ "core", "progressbar", "icons" ]
 };
 
 (function($, undefined) {
@@ -50,8 +51,8 @@ var __meta__ = {
         successStep: "k-step-success",
         errorStep: "k-step-error",
         currentStep: "k-step-current",
-        focusStep: "k-step-focus",
-        disabledStep: "k-step-disabled",
+        focusStep: "k-focus",
+        disabledStep: "k-disabled",
         stepLink: "k-step-link",
         stepIndicator: "k-step-indicator",
         stepLabel: "k-step-label"
@@ -91,11 +92,11 @@ var __meta__ = {
         _indicatorTemplate: ({ successIcon, index, icon, previous, error }) => {
             let indicatorContent;
             if (successIcon && previous && !error) {
-                indicatorContent = `<span class="k-step-indicator-icon k-icon k-i-${encode(successIcon)}"></span>`;
+                indicatorContent = kendo.ui.icon({ icon: encode(successIcon), iconClass: "k-step-indicator-icon" });
             } else if (icon) {
-                indicatorContent = `<span class="k-step-indicator-icon k-icon k-i-${encode(icon)}"></span>`;
+                indicatorContent = kendo.ui.icon({ icon: encode(icon), iconClass: "k-step-indicator-icon" });
             } else if (previous && !error) {
-                indicatorContent = '<span class="k-step-indicator-icon k-icon k-i-check"></span>';
+                indicatorContent = kendo.ui.icon({ icon: "check-circle", iconClass: "k-step-indicator-icon" });
             } else {
                 indicatorContent = `<span class="k-step-indicator-text">${encode(index + 1)}</span>`;
             }
@@ -110,10 +111,9 @@ var __meta__ = {
             '</span>' +
             ' ' +
             ((error || (!indicatorVisible && !error && previous)) ?
-            '<span class="k-icon' +
-                (previous && !error ? ' k-i-check' : '') +
-                (error ? ' k-i-warning' : '') +
-            '" aria-hidden="true"></span>'
+                kendo.ui.icon($('<span aria-hidden="true"></span>'), {
+                    icon: error ? "exclamation-circle" : "check-circle"
+                })
             : '') +
         '</span>',
 

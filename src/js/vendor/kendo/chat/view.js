@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "../kendo.core.js";
 import "../kendo.draganddrop.js";
+import "../kendo.icons.js";
 
 (function($, undefined) {
 
@@ -41,7 +42,7 @@ import "../kendo.draganddrop.js";
             <div class="${styles.bubble}">
                 <div class="${styles.typingIndicator}">
                     <span></span><span></span><span></span>
-                '</div>
+                </div>
             </div>
         </div>
     </div>`;
@@ -146,9 +147,8 @@ import "../kendo.draganddrop.js";
         iconButton: "k-icon-button",
         buttonIcon: "k-button-icon",
         buttonPrimary: "k-button-md k-rounded-md k-button-flat k-button-flat-primary",
-        scrollButtonIcon: "k-icon",
-        scrollButtonIconLeft: "k-i-arrow-chevron-left",
-        scrollButtonIconRight: "k-i-arrow-chevron-right",
+        scrollButtonIconLeft: "chevron-left",
+        scrollButtonIconRight: "chevron-right",
         typingIndicator: "k-typing-indicator",
         typingIndicatorBubble: "k-typing-indicator-bubble",
         bubble: "k-bubble",
@@ -245,7 +245,7 @@ import "../kendo.draganddrop.js";
         _scrollButtonClick: function(e) {
             var viewStyles = ChatView.styles;
             var button = $(e.currentTarget);
-            var scrollToLeft = button.find(DOT + viewStyles.scrollButtonIconLeft).length !== 0;
+            var scrollToLeft = button.find(`${DOT + viewStyles.buttonIcon}[class*=${viewStyles.scrollButtonIconLeft}]`).length !== 0;
             var scrollContainer = button.siblings(DOT + viewStyles.cardDeck);
             var lastCard = scrollContainer.find(DOT + viewStyles.card).last();
             var cardWidth = lastCard.outerWidth(true);
@@ -357,11 +357,7 @@ import "../kendo.draganddrop.js";
                 .addClass(viewStyles.button)
                 .addClass(viewStyles.buttonDefaults)
                 .addClass(viewStyles.iconButton)
-                .append($("<span>")
-                    .addClass(viewStyles.buttonIcon)
-                    .addClass(viewStyles.scrollButtonIcon)
-                    .addClass(directionClass)
-                );
+                .append(kendo.html.renderIcon({ icon: directionClass, iconClass: viewStyles.buttonIcon }));
         },
 
         _removeSuggestedActions: function() {

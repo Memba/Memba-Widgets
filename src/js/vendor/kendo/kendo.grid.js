@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -30,13 +30,15 @@ import "./kendo.switch.js";
 import "./kendo.html.button.js";
 import "./kendo.textbox.js";
 import "./kendo.form.js";
+import "./kendo.toolbar.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "grid",
     name: "Grid",
     category: "web",
     description: "The Grid widget displays tabular data and offers rich support for interacting with data,including paging, sorting, grouping, and selection.",
-    depends: [ "data", "columnsorter", "sortable", "html.button" ],
+    depends: [ "data", "columnsorter", "sortable", "toolbar", "html.button", "icons" ],
     features: [ {
         id: "grid-editing",
         name: "Editing",
@@ -130,14 +132,16 @@ var __meta__ = {
         PROGRESS = "progress",
         ERROR = "error",
         HIERARCHY_CELL_CLASS = "k-hierarchy-cell",
-        DATA_CELL = ":not(.k-group-cell):not([" + kendo.attr("virtual") + "]):not(.k-hierarchy-cell:not(:has(.k-icon.k-i-collapse,.k-icon.k-i-expand))):visible",
+        DATA_CELL = ":not(.k-group-cell):not([" + kendo.attr("virtual") + "]):not(.k-hierarchy-cell:not(:has(.k-icon.k-i-caret-alt-down,.k-icon.k-i-caret-alt-right,.k-svg-icon.k-svg-i-caret-alt-down,.k-svg-icon.k-svg-i-caret-alt-right))):visible",
         SELECTION_CELL_SELECTOR = "tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)",
         NAVROW = "tr:not(.k-footer-template):visible",
         NAVCELL = ":not(.k-group-cell):not(.k-detail-cell):not(.k-hierarchy-cell):visible",
         ITEMROW = "tr:not(.k-grouping-row):not(.k-detail-row):not(.k-footer-template):not(.k-group-footer):visible",
         COLGROUP = "col:not(.k-group-col, .k-hierarchy-col)",
         HEADERCELLS = "th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)",
-        WRAPPER = ".k-grid.k-widget",
+        CARET_ALT_DOWN = "a[class*='-i-caret-alt-down']",
+        CARET_ALT_RIGHT = "a[class*='-i-caret-alt-right']",
+        WRAPPER = ".k-grid",
         NS = ".kendoGrid",
         CONTENTRLOCKEDCONTAINER = "k-grid-content-locked",
         GROUPCELLCLASS = "k-group-cell",
@@ -175,13 +179,14 @@ var __meta__ = {
         NORECORDSCLASS = "k-grid-norecords",
         LINK_CLASS = "k-link",
         ICON_CLASS = "k-icon",
+        SVG_ICON_CLASS = "k-svg-icon",
         ORDER_CLASS = "k-sort-order",
         SORTED_CLASS = "k-sorted",
-        HEADER_COLUMN_MENU_CLASS = "k-header-column-menu",
-        FILTER_MENU_CLASS = "k-grid-filter",
-        STICKY_CELL_CLASS = "k-grid-content-sticky",
-        STICKY_HEADER_CLASS = "k-grid-header-sticky",
-        STICKY_FOOTER_CLASS = "k-grid-footer-sticky",
+        HEADER_COLUMN_MENU_CLASS = "k-grid-column-menu",
+        FILTER_MENU_CLASS = "k-grid-filter-menu",
+        STICKY_CELL_CLASS = "k-grid-content-sticky k-table-td",
+        STICKY_HEADER_CLASS = "k-grid-header-sticky k-header",
+        STICKY_FOOTER_CLASS = "k-grid-footer-sticky k-table-td",
         STICKY_HEADER_NO_BORDER_CLASS = "k-grid-no-left-border",
         RESIZE = "resize",
         COLUMNRESIZE = "columnResize",
@@ -244,9 +249,9 @@ var __meta__ = {
         nonDataCellsRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-group-cell|k-hierarchy-cell)" + "(" + whitespaceRegExp + "|$)"),
         filterRowRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-filter-row)" + "(" + whitespaceRegExp + "|$)"),
         COMMANDBUTTONTMPL = ({ className, attr, text }) => `<button type="button" class="${className}" ${attr}>${text}</button>`,
-        SELECTCOLUMNTMPL = () => '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">',
-        SELECTCOLUMNHEADERTMPL = () => '<input tabindex="-1" class="k-select-checkbox ' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">',
-        DRAGHANDLECOLUMNTMPL = () => '<span class="k-icon k-i-reorder"></span>',
+        SELECTCOLUMNTMPL = ({ size }) => `<input tabindex="-1" class="k-select-checkbox ` + CHECKBOX + ` ${size} k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">`,
+        SELECTCOLUMNHEADERTMPL = ({ size }) => `<input tabindex="-1" class="k-select-checkbox ` + CHECKBOX + ` ${size} k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">`,
+        DRAGHANDLECOLUMNTMPL = () => kendo.ui.icon("reorder"),
         SORTHEADERTMPL = ({ text }) => `<span class="k-cell-inner"><span class="k-link"><span class="k-column-title">${text}</span></span></span>`,
         isRtl = false,
         browser = kendo.support.browser;
@@ -255,7 +260,6 @@ var __meta__ = {
     var isMac = /Mac OS/.test(navigator.userAgent);
     var classNames = {
         content: "k-content",
-        widget: "k-widget",
         scrollContainer: "k-scroll-container",
         headerCellInner: "k-cell-inner"
     };
@@ -731,7 +735,7 @@ var __meta__ = {
     }
 
     function groupCells(count) {
-        return new Array(count + 1).join('<td class="k-group-cell">&nbsp;</td>');
+        return new Array(count + 1).join('<td class="k-table-td k-group-cell">&nbsp;</td>');
     }
 
     function stringifyAttributes(attributes) {
@@ -756,48 +760,49 @@ var __meta__ = {
         create: {
             text: "Add new record",
             className: "k-grid-add",
-            iconClass: "k-icon k-i-plus"
+            iconClass: "k-i-plus"
         },
         cancel: {
             text: "Cancel changes",
             className: "k-grid-cancel-changes",
-            iconClass: "k-icon k-i-cancel"
+            iconClass: "k-i-cancel"
         },
         save: {
             text: "Save changes",
             className: "k-grid-save-changes",
-            iconClass: "k-icon k-i-check"
+            iconClass: "k-i-check"
         },
         destroy: {
             text: "Delete",
-            className: "k-grid-delete",
-            iconClass: "k-icon k-i-close"
+            className: "k-grid-remove-command",
+            iconClass: "k-i-x"
         },
         edit: {
             text: "Edit",
-            className: "k-grid-edit",
-            iconClass: "k-icon k-i-edit"
+            className: "k-grid-edit-command",
+            iconClass: "k-i-pencil",
+            themeColor: "primary"
         },
         update: {
-            text: "Update",
-            className: "k-grid-update",
-            iconClass: "k-icon k-i-check",
+            text: "Save",
+            className: "k-grid-save-command",
+            iconClass: "k-i-save",
             themeColor: "primary"
         },
         canceledit: {
             text: "Cancel",
-            className: "k-grid-cancel",
-            iconClass: "k-icon k-i-cancel"
+            className: "k-grid-cancel-command",
+            iconClass: "k-i-cancel-outline"
         },
         excel: {
             text: "Export to Excel",
             className: "k-grid-excel",
-            iconClass: "k-icon k-i-file-excel"
+            iconClass: "k-i-file-excel"
         },
         pdf: {
             text: "Export to PDF",
             className: "k-grid-pdf",
-            iconClass: "k-icon k-i-file-pdf"
+            iconClass: "k-i-file-pdf"
         },
         search: {
             text: "Search...",
@@ -806,7 +811,7 @@ var __meta__ = {
     };
 
     function cursor(context, value) {
-        $('th, th .k-grid-filter, th .k-link', context)
+        $('th, th .k-grid-filter-menu, th .k-link', context)
             .add(document.body)
             .css('cursor', value);
     }
@@ -1021,9 +1026,9 @@ var __meta__ = {
         var targetDepth = depth([target]);
 
         if (sourcesDepth > targetDepth) {
-            var groupCells = new Array(groups + 1).join('<th class="k-group-cell k-header" scope="col">&nbsp;</th>');
+            var groupCells = new Array(groups + 1).join('<th class="k-group-cell k-header k-table-th" scope="col">&nbsp;</th>');
             var rows = destination.children(":not(.k-filter-row)");
-            $(new Array((sourcesDepth - targetDepth) + 1).join("<tr>" + groupCells + "</tr>")).insertAfter(rows.last());
+            $(new Array((sourcesDepth - targetDepth) + 1).join("<tr class='k-table-row'>" + groupCells + "</tr>")).insertAfter(rows.last());
         }
 
         addRowSpanValue(destination, sourcesDepth - targetDepth);
@@ -1141,6 +1146,18 @@ var __meta__ = {
         } while (target && index > -1 && index < columns.length && target != source && !target.columns && targetLocked === locked);
 
         return target;
+    }
+
+    function decorateCellWithClass(html) {
+        let element = html;
+        if (element.indexOf("class") !== -1) {
+            const cssClasses = element.match(/class=["][^"]+/g)[0].split('\"').pop();
+            element = element.replace(cssClasses, cssClasses + " k-table-td");
+        } else {
+            element = element.replace("<td","<td class='k-table-td'");
+        }
+
+        return element;
     }
 
     function findReorderTarget(columns, target, source, before, masterColumns) {
@@ -1626,7 +1643,7 @@ var __meta__ = {
         return result;
     }
 
-    function appendContent(tbody, table, html, empty) {
+    function appendContent(tbody, table, html, empty, size) {
         var placeholder,
             tmp = tbody;
 
@@ -1639,7 +1656,8 @@ var __meta__ = {
             tbody[0].innerHTML = html;
         } else {
             placeholder = document.createElement("div");
-            placeholder.innerHTML = "<table><tbody>" + html + "</tbody></table>";
+            placeholder.innerHTML = "<table class='k-grid-table k-table'><tbody class='k-table-tbody'>" + html + "</tbody></table>";
+            $(placeholder).find("table").addClass(kendo.getValidCssClass("k-table-", "size", size));
             tbody = placeholder.firstChild.firstChild;
             table[0].replaceChild(tbody, tmp[0]);
             tbody = $(tbody);
@@ -2069,6 +2087,7 @@ var __meta__ = {
             columnMenu: false,
             detailTemplate: null,
             columnResizeHandleWidth: 3,
+            size: "medium",
             mobile: "",
             loaderType: "loadingPanel",
             messages: {
@@ -2823,6 +2842,8 @@ var __meta__ = {
                 }
             }
 
+            table.addClass("k-grid-table k-table");
+            table.addClass(kendo.getValidCssClass("k-table-", "size", that.options.size));
             that.table = table;
 
             that._wrapper();
@@ -2946,7 +2967,7 @@ var __meta__ = {
             th = $(this.resizeHandle).data("th");
 
             if (th) {
-                th.find(DOT + LINK_CLASS).find(DOT + ICON_CLASS).show();
+                th.find(DOT + LINK_CLASS).find(DOT + ICON_CLASS + "," + DOT + SVG_ICON_CLASS).show();
                 th.find(DOT + ORDER_CLASS).show();
                 th.find(DOT + HEADER_COLUMN_MENU_CLASS).show();
                 th.find(DOT + FILTER_MENU_CLASS).show();
@@ -2988,7 +3009,7 @@ var __meta__ = {
 
                     th.addClass("k-column-active");
 
-                    th.find(DOT + LINK_CLASS).find(DOT + ICON_CLASS).hide();
+                    th.find(DOT + LINK_CLASS).find(DOT + ICON_CLASS + "," + DOT + SVG_ICON_CLASS).hide();
                     th.find(DOT + ORDER_CLASS).hide();
                     th.find(DOT + HEADER_COLUMN_MENU_CLASS).hide();
                     th.find(DOT + FILTER_MENU_CLASS).hide();
@@ -3295,7 +3316,7 @@ var __meta__ = {
                         }
                         return $('<div class="k-reorder-clue k-drag-clue" />')
                             .html(title || target.attr(kendo.attr("field")) || target.text())
-                            .prepend('<span class="k-icon k-drag-status k-i-cancel"></span>');
+                            .prepend(kendo.ui.icon({ icon: "cancel", iconClass: "k-drag-status" }));
                     }
                 }).data("kendoDraggable");
             }
@@ -3500,7 +3521,7 @@ var __meta__ = {
                 autoScroll: true,
                 filter: (selectable ? " > .k-selected" : " > " + ITEMROW) + (that._hasDragHandleColumn ? " > .k-drag-cell" : ""),
                 hint: function(target) {
-                    var hint = $('<div class="k-reorder-clue k-drag-clue"><span class="k-icon k-drag-status k-i-cancel"></span></div>');
+                    var hint = $('<div class="k-reorder-clue k-drag-clue">' + kendo.ui.icon({ icon: "cancel", iconClass: "k-drag-status" }) + '</div>');
 
                     if (selectable && that.select().length > 1) {
                         hint.append("<span>" + that.select().length + " " + that.options.messages.itemsSelected + "</span>");
@@ -3547,7 +3568,7 @@ var __meta__ = {
                     return true;
                 },
                 dropFilter: "> " + ITEMROW,
-                allowIcon: "k-i-insert-middle",
+                allowIcon: "insert-middle",
                 orientation: "vertical",
                 reorderDropCue: $('<div class="k-drop-hint k-drop-hint-h"><div class="k-drop-hint-start"></div><div class="k-drop-hint-line"></div></div>'),
                 positionDropCue: function(reorderDropCue, dropTarget) {
@@ -3682,7 +3703,7 @@ var __meta__ = {
             }
 
             th = headerTable.find("[data-index='" + index + "']");
-            menu = th.find('a.k-header-column-menu, a.k-grid-filter');
+            menu = th.find('a.k-grid-column-menu, a.k-grid-filter-menu');
 
             var contentTable = isLocked ? that.lockedTable : that.table,
                 footer = that.footer || $();
@@ -4102,7 +4123,7 @@ var __meta__ = {
                                     td.hasClass("k-detail-cell") ||
                                     td.hasClass("k-group-cell") ||
                                     td.hasClass("k-edit-cell") ||
-                                    td.has(".k-grid-delete").length ||
+                                    td.has(".k-grid-remove-command").length ||
                                     (td.closest("tbody")[0] !== that.tbody[0] && !isLockedCell) ||
                                     $(e.target).is(":input")) {
                                     return;
@@ -4147,7 +4168,7 @@ var __meta__ = {
                     }
                 } else {
                     if (editable.update !== false) {
-                        that.wrapper.on(CLICK + NS, "tbody>tr:not(.k-detail-row,.k-grouping-row):visible .k-grid-edit", function(e) {
+                        that.wrapper.on(CLICK + NS, "tbody>tr:not(.k-detail-row,.k-grouping-row):visible .k-grid-edit-command", function(e) {
                             var element = $(this);
                             if (!that._belongsToGrid(element)) {
                                 return;
@@ -4167,7 +4188,7 @@ var __meta__ = {
                 }
 
                 if (editable.destroy !== false) {
-                    that.wrapper.on(CLICK + NS, "tbody>tr:not(.k-detail-row,.k-grouping-row):visible .k-grid-delete", function(e) {
+                    that.wrapper.on(CLICK + NS, "tbody>tr:not(.k-detail-row,.k-grouping-row):visible .k-grid-remove-command", function(e) {
                         var element = $(this);
                         if (!that._belongsToGrid(element)) {
                             return;
@@ -4178,7 +4199,7 @@ var __meta__ = {
                     });
                 } else {
                     //Required for the MVC server wrapper delete button
-                    that.wrapper.on(CLICK + NS, "tbody>tr:not(.k-detail-row,.k-grouping-row):visible .k-grid-delete", function(e) {
+                    that.wrapper.on(CLICK + NS, "tbody>tr:not(.k-detail-row,.k-grouping-row):visible .k-grid-remove-command", function(e) {
                         if (!that._belongsToGrid($(this))) {
                             return;
                         }
@@ -4217,6 +4238,7 @@ var __meta__ = {
                     .kendoEditable({
                         fields: editField(column),
                         model: model,
+                        size: that.options.size,
                         target: that,
                         change: function(e) {
                             if (that.trigger(SAVE, { values: e.values, container: cell, model: model } )) {
@@ -4289,8 +4311,8 @@ var __meta__ = {
                     var window = that._editContainer.data("kendoWindow");
 
                     if (container) {
-                        container.off(CLICK + NS, ".k-grid-cancel", that._editCancelClickHandler);
-                        container.off(CLICK + NS, ".k-grid-update", that._editUpdateClickHandler);
+                        container.off(CLICK + NS, ".k-grid-cancel-command", that._editCancelClickHandler);
+                        container.off(CLICK + NS, ".k-grid-save-command", that._editUpdateClickHandler);
                     }
 
                     that._detachModelChange();
@@ -4528,13 +4550,13 @@ var __meta__ = {
                         this._editCancelClickHandler = this._editCancelClick.bind(this);
                     }
 
-                    container.on(CLICK + NS, ".k-grid-cancel", this._editCancelClickHandler);
+                    container.on(CLICK + NS, ".k-grid-cancel-command", this._editCancelClickHandler);
 
                     if (!this._editUpdateClickHandler) {
                         this._editUpdateClickHandler = this._editUpdateClick.bind(this);
                     }
 
-                    container.on(CLICK + NS, ".k-grid-update", this._editUpdateClickHandler);
+                    container.on(CLICK + NS, ".k-grid-save-command", this._editUpdateClickHandler);
                 }
             }
         },
@@ -4690,8 +4712,8 @@ var __meta__ = {
             }
 
             if (!that._isMobile) {
-                buttonsHTML = '<div class="k-edit-buttons k-actions-end">';
-                buttonsHTML += that._createButton({ name: "update", text: updateText, attr: attr, iconClass: updateIconClass }) + that._createButton({ name: "canceledit", text: cancelText, attr: attr, iconClass: cancelIconClass });
+                buttonsHTML = '<div class="k-edit-buttons k-actions-start">';
+                buttonsHTML += that._createButton({ name: "update", text: updateText, attr: attr, iconClass: updateIconClass, size: "medium" }) + that._createButton({ name: "canceledit", text: cancelText, attr: attr, iconClass: cancelIconClass, size: "medium" });
                 buttonsHTML += '</div>';
 
                 html += template ? buttonsHTML + '</div>' : '</div>';
@@ -4729,11 +4751,11 @@ var __meta__ = {
                 that.editView = that.pane.append(
                     '<div data-' + kendo.ns + 'role="view" class="k-grid-edit-form">' +
                         '<div data-' + kendo.ns + 'role="header" class="k-header">' +
-                            '<a href="\\#" class="k-header-cancel k-link k-grid-cancel" title="#=messages.cancel#" ' +
-                            'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' +
+                            '<a href="\\#" class="k-header-cancel k-link k-grid-cancel-command" title="#=messages.cancel#" ' +
+                            'aria-label="#=messages.cancel#">' + kendo.ui.icon("chevron-left") + '</a>' +
                             (that.options.messages.commands.edit || "Edit") +
-                            '<a href="\\#" class="k-header-done k-link k-grid-update" title="#=messages.done#" ' +
-                            'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' +
+                            '<a href="\\#" class="k-header-done k-link k-grid-save-command" title="#=messages.done#" ' +
+                            'aria-label="#=messages.done#">' + kendo.ui.icon("check") + '</a>' +
                         '</div>' +
                         '<div data-' + kendo.ns + 'role="content" class="' + classNames.content + '">' +
                             html +
@@ -4847,6 +4869,7 @@ var __meta__ = {
             that.editable = new kendo.ui.Editable(that._editContainer, {
                 target: that,
                 fields: fields,
+                size: that.options.size,
                 model: model,
                 skipFocus: (that._isVirtualInlineEditable() && that._editableState && (that._editableState.field ? true : false)) || that._hasVirtualColumns(),
                 clearContainer: false
@@ -4969,9 +4992,7 @@ var __meta__ = {
 
                 nextRow = newRow.next();
                 if (nextRow.hasClass("k-detail-row") && nextRow.is(":visible")) {
-                    newRow.find(".k-hierarchy-cell .k-icon")
-                        .removeClass("k-i-expand")
-                        .addClass("k-i-collapse");
+                    kendo.ui.icon(newRow.find(".k-hierarchy-cell .k-icon,.k-hierarchy-cell .k-svg-icon"), { icon: "caret-alt-down" });
                 }
             }
         },
@@ -5250,87 +5271,73 @@ var __meta__ = {
             return -1;
         },
 
-        _toolbar: function() {
-            var that = this,
-                wrapper = that.wrapper,
-                toolbar = that.options.toolbar,
-                editable = that.options.editable,
-                container;
+        _clickAdd: function(e) {
+            e.preventDefault();
+            this.addRow();
+        },
 
-            if (toolbar) {
-                container = that.wrapper.find(".k-grid-toolbar");
+        _clickCancel: function(e) {
+            e.preventDefault();
+            this.cancelChanges();
+        },
 
-                if (!container.length) {
-                    if (!isFunction(toolbar)) {
-                        let toolbarString = (typeof toolbar === STRING ? toolbar : that._toolbarTmpl(toolbar));
-                        toolbar = (typeof toolbar === STRING ? toolbar : (() => toolbarString));
-                        toolbar = kendo.template(toolbar).bind(that);
-                    }
+        _clickExcel: function(e) {
+            e.preventDefault();
+            this.saveAsExcel();
+        },
 
-                    container = $('<div class="k-toolbar k-grid-toolbar" />')
-                        .html(toolbar({ grid: that }))
-                        .prependTo(wrapper);
+        _clickPdf: function(e) {
+            var that = this;
 
-                    that.angular("compile", function() {
-                        return { elements: container.get() };
-                    });
-                }
+            e.preventDefault();
 
-                if (editable && editable.create !== false) {
-                    container.on(CLICK + NS, ".k-grid-add", function(e) { e.preventDefault(); that.addRow(); })
-                        .on(CLICK + NS, ".k-grid-cancel-changes", function(e) { e.preventDefault(); that.cancelChanges(); })
-                        .on(CLICK + NS, ".k-grid-save-changes", function(e) { e.preventDefault(); that.saveChanges(); });
-                }
+            var promise = that.saveAsPDF();
 
-                container.on(CLICK + NS, ".k-grid-excel", function(e) {
-                    e.preventDefault();
-
-                    that.saveAsExcel();
-                });
-
-                container.on(CLICK + NS, ".k-grid-pdf", function(e) {
-                    e.preventDefault();
-
-                    var promise = that.saveAsPDF();
-                    if (promise) {
-                        promise.done(function() {
-                            that._pdfInitialized = false;
-                        });
-                    }
-                });
-
-                container.on(INPUT + NS, ".k-grid-search input", function(e) {
-                    var input = e.currentTarget;
-                    clearTimeout(that._searchTimeOut);
-                    that._searchTimeOut = setTimeout(function() {
-                        that._searchTimeOut = null;
-                        var options = that.options;
-                        var searchFields = options.search ? options.search.fields : null;
-                        var expression = { filters: [], logic: "or" };
-                        var value = input.value;
-
-                        if (!searchFields) {
-                            searchFields = getColumnsFields(options.columns);
-                        }
-
-                        if (that.dataSource.options.endless) {
-                            that.dataSource.options.endless = null;
-                            that._endlessPageSize = that.dataSource.options.pageSize;
-                        }
-
-                        if (value) {
-                            for (var i = 0; i < searchFields.length; i++) {
-                                that._pushExpression(expression.filters, searchFields[i], value);
-                            }
-                        } else {
-                            expression = {};
-                        }
-
-                        that.dataSource.filter(expression);
-
-                    }, 300);
+            if (promise) {
+                promise.done(function() {
+                    that._pdfInitialized = false;
                 });
             }
+        },
+
+        _clickSave: function(e) {
+            e.preventDefault();
+            this.saveChanges();
+        },
+
+        _searchInput: function(e) {
+            var that = this,
+                input = e.currentTarget;
+
+            clearTimeout(that._searchTimeOut);
+
+            that._searchTimeOut = setTimeout(function() {
+                that._searchTimeOut = null;
+
+                var options = that.options;
+                var searchFields = options.search ? options.search.fields : null;
+                var expression = { filters: [], logic: "or" };
+                var value = input.value;
+
+                if (!searchFields) {
+                    searchFields = getColumnsFields(options.columns);
+                }
+
+                if (that.dataSource.options.endless) {
+                    that.dataSource.options.endless = null;
+                    that._endlessPageSize = that.dataSource.options.pageSize;
+                }
+
+                if (value) {
+                    for (var i = 0; i < searchFields.length; i++) {
+                        that._pushExpression(expression.filters, searchFields[i], value);
+                    }
+                } else {
+                    expression = {};
+                }
+
+                that.dataSource.filter(expression);
+            }, 300);
         },
 
         _pushExpression: function(filters, field, value) {
@@ -5368,35 +5375,152 @@ var __meta__ = {
             filters.push(expression);
         },
 
-        _toolbarTmpl: function(commands) {
+        _toolbar: function() {
             var that = this,
-                idx,
-                length,
-                html = "",
-                command,
-                searchText = "",
-                messages = that.options.messages.commands;
+                wrapper = that.wrapper,
+                toolbar = that.options.toolbar,
 
-            if (isArray(commands)) {
-                for (idx = 0, length = commands.length; idx < length; idx++) {
-                    command = typeof commands[idx] === 'string' ? commands[idx].toLowerCase() : (commands[idx].name || "").toLowerCase();
-                    if (command === "search") {
-                        if (typeof commands[idx] !== 'string') {
-                            searchText = commands[idx].text;
+                container, items;
+
+            if (toolbar) {
+                that._createClickHandler = that._addClickHandler = that._clickAdd.bind(that);
+                that._cancelClickHandler = that._clickCancel.bind(that);
+                that._saveClickHandler = that._clickSave.bind(that);
+                that._excelClickHandler = that._clickExcel.bind(that);
+                that._pdfClickHandler = that._clickPdf.bind(that);
+                that._serachHandler = that._searchInput.bind(that);
+
+                container = that.wrapper.find(".k-grid-toolbar");
+
+                if (!container.length) {
+                    container = $('<div class="k-grid-toolbar k-toolbar" />')
+                        .prependTo(wrapper);
+
+                    if (typeof toolbar === STRING || isFunction(toolbar)) {
+                        if (typeof toolbar === STRING) {
+                            toolbar = kendo.template(toolbar).bind(that);
                         }
-                        searchText = searchText || messages.search;
-                        html += "<span class='k-spacer'></span>";
-                        html += "<span class='k-searchbox k-input k-input-md k-rounded-md k-input-solid k-grid-search'>";
-                        html += "<span class='k-input-icon k-icon k-i-search'></span>";
-                        html += "<input autocomplete='off' placeholder='" + searchText + "' title='" + searchText + "' aria-label='" + searchText + "' class='k-input-inner' />";
-                        html += "</span>";
-                    } else {
-                        html += that._createButton(commands[idx]);
+
+                        container.html(toolbar({ grid: that }));
+                        that._attachToolbarClicks();
+                    } else if (isArray(toolbar)) {
+                        items = that._processItems(toolbar);
+
+                        container.kendoToolBar({
+                            navigateOnTab: !that.options.navigatable,
+                            size: that.options.size,
+                            items: items
+                        });
                     }
+
+                    that.angular("compile", function() {
+                        return { elements: container.get() };
+                    });
+                } else {
+                    that._attachToolbarClicks();
                 }
+
+                container.on(INPUT + NS, ".k-grid-search input", this._serachHandler);
+            }
+        },
+
+        _attachToolbarClicks: function() {
+            var editable = this.options.editable,
+                container = this.wrapper.find(".k-grid-toolbar");
+
+            if (editable && editable.create !== false) {
+                container.on(CLICK + NS, ".k-grid-add", this._createClickHandler)
+                    .on(CLICK + NS, ".k-grid-cancel-changes", this._cancelClickHandler)
+                    .on(CLICK + NS, ".k-grid-save-changes", this._saveClickHandler);
             }
 
-            return html;
+            container.on(CLICK + NS, ".k-grid-excel", this._excelClickHandler);
+            container.on(CLICK + NS, ".k-grid-pdf", this._pdfClickHandler);
+        },
+
+        _processItems: function(tools) {
+            var that = this,
+                items = [],
+                messages = this.options.messages.commands;
+
+            tools.map(t => {
+                var command, searchText, icon, className, inputSize, template = "";
+
+                if (typeof t === 'string') {
+                    command = t.toLowerCase();
+                    t = {};
+                    t.text = messages[command] || command;
+                } else {
+                    command = (t.name || t.text || "").toLowerCase();
+                    t.text = t.text || messages[command] || command;
+                }
+
+                if (command === "search") {
+                    items.push({
+                        type: "spacer"
+                    });
+
+                    searchText = t.text || messages.search;
+                    icon = t.icon || t.iconClass || "search";
+
+                    inputSize = kendo.getValidCssClass("k-input-", "size", that.options.size);
+                    template += `<span class='k-searchbox k-input ${inputSize} k-rounded-md k-input-solid k-grid-search'>`;
+                    template += kendo.ui.icon({ icon: icon, iconClass: "k-input-icon" });
+                    template += "<input autocomplete='off' placeholder='" + searchText + "' title='" + searchText + "' aria-label='" + searchText + "' class='k-input-inner' />";
+                    template += "</span>";
+
+                    items.push({
+                        name: "search",
+                        overflow: "never",
+                        template: template
+                    });
+                } else {
+                    if (!command && !(isPlainObject(t) && t.template)) {
+                        throw new Error("Custom commands should have name specified");
+                    }
+
+                    t = extend({ type: "button" }, defaultCommands[command], t);
+                    className = t.className || "k-grid-" + (command || "").replace(/\s/g, "");
+                    t.spriteCssClass = t.icon ? null : t.iconClass;
+
+                    t.attributes = that._processAttr(t.attr);
+                    delete t.attr;
+
+                    if (!!className) {
+                        t.attributes["class"] = className;
+                    }
+
+                    if (t.template) {
+                        delete t.type;
+                    }
+
+                    if (!!that["_" + command + "ClickHandler"]) {
+                        t.click = that["_" + command + "ClickHandler"];
+                    }
+
+                    items.push(t);
+                }
+            });
+
+            return items;
+        },
+
+        _processAttr: function(attr) {
+            var attributes = {},
+                attrArray;
+
+            if (typeof attr === STRING && attr.length > 0) {
+                attrArray = attr.split(" ");
+                attrArray.map(a => {
+                    var keyValue = a.split("=");
+
+                    if (keyValue.length === 2) {
+                        attributes[keyValue[0]] = keyValue[1].replaceAll('"', "").replaceAll("'", "");
+                    }
+                });
+            }
+
+            return attributes;
         },
 
         _createButton: function(command) {
@@ -5404,7 +5528,7 @@ var __meta__ = {
                 template = command.template || COMMANDBUTTONTMPL,
                 commandName = typeof command === STRING ? command : command.name || command.text,
                 className = defaultCommands[commandName] ? defaultCommands[commandName].className : "k-grid-" + (commandName || "").replace(/\s/g, ""),
-                options = { className: className, text: commandName, attr: "", iconClass: "" },
+                options = { className: className, text: commandName, attr: "", iconClass: "", size: command.size || this.options.size },
                 messages = this.options.messages.commands,
                 attributeClassMatch;
 
@@ -5479,7 +5603,7 @@ var __meta__ = {
 
                     var group = that._groupRows ? that._groupRows[that.wrapper.find(".k-grouping-row").index(groupRow)] : { };
 
-                    if (element.hasClass('k-i-collapse')) {
+                    if (element.is(CARET_ALT_DOWN)) {
                         if (!that.trigger("groupCollapse", { group: group, element: groupRow })) {
                             that.collapseGroup(groupRow);
                         }
@@ -5494,9 +5618,9 @@ var __meta__ = {
             }
 
             if (that._isLocked()) {
-                that.lockedTable.on(CLICK + NS, ".k-grouping-row .k-i-expand, .k-grouping-row .k-i-collapse", that._groupableClickHandler);
+                that.lockedTable.on(CLICK + NS, ".k-grouping-row " + CARET_ALT_RIGHT + ", .k-grouping-row " + CARET_ALT_DOWN, that._groupableClickHandler);
             } else {
-                that.table.on(CLICK + NS, ".k-grouping-row .k-i-expand, .k-grouping-row .k-i-collapse", that._groupableClickHandler);
+                that.table.on(CLICK + NS, ".k-grouping-row " + CARET_ALT_RIGHT + ", .k-grouping-row " + CARET_ALT_DOWN, that._groupableClickHandler);
             }
 
             that._attachGroupable();
@@ -5511,7 +5635,7 @@ var __meta__ = {
 
             if (groupable && groupable.enabled !== false) {
                 if (!wrapper.has("div.k-grouping-header")[0]) {
-                    $("<div>&nbsp;</div>").addClass("k-grouping-header").prependTo(wrapper);
+                    $("<div/>").addClass("k-grouping-header").prependTo(wrapper);
                 }
 
                 if (that.groupable) {
@@ -5529,6 +5653,7 @@ var __meta__ = {
                     dataSource: that.dataSource,
                     draggableElements: filter,
                     filter: filter,
+                    size: that.options.size,
                     allowDrag: that.options.reorderable,
                     removeGroup: function(e) {
                         that._showUngroupedColumn(e);
@@ -7238,10 +7363,10 @@ var __meta__ = {
             var virtualScroll = this.virtualScroll || {};
             var requestInProgress = this.virtualScrollable && this.virtualScrollable.fetching();
             var target = $(e.target);
-            var canHandle = !e.isDefaultPrevented() && !target.is(":button,a,:input:not(.k-select-checkbox),a>.k-icon");
+            var canHandle = !e.isDefaultPrevented() && !target.is(":button,a,:input:not(.k-select-checkbox),a>.k-icon,a>.k-svg-icon");
 
             if (e.altKey && e.keyCode == keys.DOWN) {
-                this.current().find(".k-grid-filter, .k-header-column-menu").click();
+                this.current().find(".k-grid-filter-menu, .k-grid-column-menu").click();
                 e.stopImmediatePropagation();
                 return;
             }
@@ -7267,6 +7392,10 @@ var __meta__ = {
             }
 
             var handled = false;
+
+            if (!e.isDefaultPrevented() && e.keyCode === keys.F10) {
+                handled = this._focusToolbar();
+            }
 
             if (canHandle && e.keyCode == keys.UP) {
                 handled = this._moveUp(current, e.shiftKey, e.ctrlKey);
@@ -7322,6 +7451,18 @@ var __meta__ = {
                 //required in hierarchy
                 e.stopPropagation();
             }
+        },
+
+        _focusToolbar: function() {
+            var focusable = this.wrapper.find(".k-grid-toolbar [tabindex=0]");
+
+            if (focusable.length > 0) {
+                focusable.first().addClass(".k-focus").trigger("focus");
+
+                return true;
+            }
+
+            return false;
         },
 
         _moveLeft: function(current, altKey, shiftKey, ctrlKey, currentTable) {
@@ -7521,7 +7662,7 @@ var __meta__ = {
             var prev;
 
             if (this._hasVirtualColumns()) {
-                this._scrollToColumn(kendo.keys.HOME);
+                this._scrollToColumn(keys.HOME);
                 return true;
             }
 
@@ -7552,7 +7693,7 @@ var __meta__ = {
             var next;
 
             if (this._hasVirtualColumns()) {
-                this._scrollToColumn(kendo.keys.END);
+                this._scrollToColumn(keys.END);
                 return true;
             }
 
@@ -7684,13 +7825,13 @@ var __meta__ = {
             }
 
             if (row.is(".k-grouping-row")) {
-                row.find(".k-icon").first().click();
+                row.find(".k-icon,.k-svg-icon").first().click();
 
                 return true;
             }
 
             if (!editable && hasDetails) {
-                row.find(".k-icon").first().click();
+                row.find(".k-icon,.k-svg-icon").first().click();
 
                 return true;
             }
@@ -8122,7 +8263,7 @@ var __meta__ = {
                wrapper = wrapper.wrap("<div/>").parent();
             }
 
-            that.wrapper = wrapper.addClass("k-grid k-widget k-grid-display-block");
+            that.wrapper = wrapper.addClass("k-grid " + kendo.getValidCssClass("k-grid-", "size", that.options.size));
 
             if (height) {
                 that.wrapper.css(HEIGHT, height);
@@ -8208,7 +8349,7 @@ var __meta__ = {
             tbody = table.find(">tbody");
 
             if (!tbody.length) {
-                tbody = $("<tbody/>").appendTo(table);
+                tbody = $("<tbody class='k-table-tbody'/>").appendTo(table);
             }
 
             that.tbody = tbody;
@@ -8234,7 +8375,8 @@ var __meta__ = {
 
                 // workaround for IE issue where scroll is not raised if container is same width as the scrollbar
                 header.css((isRtl ? "padding-left" : "padding-right"), scrollable.virtual ? scrollbar + 1 : scrollbar);
-                table = $('<table role="none"/>');
+                table = $('<table role="none" class="k-grid-header-table k-table"/>');
+                table.addClass(kendo.getValidCssClass("k-table-", "size", options.size));
 
                 table.width(that.table[0].style.width);
 
@@ -8252,6 +8394,8 @@ var __meta__ = {
                 if (!that.content.is(".k-grid-content, .k-virtual-scrollable-wrap")) {
                     that.content = that.table.wrap('<div class="k-grid-content k-auto-scrollable" />').parent();
                 }
+
+                that.content.wrap("<div class='k-grid-container' />").parent();
 
                 if (virtualScroll && virtualScroll.rows && !that.virtualScrollable) {
                     that._createVirtualScrollable();
@@ -8912,13 +9056,14 @@ var __meta__ = {
             var that = this,
                 pagerWrap,
                 pageable = that.options.pageable,
+                size = that.options.size,
                 navigatable = that.options.navigatable;
 
             if (pageable) {
                 pagerWrap = that.wrapper.children("div.k-grid-pager");
 
                 if (!pagerWrap.length) {
-                    pagerWrap = $('<div class="k-pager-wrap k-grid-pager"/>');
+                    pagerWrap = $('<div class="k-pager k-grid-pager"/>');
                 }
 
                 if (pageable.position === "top") {
@@ -8935,9 +9080,9 @@ var __meta__ = {
                     that.pager = pageable;
                 } else {
                     if (that.dataSource._groupPaging) {
-                        that.pager = new GroupsPager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource, navigatable: navigatable }));
+                        that.pager = new GroupsPager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource, navigatable: navigatable, size: size }));
                     } else {
-                        that.pager = new kendo.ui.Pager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource, navigatable: navigatable }));
+                        that.pager = new kendo.ui.Pager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource, navigatable: navigatable, size: size }));
                     }
                 }
 
@@ -9031,17 +9176,20 @@ var __meta__ = {
         _wrapFooter: function(footerRow) {
             var that = this,
                 html = "",
+                table,
                 scrollbar = !kendo.support.mobileOS ? kendo.support.scrollbar() : 0;
 
             if (that.options.scrollable) {
-                html = $('<div class="k-grid-footer"><div class="k-grid-footer-wrap"><table><tfoot>' + footerRow + '</tfoot></table></div></div>');
-                that._appendCols(html.find("table"));
+                html = $('<div class="k-grid-footer"><div class="k-grid-footer-wrap"><table class="k-table k-grid-footer-table"><tfoot class="k-table-tfoot">' + footerRow + '</tfoot></table></div></div>');
+                table = html.find("table");
+                table.addClass(kendo.getValidCssClass("k-table-", "size", that.options.size));
+                that._appendCols(table);
                 html.css((isRtl ? "padding-left" : "padding-right"), scrollbar); // Update inner fix.
 
                 return html;
             }
 
-            return '<tfoot class="k-grid-footer">' + footerRow + '</tfoot>';
+            return '<tfoot class="k-grid-footer k-table-tfoot">' + footerRow + '</tfoot>';
         },
 
         _columnMenu: function() {
@@ -9298,7 +9446,7 @@ var __meta__ = {
                     col = columns[i],
                     operators = that.options.filterable.operators,
                     customDataSource = false,
-                    td = $("<td title='" + that.options.messages.filterCellTitle + "'/>"),
+                    td = $("<td class='k-table-td' title='" + that.options.messages.filterCellTitle + "'/>"),
                     field = col.field;
 
                 if (col.hidden) {
@@ -9337,6 +9485,7 @@ var __meta__ = {
                         customDataSource: customDataSource,
                         field: field,
                         messages: messages,
+                        size: that.options.size,
                         values: col.values,
                         template: cellOptions.template,
                         delay: cellOptions.delay,
@@ -9614,14 +9763,14 @@ var __meta__ = {
             if (!rowTemplate) {
                 rowTemplateFunc = (data) => {
                     var uid = length ? ` ${kendo.attr("uid")}="${kendo.getter("uid")(data)}"` : '';
-                    var rowTemplateResult = `<tr class="${alt ? 'k-alt ' : ''}k-master-row"${uid}>`;
+                    var rowTemplateResult = `<tr class="${alt ? 'k-alt k-table-row k-table-alt-row ' : 'k-table-row '}k-master-row"${uid}>`;
 
                     if (groups > 0 && !skipGroupCells) {
                         rowTemplateResult += groupCells(groups);
                     }
 
                     if (hasDetails) {
-                        rowTemplateResult += '<td class="k-hierarchy-cell" aria-expanded="false"><a class="k-icon k-i-expand" href="#" ' + ARIA_LABEL + '="' + EXPAND + '" tabindex="-1"></a></td>';
+                        rowTemplateResult += '<td class="k-hierarchy-cell k-table-td" aria-expanded="false">' + kendo.ui.icon($(`<a href="#" ${ARIA_LABEL}="${EXPAND}" tabindex="-1"></a>`), { icon: "caret-alt-right" }) + '</td>';
                     }
 
                     for (idx = 0; idx < length; idx++) {
@@ -9666,7 +9815,6 @@ var __meta__ = {
 
                         if (column.draggable) {
                             column.attributes = column.attributes || {};
-
                             if (typeof column.attributes["class"] !== "undefined") {
                                 column.attributes["class"] += " k-drag-cell k-touch-action-none";
                             } else {
@@ -9684,7 +9832,8 @@ var __meta__ = {
                             }
                         }
 
-                        let columnAttributes = stringifyAttributes(column.attributes);
+                        let attributes = column.attributes instanceof Function ? column.attributes(data) : column.attributes;
+                        let columnAttributes = stringifyAttributes(attributes);
                         let colSpanAttributes = '';
 
                         if (column.colSpan) {
@@ -9693,8 +9842,8 @@ var __meta__ = {
                             }
                             colSpanAttributes += ` colSpan="${column.colSpan}"`;
                         }
-                        rowTemplateResult += `<td${columnAttributes}${colSpanAttributes}>`;
-                        rowTemplateResult += that._cellTmpl(column, state)(data);
+                        rowTemplateResult += decorateCellWithClass(`<td${columnAttributes}${colSpanAttributes}>`);
+                        rowTemplateResult += column.selectable ? kendo.template(SELECTCOLUMNTMPL)({ size: kendo.getValidCssClass("k-checkbox-", "size", that.options.size) }) : that._cellTmpl(column, state)(data);
                         rowTemplateResult += "</td>";
                     }
 
@@ -9742,7 +9891,6 @@ var __meta__ = {
             var that = this,
                 settings = extend({}, kendo.Template, that.options.templateSettings),
                 template = column.template,
-                paramName = settings.paramName,
                 field = column.field,
                 // html = "",
                 idx,
@@ -9916,26 +10064,26 @@ var __meta__ = {
             if ((that._group && !isEmptyObject(aggregates)) || (!isEmptyObject(aggregates) && !footer.length) ||
                 grep(columnLeafs, function(column) { return column.footerTemplate; }).length) {
 
-                that.footerTemplate = that._footerTmpl(columnLeafs, aggregates, "footerTemplate", "k-footer-template");
+                that.footerTemplate = that._footerTmpl(columnLeafs, aggregates, "footerTemplate", "k-footer-template k-table-row");
             }
 
             if (groups && grep(columnLeafs, function(column) { return column.groupFooterTemplate; }).length) {
                 aggregates = $.map(groups, function(g) { return g.aggregates; });
 
-                that.groupFooterTemplate = that._footerTmpl(columns, aggregates, "groupFooterTemplate", "k-group-footer", columnsLocked.length);
+                that.groupFooterTemplate = that._footerTmpl(columns, aggregates, "groupFooterTemplate", "k-group-footer k-table-row", columnsLocked.length);
 
                 if (options.scrollable && columnsLocked.length) {
-                    that.lockedGroupFooterTemplate = that._footerTmpl(columnsLocked, aggregates, "groupFooterTemplate", "k-group-footer");
+                    that.lockedGroupFooterTemplate = that._footerTmpl(columnsLocked, aggregates, "groupFooterTemplate", "k-group-footer k-table-row");
                 }
             }
 
             if (groups && (groupHeaderColumnTemplateLockedColumns.length || groupHeaderColumnTemplateNonLockedColumns.length)) {
                 aggregates = $.map(groups, function(g) { return g.aggregates; });
 
-                that.groupHeaderColumnTemplate = that._groupHeaderTmpl(visibleColumns(columns), aggregates, "groupHeaderColumnTemplate", "k-grouping-row", columnsLocked.length, groupHeaderColumnTemplateNonLockedColumns);
+                that.groupHeaderColumnTemplate = that._groupHeaderTmpl(visibleColumns(columns), aggregates, "groupHeaderColumnTemplate", "k-table-group-row k-grouping-row k-table-row", columnsLocked.length, groupHeaderColumnTemplateNonLockedColumns);
 
                 if (options.scrollable && columnsLocked.length) {
-                    that.lockedGroupHeaderColumnTemplate = that._groupHeaderTmpl(visibleColumns(columnsLocked), aggregates, "groupHeaderColumnTemplate", "k-grouping-row", 0, groupHeaderColumnTemplateLockedColumns);
+                    that.lockedGroupHeaderColumnTemplate = that._groupHeaderTmpl(visibleColumns(columnsLocked), aggregates, "groupHeaderColumnTemplate", "k-table-group-row k-grouping-row k-table-row", 0, groupHeaderColumnTemplateLockedColumns);
                 }
             } else {
                 that.groupHeaderColumnTemplate = null;
@@ -10011,7 +10159,7 @@ var __meta__ = {
                 }
 
                 if (that._hasDetails()) {
-                    html += '<td class="k-hierarchy-cell">&nbsp;</td>';
+                    html += '<td class="k-hierarchy-cell k-table-td">&nbsp;</td>';
                 }
 
                 for (idx = 0, length = columns.length; idx < length; idx++) {
@@ -10019,7 +10167,7 @@ var __meta__ = {
                     template = column[templateName];
                     type = typeof template;
 
-                    html += "<td" + stringifyAttributes(column.footerAttributes) + ">";
+                    html += decorateCellWithClass("<td" + stringifyAttributes(column.footerAttributes) + ">");
 
                     if (template) {
                         if (type !== FUNCTION) {
@@ -10075,12 +10223,12 @@ var __meta__ = {
 
                 if (!skipGroupCells) {
                     for (var i = 0; i < data.groupCells; i++) {
-                        resultHtml += '<td class="k-group-cell">&nbsp;</td>';
+                        resultHtml += '<td class="k-table-td k-group-cell">&nbsp;</td>';
                     }
                 }
 
                 if (that._hasDetails()) {
-                    resultHtml += '<td class="k-hierarchy-cell">&nbsp;</td>';
+                    resultHtml += '<td class="k-table-td k-hierarchy-cell">&nbsp;</td>';
                 }
 
                 if (headerTemplateIndex < MINCOLSPANVALUE && groupHeaderColumnTemplateColumns.length <= 1 && !skipGroupCells) {
@@ -10109,9 +10257,9 @@ var __meta__ = {
                             groupHeaderColumnTemplateClass = column.groupHeaderColumnTemplateClass = "group-header-column-template-" + kendo.guid();
                         }
 
-                        resultHtml += "<td class='" + STICKY_CELL_CLASS + " " + groupHeaderColumnTemplateClass + "' style='" + (column.stickyStyle || '') + "'>";
+                        resultHtml += "<td class='k-table-td " + STICKY_CELL_CLASS + " " + groupHeaderColumnTemplateClass + "' style='" + (column.stickyStyle || '') + "'>";
                     } else {
-                        resultHtml += "<td>";
+                        resultHtml += "<td class='k-table-td'>";
                     }
 
                     if (template) {
@@ -10155,12 +10303,12 @@ var __meta__ = {
                 type = typeof template;
 
             let detailTemplateFunction = (data) => {
-                let html = '<tr role="row" class="k-detail-row">';
+                let html = '<tr role="row" class="k-detail-row k-table-row">';
                 if (groups > 0) {
                     html += groupCells(groups);
                 }
 
-                html += `<td role="gridcell" class="k-hierarchy-cell"></td><td role="gridcell" class="k-detail-cell"${colspan ? ` colspan="${colspan}"` : ''}>`;
+                html += `<td role="gridcell" class="k-hierarchy-cell k-table-td"></td><td role="gridcell" class="k-table-td k-detail-cell"${colspan ? ` colspan="${colspan}"` : ''}>`;
                 if (type === FUNCTION) {
                     templateFunctionStorage["tmpl" + templateFunctionCount] = template;
                     html += template(data);
@@ -10211,7 +10359,7 @@ var __meta__ = {
                 throw new Error("Having both detail template and locked columns is not supported");
             }
 
-            that.table.on(CLICK + NS, ".k-hierarchy-cell .k-i-expand, .k-hierarchy-cell .k-i-collapse", function(e) {
+            that.table.on(CLICK + NS, ".k-hierarchy-cell " + CARET_ALT_RIGHT + ", .k-hierarchy-cell " + CARET_ALT_DOWN, function(e) {
                 var button = $(this);
 
                 that._toggleDetails(button);
@@ -10223,7 +10371,7 @@ var __meta__ = {
         _toggleDetails: function(button, omitAnimation) {
             var that = this,
             cell = button.closest("td.k-hierarchy-cell"),
-            expanding = button.hasClass("k-i-expand"),
+            expanding = button.is(CARET_ALT_RIGHT),
             masterRow = button.closest("tr.k-master-row"),
             masterRowIndex = masterRow.attr(ARIA_ROWINDEX),
             detailRow,
@@ -10233,9 +10381,13 @@ var __meta__ = {
             ariaLabelText = expanding ? COLLAPSE : EXPAND,
             ariaExpandText = expanding ? true : false;
 
-            button.toggleClass("k-i-expand", !expanding)
-                .toggleClass("k-i-collapse", expanding)
-                .attr(ARIA_LABEL, ariaLabelText);
+            if (!expanding) {
+                kendo.ui.icon(button, { icon: "caret-alt-right" });
+            } else {
+                kendo.ui.icon(button, { icon: "caret-alt-down" });
+            }
+
+            button.attr(ARIA_LABEL, ariaLabelText);
 
             cell.attr(ARIA_EXPANDED, ariaExpandText);
 
@@ -10294,7 +10446,7 @@ var __meta__ = {
         },
 
         expandRow: function(tr, omitAnimation) {
-            var button = $(tr).find('> td .k-i-expand');
+            var button = $(tr).find('> td ' + CARET_ALT_RIGHT);
 
             if (button.length) {
                 this._toggleDetails(button, omitAnimation);
@@ -10302,7 +10454,7 @@ var __meta__ = {
         },
 
         collapseRow: function(tr, omitAnimation) {
-            var button = $(tr).find('> td .k-i-collapse');
+            var button = $(tr).find('> td ' + CARET_ALT_DOWN);
 
             if (button.length) {
                 this._toggleDetails(button, omitAnimation);
@@ -10331,98 +10483,100 @@ var __meta__ = {
                 title = th.title;
                 field = "";
 
-                var index = inArray(th, leafs);
+                let index = inArray(th, leafs);
+                let currentTh = "";
 
                 if (th.selectable) {
-                    html += "<th scope='col'" + stringifyAttributes(th.headerAttributes);
+                    currentTh += "<th scope='col'" + stringifyAttributes(th.headerAttributes);
 
                     if (rowSpan && !columns[idx].colSpan) {
-                        html += " rowspan='" + rowSpan + "'";
+                        currentTh += " rowspan='" + rowSpan + "'";
                     }
 
                     if (index > -1) {
-                        html += kendo.attr("index") + "='" + index + "'";
+                        currentTh += kendo.attr("index") + "='" + index + "'";
                     }
-                    text = th.headerTemplate ? text : kendo.template(SELECTCOLUMNHEADERTMPL)({});
-                    html += ">" + text + "</th>";
+                    text = th.headerTemplate ? text : kendo.template(SELECTCOLUMNHEADERTMPL)({ size: kendo.getValidCssClass("k-checkbox-", "size", that.options.size) });
+                    currentTh += ">" + text + "</th>";
                 } else if (th.draggable) {
-                    html += "<th class='k-header k-drag-cell' scope='col'" + stringifyAttributes(th.headerAttributes);
+                    currentTh += "<th class='k-header k-drag-cell' scope='col'" + stringifyAttributes(th.headerAttributes);
 
                     if (rowSpan && !columns[idx].colSpan) {
-                        html += " rowspan='" + rowSpan + "'";
+                        currentTh += " rowspan='" + rowSpan + "'";
                     }
 
                     if (index > -1) {
-                        html += kendo.attr("index") + "='" + index + "'";
+                        currentTh += kendo.attr("index") + "='" + index + "'";
                     }
                     text = th.headerTemplate ? text : "";
-                    html += ">" + text + "</th>";
+                    currentTh += ">" + text + "</th>";
                 } else if (th.command) {
-                    html += "<th scope='col'" + stringifyAttributes(th.headerAttributes);
+                    currentTh += "<th scope='col'" + stringifyAttributes(th.headerAttributes);
 
                     if (rowSpan && !columns[idx].colSpan) {
-                        html += " rowspan='" + rowSpan + "'";
+                        currentTh += " rowspan='" + rowSpan + "'";
                     }
 
                     if (index > -1) {
-                        html += kendo.attr("index") + "='" + index + "'";
+                        currentTh += kendo.attr("index") + "='" + index + "'";
                     }
 
-                    html += ">" + text + "</th>";
+                    currentTh += ">" + text + "</th>";
                 } else {
                     if (th.field) {
                         field = kendo.attr("field") + "='" + th.field + "' ";
                     }
 
-                    html += "<th scope='col' " + field;
+                    currentTh += "<th scope='col' " + field;
                     if ((columnMenu && th.field && th.menu !== false)) {
-                        html += " aria-haspopup='menu'";
+                        currentTh += " aria-haspopup='menu'";
                     } else if (filterable && th.filterable !== false && !th.command) {
-                        html += " aria-haspopup='dialog'";
+                        currentTh += " aria-haspopup='dialog'";
                     }
 
                     if (rowSpan && !columns[idx].colSpan) {
-                        html += " rowspan='" + rowSpan + "'";
+                        currentTh += " rowspan='" + rowSpan + "'";
                     }
 
                     if (columns[idx].colSpan > 1) {
-                        html += 'colspan="' + (columns[idx].colSpan - hiddenLeafColumnsCount(th.columns)) + '" ';
-                        html += kendo.attr("colspan") + "='" + columns[idx].colSpan + "'";
+                        currentTh += 'colspan="' + (columns[idx].colSpan - hiddenLeafColumnsCount(th.columns)) + '" ';
+                        currentTh += kendo.attr("colspan") + "='" + columns[idx].colSpan + "'";
                     } else if (columns[idx].colSpan === 1) {
-                        html += kendo.attr("colspan") + "='" + columns[idx].colSpan + "'";
+                        currentTh += kendo.attr("colspan") + "='" + columns[idx].colSpan + "'";
                     }
 
                     if (title) {
                         title = title && (that.options.encodeTitles ? htmlEncode(title, true) : title);
-                        html += kendo.attr("title") + '="' + title + '" ';
+                        currentTh += kendo.attr("title") + '="' + title + '" ';
                     }
 
                     if (th.groupable !== undefined) {
-                        html += kendo.attr("groupable") + "='" + th.groupable + "' ";
+                        currentTh += kendo.attr("groupable") + "='" + th.groupable + "' ";
                     }
 
                     if (isColumnGroupable(that, th) && (!th.headerAttributes || !th.headerAttributes.title)) {
-                        html += "title='";
-                        html += isGroupedBy(groups, th.field) ? messages.ungroupHeader : messages.groupHeader;
-                        html += "' ";
+                        currentTh += "title='";
+                        currentTh += isGroupedBy(groups, th.field) ? messages.ungroupHeader : messages.groupHeader;
+                        currentTh += "' ";
                     }
 
                     if (th.aggregates && th.aggregates.length) {
-                        html += kendo.attr("aggregates") + "='" + th.aggregates + "'";
+                        currentTh += kendo.attr("aggregates") + "='" + th.aggregates + "'";
                     }
 
                     if (index > -1) {
-                        html += kendo.attr("index") + "='" + index + "'";
+                        currentTh += kendo.attr("index") + "='" + index + "'";
                     }
 
-                    html += stringifyAttributes(th.headerAttributes);
+                    currentTh += stringifyAttributes(th.headerAttributes);
 
                     if (sortable) {
                         text = kendo.template(SORTHEADERTMPL)({ text: text });
                     }
 
-                    html += ">" + text + "</th>";
+                    currentTh += ">" + text + "</th>";
                 }
+                html += $(currentTh).addClass("k-table-th")[0].outerHTML;
             }
             return html;
         },
@@ -10461,7 +10615,7 @@ var __meta__ = {
                 }
             }
 
-            container = $('<div class="k-grid-content-locked"><table><colgroup></colgroup><tbody></tbody></table></div>');
+            container = $('<div class="k-grid-content-locked"><table class="k-grid-table k-table"><colgroup></colgroup><tbody class="k-table-tbody"></tbody></table></div>');
             // detach is required for IE8, otherwise it switches to compatibility mode
             colgroup.detach();
             container.find("colgroup").append(lockedCols);
@@ -10469,6 +10623,7 @@ var __meta__ = {
 
             this.lockedContent = container.insertBefore(this.content);
             this.lockedTable = container.children("table");
+            this.lockedTable.addClass(kendo.getValidCssClass("k-table-", "size", this.options.size));
         },
 
         _appendLockedColumnFooter: function() {
@@ -10476,10 +10631,12 @@ var __meta__ = {
             var footer = that.footer;
             var cells = footer.find(".k-footer-template>td");
             var cols = footer.find(".k-grid-footer-wrap>table>colgroup>col");
-            var html = $('<div class="k-grid-footer-locked"><table><colgroup></colgroup><tfoot><tr class="k-footer-template"></tr></tfoot></table></div>');
+            var html = $('<div class="k-grid-footer-locked"><table class="k-grid-footer-table k-table"><colgroup></colgroup><tfoot class="k-table-tfoot"><tr class="k-footer-template k-table-row"></tr></tfoot></table></div>');
             var idx, length;
             var groups = that._groups();
             var lockedCells = $(), lockedCols = $();
+
+            html.find("table").addClass(kendo.getValidCssClass("k-table-", "size", this.options.size));
 
             lockedCells = lockedCells.add(cells.filter(".k-group-cell"));
             for (idx = 0, length = leafColumns(lockedColumns(that.columns)).length; idx < length; idx++) {
@@ -10561,12 +10718,13 @@ var __meta__ = {
             }
 
             if (rows.length) {
-                html = '<div class="k-grid-header-locked" style="width:1px"><table><colgroup></colgroup><thead>';
-                html += new Array(rows.length + 1).join("<tr></tr>");
-                html += (hasFilterRow ? '<tr class="k-filter-row"></tr>' : '') + '</thead></table></div>';
+                html = '<div class="k-grid-header-locked" style="width:1px"><table class="k-grid-header-table k-table"><colgroup></colgroup><thead class="k-table-thead">';
+                html += new Array(rows.length + 1).join("<tr class='k-table-row'></tr>");
+                html += (hasFilterRow ? '<tr class="k-filter-row k-table-row"></tr>' : '') + '</thead></table></div>';
 
                 table = $(html);
 
+                table.find("table").addClass(kendo.getValidCssClass("k-table-", "size", that.options.size));
                 colgroup = table.find("colgroup");
                 colgroup.append(that.thead.prev().find("col.k-group-col").add(cols));
 
@@ -10617,7 +10775,7 @@ var __meta__ = {
                 tr;
 
             if (!thead.length) {
-                thead = $("<thead role='rowgroup'/>").insertBefore(that.tbody);
+                thead = $("<thead class='k-table-thead' role='rowgroup'/>").insertBefore(that.tbody);
             }
 
             if (that.lockedHeader && that.thead) {
@@ -10639,9 +10797,9 @@ var __meta__ = {
                    that._prepareColumns(rows, columns);
 
                    for (idx = 0; idx < rows.length; idx++) {
-                       html += "<tr>";
+                       html += "<tr class='k-table-row'>";
                        if (hasDetails) {
-                           html += '<th class="k-hierarchy-cell" scope="col">' + headerContent + '</th>';
+                           html += '<th class="k-hierarchy-cell k-table-th" scope="col">' + headerContent + '</th>';
                        }
                        html += that._createHeaderCells(rows[idx].cells, rows[idx].rowSpan);
                        html += "</tr>";
@@ -10663,9 +10821,9 @@ var __meta__ = {
 
             if (hasFilterRow) {
                 var filterRow = $("<tr/>");
-                filterRow.addClass("k-filter-row");
+                filterRow.addClass("k-filter-row k-table-row");
                 if (hasDetails || tr.find(".k-hierarchy-cell").length) { // handles server side detail template
-                    filterRow.prepend('<td class="k-hierarchy-cell">&nbsp;</td>');
+                    filterRow.prepend('<td class="k-table-td k-hierarchy-cell">&nbsp;</td>');
                 }
 
                 var existingFilterRow = (that.thead || thead).find(".k-filter-row");
@@ -10680,14 +10838,14 @@ var __meta__ = {
             if (!tr.children().length) {
                 html = "";
                 if (hasDetails) {
-                    html += '<th class="k-hierarchy-cell" scope="col">&nbsp;</th>';
+                    html += '<th class="k-hierarchy-cell k-table-th" scope="col">&nbsp;</th>';
                 }
 
                 html += that._createHeaderCells(columns);
 
                 tr.html(html);
             } else if (hasDetails && !tr.find(".k-hierarchy-cell")[0]) {
-                tr.prepend('<th class="k-hierarchy-cell" scope="col">' + (headerContent ? headerContent : '&nbsp;') + '</th>');
+                tr.prepend('<th class="k-hierarchy-cell k-table-th" scope="col">' + (headerContent ? headerContent : '&nbsp;') + '</th>');
             }
 
             tr.find("th").addClass("k-header");
@@ -11150,7 +11308,10 @@ var __meta__ = {
                 }
             }
 
-            group.find(".k-i-collapse").addClass("k-i-expand").removeClass("k-i-collapse");
+            if (group.find(CARET_ALT_DOWN).length) {
+                kendo.ui.icon(group.find(CARET_ALT_DOWN), { icon: "caret-alt-right" });
+            }
+
             group.find("td[aria-expanded='true']").first().attr(ARIA_EXPANDED, false)
                 .find("a").attr(ARIA_LABEL, EXPAND);
 
@@ -11233,7 +11394,10 @@ var __meta__ = {
                 }
             }
 
-            group.find(".k-i-expand").addClass("k-i-collapse").removeClass("k-i-expand");
+            if (group.find(CARET_ALT_RIGHT).length) {
+                kendo.ui.icon(group.find(CARET_ALT_RIGHT), { icon: "caret-alt-down" });
+            }
+
             group.find("td[aria-expanded='false']").first().attr(ARIA_EXPANDED, true)
                 .find("a").attr(ARIA_LABEL, COLLAPSE);
             group = group.nextAll("tr");
@@ -11249,11 +11413,11 @@ var __meta__ = {
                     tr.show();
                     relatedGroup.eq(idx).show();
 
-                    if (tr.hasClass("k-grouping-row") && tr.find(".k-icon").hasClass("k-i-collapse")) {
+                    if (tr.hasClass("k-grouping-row") && tr.find(".k-icon,.k-svg-icon").is(CARET_ALT_DOWN)) {
                         that.expandGroup(tr);
                     }
 
-                    if (tr.hasClass("k-master-row") && tr.find(".k-icon").hasClass("k-i-collapse")) {
+                    if (tr.hasClass("k-master-row") && tr.find(".k-icon,.k-svg-icon").is(CARET_ALT_DOWN)) {
                         tr.next().show();
                         relatedGroup.eq(idx + 1).show();
                     }
@@ -11297,7 +11461,7 @@ var __meta__ = {
                 });
 
             if (groups > length) {
-                $(new Array(groups - length + 1).join('<th class="k-group-cell k-header" scope="col">' + that.options.messages.expandCollapseColumnHeader + '</th>')).prependTo(container.children("tr:not(.k-filter-row)"));
+                $(new Array(groups - length + 1).join('<th class="k-group-cell k-header k-table-th" scope="col">' + that.options.messages.expandCollapseColumnHeader + '</th>')).prependTo(container.children("tr:not(.k-filter-row)"));
                 if (that.element.is(":visible")) {
                     rows.find("th.k-group-cell").hide();
                 }
@@ -11308,7 +11472,7 @@ var __meta__ = {
                 });
             }
             if (groups > filterCells) {
-                $(new Array(groups - filterCells + 1).join('<td class="k-group-cell k-header">&nbsp;</td>')).prependTo(container.find(".k-filter-row"));
+                $(new Array(groups - filterCells + 1).join('<td class="k-group-cell k-table-td">&nbsp;</td>')).prependTo(container.find(".k-filter-row"));
             }
         },
 
@@ -11726,12 +11890,12 @@ var __meta__ = {
             }
 
             for (var i = 0; i < pageSize; i++) {
-                loaderHTML += "<tr>";
+                loaderHTML += "<tr class='k-table-row'>";
                 for (var j = 0; j < columnsCount; j++) {
                     if (colspan && !j) {
-                        loaderHTML += "<td colspan='" + colspan + "'><span class='k-skeleton k-skeleton-text k-skeleton-pulse'></span></td>";
+                        loaderHTML += "<td colspan='" + colspan + "'><span class='k-skeleton k-skeleton-text k-skeleton-pulse k-table-td'></span></td>";
                     } else {
-                        loaderHTML += "<td><span class='k-skeleton k-skeleton-text k-skeleton-pulse'></span></td>";
+                        loaderHTML += "<td><span class='k-skeleton k-skeleton-text k-skeleton-pulse k-table-td'></span></td>";
                     }
                 }
                 loaderHTML += "</tr>";
@@ -12176,7 +12340,7 @@ var __meta__ = {
                 });
                 that._endlessFetchInProgress = null;
             } else {
-                that.tbody = appendContent(that.tbody, that.table, html, this.options.$angular);
+                that.tbody = appendContent(that.tbody, that.table, html, this.options.$angular, this.options.size);
             }
        },
 
@@ -12285,7 +12449,7 @@ var __meta__ = {
                if (endlessAppend) {
                    table.children("tbody").append(html);
                } else {
-                   appendContent(table.children("tbody"), table, html, this.options.$angular);
+                   appendContent(table.children("tbody"), table, html, this.options.$angular, this.options.size);
                }
 
                this._syncLockedContentHeight();
@@ -12711,7 +12875,7 @@ var __meta__ = {
    }
 
    function isInputElement(element) {
-       return $(element).is(":button,a,:input,a>.k-icon,textarea,span.k-select,span.k-icon,span.k-link,label.k-checkbox-label,.k-input,.k-multiselect-wrap,.k-picker-wrap,.k-picker-wrap>.k-selected-color,.k-tool-icon,.k-dropdownlist,.k-switch-thumb,.k-switch-track,.k-switch-label-off,.k-switch-label-on");
+       return $(element).is(":button,a,:input,a>.k-icon,a>.k-svg-icon,textarea,span.k-select,span.k-icon,span.k-svg-icon,span.k-link,label.k-checkbox-label,.k-input,.k-multiselect-wrap,.k-picker-wrap,.k-picker-wrap>.k-selected-color,.k-tool-icon,.k-dropdownlist,.k-switch-thumb,.k-switch-track,.k-switch-label-off,.k-switch-label-on");
    }
 
     function tableClick(e) {
@@ -12734,7 +12898,7 @@ var __meta__ = {
             return;
         }
 
-        if (target.is("a.k-i-expand, a.k-i-collapse")) {
+        if (target.is(CARET_ALT_RIGHT + "," + CARET_ALT_DOWN)) {
             return;
         }
 
@@ -12844,28 +13008,28 @@ var __meta__ = {
     }
 
    function groupCellBuilder(headerTemplateIndex) {
-    return ({ colspan, text }) => `<td colspan="${colspan + headerTemplateIndex}">` +
+    return ({ colspan, text }) => `<td class="k-table-td" colspan="${colspan + headerTemplateIndex}">` +
     '<p class="k-reset">' +
-        `<a class="k-icon k-i-collapse" href="\\#" tabindex="-1" ${ARIA_LABEL}="${COLLAPSE}"></a>${text}` +
+        kendo.ui.icon($(`<a href="\\#" tabindex="-1" ${ARIA_LABEL}="${COLLAPSE}"></a>`), { icon: "caret-alt-down" }) + text +
     '</p></td>';
    }
 
    function groupCellLockedContentBuilder(headerTemplateIndex) {
-    return '<td colspan="' + headerTemplateIndex + '">' +
+    return '<td class="k-table-td" colspan="' + headerTemplateIndex + '">' +
     '<p class="k-reset">&nbsp;</p></td>';
    }
 
    function groupRowBuilder(colspan, level, text, expanded, uid, includeAdditionalData) {
-    return '<tr ' + (includeAdditionalData ? 'data-group-uid="' + uid + '"' : '') + 'class="k-grouping-row">' + groupCells(level) +
-        '<td colspan="' + colspan + '" aria-expanded="' + !!expanded + '">' +
+    return '<tr ' + (includeAdditionalData ? 'data-group-uid="' + uid + '"' : '') + 'class="k-table-group-row k-grouping-row k-table-row">' + groupCells(level) +
+        '<td class="k-table-td" colspan="' + colspan + '" aria-expanded="' + !!expanded + '">' +
         '<p class="k-reset">' +
-        '<a class="k-icon ' + (expanded ? 'k-i-collapse' : 'k-i-expand') + '" href="#" tabindex="-1" ' + ARIA_LABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>' + text +
+        kendo.ui.icon($('<a href="#" tabindex="-1" ' + ARIA_LABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>'), { icon: (expanded ? 'caret-alt-down' : 'caret-alt-right') }) + text +
     '</p></td></tr>';
    }
 
    function groupRowLockedContentBuilder(colspan) {
-    return '<tr class="k-grouping-row">' +
-        '<td colspan="' + colspan + '" aria-expanded="true">' +
+    return '<tr class="k-table-group-row k-grouping-row k-table-row">' +
+        '<td class="k-table-td" colspan="' + colspan + '" aria-expanded="true">' +
         '<p class="k-reset">&nbsp;</p></td></tr>';
    }
 

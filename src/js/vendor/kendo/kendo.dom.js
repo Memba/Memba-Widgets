@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -58,7 +58,7 @@ var __meta__ = {
     Element.prototype = new Node();
 
     Element.prototype.appendTo = function(parent) {
-        var node = document.createElement(this.nodeName);
+        var node = typeof(this.nodeName) === "string" ? document.createElement(this.nodeName) : this.nodeName;
 
         var children = this.children;
 
@@ -203,8 +203,9 @@ var __meta__ = {
         return str;
     };
 
-    function TextNode(nodeValue) {
+    function TextNode(nodeValue, force) {
         this.nodeValue = String(nodeValue);
+        this.force = force;
     }
 
     TextNode.prototype = new Node();
@@ -214,7 +215,7 @@ var __meta__ = {
     TextNode.prototype.render = function(parent, cached) {
         var node;
 
-        if (cached.nodeName !== this.nodeName) {
+        if (cached.nodeName !== this.nodeName || this.force) {
             cached.remove();
 
             node = document.createTextNode(this.nodeValue);
@@ -240,8 +241,9 @@ var __meta__ = {
         return this.nodeValue;
     };
 
-    function HtmlNode(html) {
+    function HtmlNode(html, force) {
         this.html = html;
+        this.force = force;
     }
 
     HtmlNode.prototype = {
@@ -256,7 +258,7 @@ var __meta__ = {
            }
        },
        render: function(parent, cached) {
-           if (cached.nodeName !== this.nodeName || cached.html !== this.html) {
+           if (cached.nodeName !== this.nodeName || cached.html !== this.html || this.force) {
                cached.remove();
 
                var lastChild = parent.lastChild;
@@ -284,16 +286,16 @@ var __meta__ = {
         }
     }
 
-    function html(value) {
-        return new HtmlNode(value);
+    function html(value, force) {
+        return new HtmlNode(value, force);
     }
 
     function element(nodeName, attrs, children) {
         return new Element(nodeName, attrs, children);
     }
 
-    function text(value) {
-        return new TextNode(value);
+    function text(value, force) {
+        return new TextNode(value, force);
     }
 
     function Tree(root) {

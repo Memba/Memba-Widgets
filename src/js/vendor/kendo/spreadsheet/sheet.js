@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1046,7 +1046,7 @@ import "./references.js";
         resizeHintPosition: function(location) {
             if (location !== undefined) {
                 this._resizeHintPosition = location;
-                this.trigger("change", { resize: true });
+                this.trigger("change", { resize: true, overElement: true });
             }
             return this._resizeHintPosition;
         },
@@ -1056,13 +1056,13 @@ import "./references.js";
                 this._resizeHintPosition = undefined;
                 this._resizeHandlePosition = undefined;
                 this._initialPosition = undefined;
-                this.trigger("change", { resize: true });
+                this.trigger("change", { resize: true, overElement: true });
             }
         },
 
         positionResizeHandle: function(ref) {
             this._resizeHandlePosition = ref;
-            this.trigger("change", { resize: true });
+            this.trigger("change", { resize: true, overElement: true });
         },
 
         startDragging: function(data) {

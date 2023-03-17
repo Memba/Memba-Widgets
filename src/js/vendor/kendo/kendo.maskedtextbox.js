@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,13 +8,14 @@
  */
 import "./kendo.core.js";
 import "./kendo.floatinglabel.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "maskedtextbox",
     name: "MaskedTextBox",
     category: "web",
     description: "The MaskedTextBox widget allows to specify a mask type on an input field.",
-    depends: ["core", "floatinglabel"]
+    depends: ["core", "floatinglabel", "icons"]
 };
 
 (function($, undefined) {
@@ -119,9 +120,9 @@ var __meta__ = {
                 that.readonly(element.is("[readonly]"));
             }
 
-            that.value(that.options.value || element.val());
+            that._validationIcon = $(kendo.ui.icon({ icon: "exclamation-circle", iconClass: "k-input-validation-icon k-hidden" })).insertAfter(element);
 
-            that._validationIcon = $("<span class='k-input-validation-icon k-icon k-i-warning k-hidden'></span>").insertAfter(element);
+            that.value(that.options.value || element.val());
 
             that._label();
             that._applyCssClasses();

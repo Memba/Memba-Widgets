@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -13,13 +13,14 @@ import "./kendo.dialog.js";
 import "./kendo.form.js";
 import "./kendo.upload.js";
 import "./kendo.window.js";
+import "./kendo.html.button.js";
 
 var __meta__ = {
     id: "orgchart",
     name: "OrgChart",
     category: "web",
     description: "The OrgChart widget displays hierarchical organizational structure.",
-    depends: [ "core", "menu", "dialog", "form", "upload", "window", "data", "treelist" ]
+    depends: [ "core", "menu", "dialog", "form", "upload", "window", "data", "treelist", "html.button" ]
 };
 
 (function($, undefined) {
@@ -79,14 +80,14 @@ var __meta__ = {
         cardMenu: "k-orgchart-card-menu",
         button: "k-orgchart-button",
         focused: "k-focus",
-        plusIcon: "k-i-plus",
+        plusIcon: "plus",
         menuItem: "k-item",
         avatarPreview: "k-orgchart-avatar-preview",
         update: "k-orgchart-update",
         cancel: "k-orgchart-cancel",
         vstack: "k-vstack",
         hstack: "k-hstack",
-        closeButton: "k-i-close"
+        closeButton: "x"
     };
 
     var MENU_ITEMS = {
@@ -129,18 +130,20 @@ var __meta__ = {
             '</span>' +
         '</div>' +
         `<div class="k-px-md">${encode(fileName)}</div>` +
-        `<button class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button" aria-label="${encode(destroy)}">` +
-            '<span class="k-button-icon k-icon k-i-delete"></span>' +
-        '</button>' +
+        kendo.html.renderButton(`<button aria-label="${encode(destroy)}"></button>`, {
+            icon: 'trash',
+            fillMode: "flat"
+        }) +
     '</div>';
 
     var EDITOR_BUTTONS_TEMPLATE = ({ cancel, save }) => '<div class="k-edit-buttons">' +
-        '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-orgchart-cancel">' +
-            `<span class="k-button-text">${encode(cancel)}</span>` +
-        '</button>' +
-        '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-orgchart-update">' +
-            `<span class="k-button-text">${encode(save)}</span>` +
-        '</button>' +
+        kendo.html.renderButton(`<button class="k-orgchart-update">${encode(save)}</button>`, {
+                icon: "save",
+                themeColor: "primary"
+            }) +
+        kendo.html.renderButton(`<button class="k-orgchart-cancel">${encode(cancel)}</button>`, {
+            icon: "cancel-outline"
+        }) +
     '</div>';
 
     var OrgChart = DataBoundWidget.extend({
@@ -516,21 +519,21 @@ var __meta__ = {
                     }
                 },
                 deactivate: function() {
-                    windowElement.off(CLICK);
+                    that._editWindow.wrapper.off(CLICK);
                     that._editWindow.destroy();
                     that._editWindow = null;
                     that.view._restoreSelection();
                 }
             });
 
-            windowElement.append(kendo.template(EDITOR_BUTTONS_TEMPLATE)({
+            windowElement.after(kendo.template(EDITOR_BUTTONS_TEMPLATE)({
                 save: messages.save,
                 cancel: messages.cancel
             }));
 
             that._editWindow.center().open();
 
-            windowElement.on(CLICK, DOT + ORGCHART_STYLES.update, function() {
+            that._editWindow.wrapper.on(CLICK, DOT + ORGCHART_STYLES.update, function() {
                 if (that._form.validate()) {
                     save = true;
 
@@ -541,7 +544,7 @@ var __meta__ = {
                 }
             });
 
-            windowElement.on(CLICK, DOT + ORGCHART_STYLES.cancel, function() {
+            that._editWindow.wrapper.on(CLICK, DOT + ORGCHART_STYLES.cancel, function() {
                 that._editWindow.close();
             });
         },

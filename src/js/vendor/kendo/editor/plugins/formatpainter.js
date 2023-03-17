@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,6 @@ var kendo = window.kendo,
     Editor = kendo.ui.editor,
     Tool = Editor.Tool,
     Command = Editor.Command,
-    ToolTemplate = Editor.ToolTemplate,
     EditorUtils = Editor.EditorUtils,
     dom = Editor.Dom,
     RangeUtils = Editor.RangeUtils,
@@ -347,7 +346,7 @@ $.extend(Editor, {
     ApplyFormatTool: ApplyFormatTool
 });
 
-registerTool("copyFormat", new CopyFormatTool({ template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Copy format" }) }));
-registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Apply format" }) }));
+registerTool("copyFormat", new CopyFormatTool({ }));
+registerTool("applyFormat", new ApplyFormatTool({ }));
 
 })(window.kendo.jQuery);

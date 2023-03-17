@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -22,13 +22,16 @@ import "./kendo.dialog.js";
 import "./kendo.pane.js";
 import "./kendo.pdf.js";
 import "./kendo.switch.js";
+import "./kendo.toolbar.js";
+import "./kendo.html.button.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "scheduler",
     name: "Scheduler",
     category: "web",
     description: "The Scheduler is an event calendar.",
-    depends: [ "dropdownlist", "editable", "multiselect", "window", "datepicker", "datetimepicker", "scheduler.recurrence", "scheduler.view" ],
+    depends: [ "dropdownlist", "editable", "multiselect", "window", "datepicker", "datetimepicker", "toolbar", "scheduler.recurrence", "scheduler.view", "html.button", "icons" ],
     features: [ {
         id: "scheduler-dayview",
         name: "Scheduler Day View",
@@ -80,7 +83,7 @@ var __meta__ = {
         getDate = date.getDate,
         getMilliseconds = kendo.date.getMilliseconds,
         recurrence = kendo.recurrence,
-        keys = $.extend({ F10: 121 }, kendo.keys),
+        keys = kendo.keys,
         ui = kendo.ui,
         Widget = ui.Widget,
         DataBoundWidget = ui.DataBoundWidget,
@@ -111,9 +114,9 @@ var __meta__ = {
         DISABLED = "disabled",
         OPTION = "option",
         FOCUSEDSTATE = "k-focus",
-        VIEWSSELECTOR = ".k-scheduler-views",
         INVERSECOLORCLASS = "k-event-inverse",
         valueStartEndBoundRegex = /(?:value:start|value:end)(?:,|$)/,
+        MIN_SCREEN = "(min-width: 1024px)",
         TODAY = getDate(new Date()),
         EXCEPTION_SEPARATOR = ",",
         OLD_EXCEPTION_SEPARATOR_REGEXP = /\;/g,
@@ -124,77 +127,152 @@ var __meta__ = {
         DELETERECURRINGCONFIRM = "Are you sure you want to delete this event occurrence?",
         RESETSERIESCONFIRM = "Are you sure you want to reset the whole series?",
         DELETESERIESCONFIRM = "Are you sure you want to delete the whole series?",
-        COMMANDBUTTONTMPL = ({ className, attr, text }) => `<button type="button" class="k-button k-button-md k-rounded-md k-button-solid ${className}" ${attr}><span class="k-button-text">${text}</span></button>`,
-        VIEWS_DROPDOWN_TEMPLATE = kendo.template(({ label, views }) =>
-            `<select aria-label="${label}" class="k-picker k-dropdown-list k-dropdown k-views-dropdown" tabindex="-1">` +
+        COMMANDBUTTONTMPL = ({ className, attr, text, icon, fillMode, themeColor }) =>
+            kendo.html.renderButton(`<button type="button" class="${className}" ${attr}>${text}</button>`, {
+                icon: icon,
+                fillMode: fillMode,
+                themeColor: themeColor
+            }),
+        VIEWS_DROPDOWN_TEMPLATE = kendo.template(({ label, views, type }) =>
+            `<select aria-label="${label}" class="k-picker k-dropdown-list k-dropdown ${type}">` +
                 Object.keys(views).map((view) => `<option value="${view}">${views[view].title}</option>`).join('') +
             '</select>'
         ),
-        TOOLBARTEMPLATE = kendo.template(({ pdf, messages, ns, search, viewsCount, view, views }) =>
-            '<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
-                (pdf ? `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-pdf"><span class="k-button-icon k-icon k-i-file-pdf"></span><span class="k-button-text">${messages.pdf}</span></button>` : '') +
-                '<span class="k-scheduler-navigation k-button-group">' +
-                    `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-nav-today" title="${messages.today}"><span class="k-button-text">${messages.today}</span></button>` +
-                    `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-prev" title="${messages.previous}" aria-label="${messages.previous}"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></button>` +
-                    `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-next" title="${messages.next}" aria-label="${messages.next}"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></button>` +
-                '</span>' +
-                '<a tabindex="-1" role="button" href="#" class="k-nav-current" aria-live="polite">' +
-                    '<span class="k-icon k-i-calendar"></span>' +
-                    `<span class="k-sm-date-format" data-${ns}bind="text: formattedShortDate"></span>` +
-                    `<span class="k-lg-date-format" data-${ns}bind="text: formattedDate"></span>` +
-                '</a>' +
-                '<span class="k-spacer k-toolbar-spacer"></span>' +
-                (search ?
-                    '<span class="k-scheduler-search k-textbox k-input k-input-md k-rounded-md k-input-solid">' +
-                        `<input tabindex="-1" autocomplete="off" placeholder="${messages.search}" title="${messages.search}" class="k-input-inner k-scheduler-search-input k-input-inner" />` +
-                        '<span class="k-input-suffix"><span class="k-icon k-i-search"></span></span>' +
-                    '</span>' : ''
-                ) +
-                (viewsCount === 1 ?
-                    `<a role="button" tabindex="-1" data-${ns}name="${view}" href="\\#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-scheduler-refresh" aria-label="${messages.refresh}">` +
-                        '<span class="k-button-icon k-icon k-i-reload"></span>' +
-                    '</a>' :
-                    '<span class="k-scheduler-views-wrapper">' +
-                        '<span class="k-scheduler-views k-button-group">' +
-                            Object.keys(views).map((viewKey) =>
-                                `<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-${ viewKey.toLowerCase() }" data-${ns}name="${viewKey}"><span class="k-button-text">${views[viewKey].title}</span></button>`
-                            ).join('') +
+
+        DEFAULT_TOOLS = {
+            pdf: {
+                name: "pdf",
+                type: "button",
+                icon: "file-pdf",
+                attributes: {
+                    class: "k-pdf"
+                }
+            },
+            pdfMobile: {
+                name: "pdf",
+                type: "button",
+                icon: "file-pdf",
+                showText: "overflow",
+                attributes: {
+                    class: "k-pdf"
+                }
+            },
+            today: {
+                name: "today",
+                attributes: {
+                    class: "k-nav-today",
+                }
+            },
+            previous: {
+                name: "previous",
+                icon: "caret-alt-left",
+                showText: "overflow",
+                attributes: {
+                    class: "k-nav-prev"
+                }
+            },
+            next: {
+                name: "next",
+                icon: "caret-alt-right",
+                showText: "overflow",
+                attributes: {
+                    class: "k-nav-next"
+                }
+            },
+            current: {
+                name: "current",
+                type: "button",
+                icon: "calendar",
+                fillMode: "flat",
+                text: 'placeholder',
+                attributes: {
+                    "aria-live": "polite",
+                    class: "k-nav-current"
+                }
+            },
+            search: {
+                template: '<span class="k-scheduler-search k-textbox k-input k-input-md k-rounded-md k-input-solid">' +
+                        '<input tabindex="-1" autocomplete="off" class="k-input-inner k-scheduler-search-input k-input-inner" />' +
+                        `<span class="k-input-suffix">${kendo.ui.icon("search")}</span>` +
+                    '</span>'
+            },
+            refresh: {
+                name: "refresh",
+                type: "button",
+                icon: "arrow-rotate-cw",
+                showText: "overflow",
+                attributes: {
+                    class: "k-scheduler-refresh"
+                }
+            },
+            create: {
+                name: "create",
+                icon: "plus",
+                attributes: {
+                    class: "k-create-event"
+                }
+            },
+            calendar: {
+                name: "calendar",
+                type: "button",
+                icon: "calendar",
+                attributes: {
+                    class: "k-nav-calendar"
+                }
+            },
+            previousMobile: {
+                name: "previous",
+                type: "button",
+                icon: "chevron-left",
+                showText: "overflow",
+                attributes: {
+                    class: "k-nav-prev"
+                }
+            },
+            nextMobile: {
+                name: "next",
+                type: "button",
+                icon: "chevron-right",
+                showText: "overflow",
+                attributes: {
+                    class: "k-nav-next"
+                }
+            },
+            currentMobile: {
+                template: '<span class="k-scheduler-navigation">' +
+                        '<span class="k-nav-current">' +
+                            '<span class="k-m-date-format"></span>' +
+                            '<span class="k-y-date-format"></span>' +
                         '</span>' +
                     '</span>'
-                ) +
-            '</div>'),
-        MOBILETOOLBARTEMPLATE = kendo.template(({ pdf, editable, search, messages, viewsCount, views, ns, view }) => '<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
-            '<span class="k-scheduler-tools k-button-group">' +
-                (pdf ? '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-pdf"><span class="k-button-icon k-icon k-i-file-pdf"></span></button>' : '') +
-                '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-calendar"><span class="k-button-icon k-icon k-i-calendar"></span></button>' +
-                (editable ? '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-create-event"><span class="k-button-icon k-icon k-i-plus"></span></button>' : '') +
-            '</span>' +
-            '<span class="k-spacer k-toolbar-spacer"></span>' +
-            (search ?
-                '<span class="k-scheduler-search k-textbox k-input k-input-md k-rounded-md k-input-solid">' +
-                    `<input tabindex="-1" autocomplete="off" placeholder="${messages.search}" title="${messages.search}" class="k-scheduler-search-input k-input-inner" />` +
-                    '<span class="k-input-suffix"><span class="k-icon k-i-search"></span></span>' +
-                '</span>' : ''
-            ) +
-            (viewsCount === 1 ?
-                `<a role="button" tabindex="-1" data-${ns}name="${view}" href="\\#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-scheduler-refresh">` +
-                    '<span class="k-button-icon k-icon k-i-reload"></span>' +
-                '</a>' :
-                '<select tabindex="-1" class="k-picker k-dropdown-list k-dropdown k-scheduler-mobile-views">' +
-                    Object.keys(views).map((viewKey) => `<option class="k-view-${ viewKey.toLowerCase() }" value="${viewKey}">${views[viewKey].title}</option>`).join('') +
-                '</select>'
-            ) +
-            '</div>' +
-            '<div class="k-scheduler-toolbar k-toolbar" role="toolbar">' +
-                '<span class="k-scheduler-navigation">' +
-                   '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-prev"><span class="k-button-icon k-icon k-i-arrow-chevron-left"></span></button>' +
-                   '<span class="k-nav-current">' +
-                        `<span class="k-m-date-format" data-${ns}bind="text: formattedMobileDate"></span>` +
-                        `<span class="k-y-date-format" data-${ns}bind="text: formattedYear"></span>` +
-                    '</span>' +
-                   '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-next"><span class="k-button-icon k-icon k-i-arrow-chevron-right"></span></button>' +
-                '</span>' +
-            '</div>'),
+            },
+            view: {
+                name: "view",
+                type: "button",
+                togglable: true,
+                group: "views"
+            }
+        },
+
+        defaultDesktopTools = [
+            ["today", "previous", "next"],
+            "current",
+            { type: "spacer" }
+        ],
+
+        defaultMobileToolsFirst = [
+            ["calendar"],
+            { type: "spacer" }
+        ],
+
+        defaultMobileToolsSecond = [
+            "previousMobile",
+            { type: "spacer" },
+            "currentMobile",
+            { type: "spacer" },
+            "nextMobile"
+        ],
+
         MOBILEDATERANGEEDITOR = function(container, options) {
             var attr = { name: options.field, title: options.title };
             var isAllDay = options.model.isAllDay;
@@ -282,7 +360,7 @@ var __meta__ = {
         MOBILETIMEZONEPOPUP = function(container, options) {
             var text = timezoneButtonText(options.model, options.messages.noTimezone);
             $('<span class="k-timezone-label"></span>').text(text).appendTo(container);
-            $('<span class="k-icon k-i-arrow-chevron-right"></span>').appendTo(container);
+            $(kendo.ui.icon("arrow-chevron-right")).appendTo(container);
             container.closest("li.k-item label").on(CLICK, options.click);
         },
         TIMEZONEPOPUP = function(container, options) {
@@ -959,7 +1037,8 @@ var __meta__ = {
         },
         destroy: {
             text: "Delete",
-            imageClass: "k-i-close",
+            icon: "trash",
+            imageClass: "k-i-trash",
             className: "k-button-solid-primary k-scheduler-delete",
             iconClass: "k-icon"
         }
@@ -1610,10 +1689,10 @@ var __meta__ = {
                 var html = '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form">' +
                 '<div data-role="header" class="k-header">' +
                     '<a href="\\#" class="k-header-cancel k-scheduler-cancel k-link" title="' + messages.cancel + '"' +
-                    'aria-label="' + messages.cancel + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' +
+                    `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
                     messages.editor.timezoneTitle +
                     '<a href="\\#" class="k-header-done k-scheduler-update k-link" title="' + messages.save + '" ' +
-                    'aria-label="' + messages.save + '"><span class="k-icon k-i-check"></span></a>' +
+                    `aria-label="${messages.save}">${kendo.ui.icon("check")}</a>` +
                 '</div><div data-role="content"></div>';
 
                 this.timezoneView = timezoneView = pane.append(html);
@@ -1698,10 +1777,10 @@ var __meta__ = {
             html += '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form"' + kendo.attr("uid") + '="' + model.uid + '">' +
                 '<div data-role="header" class="k-header">' +
                     '<a href="#" class="k-header-cancel k-scheduler-cancel k-link" title="' + cancelText + '"' +
-                    'aria-label="' + cancelText + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' +
+                    `aria-label="${cancelText}">${kendo.ui.icon("chevron-left")}</a>` +
                     titleText +
                     '<a href="#" class="k-header-done k-scheduler-update k-link" title="' + updateText + '" ' +
-                    'aria-label="' + updateText + '"><span class="k-icon k-i-check"></span></a>' +
+                    `aria-label="${updateText}">${kendo.ui.icon("check")}</a>` +
                 '</div>';
 
             var fields = this.fields(editors.mobile, model);
@@ -1819,8 +1898,11 @@ var __meta__ = {
             var html = '<div ' + kendo.attr("uid") + '="' + model.uid + '" class="k-popup-edit-form k-scheduler-edit-form"><div class="k-edit-form-container">';
             var messages = that.options.messages;
             var updateText = messages.save;
+            var updateIcon = "save";
             var cancelText = messages.cancel;
+            var cancelIcon = "cancel-outline";
             var deleteText = messages.destroy;
+            var deleteIcon = "trash";
             var resetSeries = messages.resetSeries;
             var fields = this.fields(editors.desktop, model);
             var editableFields = [];
@@ -1832,14 +1914,15 @@ var __meta__ = {
             var options = isPlainObject(editable) ? editable.window : {};
 
             html += '<div class="k-edit-buttons">';
-            html += this.createButton({ name: "update", text: updateText, attr: attr }) + this.createButton({ name: "canceledit", text: cancelText, attr: attr });
+
+            html += this.createButton({ name: "update", text: updateText, attr: attr, icon: updateIcon }) + this.createButton({ name: "canceledit", text: cancelText, attr: attr, icon: cancelIcon });
 
             if (!model.isNew() && editable.destroy !== false && model.isRecurrenceHead() && model.recurrenceException) {
                 html += this.createButton({ name: "resetSeries", text: resetSeries, attr: attr });
             }
 
             if ((!model.isNew() || model.isRecurring()) && editable.destroy !== false) {
-                html += this.createButton({ name: "delete", text: deleteText, attr: attr });
+                html += '<span class="k-spacer"></span>' + this.createButton({ name: "delete", text: deleteText, attr: attr, icon: deleteIcon, fillMode: "flat", themeColor: "primary" });
             }
 
             html += '</div></div></div>';
@@ -1958,7 +2041,7 @@ var __meta__ = {
             var html = "";
 
             html += '<div class="k-edit-buttons">';
-            html += this.createButton({ name: "savetimezone", text: messages.save }) + this.createButton({ name: "canceltimezone", text: messages.cancel });
+            html += this.createButton({ name: "savetimezone", icon: "save", themeColor: "primary", text: messages.save }) + this.createButton({ name: "canceltimezone", icon: "cancel-outline", text: messages.cancel });
             html += '</div></div></div>';
 
             return html;
@@ -2119,7 +2202,9 @@ var __meta__ = {
             };
 
             that.wrapper.on(MOUSEDOWN + NS + " selectstart" + NS, function(e) {
-                if (!$(e.target).is(":kendoFocusable")) {
+                var target = $(e.target);
+
+                if (!target.is(":kendoFocusable") && target.closest(".k-button").length === 0) {
                     e.preventDefault();
                 }
             });
@@ -2143,6 +2228,25 @@ var __meta__ = {
             that._ariaId = kendo.guid();
 
             that._createEditor();
+            that.mediaQueryList = window.matchMedia(MIN_SCREEN);
+            that.mediaQueryList.addEventListener("change", that._onMediaChange.bind(that));
+        },
+
+        _onMediaChange: function(e) {
+            var that = this;
+            var view = that._selectedView;
+            var toolbarEl = that.toolbar;
+            var toolbar = toolbarEl.getKendoToolBar();
+
+            if (e.matches) {
+                toolbar.hide(toolbarEl.find(".k-views-dropdown"));
+                toolbar.show(toolbarEl.find(".k-views-dropdown").parent().next(".k-button-group"));
+            } else {
+                toolbar.show(toolbarEl.find(".k-views-dropdown"));
+                toolbar.hide(toolbarEl.find(".k-views-dropdown").parent().next(".k-button-group"));
+            }
+
+            that._model.set("formattedDate", e.matches ? view.dateForTitle() : view.shortDateForTitle());
         },
 
         _bindResize: function() {
@@ -2759,73 +2863,13 @@ var __meta__ = {
         },
 
         _keydownToolbar: function(e) {
-            var key = e.keyCode,
-                focusableToolBarSelector = "> .k-button," +
-                    ".k-scheduler-navigation > .k-button," +
-                    ".k-nav-current," +
-                    ".k-views-dropdown:visible," +
-                    ".k-scheduler-views:visible > .k-button," +
-                    ".k-scheduler-search-input," +
-                    ".k-scheduler-mobile-views," +
-                    ".k-button-group > .k-button",
-                focusableItems = this.toolbar.find(focusableToolBarSelector),
-                shouldNavigate = $(e.target).closest(VIEWSSELECTOR).length || this.toolbar.find('.k-scheduler-views .k-focus').length,
-                isRtl = kendo.support.isRtl(this.element),
-                focusedItem = this.toolbar.find("." + FOCUSEDSTATE + ", :focus"),
-                idx = focusableItems.index(focusedItem),
-                itemToFocus;
+            var key = e.keyCode;
 
-            if (key === keys.TAB && (!e.shiftKey || this.options.selectable)) {
-                this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-            } else if (e.altKey && key === keys.DOWN && this.toolbar.find(".k-nav-current").hasClass(FOCUSEDSTATE)) {
+            if (e.altKey && key === keys.DOWN && this.toolbar.find(".k-nav-current").hasClass(FOCUSEDSTATE)) {
                 this._showCalendar();
                 e.preventDefault();
                 return;
-            } else if (key === keys.RIGHT || key === keys.LEFT) {
-                if ((key === keys.RIGHT && !isRtl) || (key === keys.LEFT && isRtl)) {
-
-                    idx = idx + 1;
-
-                    if (idx === focusableItems.length) {
-                        this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                        this.element.focus();
-
-                        return;
-                    }
-                } else if ((key === keys.LEFT && !isRtl) || (key === keys.RIGHT && isRtl)) {
-                    idx = idx - 1;
-
-                    if (idx < 0) {
-                        return;
-                    }
-                }
-
-                itemToFocus = focusableItems[idx];
-
-                this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                $(itemToFocus).addClass(FOCUSEDSTATE).attr("tabindex", 0).focus().attr("tabindex", -1);
-                this._focusedView = null;
-                e.preventDefault();
-
-                return;
-            } else if (key === keys.ENTER || key === keys.SPACEBAR) {
-                if (shouldNavigate && this._focusedView && !this._focusedView.hasClass("k-selected")) {
-                    var focusedViewName = this._focusedView.data().name;
-
-                    if (!this.trigger("navigate", { view: focusedViewName, action: "changeView", date: this.date() })) {
-                        this.view(focusedViewName);
-                    }
-                    e.preventDefault();
-                    return;
-                }
-
-                this.toolbar.find("." + FOCUSEDSTATE + ':visible').click();
-                e.preventDefault();
-
-                return;
-            } else if (key === keys.DOWN && !this.wrapper.find(".k-views-dropdown").hasClass("k-focus")) {
-                this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-
+            } else if (key === keys.DOWN) {
                 if (this._selectedViewName === "year") {
                     this.view().calendar.focus();
                 } else if (document.activeElement !== this.element[0]) {
@@ -3056,7 +3100,7 @@ var __meta__ = {
         },
 
         _focusToolbar: function() {
-            this.toolbar.find(".k-button").first()
+            this.toolbar.find("[tabindex=0]").first()
                 .trigger("focus")
                 .addClass(FOCUSEDSTATE);
         },
@@ -4468,7 +4512,6 @@ var __meta__ = {
             var that = this;
 
             if (name && that.views[name]) {
-
                 if (that._selectedView) {
                     that._unbindView(that._selectedView);
                 }
@@ -4476,20 +4519,23 @@ var __meta__ = {
                 that._selectedView = that._renderView(name);
                 that._selectedViewName = name;
 
-                if (that._viewsCount > 1 && !that._isMobile()) {
-                    var viewsDropdown = that.toolbar.find(".k-views-dropdown");
-                    var viewButtons = that.toolbar.find(".k-scheduler-views > .k-button");
+                if (this._initialSize) {
+                    this._initialSize = false;
+                    this._onMediaChange(window.matchMedia(MIN_SCREEN));
+                }
 
-                    if ( that.toolbar.find(".k-views-dropdown").length === 0 ) {
-                        that.toolbar.find(".k-scheduler-views-wrapper").prepend(VIEWS_DROPDOWN_TEMPLATE({ views: that.views, view: name, ns: kendo.ns, label: that.options.messages.selectView }));
-                        viewsDropdown = that.toolbar.find(".k-views-dropdown");
-                    }
+                if (that._viewsCount > 1 && !that._isMobile()) {
+                    var viewElementToSelect = that.toolbar.find("[" + kendo.attr("name") + "=" + name + "]");
+                    var viewsDropdown = that.toolbar.find(".k-views-dropdown");
+                    var viewsGroupEl = viewElementToSelect.closest(".k-button-group");
+                    var viewsButtonGroup = viewsGroupEl.data("kendoButtonGroup");
 
                     viewsDropdown.val(name);
 
-                    viewButtons.removeClass("k-selected");
-                    viewButtons.filter(".k-view-" + name.replace(/\./g, "\\.").toLowerCase()).addClass("k-selected");
-                } else {
+                    if (viewsButtonGroup) {
+                        viewsButtonGroup.select(viewElementToSelect);
+                    }
+                } else if (that._viewsCount > 1) {
                     var viewSelect = that.toolbar.find(".k-scheduler-mobile-views");
 
                     viewSelect.find("[value=" + name.replace(/\./g, "\\.") + "]")
@@ -4859,40 +4905,221 @@ var __meta__ = {
             return getDate(this._model.get("selectedDate"));
         },
 
-        _toolbar: function() {
+        _processHandlers: function(defaults) {
             var that = this;
-            var options = that.options;
-            var commands = [];
+
+            that._pdfClickHandler = (e) => {
+                e.preventDefault();
+                that.saveAsPDF();
+            };
+
+            that._createClickHandler = (e) => {
+                e.preventDefault();
+                that.addEvent();
+            };
+
+            that._calendarClickHandler = that._currentClickHandler = (e) => {
+                e.preventDefault();
+                that._showCalendar(e.target);
+            };
+
+            that._todayClickHandler = (e) => {
+                e.preventDefault();
+
+                var timezone = that.options.timezone,
+                    currentDate = new Date(),
+                    date;
+
+                if (timezone) {
+                    var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
+                    date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
+                } else {
+                    date = currentDate;
+                }
+
+                if (!that.trigger("navigate", { view: that._selectedViewName, action: "today", date: date })) {
+                    that.date(date);
+                }
+            };
+
+            that._previousClickHandler = (e) => {
+                e.preventDefault();
+
+                var date = that.view().previousDate();
+
+                if (!that.trigger("navigate", { view: that._selectedViewName, action: "previous", date: date })) {
+                    that.date(date);
+                }
+            };
+
+            that._nextClickHandler = (e) => {
+                e.preventDefault();
+
+                var date = that.view().nextDate();
+
+                if (!that.trigger("navigate", { view: that._selectedViewName, action: "next", date: date })) {
+                    that.date(date);
+                }
+            };
+
+            that._refreshClickHandler = (e) => {
+                e.preventDefault();
+
+                var name = that.view().name;
+
+                if (!that.trigger("navigate", { view: name, action: "changeView", date: that.date() })) {
+                    that.view(name);
+                }
+            };
+
+            that._viewClickHandler = (e) => {
+                var name = e.target.attr(kendo.attr("name"));
+
+                if (!that.trigger("navigate", { view: name, action: "changeView", date: that.date() })) {
+                    that.view(name);
+                }
+            };
+
+            Object.values(defaults).map(t => {
+                if (t.name) {
+                    t.click = that["_" + t.name + "ClickHandler"];
+                }
+            });
+        },
+
+        _processDefaults: function() {
+            var views = this.views,
+                defaults = $.extend(true, {}, DEFAULT_TOOLS),
+                viewsButtons = [],
+                viewsDdl, mobileViews;
+
+            Object.keys(views).map(name => {
+                var current = $.extend(true, {}, defaults.view);
+
+                current.text = views[name].title;
+                current.attributes = {
+                    class: "k-view-" + name.toLowerCase(),
+                    "data-name": name
+                };
+
+                defaults[name] = current;
+
+                viewsButtons.push(name);
+            });
+
+            if (viewsButtons.length > 1) {
+                viewsDdl = VIEWS_DROPDOWN_TEMPLATE({ views: this.views, label: this.options.messages.selectView, type: "k-views-dropdown" });
+                mobileViews = VIEWS_DROPDOWN_TEMPLATE({ views: this.views, label: this.options.messages.selectView, type: "k-scheduler-mobile-views" });
+            }
+
+            defaults.viewsDdl = {
+                template: viewsDdl
+            };
+
+            defaults.mobileViews = {
+                template: mobileViews
+            };
+
+            this._viewsButtons = viewsButtons;
+
+            return defaults;
+        },
+
+        _processTools: function() {
+            var options = this.options,
+                commands = [],
+                isMobile = this._isMobile(),
+                tools, pdf, search;
 
             if (options.toolbar) {
                 commands = Array.isArray(options.toolbar) ? options.toolbar : [options.toolbar];
             }
 
-            var template = this._isMobile() ? MOBILETOOLBARTEMPLATE : TOOLBARTEMPLATE;
+            pdf = $.grep(commands, function(item) {
+                return item == "pdf" || item.name == "pdf";
+            }).length > 0;
 
-            var toolbar = $(template({
-                    messages: options.messages,
-                    pdf: $.grep(commands, function(item) {
-                            return item == "pdf" || item.name == "pdf";
-                        }).length > 0,
-                    search: $.grep(commands, function(item) {
-                        return item == "search" || item.name == "search";
-                    }).length > 0,
-                    ns: kendo.ns,
-                    view: that._selectedViewName,
-                    views: that.views,
-                    viewsCount: that._viewsCount,
-                    editable: that.options.editable
-                }));
+            search = $.grep(commands, function(item) {
+                return item == "search" || item.name == "search";
+            }).length > 0;
 
+            if (isMobile) {
+                tools = [...defaultMobileToolsFirst];
+
+                if (options.editable) {
+                    tools[0].push("create");
+                }
+            } else {
+                tools = [...defaultDesktopTools];
+            }
+
+            if (search) {
+                tools.push("search");
+            }
+
+            if (pdf) {
+                if (isMobile) {
+                    tools[0].unshift("pdfMobile");
+                } else {
+                    tools.unshift("pdf");
+                }
+            }
+
+            if (this._viewsCount === 1) {
+                tools.push("refresh");
+            } else if (this._viewsCount > 1) {
+                if (isMobile) {
+                    tools.push("mobileViews");
+                } else {
+                    tools.push("viewsDdl");
+                    tools.push(this._viewsButtons);
+                }
+            }
+
+            return tools;
+        },
+
+        _toolbar: function() {
+            var that = this;
+            var options = that.options;
+            var defaults = that._processDefaults();
+            var tools = that._processTools();
+            var toolbar = $("<div class='k-scheduler-toolbar'>");
+            var secondToolbar;
+
+            that._processHandlers(defaults);
             that.wrapper.append(toolbar);
             that.toolbar = toolbar;
 
+            toolbar.kendoToolBar({
+                resizable: false,
+                tools: tools,
+                defaultTools: defaults,
+                parentMessages: options.messages
+            });
+
+            if (that._isMobile()) {
+                secondToolbar = $("<div class='k-scheduler-toolbar'>");
+                that.wrapper.append(secondToolbar);
+                that.toolbar = that.toolbar.add(secondToolbar);
+
+                secondToolbar.kendoToolBar({
+                    resizable: false,
+                    tools: [...defaultMobileToolsSecond],
+                    defaultTools: defaults,
+                    parentMessages: options.messages
+                });
+            }
+
+            that.toolbar.find(".k-nav-current .k-button-text").attr('data-' + kendo.ns + 'bind', "text: formattedDate");
+            that.toolbar.find(".k-m-date-format").attr('data-' + kendo.ns + 'bind', "text: formattedMobileDate");
+            that.toolbar.find(".k-y-date-format").attr('data-' + kendo.ns + 'bind', "text: formattedYear");
+
             kendo.bind(that.toolbar, that._model);
 
-            toolbar.on(CLICK + NS, ".k-pdf", function(e) {
-                e.preventDefault();
-                that.saveAsPDF();
+            that.toolbar.find(".k-scheduler-search-input").attr({
+                placeholder: options.messages.search,
+                title: options.messages.search
             });
 
             toolbar.on("input" + NS, ".k-scheduler-search-input", kendo.throttle(function(e) {
@@ -4905,77 +5132,6 @@ var __meta__ = {
                 });
             }, 250));
 
-            toolbar.on(CLICK + NS, ".k-create-event", function(e) {
-                e.preventDefault();
-                that.addEvent();
-            });
-
-            toolbar.on(CLICK + NS, ".k-nav-calendar", function(e) {
-                e.preventDefault();
-                that._showCalendar(e.target);
-            });
-
-            toolbar.on(CLICK + NS, ".k-scheduler-navigation > .k-button", function(e) {
-                var button = $(this);
-                var date = new Date(that.date());
-                var action = "";
-                var currentDate = new Date();
-                var timezone = that.options.timezone;
-
-                that.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                button.addClass(FOCUSEDSTATE).attr("tabindex", 0).trigger("focus").attr("tabindex", -1);
-
-                if ($(e.target).is("input")) {
-                    return;
-                }
-
-                e.preventDefault();
-
-                if (button.hasClass("k-nav-today")) {
-                    action = "today";
-                    if (timezone) {
-                        var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
-                        date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
-                    } else {
-                        date = currentDate;
-                    }
-                } else if (button.hasClass("k-nav-next")) {
-                    action = "next";
-                    date = that.view().nextDate();
-                } else if (button.hasClass("k-nav-prev")) {
-                    action = "previous";
-                    date = that.view().previousDate();
-                }
-
-                if (!that.trigger("navigate", { view: that._selectedViewName, action: action, date: date })) {
-                    that.date(date);
-                }
-            });
-
-            toolbar.on(CLICK + NS, ".k-nav-current", function(e) {
-                e.preventDefault();
-
-                that.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                $(this).addClass(FOCUSEDSTATE);
-
-                if (!that._isMobile()) {
-                    that._showCalendar();
-                }
-            });
-
-            toolbar.on(CLICK + NS, ".k-scheduler-views > .k-button, .k-scheduler-refresh", function(e) {
-                e.preventDefault();
-
-                var name = $(this).attr(kendo.attr("name"));
-
-                that.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                $(this).addClass(FOCUSEDSTATE).attr("tabindex", 0).trigger("focus").attr("tabindex", -1);
-
-                if (!that.trigger("navigate", { view: name, action: "changeView", date: that.date() })) {
-                    that.view(name);
-                }
-            });
-
             toolbar.on(CHANGE + NS, ".k-views-dropdown, .k-scheduler-mobile-views", function() {
                 var name = this.value;
 
@@ -4983,6 +5139,8 @@ var __meta__ = {
                     that.view(name);
                 }
             });
+
+            that._initialSize = true;
         },
 
         _showCalendar: function(targetElm) {

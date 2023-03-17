@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,15 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.core.js";
+import "./kendo.toolbar.js";
+
 
 var __meta__ = {
     id: "scheduler.view",
     name: "Scheduler View",
     category: "web",
     description: "The Scheduler Common View",
-    depends: [ "core" ],
+    depends: [ "core", "toolbar" ],
     hidden: true
 };
     kendo.ui.scheduler = {};
@@ -1053,6 +1055,7 @@ var __meta__ = {
             Widget.fn.init.call(this, element, $.extend({}, this.options, options));
 
             this._normalizeOptions();
+            this._initDefaultTools();
             this._scrollbar = scrollbar();
             this._isRtl = kendo.support.isRtl(element);
             this._resizeHint = $();
@@ -1077,6 +1080,38 @@ var __meta__ = {
 
         visibleEndDate: function() {
             return this.endDate();
+        },
+
+        _initDefaultTools: function() {
+            this._defaultTools = {
+                todayMobile: {
+                    type: "button",
+                    fillMode: "flat",
+                    text: this.options.messages.today,
+                    click: this._footerTodayClickHandler.bind(this),
+                    attributes: {
+                        class: "k-scheduler-today"
+                    }
+                },
+                fulldayDesktop: {
+                    type: "button",
+                    icon: "clock",
+                    text: this.options.showWorkHours ? this.options.messages.showFullDay : this.options.messages.showWorkDay,
+                    click: this.toggleFullDay ? this.toggleFullDay.bind(this) : $.noop,
+                    attributes: {
+                        class: "k-scheduler-fullday"
+                    }
+                },
+                fulldayMobile: {
+                    type: "button",
+                    fillMode: "flat",
+                    text: this.options.showWorkHours ? this.options.messages.showFullDay : this.options.messages.showWorkDay,
+                    click: this.toggleFullDay ? this.toggleFullDay.bind(this) : $.noop,
+                    attributes: {
+                        class: "k-scheduler-fullday"
+                    }
+                }
+            };
         },
 
         _normalizeOptions: function() {
@@ -1291,34 +1326,62 @@ var __meta__ = {
             return null;
         },
 
-        _footer: function() {
+        _footerTodayClickHandler: function(e) {
+            e.preventDefault();
+
             var that = this;
             var options = that.options;
+            var timezone = that.options.timezone;
+            var action = "today";
+            var currentDate = new Date();
+            var date;
 
-            if (that._isMobile()) {
-                var html = '<div class="k-scheduler-footer k-toolbar" role="toolbar">';
-                html += '<span class="k-scheduler-today"><a href="#" class="k-link">';
-                html += options.messages.today + '</a></span>';
-                html += "</div>";
-                that.footer = $(html).appendTo(that.element);
+            if (timezone) {
+                var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
+                date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
+            } else {
+                date = currentDate;
             }
 
-            if (that.footer) {
-                that.footer.on("click" + NS, ".k-scheduler-today", function(e) {
-                    e.preventDefault();
-                    var timezone = that.options.timezone;
-                    var action = "today";
-                    var currentDate = new Date();
-                    var date;
+            that.trigger("navigate", { view: that.name || options.name, action: action, date: date });
+        },
 
-                    if (timezone) {
-                        var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
-                        date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
-                    } else {
-                        date = currentDate;
+        _footerItems: function() {
+            var that = this,
+                items = [],
+                options = this.options;
+
+            if (that._isMobile()) {
+                items.push({
+                    type: "button",
+                    fillMode: "flat",
+                    text: options.messages.today,
+                    click: that._footerTodayClickHandler.bind(that),
+                    attributes: {
+                        class: "k-scheduler-today"
                     }
+                });
+            }
 
-                    that.trigger("navigate", { view: that.name || options.name, action: action, date: date });
+            return items;
+        },
+
+        _footer: function() {
+            if (this.options.footer === false) {
+                return;
+            }
+
+            var that = this,
+                items = that._footerItems();
+
+            if (items.length > 0) {
+                var html = $('<div class="k-scheduler-footer">');
+
+                that.footer = html.appendTo(that.element);
+
+                that.footer.kendoToolBar({
+                    resizable: false,
+                    items: items
                 });
             }
         },
@@ -2119,6 +2182,26 @@ var __meta__ = {
             }
         },
 
+        _isSchedulerHeightSet: function() {
+            var el = this.element;
+            var initialHeight, newHeight;
+                if (el[0].style.height) {
+                    return true;
+                } else {
+                    initialHeight = el.height();
+                }
+
+                el.height("auto");
+                newHeight = el.height();
+
+                if (initialHeight != newHeight) {
+                    el.height("");
+                    return true;
+                }
+                el.height("");
+                return false;
+        },
+
         _updateDomRowLevels: function() {
             var that = this;
             var groupCells = that.times.find(".k-scheduler-group-cell:not([data-row-level])");
@@ -2174,29 +2257,11 @@ var __meta__ = {
                 height -= outerHeight(that.footer);
             }
 
-            var isSchedulerHeightSet = function(el) {
-                var initialHeight, newHeight;
-                if (el[0].style.height) {
-                    return true;
-                } else {
-                    initialHeight = el.height();
-                }
-
-                el.height("auto");
-                newHeight = el.height();
-
-                if (initialHeight != newHeight) {
-                    el.height("");
-                    return true;
-                }
-                el.height("");
-                return false;
-            };
-
             var contentDiv = that.content[0],
                 scrollbarWidth = !kendo.support.kineticScrollNeeded ? scrollbar : 0;
 
-            if (isSchedulerHeightSet(that.element)) { // set content height only if needed
+            if (this._isSchedulerHeightSet()) { // set content height only if needed
+
                 if (height > scrollbar * 2) { // do not set height if proper scrollbar cannot be displayed
                     that.content.height(height);
                 } else {
@@ -2356,7 +2421,7 @@ var __meta__ = {
             }
 
             if (that.footer) {
-                kendo.destroy(that.footer);
+                that.footer.getKendoToolBar().destroy();
                 that.footer.remove();
             }
 

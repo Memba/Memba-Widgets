@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../main.js";
+import "../../kendo.icons.js";
 
 (function($, undefined) {
 
@@ -17,7 +18,6 @@ var kendo = window.kendo,
     Command = Editor.Command,
     Tool = Editor.Tool,
     registerTool = EditorUtils.registerTool,
-    ToolTemplate = Editor.ToolTemplate,
     defaultExportAsItems = [
         { text: 'Docx', value: 'docx' },
         { text: 'Rtf', value: 'rtf' },
@@ -106,12 +106,11 @@ var ExportAsTool = Tool.extend({
     init: function(options) {
         var tool = this;
         Tool.fn.init.call(tool, kendo.deepExtend({}, tool.options, options));
-        tool.type = 'kendoSelectBox';
+        tool.type = 'kendoDropDownList';
     },
 
     options: {
-        items: defaultExportAsItems,
-        width: 140
+        items: defaultExportAsItems
     },
 
     command: function(args) {
@@ -122,51 +121,27 @@ var ExportAsTool = Tool.extend({
         });
     },
 
-    initialize: function(ui, initOptions) {
-        var tool = this;
-        var editor = initOptions.editor;
-        var options = tool.options;
-        var toolName = options.name;
-        var changeHandler = tool.changeHandler.bind(tool);
-        var dataSource = options.items || editor.options[toolName];
-        var displayName = editor.options.messages[toolName];
-        var selectBox;
+    initialize: function(ui, editor) {
+        var tool = this,
+            component = ui.getKendoDropDownList();
 
-        dataSource.unshift({
-            text: displayName,
-            value: ""
-        });
         tool.editor = editor;
-        ui.width(options.width);
-        selectBox = ui.kendoSelectBox({
-            dataTextField: 'text',
-            dataValueField: 'value',
-            dataSource: dataSource,
-            autoSize: true,
-            change: changeHandler,
-            open: function(e) {
-                var sender = e.sender;
-                sender.items()[0].style.display = "none";
-                sender.unbind("open");
-            },
-            highlightFirst: false,
-            template: kendo.template((data) => `<span unselectable="on" style="display:block;${data.style || '' }">${kendo.htmlEncode(data.text)}</span>`),
-            valueTemplate: () => `<span class="k-editor-export"><span class="k-icon k-i-export"></span><span class="k-export-tool-text">${displayName}</span></span>`
-        }).data("kendoSelectBox");
 
-        ui.attr("title", initOptions.title);
-        selectBox.wrapper.attr("title", initOptions.title);
-
-        ui.addClass('k-decorated').closest('.k-dropdownlist').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
+        component.bind("change", this.changeHandler.bind(this));
     },
 
     changeHandler: function(e) {
-        var sender = e.sender;
-        var dataItem = sender.dataItem();
-        var value = dataItem && dataItem.value;
+        e.sender.value(null);
+        e.sender.wrapper.find(".k-export-tool-text").text(kendo.htmlEncode(this.editor.options.messages.exportAs));
+        this._exec(e.sender.value());
+    },
 
-        this._exec(value);
-        sender.value("");
+    update: function(ui, editor) {
+        var component = ui.data("kendoDropDownList");
+
+        component.close();
+        component.value(null);
+        ui.closest(".k-dropdownlist").find(".k-export-tool-text").text(kendo.htmlEncode(this.editor.options.messages.exportAs));
     },
 
     _exec: function(value) {
@@ -186,10 +161,23 @@ extend(Editor, {
 });
 
 registerTool('exportAs', new ExportAsTool({
-    template: new ToolTemplate({
-        template: EditorUtils.dropDownListTemplate,
-        title: 'Export As'
-    })
+    ui: {
+        type: "component",
+        overflow: "never",
+        component: "DropDownList",
+        componentOptions: {
+            dataTextField: "text",
+            dataValueField: "value",
+            valuePrimitive: true,
+            value: null,
+            width: "140px",
+            highlightFirst: false,
+            autoWidth: true,
+            itemTemplate: (data) => `<span class=\"k-link k-menu-link\" data-value=\"${data.value}\">${data.text}</strong></span>`,
+            icon: "export",
+            valueTemplate: () => `<span class="k-editor-export">${kendo.ui.icon({ icon: "export", iconClass: "k-button-icon" })}<span class="k-export-tool-text"></span></span>`
+        }
+    }
 }));
 
 }(window.kendo.jQuery));

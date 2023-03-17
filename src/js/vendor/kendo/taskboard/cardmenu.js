@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -32,12 +32,12 @@ import "../kendo.menu.js";
         },
 
         _overrideTemplates: function() {
-            this.templates.sprite = ({ spriteCssClass }) => `${spriteCssClass ? '<span class="' + encode(spriteCssClass) + '"></span>' : ''}`;
+            this.templates.sprite = ({ icon, spriteCssClass }) => `${(icon || spriteCssClass) ? kendo.ui.icon({ icon: encode(icon || ""), iconClass: encode(spriteCssClass || "") }) : ''}`;
         },
 
         defaultItems: {
-            "editCard": { name: "editCard", text: "Edit card", icon: "edit", command: "EditCardCommand", rules: "isEditable" },
-            "deleteCard": { name: "deleteCard", text: "Delete card", icon: "delete", command: "DeleteCardCommand", rules: "isEditable" }
+            "editCard": { name: "editCard", text: "Edit card", icon: "pencil", command: "EditCardCommand", rules: "isEditable" },
+            "deleteCard": { name: "deleteCard", text: "Delete card", icon: "trash", command: "DeleteCardCommand", rules: "isEditable" }
         },
 
         events: ContextMenu.fn.events.concat([
@@ -89,7 +89,6 @@ import "../kendo.menu.js";
         _extendItem: function(item) {
             var that = this,
                 messages = that.options.messages,
-                icon = item.icon ? "k-icon k-i-" + item.icon : "",
                 attr = {};
 
             attr[kendo.attr("command")] = item.command;
@@ -100,7 +99,8 @@ import "../kendo.menu.js";
 
             extend(item, {
                 text: messages[item.name],
-                spriteCssClass: icon + " " + item.spriteCssClass || "",
+                icon: item.icon || "",
+                spriteCssClass: item.spriteCssClass || "",
                 attr: attr,
                 uid: kendo.guid()
             });

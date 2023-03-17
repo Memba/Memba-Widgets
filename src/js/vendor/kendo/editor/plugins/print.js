@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -17,7 +17,6 @@ import "../command.js";
         EditorUtils = editorNS.EditorUtils,
         registerTool = EditorUtils.registerTool,
         Tool = editorNS.Tool,
-        ToolTemplate = editorNS.ToolTemplate,
         extend = $.extend;
 
 var PrintCommand = Command.extend({
@@ -42,6 +41,6 @@ extend(editorNS, {
     PrintCommand: PrintCommand
 });
 
-registerTool("print", new Tool({ command: PrintCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Print" }) }));
+registerTool("print", new Tool({ command: PrintCommand }));
 
 })(window.kendo.jQuery);

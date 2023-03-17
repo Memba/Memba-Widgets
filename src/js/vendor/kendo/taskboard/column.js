@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../kendo.sortable.js";
+import "../kendo.html.button.js";
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -37,7 +38,6 @@ import "../kendo.sortable.js";
         cardsContainer: "k-taskboard-column-cards-container",
         columnCards: "k-taskboard-column-cards",
         actionButton: "k-taskboard-column-action-button",
-        button: "k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base",
         card: "k-taskboard-card",
         cardTitle: "k-card-title",
         sortableSuffix: "-kendosortable",
@@ -113,14 +113,16 @@ import "../kendo.sortable.js";
                         `${data.buttons}`,
 
         actionButton: ({ styles, icon, spriteCssClass, text, command, options }) =>
-                      `<button class="${encode(styles.actionButton)} ${encode(styles.button)}" title="${encode(text)}" ${encode(kendo.attr("command"))}="${encode(command)}" ${options ? encode(kendo.attr('options')) + "=" + encode(options) : ""}>` +
-                        `<i class="k-button-icon ${encode(icon)} ${encode(spriteCssClass)}"></i>` +
-                      '</button>',
+                    kendo.html.renderButton(`<button class="${encode(styles.actionButton)}" title="${encode(text)}" ${encode(kendo.attr("command"))}="${encode(command)}" ${options ? encode(kendo.attr('options')) + "=" + encode(options) : ""}></button>`, {
+                        icon: encode(icon),
+                        iconClass: `k-button-icon ${encode(spriteCssClass)}`,
+                        fillMode: "flat"
+                    }),
 
         builtinButtons: {
-            "editColumn": { name: "editColumn", icon: "edit", text: "Edit Column", command: "EditColumnCommand", rules: "isEditable" },
-            "addCard": { name: "addCard", icon: "add", text: "Add Card", command: "AddCardCommand", rules: "isEditable" },
-            "deleteColumn": { name: "deleteColumn", icon: "close", text: "Delete Column", command: "DeleteColumnCommand", rules: "isEditable" }
+            "editColumn": { name: "editColumn", icon: "pencil", text: "Edit Column", command: "EditColumnCommand", rules: "isEditable" },
+            "addCard": { name: "addCard", icon: "plus", text: "Add Card", command: "AddCardCommand", rules: "isEditable" },
+            "deleteColumn": { name: "deleteColumn", icon: "x", text: "Delete Column", command: "DeleteColumnCommand", rules: "isEditable" }
         },
 
         defaultButtons: [ "editColumn", "addCard", "deleteColumn" ],
@@ -213,9 +215,6 @@ import "../kendo.sortable.js";
                     continue;
                 }
 
-                var icon = button.icon ? "k-icon k-i-" + button.icon : "";
-
-                button.icon = icon;
                 button.spriteCssClass = button.spriteCssClass || "";
 
                 html += kendo.template(that.actionButton)(extend(true, {}, {

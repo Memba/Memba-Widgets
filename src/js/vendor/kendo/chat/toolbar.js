@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../kendo.core.js";
+import "../kendo.icons.js";
 
 (function($, undefined) {
 
@@ -42,8 +43,8 @@ import "../kendo.core.js";
         scrollButton: "k-scroll-button",
         scrollButtonLeft: "k-scroll-button-left",
         scrollButtonRight: "k-scroll-button-right",
-        scrollButtonLeftIcon: "k-icon k-i-arrow-chevron-left",
-        scrollButtonRightIcon: "k-icon k-i-arrow-chevron-right",
+        scrollButtonLeftIcon: "chevron-left",
+        scrollButtonRightIcon: "chevron-right",
         iconButton: "k-icon-button"
     };
 
@@ -128,9 +129,9 @@ import "../kendo.core.js";
                 .addClass(styles.button)
                 .addClass(styles.buttonDefaults);
 
-            if (btnOptions.iconClass) {
+            if (btnOptions.icon || btnOptions.iconClass) {
                 buttonElm.addClass(styles.iconButton);
-                buttonElm.prepend("<span class='k-button-icon " + btnOptions.iconClass + "'></span>");
+                buttonElm.prepend(kendo.html.renderIcon({ icon: btnOptions.icon, iconClass: "k-button-icon" + (btnOptions.iconClass ? ` ${btnOptions.iconClass}` : "") }));
             }
 
             return buttonElm;
@@ -188,7 +189,7 @@ import "../kendo.core.js";
 
             this.scrollButtonLeft = this._createButton({
                 name: SCROLL_LEFT_NAME,
-                iconClass: styles.scrollButtonLeftIcon,
+                icon: styles.scrollButtonLeftIcon,
                 attr: {
                     "class": styles.scrollButton + " " + styles.scrollButtonLeft
                 }
@@ -196,7 +197,7 @@ import "../kendo.core.js";
 
             this.scrollButtonRight = this._createButton({
                 name: SCROLL_RIGHT_NAME,
-                iconClass: styles.scrollButtonRightIcon,
+                icon: styles.scrollButtonRightIcon,
                 attr: {
                     "class": styles.scrollButton + " " + styles.scrollButtonRight
                 }

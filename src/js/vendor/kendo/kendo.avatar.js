@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.core.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "avatar",
@@ -19,7 +20,8 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
-        DASH = "-";
+        DASH = "-",
+        ICON_SELECTOR = ".k-icon,.k-svg-icon";
 
     var AVATAR_STYLES = {
         widget: "k-widget",
@@ -97,7 +99,7 @@ var __meta__ = {
                 content;
 
             if (type === AVATAR_TYPE.icon) {
-                content = $("<span class='k-icon k-i-" + options.icon + "'>");
+                content = $(kendo.html.renderIcon({ icon: options.icon }));
             } else if (type === AVATAR_TYPE.image) {
                 content = $("<img src='" + options.image + "'>");
 
@@ -125,7 +127,7 @@ var __meta__ = {
             element.children().slice(1).remove();
 
             image = element.children("img");
-            icon = element.children(".k-icon");
+            icon = element.children(ICON_SELECTOR);
 
             if (image.length > 0 ) {
                 options.type = AVATAR_TYPE.image;
@@ -146,11 +148,13 @@ var __meta__ = {
             if (updatedOptions.type === AVATAR_TYPE.text) {
                 updatedOptions.text = wrapper.text().trim();
             } else if (updatedOptions.type === AVATAR_TYPE.icon) {
-                classes = wrapper.find(".k-icon").attr("class").split(/\s+/);
+                classes = wrapper.find(ICON_SELECTOR).attr("class").split(/\s+/);
 
                 classes.forEach(function(name) {
                     if (name.indexOf("k-i-") === 0) {
                         updatedOptions.icon = name.substring(4);
+                    } else if (name.indexOf("k-svg-i-") === 0) {
+                        updatedOptions.icon = name.replace(/^k-svg-i-/,"");
                     }
                 });
             } else if (updatedOptions.type === AVATAR_TYPE.image) {

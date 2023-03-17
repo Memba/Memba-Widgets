@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,16 @@
 import "./kendo.datepicker.js";
 import "./kendo.numerictextbox.js";
 import "./kendo.dropdownlist.js";
+import "./kendo.buttongroup.js";
 import "./kendo.binder.js";
+import "./kendo.html.button.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "filtermenu",
     name: "Filtering Menu",
     category: "framework",
-    depends: [ "datepicker", "numerictextbox", "dropdownlist", "binder" ],
+    depends: [ "datepicker", "numerictextbox", "dropdownlist", "buttongroup", "binder", "html.button", "icons" ],
     advanced: true
 };
 
@@ -47,6 +50,11 @@ var __meta__ = {
         isFunction = kendo.isFunction,
         Widget = ui.Widget;
 
+    var actionsFilterButtonsContainer = ({ actionsCssClass, messages }) =>
+    `<div class="${actionsCssClass ? actionsCssClass : "k-actions"}">` +
+        kendo.html.renderButton(`<button title="${messages.filter}">${messages.filter}</button>`, { type: "submit", themeColor: "primary", icon: "filter" }) +
+        kendo.html.renderButton(`<button title="${messages.clear}">${messages.clear}</button>`, { type: "reset", icon: "filter-clear" }) +
+    '</div>';
     var booleanTemplate = ({ field, format, ns, messages, extra, operators, type, role, values, componentType }) =>
         '<div class="k-filter-menu-container">' +
             `<div class="k-filter-help-text">${messages.info}</div>` +
@@ -58,10 +66,7 @@ var __meta__ = {
                 `<input type="radio" data-${ns}bind="checked: filters[0].value" value="false" name="filters[0].value"/>` +
                 `${messages.isFalse}` +
             '</label>' +
-            '<div class="k-action-buttons">' +
-                `<button type="submit" title="${messages.filter}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${messages.filter}</span></button>` +
-                `<button type="reset" title="${messages.clear}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${messages.clear}</span></button>` +
-            '</div>' +
+            actionsFilterButtonsContainer({ messages }) +
         '</div>';
 
     var modernBooleanTemplate = ({ field, format, ns, messages, extra, operators, type, role, values, componentType }) => {
@@ -78,10 +83,7 @@ var __meta__ = {
                         `<label class="k-radio-label" for="${inputIdForFalse}">${messages.isFalse}</label>` +
                     '</li>' +
                 '</ul>' +
-                '<div class="k-columnmenu-actions">' +
-                    `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" type="reset" title="${messages.clear}"><span class="k-button-text">${messages.clear}</span></button>` +
-                    `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" type="submit" title="${messages.filter}"><span class="k-button-text">${messages.filter}</span></button>` +
-                '</div>' +
+                actionsFilterButtonsContainer({ actionsCssClass: "k-columnmenu-actions", messages }) +
             '</div>' +
         '</div>';
     };
@@ -92,10 +94,7 @@ var __meta__ = {
             '<label>' +
                 `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" data-${ns}bind="value: filters[0].value" name="filters[0].value"/></span>` +
             '</label>' +
-            '<div class="k-action-buttons">' +
-                `<button type="submit" title="${messages.filter}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${messages.filter}</span></button>` +
-                `<button type="reset" title="${messages.clear}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${messages.clear}</span></button>` +
-            '</div>' +
+            actionsFilterButtonsContainer({ messages }) +
         '</div>';
 
     var defaultTemplate = ({ field, format, ns, messages, extra, operators, type, role, values, componentType }) =>
@@ -138,20 +137,17 @@ var __meta__ = {
                 `<input title="${messages.additionalValue}" data-${ns}bind="value: filters[1].value" class="k-input-inner" type="text" ${role ? `data-${ns}role="${role}"` : ""}/>`
                 )
             : '') +
-            '<div class="k-action-buttons">' +
-                `<button type="submit" title="${messages.filter}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${messages.filter}</span></button>` +
-                `<button type="reset" title="${messages.clear}" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${messages.clear}</span></button>` +
-            '</div>' +
+            actionsFilterButtonsContainer({ messages }) +
         '</div>';
 
     var defaultMobileTemplate = ({ field, title, format, ns, messages, extra, operators, filterMenuGuid, type, role, inputType, values }) =>
         `<div data-${ns}role="view" class="k-grid-filter-menu">` +
             `<div data-${ns}role="header" class="k-header">` +
                 `<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" ` +
-                `aria-label="${messages.cancel}"><span class="k-icon k-i-arrow-chevron-left"></span></a>` +
+                `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
                 `${messages.filter} ${messages.into} ${title}` +
                 `<a href="#" class="k-header-done k-link" title="${messages.done}" ` +
-                `aria-label="${messages.done}"><span class="k-icon k-i-check"></span></a>` +
+                `aria-label="${messages.done}">${kendo.ui.icon("check")}</a>` +
             '</div>' +
             `<form title="${messages.title}" class="k-filter-menu">` +
                 '<ul class="k-reset">' +
@@ -258,10 +254,10 @@ var __meta__ = {
         `<div data-${ns}role="view" class="k-grid-filter-menu">` +
             `<div data-${ns}role="header" class="k-header">` +
                 `<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" ` +
-                `aria-label="${messages.cancel}"><span class="k-icon k-i-arrow-chevron-left"></span></a>` +
+                `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
                 `${messages.filter} ${messages.into} ${title}` +
                 `<a href="#" class="k-header-done k-link" title="${messages.done}" ` +
-                `aria-label="${messages.done}"><span class="k-icon k-i-check"></span></a>` +
+                `aria-label="${messages.done}">${kendo.ui.icon("check")}</a>` +
             '</div>' +
             `<form title="${messages.title}" class="k-filter-menu">` +
                 '<ul class="k-reset">' +
@@ -593,13 +589,13 @@ var __meta__ = {
                 return;
             }
 
-            link = element.addClass("k-filterable").find(".k-grid-filter");
+            link = element.addClass("k-filterable").find(".k-grid-filter-menu");
 
             if (!link[0]) {
                 link = appendTarget
-                    .append('<a class="k-grid-filter-menu k-grid-filter" href="#" aria-hidden="true" title="' +
-                        title + '" ><span class="k-icon k-i-filter"></span></a>')
-                    .find(".k-grid-filter");
+                    .append('<a class="k-grid-filter-menu k-grid-header-menu" href="#" aria-hidden="true" title="' +
+                        title + '" >' + kendo.ui.icon("filter") + '</a>')
+                    .find(".k-grid-filter-menu");
             }
 
             link.attr("tabindex", -1)
@@ -1111,10 +1107,10 @@ var __meta__ = {
         `<div data-${ns}role="view" class="k-grid-filter-menu">` +
             `<div data-${ns}role="header" class="k-header">` +
                 `<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" ` +
-                `aria-label="${messages.cancel}"><span class="k-icon k-i-arrow-chevron-left"></span></a>` +
+                `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
                 `${messages.filter} ${messages.into} ${title}` +
                 `<a href="#" class="k-header-done k-link" title="${messages.done}" ` +
-                `aria-label="${messages.done}"><span class="k-icon k-i-check"></span></a>` +
+                `aria-label="${messages.done}">${kendo.ui.icon("check")}</a>` +
             '</div>' +
             '<form class="k-filter-menu">' +
                 '<ul class="k-reset">' +
@@ -1122,7 +1118,7 @@ var __meta__ = {
                     '<li class="k-space-right">' +
                         '<span class="k-searchbox k-textbox k-input k-input-md k-rounded-md k-input-solid">' +
                             `<input class="k-input-inner" placeholder="${messages.search}" title="${messages.search}" autocomplete="${AUTOCOMPLETEVALUE}"  />` +
-                            '<span class="k-input-suffix"><span class="k-icon k-i-zoom"></span>' +
+                            `<span class="k-input-suffix">${kendo.ui.icon("search")}` +
                         '</span>' +
                     '</li>'
                     : '') +
@@ -1210,15 +1206,15 @@ var __meta__ = {
         _createLink: function() {
             var element = this.element;
             var appendTarget = this.appendTo.length ? element.find(this.appendTo) : element;
-            var link = element.addClass("k-filterable").find(".k-grid-filter");
+            var link = element.addClass("k-filterable").find(".k-grid-filter-menu");
             var title = kendo.format(this.options.messages.buttonTitle, this.options.title || this.field);
 
             if (!link[0]) {
                 link = appendTarget
-                    .append('<a class="k-grid-filter-menu k-grid-filter" href="#" title="' +
+                    .append('<a class="k-grid-filter-menu k-grid-header-menu" href="#" title="' +
                         title + '" aria-hidden="true"' +
-                        '"><span class="k-icon k-i-filter"></span></a>')
-                    .find(".k-grid-filter");
+                        '">' + kendo.ui.icon("filter") + '</a>')
+                    .find(".k-grid-filter-menu");
             }
 
             this._link = link.attr("tabindex", -1)
@@ -1343,10 +1339,10 @@ var __meta__ = {
                 html += "<div class='k-filter-menu-container'>";
                 if (options.search) {
                     html += "<span class='k-searchbox k-textbox k-input k-input-md k-rounded-md k-input-solid'>" +
-                                "<span class='k-input-icon k-icon k-i-search'></span>" +
+                                kendo.ui.icon("search") +
                                 "<input class='k-input-inner' type='text' placeholder='" + options.messages.search + "' />" +
                                 "<span class='k-input-suffix'>" +
-                                    "<span class='k-clear-value'><span class='k-icon k-i-x'></span></span>" +
+                                    "<span class='k-clear-value'>" + kendo.ui.icon("x") + "</span>" +
                                 "</span>" +
                             "</span>";
                 }
@@ -1354,7 +1350,7 @@ var __meta__ = {
                 if (options.messages.selectedItemsFormat) {
                     html += "<div class='k-filter-selected-items'>" + kendo.format(options.messages.selectedItemsFormat, 0) + "</div>";
                 }
-                html += "<div class='k-action-buttons'>";
+                html += "<div class='k-actions'>";
                 html += "<button type='submit' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary'><span class='k-button-text'>" + options.messages.filter + "</span></button>";
                 html += "<button type='reset' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base'><span class='k-button-text'>" + options.messages.clear + "</span></button>";
                 html += "</div>";

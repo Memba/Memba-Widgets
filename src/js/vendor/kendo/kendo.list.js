@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,12 +9,13 @@
 import "./kendo.data.js";
 import "./kendo.popup.js";
 import "./kendo.label.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "list",
     name: "List",
     category: "framework",
-    depends: [ "data", "popup", "label" ],
+    depends: [ "data", "popup", "label", "icons" ],
     hidden: true
 };
 
@@ -706,7 +707,7 @@ var __meta__ = {
             var clearTitle = list.options.messages.clear;
 
             if (!list._clear) {
-                list._clear = $('<span unselectable="on" class="k-clear-value" title="' + clearTitle + '"><span class="k-icon k-i-x"></span></span>').attr({
+                list._clear = $(`<span unselectable="on" class="k-clear-value" title="${clearTitle}">${kendo.ui.icon("x")}</span>`).attr({
                     "role": "button",
                     "tabIndex": -1
                 });
@@ -1134,8 +1135,10 @@ var __meta__ = {
 
             if (!this.popup.element.is(":visible")) {
                 this.popup.one("open", (function(force) {
-                    return (function() {
-                        this._calculatePopupHeight(force);
+                    return (function(e) {
+                        if (!e.isDefaultPrevented()) {
+                            this._calculatePopupHeight(force);
+                        }
                     }).bind(this);
                 }).call(this, force));
 

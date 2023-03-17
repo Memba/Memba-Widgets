@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../kendo.form.js";
+import "../kendo.html.button.js";
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -30,11 +31,9 @@ import "../kendo.form.js";
         headerText: "k-taskboard-pane-header-text",
         spacer: "k-spacer",
         headerActions: "k-taskboard-pane-header-actions",
-        flatButton: "k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base",
         content: "k-taskboard-pane-content",
         footerActions: "k-taskboard-pane-actions",
-        footerActionButtons: "k-actions k-hstack k-justify-content-end",
-        footerButton: "k-button k-button-md k-rounded-md k-button-solid",
+        footerActionButtons: "k-actions k-hstack k-justify-content-start",
         baseButton: "k-button-solid-base",
         primaryButton: "k-button-solid-primary"
     };
@@ -59,22 +58,28 @@ import "../kendo.form.js";
         headerTemplate: ({ styles, messages, fieldFormat }) => `<div class="${encode(styles.headerText)}">${fieldFormat}</div>` +
                         `<span class="${encode(styles.spacer)}"></span>` +
                         `<div class="${encode(styles.headerActions)}">` +
-                            `<button class="${encode(styles.flatButton)}" title="${encode(messages.close)}" ${encode(kendo.attr("command"))}="ClosePaneCommand">` +
-                                '<span class="k-button-icon k-icon k-i-close"></span>' +
-                            '</button>' +
+                            kendo.html.renderButton(`<button title="${encode(messages.close)}" ${encode(kendo.attr("command"))}="ClosePaneCommand"></button>`, {
+                                icon: "x",
+                                iconClass: 'k-button-icon',
+                                fillMode: "flat",
+                            }) +
                         '</div>',
-        buttonTemplate: ({ styles, icon, spriteCssClass, text, primary, command, options }) =>
-                        `<button class="${encode(styles.footerButton)} ${primary ? encode(styles.primaryButton) : encode(styles.baseButton)}" title="${encode(text)}" ${encode(kendo.attr("command"))}="${encode(command)}" ${encode(kendo.attr("options"))}="${encode(options)}">` +
-                            `<span class="k-button-icon ${encode(icon)} ${encode(spriteCssClass)}"></span>` +
-                            `<span class="k-button-text">${encode(text)}</span>` +
-                        '</button>',
+        buttonTemplate: ({ styles, icon, spriteCssClass, text, fillMode, themeColor, command, options }) =>
+            kendo.html.renderButton(`<button title="${encode(text)}" ${encode(kendo.attr("command"))}="${encode(command)}" ${encode(kendo.attr("options"))}="${encode(options)}">` +
+                `${encode(text)}` +
+            '</button>', {
+                icon: encode(icon),
+                iconClass: `k-button-icon ${encode(spriteCssClass)}`,
+                fillMode: fillMode,
+                themeColor: themeColor
+            }),
         contentTemplate: () => ``,
         builtinButtons: {
-            "edit": { name: "edit", icon: "edit", text: "Edit", primary: true, command: "EditCardCommand", rules: "isEditable" },
-            "delete": { name: "delete", icon: "delete", text: "Delete", command: "DeleteCardCommand", rules: "isEditable" },
-            "cancel": { name: "cancel", text: "Cancel", command: "ClosePaneCommand" },
-            "saveChanges": { name: "saveChanges", text: "Save", command: "SaveChangesCommand", primary: true, rules: "isEditable" },
-            "create": { name: "create", text: "Create", command: "SaveChangesCommand", primary: true, rules: "isEditable" }
+            "edit": { name: "edit", icon: "pencil", text: "Edit", themeColor: "primary", command: "EditCardCommand", rules: "isEditable" },
+            "delete": { name: "delete", icon: "trash", text: "Delete", command: "DeleteCardCommand", rules: "isEditable", fillMode: "flat", themeColor: "primary" },
+            "cancel": { name: "cancel", icon: "cancel-outline", text: "Cancel", command: "ClosePaneCommand" },
+            "saveChanges": { name: "saveChanges", icon: "save", text: "Save", command: "SaveChangesCommand", themeColor: "primary", rules: "isEditable" },
+            "create": { name: "create", icon: "save", text: "Create", command: "SaveChangesCommand", themeColor: "primary", rules: "isEditable" }
         },
         defaultButtons: [],
         _render: function() {
@@ -203,6 +208,11 @@ import "../kendo.form.js";
                 button = ($.isPlainObject(button) && Object.keys(button).length === 1 && button.name) ? button.name : button;
 
                 if (typeof button === "string") {
+                    if (button === "spacer") {
+                        html += '<span class="k-spacer"></span>';
+                        continue;
+                    }
+
                     button = extend(true, {},
                         that.builtinButtons[button] || { spriteCssClass: button, command: button + "Command" },
                         { text: messages[button] || button }
@@ -217,9 +227,6 @@ import "../kendo.form.js";
                     continue;
                 }
 
-                var icon = button.icon ? "k-icon k-i-" + button.icon : "";
-
-                button.icon = icon;
                 button.spriteCssClass = button.spriteCssClass || "";
 
                 html += kendo.template(that.buttonTemplate)(extend(true, {}, {
@@ -292,7 +299,7 @@ import "../kendo.form.js";
 
             that.element.addClass(TaskBoardPane.styles.preview);
         },
-        defaultButtons: [ "delete", "edit" ]
+        defaultButtons: [ "edit", "spacer", "delete" ]
     });
 
     var TaskBoardEditPane = TaskBoardPane.extend({
@@ -317,7 +324,7 @@ import "../kendo.form.js";
 
             that.element.addClass(TaskBoardPane.styles.edit);
         },
-        defaultButtons: [ "cancel", "saveChanges" ],
+        defaultButtons: [ "saveChanges", "cancel" ],
         formSettings: {
             buttonsTemplate: () => ""
         },
@@ -368,7 +375,7 @@ import "../kendo.form.js";
             var that = this;
             return that.options.messages.createNewCard;
         },
-        defaultButtons: [ "cancel", "create" ]
+        defaultButtons: [ "create", "cancel"]
     });
 
     extend(kendo.ui.taskboard, {

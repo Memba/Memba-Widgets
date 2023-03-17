@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -13,14 +13,13 @@ import "./kendo.window.js";
 import "./kendo.colorpicker.js";
 import "./kendo.imagebrowser.js";
 import "./kendo.numerictextbox.js";
+import "./kendo.textarea.js";
 import "./util/undoredostack.js";
 import "./editor/main.js";
 import "./editor/dom.js";
 import "./editor/serializer.js";
 import "./editor/range.js";
 import "./editor/command.js";
-import "./editor/components.js";
-import "./editor/toolbar.js";
 import "./editor/immutables.js";
 import "./editor/plugins/viewhtml.js";
 import "./editor/plugins/link.js";
@@ -54,7 +53,7 @@ import "./editor/table-wizard/table-wizard-dialog.js";
         name: "Editor",
         category: "web",
         description: "Rich text editor component",
-        depends: [ "combobox", "dropdownlist", "window", "colorpicker" ],
+        depends: [ "combobox", "dropdownlist", "window", "colorpicker", "toolbar", "icons" ],
         features: [ {
             id: "editor-imagebrowser",
             name: "Image Browser",
@@ -69,7 +68,7 @@ import "./editor/table-wizard/table-wizard-dialog.js";
             id: "editor-tablewizard",
             name: "Table wizard dialog",
             description: "Support for table properties configuration",
-            depends: [ "tabstrip", "button", "numerictextbox" ]
+            depends: [ "tabstrip", "button", "numerictextbox", "textarea" ]
         }, {
             id: "editor-pdf-export",
             name: "PDF export",

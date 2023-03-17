@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -15,58 +15,27 @@ import "./kendo.datetimepicker.js";
 import "./kendo.numerictextbox.js";
 import "./kendo.textbox.js";
 import "./kendo.form.js";
+import "./kendo.tabstrip.js";
 
 var __meta__ = {
     id: "gantt.editors",
     name: "GanttEditors",
     category: "web",
     description: "The Gantt component editors.",
-    depends: [ "data", "popup", "window", "gantt.data", "grid", "datetimepicker", "numerictextbox", "textbox", "form"],
+    depends: [ "data", "popup", "window", "gantt.data", "grid", "datetimepicker", "numerictextbox", "textbox", "form", "tabstrip"],
     hidden: true
 };
 
 (function($, undefined) {
-
     var kendo = window.kendo,
         ui = kendo.ui,
-        browser = kendo.support.browser,
         Observable = kendo.Observable,
         Widget = ui.Widget,
-        outerWidth = kendo._outerWidth,
-
-        keys = $.extend({ F10: 121 }, kendo.keys),
-
         extend = $.extend,
-        isPlainObject = $.isPlainObject,
-
-        NS = ".kendoGantt",
         PERCENTAGE_FORMAT = "p0",
-        CLICK = "click",
-        WIDTH = "width",
-        STRING = "string",
-        DOT = ".",
-
-        DIRECTIONS = {
-            "down": {
-                origin: "bottom left",
-                position: "top left"
-            },
-            "up": {
-                origin: "top left",
-                position: "bottom left"
-            }
-        },
-
-        TASK_DROPDOWN_TEMPLATE = ({ styles, actions }) => `<div class="${styles.popupWrapper}">` +
-            `<ul class="${styles.popupList}" role="listbox" aria-label="Add dropdown">` +
-                `${actions.map(action => '<li tabindex="0" class="' + styles.item + '" data-action="' + action.data + '" role="option">' +
-                                            '<span class="k-link k-menu-link">' +
-                                                '<span class="k-menu-link-text">' + action.text + '</span>' +
-                                            '</span>' +
-                                        '</li>'
-                )}` +
-            '</ul>' +
-        '</div>';
+        GRID_HEIGHT = "23em",
+        TAB_HEIGHT = "28em",
+        STRING = "string";
 
     var ganttStyles = {
         buttonDelete: "k-gantt-delete",
@@ -84,7 +53,7 @@ var __meta__ = {
             formContainer: "k-edit-form-container",
             resourcesFormContainer: "k-resources-form-container",
             message: "k-popup-message",
-            buttonsContainer: "k-edit-buttons",
+            buttonsContainer: "k-edit-buttons k-actions",
             button: "k-button",
             buttonDefaults: "k-button-md k-rounded-md k-button-solid k-button-solid-base",
             editField: "k-edit-field",
@@ -97,318 +66,14 @@ var __meta__ = {
         }
     };
 
-    var DATERANGEEDITOR = function(container, options) {
-        var attr = { name: options.field, title: options.title };
-        var validationRules = options.model.fields[options.field].validation;
-
-        if (validationRules && isPlainObject(validationRules) && validationRules.message) {
-            attr[kendo.attr("dateCompare-msg")] = validationRules.message;
-        }
-
-        $('<input type="text" required ' +
-                'id="' + options.field + '"' +
-                kendo.attr("type") + '="date" ' +
-                kendo.attr("role") + '="datetimepicker" ' +
-                kendo.attr("bind") + '="value:' +
-                options.field + '" ' +
-                kendo.attr("validate") + "='true' />")
-            .attr(attr)
-            .appendTo(container);
-
-        $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg"/>')
-            .hide()
-            .appendTo(container);
-    };
-
-    var RESOURCESEDITOR = function(container, options) {
-        $('<div class="' + ganttStyles.popup.resourcesField + '" style="display:none"></div><a href="#" class="' + options.styles.button + ' ' + options.styles.buttonDefaults + '"><span class="k-button-text">' + options.messages.assignButton + '</span></a>').on("click", options.click).appendTo(container);
-    };
-
-    var READONLYEDITOR = function(container, options) {
-        var field = options.field;
-        var value = '';
-
-        if (options.model.get(field) !== null) {
-            value = options.model.get(field);
-        }
-
-        container.append("<span>" + value + "</span>");
-    };
-
-    var TaskDropDown = Observable.extend({
+    var PopupEditor = Observable.extend({
         init: function(element, options) {
-
             Observable.fn.init.call(this);
 
             this.element = element;
             this.options = extend(true, {}, this.options, options);
-
-            this._popup();
         },
 
-        options: {
-            direction: "down"
-        },
-
-        destroy: function() {
-            clearTimeout(this._focusTimeout);
-            this.popup.destroy();
-            this.element.off(NS);
-            this.list.off(NS);
-            this.unbind();
-        },
-
-        _adjustListWidth: function() {
-            var list = this.list;
-            var width = list[0].style.width;
-            var wrapper = this.element;
-            var listOuterWidth = outerWidth(list);
-            var computedStyle;
-            var computedWidth;
-
-            if (!list.data(WIDTH) && width) {
-                return;
-            }
-
-            computedStyle = window.getComputedStyle ? window.getComputedStyle(wrapper[0], null) : 0;
-            computedWidth = computedStyle ? parseFloat(computedStyle.width) : outerWidth(wrapper);
-
-            if (computedStyle && (browser.mozilla || browser.msie)) { // getComputedStyle returns different box in FF and IE.
-                computedWidth += parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight) + parseFloat(computedStyle.borderLeftWidth) + parseFloat(computedStyle.borderRightWidth);
-            }
-
-            if (list.css("box-sizing") !== "border-box") {
-                width = computedWidth - (outerWidth(list) - list.width());
-            } else {
-                width = computedWidth;
-            }
-
-            if (listOuterWidth > width) {
-                width = listOuterWidth;
-            }
-
-            list.css({
-                fontFamily: wrapper.css("font-family"),
-                width: width
-            })
-            .data(WIDTH, width);
-        },
-
-        _current: function(method) {
-            var current = this.list
-                .find(DOT + ganttStyles.focused);
-            var sibling = current[method]();
-
-            if (sibling.length) {
-                current
-                    .removeClass(ganttStyles.focused)
-                    .removeAttr("id");
-                sibling
-                    .addClass(ganttStyles.focused)
-                    .trigger("focus");
-            }
-        },
-
-        _popup: function() {
-            var that = this;
-            var itemSelector = "li" + DOT + "k-item";
-            var actions = this.options.messages.actions;
-
-            this.list = $(TASK_DROPDOWN_TEMPLATE({
-                styles: ganttStyles,
-                actions: [
-                    {
-                        data: "add",
-                        text: actions.addChild
-                    },
-                    {
-                        data: "insert-before",
-                        text: actions.insertBefore
-                    },
-                    {
-                        data: "insert-after",
-                        text: actions.insertAfter
-                    }
-                ]
-            }));
-
-            this.element.append(this.list);
-
-            this.popup = new kendo.ui.Popup(this.list,
-                extend({
-                    anchor: this.element,
-                    open: function() {
-                        that._adjustListWidth();
-                    },
-                    animation: this.options.animation
-                }, DIRECTIONS[this.options.direction])
-            );
-
-            this.element
-                .on(CLICK + NS, function(e) {
-                    var target = $(this);
-                    var action = target.attr(kendo.attr("action"));
-
-                    e.preventDefault();
-
-                    if (action) {
-                        that.trigger("command", { type: action });
-                    } else {
-                        that.popup.open();
-
-                        that.list
-                            .find("li:first")
-                            .addClass(ganttStyles.focused)
-                            .trigger("focus");
-                    }
-                });
-
-            this.list
-                .find(itemSelector)
-                .hover(function() {
-                    $(this).addClass(ganttStyles.hovered);
-                }, function() {
-                    $(this).removeClass(ganttStyles.hovered);
-                })
-                .end()
-                .on(CLICK + NS, itemSelector, function() {
-                    that.trigger("command", { type: $(this).attr(kendo.attr("action")) });
-                    that.popup.close();
-                });
-
-            this.popup
-                .bind("close", function() {
-                    that.list
-                        .find(itemSelector)
-                        .removeClass(ganttStyles.focused);
-
-                    that.element
-                        .parents('[' + kendo.attr("role") + '="gantt"]')
-                        .find(DOT + ganttStyles.gridContent + " > table").first()
-                        .trigger("focus");
-                });
-
-            this.list
-                .find("ul")
-                .on("keydown" + NS, function(e) {
-                    var key = e.keyCode;
-
-                    switch (key) {
-                        case keys.UP:
-                            e.preventDefault();
-                            that._current("prev");
-                            break;
-                        case keys.DOWN:
-                            e.preventDefault();
-                            that._current("next");
-                            break;
-                        case keys.ENTER:
-                            that.list
-                                .find(DOT + ganttStyles.focused)
-                                .click();
-                            break;
-                        case keys.ESC:
-                            e.preventDefault();
-                            that.popup.close();
-                            break;
-                    }
-                });
-        }
-    });
-
-    var editors = {
-        desktop: {
-            dateRange: DATERANGEEDITOR,
-            resources: RESOURCESEDITOR,
-            readonly: READONLYEDITOR
-        }
-    };
-
-    var Editor = kendo.Observable.extend({
-        init: function(element, options) {
-            kendo.Observable.fn.init.call(this);
-
-            this.element = element;
-            this.options = extend(true, {}, this.options, options);
-            this.createButton = this.options.createButton;
-        },
-
-        fields: function(editors, model, plannedEditors) {
-            var that = this;
-            var options = this.options;
-            var messages = options.messages.editor;
-            var resources = options.resources;
-            var fields;
-
-            var click = function(e) {
-                e.preventDefault();
-                resources.editor(that.container.find(DOT + ganttStyles.popup.resourcesField), model);
-            };
-
-            if (options.editable.template) {
-                fields = $.map(model.fields, function(value, key) {
-                            return { field: key };
-                        });
-            } else {
-                fields = [
-                    { field: "title", title: messages.title },
-                    { field: "start", title: messages.start, editor: editors.dateRange },
-                    { field: "end", title: messages.end, editor: editors.dateRange },
-                    { field: "percentComplete", title: messages.percentComplete, format: PERCENTAGE_FORMAT }
-                ];
-
-                if (plannedEditors) {
-                    fields.splice.apply(fields, [1, 0].concat([
-                        { field: "plannedStart", title: messages.plannedStart, editor: editors.dateRange },
-                        { field: "plannedEnd", title: messages.plannedEnd, editor: editors.dateRange }
-                    ]));
-                }
-
-                if (model.get(resources.field)) {
-                    fields.push({ field: resources.field, title: messages.resources, messages: messages, editor: editors.resources, click: click, styles: ganttStyles.popup });
-                }
-
-
-                fields = fields.map(function(item) {
-                    if (!model.editable || model.editable(item.field)) {
-                        return item;
-                    } else {
-                        return extend(true, item, {
-                            editor: editors.readonly
-                        });
-                    }
-                });
-
-            }
-
-            return fields.map(function(item) {
-                return extend(true, item, {
-                    label: item.title
-                });
-            });
-        },
-
-        _buildEditTemplate: function(model) {
-            var template = this.options.editable.template;
-            var settings = extend({}, kendo.Template, this.options.templateSettings);
-            var html = "";
-
-            if (template) {
-                if (typeof template === STRING) {
-                    template = kendo.unescape(template);
-                }
-
-                html += (kendo.template(template, settings))(model);
-            } else {
-                this.renderForm = true;
-                html += '<div class="k-gantt-form"></div>';
-            }
-
-            return html;
-        }
-    });
-
-    var PopupEditor = Editor.extend({
         destroy: function() {
             this.close();
             this.unbind();
@@ -439,112 +104,186 @@ var __meta__ = {
         },
 
         editTask: function(task, plannedEditors) {
-            this.editable = this._createPopupEditor(task, plannedEditors);
+            this.task = task;
+            this.plannedEditors = plannedEditors;
+            this.editable = this._createPopupEditor();
         },
 
-        showDialog: function(options) {
-            var buttons = options.buttons;
-            var popupStyles = ganttStyles.popup;
+        fields: function() {
+            var options = this.options,
+                model = this.task,
+                fields = {},
+                customFields;
 
-            var html = kendo.format('<div class="{0}"><div class="{1}"><p class="{2}">{3}</p><div class="{4}">',
-                popupStyles.form, popupStyles.formContainer, popupStyles.message, options.text, popupStyles.buttonsContainer);
+            if (options.editable.template) {
+                return $.map(model.fields, function(value, key) {
+                    return { field: key };
+                });
+            } else {
+                fields.general = this._fieldsGeneral();
 
-            for (var i = 0, length = buttons.length; i < length; i++) {
-                html += this.createButton(buttons[i]);
+                if (options.resources) {
+                    fields.resources = [ { field: "resources" } ];
+                }
+
+                if (options.dependencies) {
+                    fields.dependencies = this._fieldsDependencies(model);
+                }
+
+                customFields = extend(true, {}, model.fields);
+                Object.keys(kendo.data.GanttTask.fields).map(key => {
+                    delete customFields[key];
+                });
+
+                if (Object.keys(customFields).length > 0) {
+                    fields.other = this._fieldsOther(customFields);
+                }
             }
 
-            html += '</div></div></div>';
+            return fields;
+        },
 
-            var wrapper = this.element;
+
+        showDialog: function(options) {
+            var popupStyles = ganttStyles.popup,
+                wrapper = this.element,
+                dialogEl = $(kendo.format('<div class="' + popupStyles.formContainer + '">')).appendTo(wrapper),
+                messages = this.options.messages,
+                buttonsEl;
+
+            dialogEl.append($("<p>" + options.text + "</p>"));
+            buttonsEl = $('<div class="' + popupStyles.buttonsContainer + '">');
+            dialogEl.append(buttonsEl);
+
+            buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + messages.destroy + "</button>").kendoButton({
+                name: "delete",
+                themeColor: "primary",
+                icon: "delete",
+                click: (e) => {
+                    e.preventDefault();
+                    popup.close();
+                    options.callback();
+                }
+            }));
+
+            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + messages.cancel + "</button>").kendoButton({
+                name: "cancel",
+                icon: "cancel",
+                click: (e) => {
+                    e.preventDefault();
+                    popup.close();
+                    options.callback(true);
+                }
+            }));
 
             if (this.popup) {
                 this.popup.destroy();
             }
 
-            var popup = this.popup = $(html).appendTo(wrapper)
-                .eq(0)
-                .on("click", DOT + popupStyles.button, function(e) {
-                    e.preventDefault();
-
-                    popup.close();
-
-                    var buttonIndex = $(e.currentTarget).index();
-
-                    buttons[buttonIndex].click();
-                })
-                .kendoWindow({
-                    modal: true,
-                    autoFocus: false,
-                    resizable: false,
-                    draggable: false,
-                    title: options.title,
-                    visible: false,
-                    deactivate: function() {
-                        this.destroy();
-                        wrapper.trigger("focus");
-                    }
-                })
-                .getKendoWindow();
+            var popup = this.popup = dialogEl.kendoWindow({
+                modal: true,
+                autoFocus: false,
+                resizable: false,
+                draggable: false,
+                title: options.title,
+                visible: false,
+                deactivate: function() {
+                    this.destroy();
+                    wrapper.trigger("focus");
+                }
+            })
+            .getKendoWindow();
 
             popup.center().open();
 
             popup.element.find(".k-button-solid-primary").trigger("focus");
         },
 
-        _createPopupEditor: function(task, plannedEditors) {
+        _buildButtons: function(dialogEl) {
+            var messages = this.options.messages,
+                buttonsEl = $('<div class="' + ganttStyles.popup.buttonsContainer + '">');
+
+            buttonsEl.appendTo(dialogEl);
+
+            buttonsEl.append($("<button class='" + ganttStyles.buttonSave + "'>" + messages.save + "</button>").kendoButton({
+                name: "update",
+                themeColor: "primary",
+                icon: "save",
+                click: this._onSave.bind(this)
+            }));
+            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + messages.cancel + "</button>").kendoButton({
+                name: "cancel",
+                icon: "cancel",
+                click: this._onCancel.bind(this)
+            }));
+            buttonsEl.append($("<span class='k-spacer'>"));
+
+            if (this.options.editable.destroy !== false) {
+                buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + messages.destroy + "</button>").kendoButton({
+                    name: "delete",
+                    themeColor: "primary",
+                    icon: "delete",
+                    fillMode: "flat",
+                    click: this._onDelete.bind(this)
+                }));
+            }
+        },
+
+        _buildEditTemplate: function(model, dialogEl) {
+            var template = this.options.editable.template;
+            var settings = extend({}, kendo.Template, this.options.templateSettings);
+            var html = "";
+
+            if (template) {
+                if (typeof template === STRING) {
+                    template = kendo.unescape(template);
+                }
+
+                html += (kendo.template(template, settings))(model);
+            } else {
+                this.renderForm = true;
+                html += '<div class="k-gantt-edit-tabstrip" style="min-height:' + TAB_HEIGHT + '"></div>';
+            }
+
+            var formEl = $(html);
+            formEl.appendTo(dialogEl);
+        },
+
+        _createPopupEditor: function() {
             var that = this;
             var options = {};
             var messages = this.options.messages;
             var popupStyles = ganttStyles.popup;
             var editableWidget;
+            var task = this.task;
+            var container = $(kendo.format('<div {0}="{1}" class="{2} {3}">', kendo.attr("uid"), task.uid, popupStyles.form, popupStyles.editForm));
 
-            var html = kendo.format('<div {0}="{1}" class="{2} {3}"><div class="{4}">',
-                kendo.attr("uid"), task.uid, popupStyles.form, popupStyles.editForm, popupStyles.formContainer);
+            container.appendTo(this.element);
 
-            var fields = this.fields(editors.desktop, task, plannedEditors);
+            this._buildEditTemplate(task, container);
+            this._buildButtons(container);
 
-            html += this._buildEditTemplate(task);
-
-            html += '<div class="' + popupStyles.buttonsContainer + '">';
-            html += this.createButton({ name: "update", text: messages.save, className: ganttStyles.primary });
-            html += this.createButton({ name: "cancel", text: messages.cancel });
-            if (that.options.editable.destroy !== false) {
-                html += this.createButton({ name: "delete", text: messages.destroy });
-            }
-
-            html += '</div></div></div>';
-
-            var container = this.container = $(html).appendTo(this.element)
-                .eq(0)
-                .kendoWindow(extend({
-                    modal: true,
-                    resizable: false,
-                    draggable: true,
-                    title: messages.editor.editorTitle,
-                    visible: false,
-                    close: function(e) {
-                        if (e.userTriggered) {
-                            if (that.trigger("cancel", { container: container, model: task })) {
-                                e.preventDefault();
-                            }
+            this.container = container.kendoWindow(extend({
+                width: 554,
+                modal: true,
+                resizable: false,
+                draggable: true,
+                title: messages.editor.editorTitle,
+                visible: false,
+                actions: [ "Minimize", "Maximize", "Close" ],
+                close: function(e) {
+                    if (e.userTriggered) {
+                        if (that.trigger("cancel", { container: container, model: task })) {
+                            e.preventDefault();
                         }
                     }
-                }, options));
+                }
+            }, options));
 
             if (this.renderForm) {
-                this.form = container.find(".k-gantt-form").kendoForm({
-                    items: fields,
-                    formData: task,
-                    buttonsTemplate: () => "",
-                    validatable: {
-                        validateOnBlur: true
-                    }
-                }).data("kendoForm");
-
-                editableWidget = this.form.editable;
+                editableWidget = this._initForm();
             } else {
-                editableWidget = container
-                .kendoEditable({
+                editableWidget = container.kendoEditable({
                     model: task,
                     clearContainer: false,
                     validateOnBlur: true,
@@ -557,44 +296,457 @@ var __meta__ = {
 
             if (!this.trigger("edit", { container: container, model: task })) {
                 container.data("kendoWindow").center().open();
-
-                container.on(CLICK + NS, DOT + ganttStyles.buttonCancel, function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    that.trigger("cancel", { container: container, model: task });
-                });
-
-                container.on(CLICK + NS, DOT + ganttStyles.buttonSave, function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    var fields = that.fields(editors.desktop, task, plannedEditors);
-                    var updateInfo = {};
-                    var field;
-
-                    for (var i = 0, length = fields.length; i < length; i++) {
-                        field = fields[i].field;
-                        updateInfo[field] = task.get(field);
-                    }
-
-                    that.trigger("save", { container: container, model: task, updateInfo: updateInfo });
-                });
-
-                container.on(CLICK + NS, DOT + ganttStyles.buttonDelete, function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    that.trigger("remove", { container: container, model: task });
-                });
             } else {
                 that.trigger("cancel", { container: container, model: task });
             }
 
             return editableWidget;
+        },
+
+        _fieldsDependencies: function(model) {
+            var options = this.options,
+                ds = options.target.dataSource,
+                nameDdlDs = ds.data().filter(i => i.id !== model.id).map(i => ({ text: i.title, value: i.id })),
+                typeDs = [
+                    { value: 0, text: "Finish-Finish" },
+                    { value: 1, text: "Finish-Start" },
+                    { value: 2, text: "Start-Finish" },
+                    { value: 3, text: "Start-Start" }
+                ];
+
+            return {
+                nameDdlDs, typeDs
+            };
+        },
+
+        _fieldsGeneral: function() {
+            var that = this,
+                options = this.options,
+                dataSource = options.target.dataSource,
+                messages = options.messages.editor,
+                task = this.task,
+                modelFields = task.fields,
+                startText = this.plannedEditors ? messages.actualStart : messages.start,
+                endText = this.plannedEditors ? messages.actualEnd : messages.end,
+                fullData, excluded, ddlData;
+
+            var general = [
+                { field: "title", title: messages.title, colSpan: 4 }
+            ];
+
+            if (this.plannedEditors) {
+                general.push({
+                    field: "plannedStart",
+                    title: messages.plannedStart,
+                    colSpan: 2,
+                    editor: "DateTimePicker",
+                    validation: modelFields.plannedStart.validation,
+                    editorOptions: {
+                        componentType: "modern"
+                    }
+                });
+
+                general.push({
+                    field: "plannedEnd",
+                    title: messages.plannedEnd,
+                    colSpan: 2,
+                    editor: "DateTimePicker",
+                    validation: modelFields.plannedEnd.validation,
+                    editorOptions: {
+                        componentType: "modern"
+                    }
+                });
+            }
+
+            fullData = dataSource.data();
+            excluded = dataSource.taskAllChildren(task);
+            excluded.push(task);
+            ddlData = fullData.filter(n => !excluded.some(e => e.id === n.id));
+
+            general.push({
+                field: "start",
+                title: startText,
+                colSpan: 2,
+                editor: "DateTimePicker",
+                validation: modelFields.start.validation,
+                editorOptions: {
+                    componentType: "modern"
+                }
+            });
+            general.push({
+                field: "end",
+                title: endText,
+                colSpan: 2,
+                editor: "DateTimePicker",
+                validation: modelFields.start.validation,
+                editorOptions: {
+                    componentType: "modern"
+                }
+            });
+            general.push({
+                field: "percentComplete",
+                title: messages.percentComplete,
+                format: PERCENTAGE_FORMAT,
+                colSpan: 1,
+                hint: messages.percentCompleteHint
+            });
+            general.push({
+                field: "parentId",
+                title: messages.parent,
+                colSpan: 4,
+                editor: "DropDownList",
+                editorOptions: {
+                    optionLabel: messages.parentOptionLabel,
+                    filter: "contains",
+                    dataSource: ddlData,
+                    enable: ddlData.length > 0,
+                    dataValueField: "id",
+                    dataTextField: "title",
+                    valuePrimitive: true,
+                    template: ({ title, start, end }) => `<span>${title} ${kendo.toString(start, "d")}-${kendo.toString(end, "d")}</span>`
+                }
+            });
+
+            general = general.map(function(item) {
+                item = extend(true, {
+                    label: item.title
+                }, item);
+
+                if (!task.editable || task.editable(item.field)) {
+                    return item;
+                } else {
+                    return extend(true, item, {
+                        editor: that._readonlyEditor.bind(that)
+                    });
+                }
+            });
+
+            return general;
+        },
+
+        _fieldsOther: function(other) {
+            var that = this,
+                task = this.task;
+
+            other = Object.keys(other).map(function(key) {
+                var item = other[key];
+
+                item = extend(true, {
+                    field: key,
+                    label: item.title
+                }, item);
+
+                if (!task.editable || task.editable(item.field)) {
+                    return item;
+                } else {
+                    return extend(true, item, {
+                        editor: that._readonlyEditor.bind(that)
+                    });
+                }
+            });
+
+            return other;
+        },
+
+        _gridOptions: function(dependencies, type, keyType, taskId) {
+            var messages = this.options.messages,
+                data;
+
+            if (!this.dependencyData) {
+                this.dependencyData = {};
+            }
+
+            data = this.dependencyData[type] = this.options.target.dependencies.view().filter(d => d[keyType] === taskId);
+
+            return {
+                dataSource: {
+                    data: data,
+                    schema: {
+                        model: {
+                            fields: {
+                                id: { from: "id" },
+                                [type]: { from: type, validation: { required: { message: messages.editor.name + " is required" } } },
+                                type: { from: "type", validation: { required: true }, defaultValue: 1 }
+                            }
+                        }
+                    }
+                },
+                columns: [{
+                    selectable: true,
+                    width: 50
+                },{
+                    field: type,
+                    title: messages.editor.name,
+                    values: dependencies.nameDdlDs
+                }, {
+                    field: "type",
+                    title: messages.editor.dependencyType,
+                    values: dependencies.typeDs,
+                    width: "9em"
+                }],
+                toolbar: [{
+                    name: "create",
+                    text: messages.editor.addNew
+                },{
+                    name: "remove",
+                    icon: "minus",
+                    text: messages.editor.remove,
+                    click: (e) => {
+                        var grid = e.target.closest(".k-grid").getKendoGrid(),
+                            ds = grid.dataSource,
+                            selected = grid.select(),
+                            items = [];
+
+                        if (selected && selected.length > 0) {
+                            selected.each((i, row) => {
+                                items.push(grid.dataItem($(row)));
+                            });
+
+                            items.map(i => {
+                                ds.remove(i);
+                            });
+                        }
+                    }
+                }],
+                editable: true,
+                sortable: true,
+                navigatable: true,
+                height: GRID_HEIGHT,
+                edit: function() {
+                    var select = $("[name=predecessorId], [name=successorId]"),
+                        ddl;
+
+                    if (select.length) {
+                        ddl = select.data("kendoDropDownList");
+                        ddl.setOptions({
+                            filter: "contains"
+                        });
+                    }
+                },
+            };
+        },
+
+        _initForm: function() {
+            var that = this,
+                task = that.task,
+                container = that.container,
+                resources = that.options.resources,
+                resourceField = task.get(resources.field),
+                fields = that.fields(),
+                tabStripDs = that._tabStripSource(fields, resourceField);
+
+            container.find(".k-gantt-edit-tabstrip").kendoTabStrip({
+                dataTextField: "name",
+                dataContentField: "content",
+                dataSource: tabStripDs,
+                value: that.options.messages.editor.general,
+                select: (e) => {
+                    var tabStrip = e.sender,
+                        contentElement = $(tabStrip.contentElement(tabStrip.select().index())),
+                        grid = contentElement.find(".k-grid").data("kendoGrid"),
+                        form = contentElement.find(".k-form").data("kendoForm");
+
+                    if (grid && grid.editable && grid.editable.validatable && !grid.editable.validatable.validate()) {
+                        e.preventDefault();
+                    } else if (form && !form.validator.validate()) {
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            that._initGeneral(fields.general, task);
+
+            if (resourceField) {
+                that.resourceEditor = resources.editor(container.find(".k-gantt-resources"), task);
+            }
+
+            if (fields.dependencies) {
+                container.find(".k-gantt-predecessors").kendoGrid(that._gridOptions(fields.dependencies, "predecessorId", "successorId", task.id));
+                container.find(".k-gantt-successors").kendoGrid(that._gridOptions(fields.dependencies, "successorId", "predecessorId", task.id));
+            }
+
+            if (fields.other) {
+                that._initOther(fields.other, task);
+            }
+
+            return that.form.editable;
+        },
+
+        _initGeneral: function(items, task) {
+            this.form = this.container.find(".k-gantt-form-default").kendoForm({
+                layout: "grid",
+                grid: {
+                    cols: 4,
+                    gutter: {
+                        rows: 0,
+                        cols: 8
+                    }
+                },
+                items: items,
+                formData: task,
+                buttonsTemplate: () => "",
+                validatable: {
+                    validateOnBlur: true
+                }
+            }).data("kendoForm");
+        },
+
+        _initOther: function(items, task) {
+            this.container.find(".k-gantt-form-other").kendoForm({
+                items: items,
+                formData: task,
+                buttonsTemplate: () => "",
+                validatable: {
+                    validateOnBlur: true
+                }
+            });
+        },
+
+        _readonlyEditor: function(container, options) {
+            var field = options.field,
+                value = '',
+                ds = this.options.target.dataSource;
+
+            if (options.model.get(field) !== null) {
+                value = options.model.get(field);
+
+                if (value instanceof Date) {
+                    value = kendo.toString(value, "g");
+                } else if (field === "percentComplete") {
+                    value = kendo.toString(value, options.format);
+                } else if (field === "parentId") {
+                    value = ds.get(value).title;
+                }
+            }
+
+            container.append("<span>" + value + "</span>");
+        },
+
+        _onCancel: function() {
+            this.trigger("cancel", { container: this.container, model: this.task });
+        },
+
+        _onDelete: function() {
+            this.trigger("remove", { container: this.container, model: this.task });
+        },
+
+        _onSave: function() {
+            var task = this.task,
+                fields = [],
+                updateInfo = {},
+                field,
+                container = this.container,
+                predeGrid = container.find(".k-gantt-predecessors").getKendoGrid(),
+                sucGrid = container.find(".k-gantt-successors").getKendoGrid(),
+                found, prevData, newData, args = {}, createdData = [], updatedData = [];
+
+            if (predeGrid) {
+                prevData = this.dependencyData.successorId.concat(this.dependencyData.predecessorId);
+                newData = predeGrid.dataSource.view().toJSON().concat(sucGrid.dataSource.view().toJSON());
+
+                if (predeGrid && predeGrid.editable && predeGrid.editable.validatable && !predeGrid.editable.validatable.validate() ||
+                    sucGrid && sucGrid.editable && sucGrid.editable.validatable && !sucGrid.editable.validatable.validate()) {
+                        return;
+                    }
+
+                newData.map(n => {
+                    found = prevData.find(i => i.id === n.id);
+
+                    if (found) {
+                        if (found.dirty) {
+                            updatedData.push(n);
+                        }
+
+                        newData = newData.filter(i => i.id !== n.id);
+                        prevData = prevData.filter(i => i.id !== n.id);
+                    }
+                });
+
+                newData.map(i => {
+                    if (i.successorId) {
+                        if (!i.predecessorId) {
+                            i.predecessorId = task.get("id");
+                        }
+
+                        createdData.push(i);
+                    } else if (i.predecessorId) {
+                        if (!i.successorId) {
+                            i.successorId = task.get("id");
+                        }
+
+                        createdData.push(i);
+                    }
+                });
+
+                if (createdData.length > 0 || prevData.length > 0 || updatedData.length > 0) {
+                    args.updateDependencies = {
+                        destroyed: prevData,
+                        created: createdData,
+                        updated: updatedData
+                    };
+                }
+            }
+
+            Object.values(this.fields()).map((val) => {
+                if (Array.isArray(val)) {
+                    fields.push(...val);
+                }
+            });
+
+            if (this.resourceEditor) {
+                if (!this.resourceEditor.updateModel()) {
+                    return;
+                }
+            }
+
+            for (var i = 0, length = fields.length; i < length; i++) {
+                field = fields[i].field;
+                updateInfo[field] = task.get(field);
+            }
+
+            this.trigger("save", $.extend({}, args, {
+                container: container,
+                model: task,
+                updateInfo: updateInfo
+            }));
+        },
+
+        _tabStripSource: function(fields, resourceField) {
+            var messages = this.options.messages.editor,
+                dependencies = fields.dependencies,
+                tabStripDs = [{
+                    name: messages.general,
+                    content: "<form class='k-gantt-form-default'></form>"
+                }];
+
+            if (resourceField) {
+                tabStripDs.push({
+                    name: messages.resources,
+                    content: "<div class='k-gantt-resources'></div>"
+                });
+            }
+
+            if (dependencies) {
+                tabStripDs.push({
+                    name: messages.predecessors,
+                    content: "<div class='k-gantt-predecessors'></div>"
+                });
+                tabStripDs.push({
+                    name: messages.successors,
+                    content: "<div class='k-gantt-successors'></div>"
+                });
+            }
+
+            if (fields.other) {
+                tabStripDs.push({
+                    name: messages.other,
+                    content: "<form class='k-gantt-form-other'></form>"
+                });
+            }
+
+            return tabStripDs;
         }
     });
-
     var ResourceEditor = Widget.extend({
         init: function(element, options) {
             Widget.fn.init.call(this, element, options);
@@ -602,197 +754,133 @@ var __meta__ = {
             this.wrapper = this.element;
             this.model = this.options.model;
             this.resourcesField = this.options.resourcesField;
-            this.createButton = this.options.createButton;
 
-            this._initContainer();
-            this._attachHandlers();
-        },
-
-        events: [
-            "save"
-        ],
-
-        close: function() {
-            this.window.bind("deactivate", this.destroy.bind(this)).close();
+            this._resourceGrid();
         },
 
         destroy: function() {
-            this._dettachHandlers();
-
-            this.grid.destroy();
             this.grid = null;
 
-            this.window.destroy();
-            this.window = null;
-
             Widget.fn.destroy.call(this);
-
-            kendo.destroy(this.wrapper);
 
             this.element = this.wrapper = null;
         },
 
-        open: function() {
-            this.window.center().open();
-        },
-
-        _attachHandlers: function() {
-            var grid = this.grid;
-
-            var closeHandler = this._cancelProxy = this._cancel.bind(this);
-            this.container.on(CLICK + NS, DOT + ganttStyles.buttonCancel, this._cancelProxy);
-
-            this._saveProxy = this._save.bind(this);
-            this.container.on(CLICK + NS, DOT + ganttStyles.buttonSave, this._saveProxy);
-
-            this.window.bind("close", function(e) {
-                if (e.userTriggered) {
-                    closeHandler(e);
-                }
-            });
-
-            grid.wrapper.on(CLICK + NS, "input[type='checkbox']", function() {
-                var element = $(this);
-                var row = $(element).closest("tr");
-                var model = grid.dataSource.getByUid(row.attr(kendo.attr("uid")));
-                var value = $(element).is(":checked") ? 1 : "";
-
-                model.set("value", value);
-            });
-        },
-
-        _cancel: function(e) {
-            e.preventDefault();
-            this.close();
-        },
-
-        _createButtons: function() {
-            var buttons = this.options.buttons;
-            var html = '<div class="' + ganttStyles.popup.buttonsContainer + '">';
-
-            for (var i = 0, length = buttons.length; i < length; i++) {
-                html += this.createButton(buttons[i]);
-            }
-
-            html += "</div>";
-
-            this.container.append(html);
-        },
-
-        _dettachHandlers: function() {
-            this._cancelProxy = null;
-            this._saveProxy = null;
-            this.container.off(NS);
-            this.grid.wrapper.off();
-        },
-
-        _initContainer: function() {
-            var that = this;
-            var popupStyles = ganttStyles.popup;
-            var dom = kendo.format('<div class="{0} {1}"><div class="{2} {3}"></div></div>"',
-                popupStyles.form, popupStyles.editForm, popupStyles.formContainer, popupStyles.resourcesFormContainer);
-
-            dom = $(dom);
-
-            this.container = dom.find(DOT + popupStyles.resourcesFormContainer);
-
-            this.window = dom.kendoWindow({
-                modal: true,
-                resizable: false,
-                draggable: true,
-                visible: false,
-                title: this.options.messages.resourcesEditorTitle,
-                open: function() {
-                      that.grid.resize(true);
-                }
-            }).data("kendoWindow");
-
-            this._resourceGrid();
-            this._createButtons();
-        },
-
-        _resourceGrid: function() {
-            var that = this;
-            var messages = this.options.messages;
-            var element = $('<div id="resources-grid"/>').appendTo(this.container);
-
-            this.grid = new kendo.ui.Grid(element, {
-                columns: [
-                    {
-                        field: "name",
-                        title: messages.resourcesHeader,
-                        template: ({ name, value }) =>
-                            `<label><input type='checkbox' value='${name}'` +
-                                `${value > 0 && value !== null ? 'checked="checked"' : ''}` +
-                            `/>${name}</labe>`
-                    },
-                    {
-                        field: "value",
-                        title: messages.unitsHeader,
-                        template: function(dataItem) {
-                            var valueFormat = dataItem.format;
-                            var value = dataItem.value !== null ? dataItem.value : "";
-
-                            return valueFormat ? kendo.toString(value, valueFormat) : value;
-                        }
-                    }
-                ],
-                height: 280,
-                sortable: true,
-                editable: true,
-                filterable: true,
-                dataSource: {
-                    data: that.options.data,
-                    schema: {
-                        model: {
-                            id: "id",
-                            fields: {
-                                id: { from: "id" },
-                                name: { from: "name", type: "string", editable: false },
-                                value: { from: "value", type: "number", validation: this.options.unitsValidation },
-                                format: { from: "format", type: "string" }
-                            }
-                        }
-                    }
-                },
-                save: function(e) {
-                    var value = !!e.values.value;
-                    e.container.parent().find("input[type='checkbox']").prop("checked", value);
-                }
-            });
-        },
-
-        _save: function(e) {
-            e.preventDefault();
-
-            this._updateModel();
-
-            if (!this.wrapper.is(DOT + ganttStyles.popup.resourcesField)) {
-                this.trigger("save", { container: this.wrapper, model: this.model });
-            }
-
-            this.close();
-        },
-
-        _updateModel: function() {
+        updateModel: function() {
             var resources = [];
-            var value;
-            var data = this.grid.dataSource.data();
+            var item, value;
+            var grid = this.grid;
+            var data = grid.dataSource.data();
+            var editable = grid.editable;
+
+            if (editable && editable.validatable && !editable.validatable.validate()) {
+                return false;
+            }
 
             for (var i = 0, length = data.length; i < length; i++) {
-                value = data[i].get("value");
-                if (value !== null && value > 0) {
+                item = data[i];
+                value = item.get("value");
+
+                if (item.id !== undefined && value !== null && value > 0) {
                     resources.push(data[i]);
                 }
             }
 
             this.model[this.resourcesField] = resources;
+
+            return true;
+        },
+
+        _resourceGrid: function() {
+            var that = this;
+            var messages = this.options.messages;
+            var options = that.options;
+            var element = this.wrapper;
+            var ddlDs = options.resources;
+
+            that.grid = new kendo.ui.Grid(element, {
+                columns: [{
+                    selectable: true,
+                    width: 50
+                },{
+                    field: "id",
+                    title: messages.resourcesHeader,
+                    values: ddlDs
+                },{
+                    field: "value",
+                    title: messages.unitsHeader,
+                    template: function(dataItem) {
+                        var valueFormat = dataItem.format || PERCENTAGE_FORMAT;
+                        var value = dataItem.value !== null ? dataItem.value : "";
+
+                        return valueFormat ? kendo.toString(value, valueFormat) : value;
+                    },
+                    width: 120
+                }],
+                height: GRID_HEIGHT,
+                sortable: true,
+                editable: true,
+                filterable: true,
+                navigatable: true,
+                toolbar: [{
+                    name: "create",
+                    text: messages.addNew
+                },{
+                    name: "remove",
+                    icon: "minus",
+                    text: messages.remove,
+                    click: () => {
+                        var grid = that.grid,
+                            ds = grid.dataSource,
+                            selected = grid.selectedKeyNames();
+
+                        if (selected && selected.length > 0) {
+                            selected.map(i => {
+                                ds.remove(ds.get(i));
+                            });
+                        }
+                    }
+                }],
+                dataSource: {
+                    data: this.model.resources,
+                    schema: {
+                        model: {
+                            id: "id",
+                            fields: {
+                                id: { from: "id", type: "number", defaultValue: undefined, validation: { required: { message: messages.resourcesHeader + " is required" } } },
+                                value: { from: "value", type: "number", defaultValue: 1, validation: this.options.unitsValidation },
+                                format: { from: "format", type: "string" }
+                            }
+                        }
+                    }
+                },
+                edit: function(e) {
+                    var select = e.container.find("select"),
+                        ddl = select.data("kendoDropDownList"),
+                        currentId = e.model.id,
+                        filterOut = options.model.resources.map(r => r.id).filter(r => r !== currentId),
+                        filters = filterOut.map(f => ({
+                            field: "value",
+                            operator: "neq",
+                            value: f
+                        }));
+
+                    if (ddl) {
+                        ddl.dataSource.filter({
+                            logic: "and",
+                            filters: filters
+                        });
+
+                        ddl.setOptions({
+                            filter: "contains"
+                        });
+                    }
+                }
+            });
         }
     });
 
     kendo.gantt = {
-        TaskDropDown: TaskDropDown,
-        Editor: Editor,
         PopupEditor: PopupEditor,
         ResourceEditor: ResourceEditor
     };

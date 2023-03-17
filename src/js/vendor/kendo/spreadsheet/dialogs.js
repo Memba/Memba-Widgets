@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,7 @@
 import "../kendo.core.js";
 import "../kendo.binder.js";
 import "../kendo.validator.js";
+import "../kendo.icons.js";
 
 (function(kendo) {
 
@@ -503,7 +504,7 @@ import "../kendo.validator.js";
                         "data-#:ns#value-field='value' " +
                         "data-#:ns#bind='source: formats, value: format'></ul>" +
 
-                    "<div class='k-action-buttons'>" +
+                    "<div class='k-actions'>" +
                         "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: apply'><span class='k-button-text'>#: messages.apply #</span></button>" +
                         "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-#:ns#bind='click: close'><span class='k-button-text'>#: messages.cancel #</span></button>" +
                     "</div>"+
@@ -621,7 +622,7 @@ import "../kendo.validator.js";
             text: "",
             template:
                 "<div class='k-spreadsheet-message-content' data-#:ns#bind='text: text'></div>" +
-                "<div class='k-action-buttons'>" +
+                "<div class='k-actions'>" +
                     "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: close'>" +
                         "<span class='k-button-text'>#= messages.okText #</span>" +
                     "</button>" +
@@ -661,7 +662,7 @@ import "../kendo.validator.js";
             messageId: "",
             template:
                 "<div class='k-spreadsheet-message-content' data-#:ns#bind='text: text'></div>" +
-                "<div class='k-action-buttons'>" +
+                "<div class='k-actions'>" +
                     "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: confirm'>" +
                         "<span class='k-button-text'>#= messages.okText #</span>" +
                     "</button>" +
@@ -705,7 +706,7 @@ import "../kendo.validator.js";
             text: "",
             template:
             "<div class='k-spreadsheet-message-content' data-#:ns#bind='text: text'></div>" +
-            "<div class='k-action-buttons'>" +
+            "<div class='k-actions'>" +
                 "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: retry'>" +
                     "<span class='k-button-text'>#= messages.retry #</span>" +
                 "</button>" +
@@ -832,11 +833,11 @@ import "../kendo.validator.js";
                 close: this.close.bind(this)
             });
 
-            kendo.bind(this.element.find(".k-action-buttons"), this.viewModel);
+            kendo.bind(this.element.find(".k-actions"), this.viewModel);
         },
         options: {
             template:   "<div></div>" +
-                        "<div class='k-action-buttons'>" +
+                        "<div class='k-actions'>" +
                             "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: apply'><span class='k-button-text'>#: messages.apply #</span></button>" +
                             "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-#:ns#bind='click: close'><span class='k-button-text'>#: messages.cancel #</span></button>" +
                         "</div>"
@@ -887,11 +888,11 @@ import "../kendo.validator.js";
                 close: this.close.bind(this)
             });
 
-            kendo.bind(this.element.find(".k-action-buttons"), this.viewModel);
+            kendo.bind(this.element.find(".k-actions"), this.viewModel);
         },
         options: {
             template:   "<div></div>" +
-                        "<div class='k-action-buttons'>" +
+                        "<div class='k-actions'>" +
                             "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: apply'><span class='k-button-text'>#: messages.apply #</span></button>" +
                             "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-#:ns#bind='click: close'><span class='k-button-text'>#: messages.cancel #</span></button>" +
                         "</div>"
@@ -986,7 +987,7 @@ import "../kendo.validator.js";
             this.list = new kendo.ui.StaticList(ul, {
                 dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
                 template: "<a role='button' title='#=text#' data-property='#=property#' data-value='#=value#'>" +
-                                "<span class='k-icon k-i-#=iconClass#'></span>" +
+                                "#= kendo.ui.icon(iconClass) #" +
                                 "#=text#" +
                            "</a>",
                 change: this.apply.bind(this)
@@ -1036,7 +1037,7 @@ import "../kendo.validator.js";
             this.list = new kendo.ui.StaticList(ul, {
                 dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
                 template: "<a role='button' title='#=text#' data-value='#=value#'>" +
-                            "<span class='k-icon k-icon k-i-#=iconClass#'></span>#=text#" +
+                            "#= kendo.ui.icon(iconClass) ##=text#" +
                           "</a>",
                 change: this.apply.bind(this)
             });
@@ -1084,7 +1085,7 @@ import "../kendo.validator.js";
             this.list = new kendo.ui.StaticList(ul, {
                 dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
                 template: "<a role='button' title='#=text#' data-value='#=value#'>" +
-                            "<span class='k-icon k-icon k-i-#=iconClass#'></span>#=text#" +
+                            "#= kendo.ui.icon(iconClass) ##=text#" +
                           "</a>",
                 change: this.apply.bind(this)
             });
@@ -1301,7 +1302,7 @@ import "../kendo.validator.js";
             useCustomMessages: false,
             errorTemplate:
                 '<div class="k-tooltip k-tooltip-error k-validator-tooltip">' +
-                    '<span class="k-tooltip-icon k-icon k-i-warning"></span>' +
+                    kendo.ui.icon({ icon: "exclamation-circle", iconClass: "k-tooltip-icon" }) +
                     '<span class="k-tooltip-content">#= message #</span>' +
                     '<span class="k-callout k-callout-n"></span>' +
                 '</div>',
@@ -1448,7 +1449,7 @@ import "../kendo.validator.js";
                         '</div>' +
                     '</div>' +
 
-                    '<div class="k-action-buttons">' +
+                    '<div class="k-actions">' +
                         '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" data-#:ns#bind="visible: showRemove, click: remove"><span class="k-button-text">#: messages.remove #</span></button>' +
                         '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" data-#:ns#bind="click: apply"><span class="k-button-text">#: messages.apply #</span></button>' +
                         '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" data-#:ns#bind="click: close"><span class="k-button-text">#: messages.cancel #</span></button>' +
@@ -1656,9 +1657,9 @@ import "../kendo.validator.js";
                     "<div class='k-edit-field'>" +
                         "<div class='k-button-group'>" +
                             "<input type='radio' id='k-orientation-portrait' aria-label='orientation portrait' name='orientation' data-#:ns#type='boolean' data-#:ns#bind='checked: pdf.landscape' value='false' />" +
-                            "<label class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-group-start k-orientation-button' for='k-orientation-portrait'><span class='k-button-icon k-icon k-i-page-portrait'></span></label>" +
+                            `<label class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-group-start k-orientation-button' for='k-orientation-portrait'>${kendo.ui.icon({ icon: "file", iconClass: "k-button-icon" })}</label>` +
                             "<input type='radio' id='k-orientation-landscape' aria-label='orientation landscape' name='orientation' data-#:ns#type='boolean' data-#:ns#bind='checked: pdf.landscape' value='true' />" +
-                            "<label class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-group-end k-orientation-button' for='k-orientation-landscape'><span class='k-button-icon k-icon k-i-page-landscape'></span></label>" +
+                            `<label class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-group-end k-orientation-button' for='k-orientation-landscape'>${kendo.ui.icon({ icon: "file-horizontal", iconClass: "k-button-icon" })}</label>` +
                         "</div>" +
                     "</div>" +
                     "<div class='k-edit-label'><label>#: messages.exportAsDialog.labels.print #:</label></div>" +
@@ -1675,11 +1676,11 @@ import "../kendo.validator.js";
                         "<input class='k-checkbox k-checkbox-md k-rounded-md' id='vCenter' type='checkbox' data-#:ns#bind='checked: pdf.vCenter'/><label class='k-checkbox-label' for='vCenter'>#: messages.exportAsDialog.labels.vertically #</label>" +
                     "</div>" +
                     "<div class='k-page-orientation'>" +
-                        "<span class='k-icon k-i-page-portrait' data-#:ns#bind='invisible: pdf.landscape'></span>" +
-                        "<span class='k-icon k-i-page-landscape' data-#:ns#bind='visible: pdf.landscape'></span>" +
+                        kendo.ui.icon($("<span data-#:ns#bind='invisible: pdf.landscape'></span>"), { icon: "file" }) +
+                        kendo.ui.icon($("<span data-#:ns#bind='visible: pdf.landscape'></span>"), { icon: "file-horizontal" }) +
                     "</div>" +
                 "</div>" +
-                "<div class='k-action-buttons'>" +
+                "<div class='k-actions'>" +
                     "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: apply'><span class='k-button-text'>#: messages.save #</span></button>" +
                     "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-#:ns#bind='click: close'><span class='k-button-text'>#: messages.cancel #</span></button>" +
                 "</div>"
@@ -1732,7 +1733,7 @@ import "../kendo.validator.js";
                     "</table>" +
                   "</div>" +
                 "</div>" +
-                "<div class='k-action-buttons'>" +
+                "<div class='k-actions'>" +
                   "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: close'>" +
                     "<span class='k-button-text'>#: messages.okText #</span>" +
                   "</button>" +
@@ -1750,7 +1751,7 @@ import "../kendo.validator.js";
                 "<div>Ctrl+C #: messages.useKeyboardDialog.labels.forCopy #</div>" +
                 "<div>Ctrl+X #: messages.useKeyboardDialog.labels.forCut #</div>" +
                 "<div>Ctrl+V #: messages.useKeyboardDialog.labels.forPaste #</div>" +
-                '<div class="k-action-buttons">' +
+                '<div class="k-actions">' +
                     "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: close'>" +
                         "<span class='k-button-text'>#= messages.okText #</span>" +
                     "</button>" +
@@ -1766,7 +1767,7 @@ import "../kendo.validator.js";
             template:
             ("<div class='k-edit-label'><label id='url-label'>#: messages.linkDialog.labels.url #:</label></div>" +
              "<div class='k-edit-field'><span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input class='k-input-inner' data-#:ns#bind='value: url' title='#: messages.linkDialog.labels.url #' aria-labelledby='url-label'/></span></div>" +
-             "<div class='k-action-buttons'>" + (
+             "<div class='k-actions'>" + (
                  ("<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-left' data-#:ns#bind='click: remove'><span class='k-button-text'>#= messages.linkDialog.labels.removeLink #</span></button>" +
                   "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: apply'><span class='k-button-text'>#= messages.okText #</span></button>" +
                   "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-#:ns#bind='click: cancel'><span class='k-button-text'>#= messages.cancel #</span></button>")
@@ -1828,7 +1829,7 @@ import "../kendo.validator.js";
             template: "\
 <div class='k-edit-label'><label id='comment-label'>#: messages.insertCommentDialog.labels.comment #:</label></div>\
 <div class='k-edit-field'><span class='k-input k-textarea k-input-solid k-input-md k-rounded-md'><textarea aria-labelledby='comment-label' rows='5' class='k-input-inner' data-#:ns#bind='value: comment'></textarea></span></div>\
-<div class='k-action-buttons'>\
+<div class='k-actions'>\
   <button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-left' data-#:ns#bind='click: remove'><span class='k-button-text'>#: messages.insertCommentDialog.labels.removeComment #</span></button>\
   <button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='click: apply'><span class='k-button-text'>#: messages.okText #</span></button>\
   <button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-#:ns#bind='click: cancel'><span class='k-button-text'>#= messages.cancel #</span></button>\
@@ -1882,7 +1883,7 @@ import "../kendo.validator.js";
            accept='image/png, image/jpeg, image/gif' />\
   </label>\
 </div>\
-<div class='k-action-buttons'>\
+<div class='k-actions'>\
   <button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary' data-#:ns#bind='enabled: okEnabled, click: apply'><span class='k-button-text'>#: messages.okText #</span></button>\
   <button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-#:ns#bind='click: cancel'><span class='k-button-text'>#= messages.cancel #</span></button>\
 </div>",

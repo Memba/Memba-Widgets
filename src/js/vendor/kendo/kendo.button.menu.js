@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,13 +8,14 @@
  */
 import "./kendo.core.js";
 import "./kendo.popup.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "button.menu",
     name: "ButtonMenu",
     category: "web",
     description: "The popup Menu list part of the SplitButton and the DropDownButton",
-    depends: ["core", "popup"]
+    depends: ["core", "popup", "icons"]
 };
 
 (function($, undefined) {
@@ -43,8 +44,18 @@ var __meta__ = {
         OPEN = "menuOpen",
         CLOSE = "menuClose",
         KEYDOWN = "keydown",
+        FOCUS = "focus",
 
-        FOCUS = "focus";
+        DIRECTIONS = {
+            "down": {
+                origin: "bottom left",
+                position: "top left"
+            },
+            "up": {
+                origin: "top left",
+                position: "bottom left"
+            }
+        };
 
     var cssClasses = {
         popup: "k-menu-popup",
@@ -72,7 +83,7 @@ var __meta__ = {
 
     var IMAGE_TEMPLATE = ({ imageUrl }) => `${imageUrl ? `<img alt="icon" class="${cssClasses.image}" src="${encode(imageUrl)}" />` : ''}`;
     var SPRITE_TEMPLATE = ({ spriteCssClass }) => `${spriteCssClass ? `<span class="${cssClasses.sprite} ${encode(spriteCssClass)}"></span>` : ''}`;
-    var ICON_TEMPLATE = ({ icon }) => `${icon ? `<span class="${cssClasses.icon} k-i-${encode(icon)}"></span>` : ''}`;
+    var ICON_TEMPLATE = ({ icon }) => `${icon ? kendo.ui.icon(encode(icon)) : ''}`;
     var TEXT_TEMPLATE = ({ text }) => `${text ? `<span class="${cssClasses.itemText}">${encode(text)}</span>` : ''}`;
 
     var ITEM_TEMPLATE = ({ imageUrl, spriteCssClass, icon, text }) => `<span class="${cssClasses.item}">` +
@@ -131,6 +142,7 @@ var __meta__ = {
 
         options: {
             name: "ButtonMenu",
+            direction: "down",
             element: null,
             items: [],
             size: "medium",
@@ -203,7 +215,8 @@ var __meta__ = {
 
         _initPopup: function() {
             var that = this,
-                options = that.options;
+                options = that.options,
+                direction = options.direction || "down";
 
             that._popup = new ui.Popup(that.element, extend({}, options.popup, {
                 anchor: that.mainButton,
@@ -214,7 +227,7 @@ var __meta__ = {
                 open: that._popupOpenHandler.bind(that),
                 close: that._popupCloseHandler.bind(that),
                 activate: that._popupExpandHandler.bind(that)
-            }));
+            }, DIRECTIONS[direction]));
         },
 
         _popupOpenHandler: function(ev) {

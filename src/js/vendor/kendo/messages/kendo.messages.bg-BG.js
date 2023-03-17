@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -423,7 +423,20 @@ $.extend(true, kendo.ui.Gantt.prototype.options.messages,{
     "resourcesHeader": "Ресурси",
     "start": "Начало",
     "title": "Заглавие",
-    "unitsHeader": "Единици"
+    "unitsHeader": "Единици",
+    "parent": "Родител",
+    "addNew": "Добави",
+    "name": "Име",
+    "percentCompleteHint": "стойност от 0 до 1",
+    "remove": "Премахни",
+    "actualStart": "Действително начало",
+    "actualEnd": "Действителен край",
+    "parentOptionLabel": "-Няма-",
+    "general": "Общи",
+    "predecessors": "Предходни",
+    "successors": "Следващи",
+    "other": "Други",
+    "dependencyType": "Тип"
   },
   "plannedTasks": {
     "switchText": "Планирана задача",

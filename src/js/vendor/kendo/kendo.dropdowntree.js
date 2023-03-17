@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,13 +14,14 @@ import "./kendo.html.chiplist.js";
 import "./kendo.html.button.js";
 import "./kendo.html.input.js";
 import "./kendo.label.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "dropdowntree",
     name: "DropDownTree",
     category: "web",
     description: "The DropDownTree widget displays a hierarchy of items and allows the selection of single or multiple items.",
-    depends: [ "treeview", "popup", "binder", "html.chip", "html.chiplist", "html.button", "html.input", "label" ]
+    depends: [ "treeview", "popup", "binder", "html.chip", "html.chiplist", "html.button", "html.input", "label", "icons" ]
 };
 
 (function($, undefined) {
@@ -1119,7 +1120,7 @@ var __meta__ = {
             var clearTitle = this.options.messages.clear;
 
             if (!this._clear) {
-                this._clear = $('<span unselectable="on" class="k-clear-value" title="' + clearTitle + '"><span class="k-icon k-i-x"></span></span>').attr({
+                this._clear = $('<span unselectable="on" class="k-clear-value" title="' + clearTitle + '">' + kendo.ui.icon("x") + '</span>').attr({
                     "role": "button",
                     "tabIndex": -1
                 });
@@ -1298,7 +1299,7 @@ var __meta__ = {
         _filterHeader: function() {
             var filterTemplate = '<div class="k-list-filter">' +
                 '<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid" type="text" autocomplete="off">' +
-                    '<span class="k-input-icon k-icon k-i-search"></span>' +
+                    kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
                 '</span>' +
             '</div>';
 
@@ -1630,7 +1631,7 @@ var __meta__ = {
                         $(e.currentTarget).addClass(FOCUSED);
                     });
 
-                    that.tagList.on(CLICK + ns, ".k-i-x-circle", function(e) {
+                    that.tagList.on(CLICK + ns, ".k-chip-remove-action .k-chip-icon", function(e) {
                         that._removeTagClick(e);
                     });
                 }
@@ -2055,7 +2056,7 @@ var __meta__ = {
             if (!span[0]) {
                 wrapper.append('<span unselectable="on" class="k-input-inner"><span class="k-input-value-text"></span></span>' +
                                 html.renderButton('<button unselectable="on" class="k-input-button" aria-label="select" tabindex="-1"></button>', extend({}, dropdowntree.options, {
-                                    icon: "arrow-s",
+                                    icon: "caret-alt-down",
                                     shape: "none",
                                     rounded: "none"
                                 })))
@@ -2066,7 +2067,7 @@ var __meta__ = {
 
             dropdowntree.span = span;
             dropdowntree._arrow = wrapper.find(".k-input-button");
-            dropdowntree._arrowIcon = dropdowntree._arrow.find(".k-icon");
+            dropdowntree._arrowIcon = dropdowntree._arrow.find(".k-icon,.k-svg-icon");
         },
 
         _setValue: function(value) {

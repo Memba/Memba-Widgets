@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -86,7 +86,7 @@ var __meta__ = {
             that._value = options.value = value;
 
             var _buttonHtml = kendo.html.renderButton('<button class="k-input-button" unselectable="on" aria-label="select" tabindex="-1"></button>', $.extend({}, that.options, {
-                icon: "arrow-s"
+                icon: "caret-alt-down"
             }));
 
             var content = that._inputWrapper = that.wrapper = $(that._template($.extend({}, that.options, {
@@ -167,7 +167,7 @@ var __meta__ = {
            '<span role="textbox" aria-haspopup="true" class="k-colorpicker k-picker k-icon-picker">' +
                 '<span class="k-input-inner">' +
                     `<span class="k-value-icon k-color-preview ${toolIcon ? 'k-icon-color-preview' : ''}">` +
-                        (toolIcon ? `<span class="k-color-preview-icon k-icon ${toolIcon}"></span>` : '') +
+                        (toolIcon ? kendo.ui.icon({ icon: toolIcon, iconClass: "k-color-preview-icon" }) : '') +
                         '<span class="k-color-preview-mask"></span>' +
                     '</span>' +
                 '</span >' +

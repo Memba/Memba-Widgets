@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../kendo.core.js";
+import "../kendo.html.button.js";
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -58,7 +59,7 @@ import "../kendo.core.js";
         cardMenu: "k-orgchart-card-menu",
         button: "k-orgchart-button",
         focused: "k-focus",
-        plusIcon: "k-i-plus",
+        plusIconSelector: ".k-i-plus,.k-svg-i-plus",
         menuItem: "k-item",
         avatarPreview: "k-orgchart-avatar-preview",
         update: "k-orgchart-update",
@@ -95,9 +96,9 @@ import "../kendo.core.js";
 
     var ITEM_TEMPLATE = '<div class="k-orgchart-node k-vstack k-align-items-center"></div>';
 
-    var BUTTON_TEMPLATE = ({ label, buttonSign }) => `<button aria-label="${encode(label)}" tabindex="-1" class="k-orgchart-button k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button">` +
-            `<span class="k-button-icon k-icon k-i-${encode(buttonSign)}"></span>` +
-    '</button>';
+    var BUTTON_TEMPLATE = ({ label, buttonSign }) => kendo.html.renderButton(`<button aria-label="${encode(label)}" tabindex="-1" class="k-orgchart-button"></button>`, {
+        icon: encode(buttonSign)
+    });
 
     var CARD_TEMPLATE = ({ color, avatar, name, title, editable, menuLabel }) => {
         var result = `<div class="k-card-body k-hstack" style="border-color:${encode(color)}">`;
@@ -123,9 +124,10 @@ import "../kendo.core.js";
         if (editable) {
             result += '<span class="k-spacer"></span>' +
             '<div class="k-card-body-actions">' +
-                `<button class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-orgchart-card-menu" role="button" aria-label="${encode(menuLabel)}" tabindex="-1">` +
-                    '<span class="k-button-icon k-icon k-i-more-vertical"></span>' +
-                '</button>' +
+                kendo.html.renderButton(`<button class="k-orgchart-card-menu" role="button" aria-label="${encode(menuLabel)}" tabindex="-1"></button>`, {
+                    icon: 'more-vertical',
+                    fillMode: "flat"
+                }) +
             '</div>';
         }
 
@@ -449,7 +451,7 @@ import "../kendo.core.js";
         _onButtonClick: function(e) {
             var that = this,
                 target = $(e.currentTarget),
-                shouldExpand = target.find(DOT + ORGCHART_STYLES.plusIcon).length > 0 ? true : false,
+                shouldExpand = target.find(ORGCHART_STYLES.plusIconSelector).length > 0 ? true : false,
                 el = target.siblings(DOT + this._selector),
                 items = this._dataItems(el),
                 i;

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -20,7 +20,6 @@ var kendo = window.kendo,
     registerTool = EditorUtils.registerTool,
     Command = Editor.Command,
     Tool = Editor.Tool,
-    ToolTemplate = Editor.ToolTemplate,
     RangeUtils = Editor.RangeUtils,
     blockElements = dom.blockElements,
     BlockFormatFinder = Editor.BlockFormatFinder,
@@ -235,24 +234,23 @@ var OutdentTool = Tool.extend({
         this.finder = new BlockFormatFinder([{ tags: blockElements }]);
     },
 
-    initialize: function(ui, options) {
-        Tool.fn.initialize.call(this, ui, options);
-
+    initialize: function(ui, editor) {
         $.extend(this.options, {
-            immutables: options.editor && options.editor.options.immutables
+            immutables: editor && editor.options.immutables
         });
-
-        ui.addClass("k-disabled");
     },
 
     update: function(ui, nodes) {
         var suitableNodes = this.finder.findSuitable(nodes),
+            toolbar = ui.closest(".k-toolbar").data("kendoToolBar"),
             isOutdentable, listParentsCount, i, len, suitable, immutableParent;
+
         for (i = 0, len = suitableNodes.length; i < len; i++) {
             suitable = suitableNodes[i];
 
             if (this.options.immutables) {
                 immutableParent = Editor.Immutables.immutableParent(suitable);
+
                 if (immutableParent) {
                     suitable = immutableParent;
                 }
@@ -267,12 +265,12 @@ var OutdentTool = Tool.extend({
             }
 
             if (isOutdentable) {
-                ui.removeClass("k-disabled");
+                toolbar.enable(ui, true);
                 return;
             }
         }
 
-        ui.addClass("k-disabled").removeClass("k-hover");
+        toolbar.enable(ui, false);
     }
 });
 
@@ -283,7 +281,7 @@ extend(Editor, {
     OutdentTool: OutdentTool
 });
 
-registerTool("indent", new Tool({ command: IndentCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Indent" }) }));
-registerTool("outdent", new OutdentTool({ command: OutdentCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Outdent" }) }));
+registerTool("indent", new Tool({ command: IndentCommand }));
+registerTool("outdent", new OutdentTool({ command: OutdentCommand, ui: { enable: false } }));
 
 })(window.kendo.jQuery);

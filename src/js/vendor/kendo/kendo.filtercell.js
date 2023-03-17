@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11,12 +11,13 @@ import "./kendo.datepicker.js";
 import "./kendo.numerictextbox.js";
 import "./kendo.combobox.js";
 import "./kendo.dropdownlist.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "filtercell",
     name: "Row filter",
     category: "framework",
-    depends: [ "autocomplete" ],
+    depends: [ "autocomplete", "icons" ],
     advanced: true
 };
 
@@ -95,7 +96,7 @@ var __meta__ = {
         };
     }
 
-    var FilterCell = Widget.extend( {
+    var FilterCell = Widget.extend({
         init: function(element, options) {
             element = $(element).addClass("k-filtercell");
             var wrapper = this.wrapper = $("<span/>").appendTo(element);
@@ -187,6 +188,7 @@ var __meta__ = {
 
             input.attr("aria-label", that._getColumnTitle());
             input.attr("title", that._getColumnTitle());
+            input.attr(kendo.attr("size"), that.options.size || "medium");
 
             that._setInputType(options, type);
 
@@ -237,11 +239,11 @@ var __meta__ = {
 
             } else if (type == STRING) {
                 input.attr(kendo.attr("role"), "autocomplete")
-                        .attr(kendo.attr("text-field"), options.dataTextField || options.field)
-                        .attr(kendo.attr("filter"), options.suggestionOperator)
-                        .attr(kendo.attr("delay"), options.delay)
-                        .attr(kendo.attr("min-length"), options.minLength)
-                        .attr(kendo.attr("value-primitive"), true);
+                    .attr(kendo.attr("text-field"), options.dataTextField || options.field)
+                    .attr(kendo.attr("filter"), options.suggestionOperator)
+                    .attr(kendo.attr("delay"), options.delay)
+                    .attr(kendo.attr("min-length"), options.minLength)
+                    .attr(kendo.attr("value-primitive"), true);
             } else if (type == "date") {
                 input.attr(kendo.attr("role"), "datepicker")
                     .attr("id", kendo.guid());
@@ -280,7 +282,9 @@ var __meta__ = {
 
         _createOperatorDropDown: function(operators) {
             var items = [],
-                viewModel = this.viewModel;
+                viewModel = this.viewModel,
+                iconEl;
+
             for (var prop in operators) {
                 items.push({
                     text: operators[prop],
@@ -292,6 +296,7 @@ var __meta__ = {
 
             this.operatorDropDown = dropdown.kendoDropDownList({
                 dataSource: items,
+                size: this.options.size || "medium",
                 dataTextField: "text",
                 dataValueField: "value",
                 open: function() {
@@ -306,11 +311,11 @@ var __meta__ = {
                 dropdown.attr("aria-label", ariaLabel);
             });
 
-            this.operatorDropDown.wrapper
+            iconEl = this.operatorDropDown.wrapper
                 .attr("aria-label", this._getColumnTitle())
-                .find(".k-i-arrow-s")
-                .removeClass("k-i-arrow-s")
-                .addClass("k-i-filter");
+                .find('span[class*="i-caret-alt-down"]');
+
+            kendo.ui.icon(iconEl, { icon: "filter" });
         },
 
         initSuggestDataSource: function(options) {
@@ -456,7 +461,7 @@ var __meta__ = {
                     expression.filters = filters;
 
                     if (result.logic !== "and") {
-                        result.filters = [ { logic: result.logic, filters: result.filters }];
+                        result.filters = [{ logic: result.logic, filters: result.filters }];
                         result.logic = "and";
                     }
 
@@ -476,11 +481,12 @@ var __meta__ = {
 
         _createClearIcon: function() {
             var that = this;
+            var sizeClass = kendo.getValidCssClass("k-button-", "size", this.options.size || "medium");
 
-            $("<button type='button' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' title = '" + that.options.messages.clear + "'/>")
+            $(`<button type='button' class='k-button ${sizeClass} k-rounded-md k-button-solid k-button-solid-base k-icon-button' title = '` + that.options.messages.clear + "'/>")
                 .attr("aria-label", that.options.messages.clear)
                 .attr(kendo.attr("bind"), "visible:operatorVisible")
-                .html("<span class='k-button-icon k-icon k-i-filter-clear'></span>")
+                .html(kendo.ui.icon({ icon: "filter-clear", iconClass: "k-button-icon" }))
                 .on("click", that.clearFilter.bind(that))
                 .appendTo(that.wrapper);
         },

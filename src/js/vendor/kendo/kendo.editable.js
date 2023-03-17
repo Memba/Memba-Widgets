@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,12 +12,13 @@ import "./kendo.datepicker.js";
 import "./kendo.numerictextbox.js";
 import "./kendo.validator.js";
 import "./kendo.binder.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "editable",
     name: "Editable",
     category: "framework",
-    depends: [ "checkbox", "dropdownlist", "datepicker", "numerictextbox", "validator", "binder" ],
+    depends: [ "checkbox", "dropdownlist", "datepicker", "numerictextbox", "validator", "binder", "icons" ],
     hidden: true
 };
 
@@ -34,7 +35,7 @@ var __meta__ = {
         AUTOCOMPLETEVALUE = "off",
         nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g,
         ERRORTEMPLATE = ({ message }) => '<div class="k-tooltip k-tooltip-error k-validator-tooltip">' +
-            '<span class="k-tooltip-icon k-icon k-i-warning"></span>' +
+            kendo.ui.icon({ icon: "exclamation-circle", iconClass: "k-tooltip-icon" }) +
             `<span class="k-tooltip-content">${message}</span>` +
             '<span class="k-callout k-callout-n"></span>' +
         '</div>',
@@ -180,7 +181,7 @@ var __meta__ = {
         },
         "number": function(container, options) {
             var attr = createAttributes(options);
-            $('<input type="text"/>').attr(attr).appendTo(container).kendoNumericTextBox({ format: options.format });
+            $('<input type="text"/>').attr(attr).appendTo(container).kendoNumericTextBox(extend({}, options.editorOptions, { format: options.format }));
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg k-hidden"/>').appendTo(container);
         },
         "date": function(container, options) {
@@ -193,26 +194,30 @@ var __meta__ = {
 
             attr[kendo.attr("format")] = format;
 
-            $('<input type="text"/>').attr(attr).appendTo(container).kendoDatePicker({ format: options.format });
+            $('<input type="text"/>').attr(attr).appendTo(container).kendoDatePicker(extend({}, options.editorOptions, { format: options.format }));
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg k-hidden"/>').appendTo(container);
         },
         "string": function(container, options) {
             var attr = createAttributes(options);
 
-            $('<input type="text"/>').attr(attr).appendTo(container).kendoTextBox();
+            $('<input type="text"/>').attr(attr).appendTo(container).kendoTextBox(options.editorOptions);
         },
         "boolean": function(container, options) {
             var attr = createAttributes(options);
-            var element = $('<input type="checkbox" />').attr(attr).kendoCheckBox().appendTo(container);
+            var element = $('<input type="checkbox" />').attr(attr).kendoCheckBox(options.editorOptions).appendTo(container);
 
             renderHiddenForMvcCheckbox(element, container, options);
         },
         "values": function(container, options) {
             var attr = createAttributes(options);
             var items = kendo.stringify(convertItems(options.values));
-            $('<select ' + kendo.attr("text-field") + '="text"' + kendo.attr("value-field") + '="value"' +
-                kendo.attr("source") + "=\'" + (items ? items.replace(/\'/g,"&apos;") : items) +
-                "\'" + kendo.attr("role") + '="dropdownlist"/>') .attr(attr).appendTo(container);
+            $('<select ' +
+                kendo.attr("text-field") + '="text"' +
+                kendo.attr("value-field") + '="value"' +
+                kendo.attr("source") + "=\'" + (items ? items.replace(/\'/g,"&apos;") : items) + "\'" +
+                kendo.attr("size") + '="' + options.editorOptions.size + '"' +
+                kendo.attr("role") + '="dropdownlist"/>')
+                .attr(attr).appendTo(container);
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg  k-hidden"/>').appendTo(container);
         },
         "kendoEditor": function(container, options) {
@@ -324,7 +329,8 @@ var __meta__ = {
             validateOnBlur: true,
             validationSummary: false,
             errorTemplate: ERRORTEMPLATE,
-            skipFocus: false
+            skipFocus: false,
+            size: "medium"
         },
 
         editor: function(field, modelField) {
@@ -339,7 +345,8 @@ var __meta__ = {
                 isCustomEditor = isObject && !isHidden && field.editor,
                 isKendoEditor = isObject && $.inArray(field.editor, kendoEditors) !== -1,
                 editor = isCustomEditor ? field.editor : editors[isHidden ? "hidden" : type],
-                container = that.element.find("[" + kendo.attr("container-for") + "=" + fieldName.replace(nameSpecialCharRegExp, "\\$1") + "]");
+                container = that.element.find("[" + kendo.attr("container-for") + "=" + fieldName.replace(nameSpecialCharRegExp, "\\$1") + "]"),
+                op;
 
             editor = editor ? editor : editors.string;
 
@@ -351,8 +358,24 @@ var __meta__ = {
                 };
             }
 
+            if (!isObject) {
+                op = {
+                    field: fieldName,
+                    editorOptions: {
+                        size: that.options.size
+                    }
+                };
+            } else {
+                if (!field.editorOptions) {
+                    field.editorOptions = {};
+                }
+
+                field.editorOptions = extend({}, { size: that.options.size }, field.editorOptions);
+                op = field;
+            }
+
             container = container.length ? container : that.element;
-            editor(container, extend(true, {}, isObject ? field : { field: fieldName }, { model: model }));
+            editor(container, extend(true, {}, op, { model: model }));
         },
 
         _validate: function(e) {

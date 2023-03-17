@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,13 +8,14 @@
  */
 import "./kendo.core.js";
 import "./kendo.dom.js";
+import "./kendo.icons.js";
 
     var __meta__ = {
         id: "rating",
         name: "Rating",
         category: "web",
         description: "The Rating component.",
-        depends: [ "core" ]
+        depends: [ "core", "icons" ]
     };
 
     (function($, undefined) {
@@ -92,8 +93,8 @@ import "./kendo.dom.js";
             widget: "k-rating k-widget",
             container: "k-rating-container",
             item: "k-rating-item",
-            icon: "k-icon k-i-star-outline",
-            iconSelected: "k-icon k-i-star",
+            icon: "star-outline",
+            iconSelected: "star",
             label: "k-rating-label",
             disabled: "k-disabled",
             readonly: "k-state-readonly",
@@ -116,8 +117,10 @@ import "./kendo.dom.js";
         var RATING_ITEM_WRAPPER_TEMPLATE = ({ styles, value }) =>
             `<span class="${encode(styles.item)}" data-value="${encode(value)}"></span>`;
 
-        var RATING_ITEM_TEMPLATE = ({ icon }) =>
-            `<span class="${encode(icon)}"></span>`;
+        var RATING_ITEM_TEMPLATE = ({ icon }) => kendo.ui.icon({
+            icon: icon,
+            size: 'xlarge'
+        });
 
         var Rating = Widget.extend({
             init: function(element, options) {
@@ -606,14 +609,23 @@ import "./kendo.dom.js";
                 e.preventDefault();
             },
 
+            _insetCss: function() {
+                var that = this,
+                    isRtl = kendo.support.isRtl(that.wrapper);
+
+                return isRtl ?
+                    'inset(0 0 0 50%)' :
+                    'inset(0 50% 0 0)';
+            },
+
             _togglePrecisionElements: function(item, templateType) {
                 var that = this,
                     part = item.find(DOT + PRECISION_PART),
                     partTemplate = that._getTemplateType(ratingItemTemplates[templateType]),
-                    isFraction, itemSize;
+                    isHalf, itemSize;
 
                 if (!part.length) {
-                    isFraction = that.parsedValue % 1 !== 0;
+                    isHalf = that.parsedValue % 1 !== 0;
                     itemSize = that._getItemWidth(item);
                     part = $("<span></span>").addClass(PRECISION_PART);
 
@@ -621,7 +633,7 @@ import "./kendo.dom.js";
                         icon: ratingStyles.iconSelected
                     }));
 
-                    part.width(isFraction ? itemSize / 2 : itemSize);
+                    part.css('clip-path', isHalf ? that._insetCss() : '');
 
                     item.append(part);
 
@@ -631,7 +643,7 @@ import "./kendo.dom.js";
                         "display": "block"
                     }));
 
-                    that._createUpdatePrecisionComplement(item, isFraction);
+                    that._createUpdatePrecisionComplement(item, isHalf);
                 } else {
                     part.html(partTemplate({
                         icon: ratingStyles.iconSelected
@@ -639,52 +651,16 @@ import "./kendo.dom.js";
                 }
             },
 
-            _createUpdatePrecisionComplement: function(item, isHalf) {
-                var that = this,
-                    complement = item.find(DOT + PRECISION_COMPLEMENT),
-                    iconElement = item.children().first(),
-                    isRtl = kendo.support.isRtl(that.wrapper),
-                    dir = !isRtl ? "left" : "right";
-
-                if (!complement.length) {
-                    complement = iconElement.wrap($("<span></span>")
-                        .addClass(PRECISION_COMPLEMENT))
-                        .parent();
-                }
-
-                complement.width(isHalf ? that._getItemWidth(item) / 2 : 0);
-
-                complement.css(dir, isHalf || isRtl ? "50%" : 0);
-            },
-
-            _calculateItemWidthFromStyles: function(item) {
-                if (!item) {
-                    return;
-                }
-
-                return parseFloat(item.find(".k-icon").css("font-size"));
-            },
-
-            _getItemWidth: function(item) {
-                if (!item) {
-                    return;
-                }
-
-                return item.width() || this._calculateItemWidthFromStyles(item) || 0;
-            },
-
             _updatePrecisionElements: function(item, partSize) {
                 var that = this,
                     itemPart = item.find(DOT + PRECISION_PART),
                     itemValue = kendo.parseFloat(item.data(ratingItemAttributes.value)),
                     isRtl = kendo.support.isRtl(this.wrapper),
-                    itemWidth = item.width(),
-                    halfWidth = itemWidth / 2,
                     halfOffset = parseFloat(item.outerWidth() / 2),
                     isHalf = !isRtl ? partSize < halfOffset : partSize > halfOffset;
 
                 if (item.length && itemPart.length) {
-                    itemPart.width(isHalf ? halfWidth : itemWidth);
+                    itemPart.css('clip-path', isHalf ? that._insetCss() : '');
 
                     if (this.options.tooltip) {
                         item.attr(ratingItemAttributes.title, isHalf ?
@@ -698,6 +674,33 @@ import "./kendo.dom.js";
 
                     that._createUpdatePrecisionComplement(item, isHalf);
                 }
+            },
+
+            _createUpdatePrecisionComplement: function(item, isHalf) {
+                var complement = item.find(DOT + PRECISION_COMPLEMENT),
+                    iconElement = item.children().first();
+
+                if (!complement.length) {
+                    complement = iconElement.wrap($("<span></span>")
+                        .addClass(PRECISION_COMPLEMENT))
+                        .parent();
+                }
+            },
+
+            _calculateItemWidthFromStyles: function(item) {
+                if (!item) {
+                    return;
+                }
+
+                return parseFloat(item.find(".k-icon,.k-svg-icon").css("font-size"));
+            },
+
+            _getItemWidth: function(item) {
+                if (!item) {
+                    return;
+                }
+
+                return item.width() || this._calculateItemWidthFromStyles(item) || 0;
             },
 
             _updateElement: function(value) {
@@ -860,6 +863,7 @@ import "./kendo.dom.js";
                         that._renderLabel();
                         that._renderTooltip();
                         that._selectInitial();
+                        that._precisionStrategyMemo = Rating.prototype._precisionStrategyMemo;
                 }
             },
 

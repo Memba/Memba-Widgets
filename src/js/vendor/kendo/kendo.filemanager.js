@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -17,13 +17,14 @@ import "./kendo.dialog.js";
 import "./kendo.resizable.js";
 import "./kendo.switch.js";
 import "./kendo.textbox.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "filemanager",
     name: "FileManager",
     category: "web",
     description: "The FileManager widget displays offers file management functionality.",
-    depends: [ "core", "data", "listview", "toolbar", "breadcrumb", "menu", "treeview", "upload", "dialog", "switch", "resizable", "selectable", "editable", "textbox" ],
+    depends: [ "core", "data", "listview", "toolbar", "breadcrumb", "menu", "treeview", "upload", "dialog", "switch", "resizable", "selectable", "editable", "textbox", "icons" ],
     features: [{
         id: "filemanager-grid-view",
         name: "GridView",
@@ -121,7 +122,7 @@ var __meta__ = {
         result +=
         `<div class="${encode(styles.fileInfo)}">` +
             `<div class="${encode(styles.filePreview)}">` +
-                `<span class="k-file-icon k-icon k-i-${!selection[0].isDirectory ? encode(kendo.getFileGroup(selection[0].extension, true)) : "folder"}"></span>` +
+                kendo.ui.icon({ icon: (!selection[0].isDirectory ? encode(kendo.getFileGroup(selection[0].extension, true)) : "folder"), iconClass: "k-file-icon", size: "xxxlarge" }) +
             '</div>' +
             `<span class="${encode(styles.fileName)}">${encode(selection[0].name)}</span>`;
         if (metaFields) {
@@ -155,7 +156,7 @@ var __meta__ = {
     var MULTIPLE_FILES_PREVIEW_TEMPLATE = ({ styles, selection, messages }) =>
         `<div class="${encode(styles.fileInfo)}">` +
             `<div class="${encode(styles.filePreview)}">` +
-                '<span class="k-file-icon k-icon k-i-file"></span>' +
+                kendo.ui.icon({ icon: "file", iconClass: "k-file-icon", size: "xxxlarge" }) +
             '</div>' +
             `span class="${encode(styles.fileName)}">` +
                 `${encode(selection.length)} ` +
@@ -332,8 +333,8 @@ var __meta__ = {
             sortDirection: {
                 type: "buttonGroup",
                 buttons: [
-                    { name: "sortDirectionAsc", showText: "overflow", icon: "sort-asc-sm", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"asc\" }", selected: true },
-                    { name: "sortDirectionDesc", showText: "overflow", icon: "sort-desc-sm", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"desc\" }" }
+                    { name: "sortDirectionAsc", showText: "overflow", icon: "sort-asc-small", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"asc\" }", selected: true },
+                    { name: "sortDirectionDesc", showText: "overflow", icon: "sort-desc-small", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"desc\" }" }
                 ]
             },
             sortField: {
@@ -668,7 +669,9 @@ var __meta__ = {
             var command = $(ev.target).data("command"),
                 options = $(ev.target).data("options");
 
-            options = extend({}, options, { value: $(ev.target).val() });
+            if (!!$(ev.target).val()) {
+                options = extend({}, options, { value: $(ev.target).val() });
+            }
 
             if (!command) {
                 return;
@@ -872,8 +875,8 @@ var __meta__ = {
                     visible: false,
                     width: 500,
                     actions: [
-                        { text: () => dialogMessages.clear, action: that._clearUploadFilesList.bind(that) },
-                        { text: () => dialogMessages.done, primary: true }
+                        { text: () => dialogMessages.done, primary: true },
+                        { text: () => dialogMessages.clear, action: that._clearUploadFilesList.bind(that) }
                     ],
                     messages: dialogMessages
                 }, options.dialogs.upload),

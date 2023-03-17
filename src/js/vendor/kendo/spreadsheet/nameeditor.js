@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../kendo.core.js";
+import "../kendo.icons.js";
 
 (function(kendo) {
 
@@ -47,7 +48,7 @@ import "../kendo.core.js";
                     clearButton: false,
                     dataTextField: "name",
                     dataValueField: "name",
-                    template: "#:data.name#<a role='button' class='k-button-delete' href='\\#'><span class='k-icon k-i-close'></span></a>",
+                    template: "#:data.name#<a role='button' class='k-button-delete' href='\\#'>" + kendo.ui.icon("x") + "</a>",
                     dataSource: dataSource,
                     autoBind: false,
                     ignoreCase: true,

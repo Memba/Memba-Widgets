@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.scheduler.view.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "scheduler.timelineview",
     name: "Scheduler Timeline View",
     category: "web",
     description: "The Scheduler Timeline View",
-    depends: [ "scheduler.view" ],
+    depends: [ "scheduler.view", "icons" ],
     hidden: true
 };
 
@@ -45,14 +46,14 @@ var __meta__ = {
             `<div role="button" aria-label="${encode(task.ariaLabel)}" data-${task.ns}uid="${task.uid}" ` +
             `${task.resources[0] ? `style="background-color:${task.resources[0].color}; border-color: ${task.resources[0].color}" class="k-event">` : 'class="k-event">'}` +
                 '<span class="k-event-actions">' +
-                    `${task.tail ? '<span class="k-icon k-i-arrow-60-left"></span>' : ''}` +
-                    `${task.isException() ? '<span class="k-icon k-i-non-recurrence"></span>' :
-                        (task.isRecurring() ? '<span class="k-icon k-i-reload"></span>' : '')}` +
+                    `${task.tail ? kendo.ui.icon("caret-alt-left") : ''}` +
+                    `${task.isException() ? kendo.ui.icon("arrows-no-repeat") :
+                        (task.isRecurring() ? kendo.ui.icon("arrow-rotate-cw") : '')}` +
                 '</span>' +
                 `${kendo.template(task.template)(task)}` +
                 '<span class="k-event-actions">' +
-                    `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}"><span class="k-icon k-i-close"></span></a>` : ''}` +
-                    `${task.head ? '<span class="k-icon k-i-arrow-60-right"></span>' : ''}` +
+                    `${task.showDelete ? `<a href="#" class="k-link k-event-delete" title="${task.messages.destroy}" aria-label="${task.messages.destroy}">${kendo.ui.icon("x")}</a>` : ''}` +
+                    `${task.head ? kendo.ui.icon("caret-alt-right") : ''}` +
                 '</span>' +
                 `${task.resizable && !task.tail ? '<span class="k-resize-handle k-resize-w"></span>' : ''}` +
                 `${task.resizable && !task.head ? '<span class="k-resize-handle k-resize-e"></span>' : ''}` +
@@ -1088,7 +1089,7 @@ var __meta__ = {
 
         _mouseEditable: function() {
             var that = this;
-            that.element.on("click" + NS, ".k-event a:has(.k-i-close)", function(e) {
+            that.element.on("click" + NS, ".k-event a:has(.k-i-x),.k-event a:has(.k-svg-i-x)", function(e) {
                 that.trigger("remove", { uid: $(this).closest(".k-event").attr(kendo.attr("uid")) });
                 e.preventDefault();
             });
@@ -1157,7 +1158,7 @@ var __meta__ = {
                         var eventElement = $(e.target).closest(".k-event");
                         var touchElement = $(e.touch.initialTouch);
 
-                        if (touchElement.hasClass("k-i-close")) {
+                        if (touchElement.is(".k-i-x,.k-svg-i-x")) {
                             that.trigger("remove", { uid: eventElement.attr(kendo.attr("uid")) });
                         } else if (!eventElement.hasClass("k-event-active")) {
                             that.trigger("edit", { uid: eventElement.attr(kendo.attr("uid")) });
@@ -1462,61 +1463,25 @@ var __meta__ = {
             };
         },
 
-        _footer: function() {
-            var options = this.options;
+        _footerItems: function() {
+            var that = this,
+                items = [],
+                options = this.options,
+                command = options.footer.command;
 
-            if (options.footer !== false) {
-                var html = '<div class="k-scheduler-footer k-toolbar" role="toolbar">';
-
-                var command = options.footer.command;
-
-                if (this._isMobile()) {
-                    html += '<span class="k-scheduler-today"><a tabindex="-1" href="#" class="k-link">';
-                    html += options.messages.today + '</a></span>';
-                }
-
-                if (command && command === "workDay") {
-                    if (this._isMobile()) {
-                        html += '<span class="k-scheduler-fullday"><a tabindex="-1" href="#" class="k-link">';
-                        html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></span>';
-                    } else {
-                        html += '<button tabindex="-1" type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-scheduler-fullday">';
-                            html += '<span class="k-button-icon k-icon k-i-clock"></span>';
-                            html += '<span class="k-button-text">';
-                                html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay);
-                            html += '</span>';
-                        html += '</button>';
-                    }
-                }
-
-                html += "</div>";
-
-                this.footer = $(html).appendTo(this.element);
-
-                var that = this;
-
-                this.footer.on("click" + NS, ".k-scheduler-fullday", function(e) {
-                    e.preventDefault();
-                    that.toggleFullDay();
-                });
-
-                this.footer.on("click" + NS, ".k-scheduler-today", function(e) {
-                    e.preventDefault();
-                    var timezone = that.options.timezone;
-                    var action = "today";
-                    var currentDate = new Date();
-                    var date;
-
-                    if (timezone) {
-                        var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
-                        date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
-                    } else {
-                        date = currentDate;
-                    }
-
-                    that.trigger("navigate", { view: that.name || options.name, action: action, date: date });
-                });
+            if (that._isMobile()) {
+                items.push(that._defaultTools.todayMobile);
             }
+
+            if (command && command === "workDay") {
+                if (that._isMobile()) {
+                    items.push(that._defaultTools.fulldayMobile);
+                } else {
+                    items.push(that._defaultTools.fulldayDesktop);
+                }
+            }
+
+            return items;
         },
 
         toggleFullDay: function() {
@@ -2402,10 +2367,6 @@ var __meta__ = {
 
             if (that.element) {
                 that.element.off(NS);
-            }
-
-            if (that.footer) {
-                that.footer.remove();
             }
 
             if (that._currentTimeUpdateTimer) {

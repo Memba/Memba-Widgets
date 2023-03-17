@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "./kendo.core.js";
 import "./kendo.popup.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "ActionSheet",
@@ -64,14 +65,14 @@ var __meta__ = {
     }
 
     function createIcon(data) {
-        var result = $('<span></span>');
+        var result;
         var inlineStyles = {};
 
-        if (!data.iconClass) {
+        if (!data.iconClass && !data.icon) {
             return '';
         }
 
-        result.addClass(data.iconClass + " k-actionsheet-item-icon");
+        result = $(kendo.html.renderIcon({ icon: data.icon, iconClass: data.iconClass + " k-actionsheet-item-icon" }));
 
         if (data.iconColor && hexColor.test(data.iconColor)) {
             inlineStyles.color = data.iconColor;

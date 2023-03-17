@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.editable.js";
+import "./kendo.button.js";
 
     var __meta__ = {
         id: "form",
         name: "Form",
         category: "web",
         description: "The Form widget.",
-        depends: [ "editable" ],
+        depends: [ "editable", "button" ],
         features: [{
             id: "form-dropdowns",
             name: "DropDowns",
@@ -112,7 +113,9 @@ import "./kendo.editable.js";
 
                 that._renderContainers();
 
-                that._renderButtons();
+                if (that.options.renderButtons) {
+                    that._renderButtons();
+                }
 
                 that._editable();
 
@@ -121,6 +124,8 @@ import "./kendo.editable.js";
                 that._renderFieldsHints();
 
                 that._setEvents();
+
+                that._applyCssClasses();
             },
 
             events: [
@@ -150,7 +155,9 @@ import "./kendo.editable.js";
                 formData: {},
                 items: [],
                 formatLabel: null,
-                focusFirst: false
+                focusFirst: false,
+                renderButtons: true,
+                size: "medium"
             },
 
             _noLabelfieldTemplate: ({ styles, colSpan, hidden, field })=>
@@ -184,10 +191,6 @@ import "./kendo.editable.js";
                             `<fieldset class='${encode(styles.fieldset)} ${colSpan ? `k-colspan-${encode(colSpan)}` : ''}'>` +
                                 `<legend class='${encode(styles.legend)}'>${encode(label.text || label)}</legend>` +
                             "</fieldset>",
-
-            _buttonsTemplate: ({ styles, messages }) =>
-                            `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary ${encode(styles.submit)}' type='submit'><span class='k-button-text'>${encode(messages.submit)}</span></button>` +
-                            `<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base ${encode(styles.clear)}'><span class='k-button-text'>${encode(messages.clear)}</span></button>`,
 
             _errorTemplate: ({ field, message }) => `<span class='k-form-error' id='${field}-form-error'><div>${message}</div></span>`,
 
@@ -363,7 +366,8 @@ import "./kendo.editable.js";
                     errorTemplate: validatorOptions.errorTemplate || that._errorTemplate,
                     clearContainer: false,
                     skipFocus: !options.focusFirst,
-                    target: that
+                    target: that,
+                    size: options.size
                 }).getKendoEditable();
 
                 that.validator = that.editable.validatable;
@@ -566,15 +570,41 @@ import "./kendo.editable.js";
                 }
             },
 
+            _buttonsTemplate: function() {
+                var options = this.options,
+                    messages = options.messages,
+                    formStyles = Form.styles,
+                    buttons, submit, clear;
+
+                if (options.buttonsTemplate !== null) {
+                    buttons = kendo.template(options.buttonsTemplate)({
+                        styles: formStyles,
+                        messages: messages
+                    });
+                } else {
+                    submit = $("<button class='" + formStyles.submit + "'>" + messages.submit + "</button>").kendoButton({
+                        type: "submit",
+                        themeColor: "primary",
+                        size: options.size
+                    });
+                    clear = $("<button class='" + formStyles.clear + "'>" + messages.clear + "</button>").kendoButton({
+                        size: options.size
+                    });
+
+                    buttons = submit.add(clear);
+                }
+
+                return buttons;
+            },
+
             _renderButtons: function() {
                 var that = this,
                     wrapper = that.wrapper,
                     options = that.options,
-                    messages = options.messages,
                     formStyles = Form.styles,
                     isHorizontal = options.orientation === formOrientation.horizontal,
                     buttonsContainer = wrapper.find(DOT + formStyles.buttonsContainer),
-                    buttonsTemplate;
+                    buttons;
 
                 if (!buttonsContainer.length) {
                     buttonsContainer = $("<div />")
@@ -582,12 +612,9 @@ import "./kendo.editable.js";
                         .addClass(isHorizontal ? formStyles.buttonsEnd : "");
                 }
 
-                buttonsTemplate = options.buttonsTemplate !== null ? options.buttonsTemplate : that._buttonsTemplate;
+                buttons = that._buttonsTemplate();
 
-                buttonsContainer.append(kendo.template(buttonsTemplate)({
-                    styles: formStyles,
-                    messages: messages
-                }));
+                buttonsContainer.append(buttons);
 
                 that.element.append(buttonsContainer);
             },
@@ -596,7 +623,7 @@ import "./kendo.editable.js";
                 var layout = options.layout,
                     grid = options.grid,
                     layoutClassNames = [],
-                    layoutContainer;
+                    layoutContainer, rowsGap, colsGap;
 
                 if (typeof layout === "string" && layout !== "") {
                     layoutContainer = $("<div></div>")
@@ -615,6 +642,18 @@ import "./kendo.editable.js";
 
                     if (typeof grid.gutter === "number" || typeof grid.gutter === "string") {
                         layoutContainer.css("grid-gap", grid.gutter);
+                    } else if ($.isPlainObject(grid.gutter)) {
+                        rowsGap = grid.gutter.rows;
+                        colsGap = grid.gutter.cols;
+
+                        if (typeof rowsGap === "number") {
+                            rowsGap = rowsGap + "px";
+                        }
+                        if (typeof colsGap === "number") {
+                            colsGap = colsGap + "px";
+                        }
+
+                        layoutContainer.css("grid-gap", rowsGap + " " + colsGap);
                     }
                 }
 
@@ -746,7 +785,7 @@ import "./kendo.editable.js";
                     }
 
                     if (widgetInstance) {
-                        if (widgetInstance instanceof kendo.ui.Upload) {
+                        if (kendo.ui.Upload && widgetInstance instanceof kendo.ui.Upload) {
                             widgetInstance.clearAllFiles();
                         } else {
                             widgetInstance.value(null);
@@ -806,6 +845,8 @@ import "./kendo.editable.js";
                 }
             }
         });
+
+        kendo.cssProperties.registerPrefix("Form", "k-form-");
 
         ui.plugin(Form);
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.fx.js";
 import "./kendo.data.js";
 import "./kendo.draganddrop.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "scrollview",
     name: "ScrollView",
     category: "web",
     description: "The Kendo ScrollView widget is used to scroll content wider than the device screen.",
-    depends: [ "fx", "data", "draganddrop" ]
+    depends: [ "fx", "data", "draganddrop", "icons" ]
 };
 
 (function($, undefined) {
@@ -1309,8 +1310,8 @@ var __meta__ = {
 
             itemsWrapper.attr("id", itemsWrapperId);
 
-            prevArrow = $('<a class="k-scrollview-prev" role="button" aria-label="' + messages.previousButtonLabel + '" aria-controls="' + itemsWrapperId + '"><span class="k-icon k-i-arrowhead-w"></span></a>');
-            nextArrow = $('<a class="k-scrollview-next" role="button" aria-label="' + messages.nextButtonLabel + '" aria-controls="' + itemsWrapperId + '"><span class="k-icon k-i-arrowhead-e"></span></a>');
+            prevArrow = $(`<a class="k-scrollview-prev" role="button" aria-label="${messages.previousButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon("chevron-left")}</a>`);
+            nextArrow = $(`<a class="k-scrollview-next" role="button" aria-label="${messages.nextButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon("chevron-right")}</a>`);
 
             prevArrow.hide();
             nextArrow.hide();

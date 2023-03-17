@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -36,7 +36,7 @@ import "../util/main.js";
         horizontalResize: "k-horizontal-resize",
         verticalResize: "k-vertical-resize",
         icon: "k-icon",
-        iconFilterDefault: "k-i-arrow-60-down",
+        iconFilterDefault: "caret-alt-down",
         sheetsBar: "k-spreadsheet-sheets-bar",
         sheetsBarActive: "k-spreadsheet-sheets-bar-active",
         sheetsBarInactive: "k-spreadsheet-sheets-bar-inactive",
@@ -955,7 +955,7 @@ import "../util/main.js";
             var sheet = this._sheet;
 
             if (this.tabstrip) {
-                this.tabstrip.refreshTools(sheet.range(sheet.activeCell()));
+                this.tabstrip.refreshTools(sheet.range(sheet.activeCell()), reason);
             }
 
             if (reason.sheetSelection && this.sheetsbar) {
@@ -1790,10 +1790,8 @@ import "../util/main.js";
             var classNames = View.classNames;
             var filter = sheet.filter();
 
-            function icon(className) {
-                return kendo.dom.element("span", {
-                    className: classNames.icon + " " + className
-                });
+            function icon(iconName) {
+                return kendo.dom.element($(kendo.ui.icon(iconName))[0]);
             }
 
             function filterButton(classNames, position, index) {
@@ -1971,9 +1969,7 @@ import "../util/main.js";
                         }
                     });
                     if (ed.icon) {
-                        btn.children.push(kendo.dom.element("span", {
-                            className: "k-icon " + ed.icon
-                        }));
+                        btn.children.push(kendo.dom.element($(kendo.ui.icon(ed.icon.replace(/^k-i-/, "")))[0]));
                     }
                     collection.push(btn);
                 });

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.core.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "expansionpanel",
     name: "ExpansionPanel",
     category: "web",
     description: "The ExpansionPanel provides an expandable details-summary view",
-    depends: ["core"]
+    depends: ["core", "icons"]
 };
 
 (function($, undefined) {
@@ -26,6 +27,7 @@ var __meta__ = {
         NS = ".kendoExpansionPanel",
         EXPAND = "expand",
         COLLAPSE = "collapse",
+        COLLAPSE_ICON_SELECTOR = "[class*='-i-chevron-up']",
         COMPLETE = "complete",
         STATEDISABLED = "k-disabled",
         ARIA_DISABLED = "aria-disabled",
@@ -45,7 +47,7 @@ var __meta__ = {
                 (!useBareTemplate ? `<div class="k-expander-title">${encode(title)}</div>` : title) +
                 '<span class="k-expander-spacer"></span>' +
                 (!useBareTemplate ? `<div class="k-expander-sub-title">${encode(subTitle)}</div>` : '') +
-                `<span class="k-expander-indicator ${encode(iconClass)}"></span>` +
+                (iconClass && iconClass.includes("k-icon") ? `<span class="k-expander-indicator ${encode(iconClass)}"></span>` : kendo.ui.icon({ icon: iconClass, iconClass: "k-expander-indicator" })) +
             '</div>';
 
     var ExpansionPanel = Widget.extend({
@@ -97,8 +99,8 @@ var __meta__ = {
             },
             height: null,
             toggleable: true,
-            expandIconClass: "k-icon k-i-arrow-chevron-down",
-            collapseIconClass: "k-icon k-i-arrow-chevron-up",
+            expandIconClass: "chevron-down",
+            collapseIconClass: "chevron-up",
             title: '',
             subTitle: '',
             headerClass: null,
@@ -160,7 +162,7 @@ var __meta__ = {
 
         _click: function(e) {
             var that = this;
-            var expanded = that._indicator.hasClass(that.options.collapseIconClass);
+            var expanded = that._indicator.is(COLLAPSE_ICON_SELECTOR);
             var element = that.element;
 
             e.stopPropagation();
@@ -189,7 +191,7 @@ var __meta__ = {
                     collapse = null;
                 }
             } else {
-                expand = !that._indicator.hasClass(that.options.collapseIconClass);
+                expand = !that._indicator.is(COLLAPSE_ICON_SELECTOR);
             }
 
             if (!hasCollapseAnimation) {
@@ -205,12 +207,20 @@ var __meta__ = {
             }
 
             if (expand) {
-                that._indicator.removeClass(this.options.expandIconClass);
-                that._indicator.addClass(this.options.collapseIconClass);
+                if (that.options.collapseIconClass.includes("k-icon")) {
+                    that._indicator.removeClass(this.options.expandIconClass);
+                    that._indicator.addClass(this.options.collapseIconClass);
+                } else {
+                    kendo.ui.icon(that._indicator, { icon: this.options.collapseIconClass });
+                }
                 wrapper.addClass(EXPANDED);
             } else {
-                that._indicator.removeClass(this.options.collapseIconClass);
-                that._indicator.addClass(this.options.expandIconClass);
+                if (that.options.expandIconClass.includes("k-icon")) {
+                    that._indicator.removeClass(this.options.collapseIconClass);
+                    that._indicator.addClass(this.options.expandIconClass);
+                } else {
+                    kendo.ui.icon(that._indicator, { icon: this.options.expandIconClass });
+                }
                 wrapper.removeClass(EXPANDED);
             }
 

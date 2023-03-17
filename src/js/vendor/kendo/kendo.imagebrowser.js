@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.filebrowser.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "imagebrowser",
@@ -14,7 +15,7 @@ var __meta__ = {
     category: "web",
     description: "",
     hidden: true,
-    depends: [ "filebrowser" ]
+    depends: [ "filebrowser", "icons" ]
 };
 
 (function($, undefined) {
@@ -30,7 +31,7 @@ var __meta__ = {
         SIZEFIELD = "size",
         TYPEFIELD = "type",
         DEFAULTSORTORDER = { field: TYPEFIELD, dir: "asc" },
-        EMPTYTILE = kendo.template(({ text }) => `<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${text}</span></div>`);
+        EMPTYTILE = kendo.template(({ text }) => `<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview">${kendo.ui.icon({ icon: "none", iconClass: "k-file-icon" })}</span><span class="k-file-name">${text}</span></div>`);
 
     extend(true, kendo.data, {
         schemas: {
@@ -223,7 +224,7 @@ var __meta__ = {
                 autoBind: false,
                 dataBinding: function(e) {
 
-                    that.toolbar.find(".k-i-close").parent().addClass("k-disabled");
+                    that.toolbar.find(".k-i-x,.k-svg-i-x").parent().addClass("k-disabled");
 
                     if (e.action === "remove" || e.action === "sync") {
                         e.preventDefault();
@@ -358,8 +359,8 @@ var __meta__ = {
 
                 return `<div class="k-listview-item" ${kendo.attr("uid")}="${data.uid}" ${kendo.attr("type")}="${data[TYPEFIELD]}">` +
                     `${data[TYPEFIELD] === 'd' ?
-                        '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-folder"></span></div>' :
-                        `<div class="k-file-preview"><span class="k-file-icon k-icon ${showLoading ? 'k-i-loading' : 'k-i-file'}"></span></div>`}` +
+                        `<div class="k-file-preview">${kendo.ui.icon({ icon: "folder", iconClass: "k-file-icon" })}</div>` :
+                        `<div class="k-file-preview">${showLoading ? '<span class="k-file-icon k-icon k-i-loading"></span>' : kendo.ui.icon({ icon: "file", iconClass: "k-file-icon" }) }</div>`}` +
                     `<span class="k-file-name">${data[NAMEFIELD]}</span>` +
                     `${data[TYPEFIELD] === 'f' ? `<span class="k-file-size">${sizeFormatter(data[SIZEFIELD])}</span>` : '' }` +
                 `</div>`;

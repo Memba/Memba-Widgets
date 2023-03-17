@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -16,7 +16,6 @@ var kendo = window.kendo,
     EditorUtils = Editor.EditorUtils,
     Command = Editor.Command,
     Tool = Editor.Tool,
-    ToolTemplate = Editor.ToolTemplate,
     dom = Editor.Dom;
 
 var ViewHtmlCommand = Command.extend({
@@ -73,8 +72,10 @@ var ViewHtmlCommand = Command.extend({
             editor.focus();
         }
 
-        this.createDialog(dialog, {
+        let window = this.createDialog(dialog, {
             title: messages.viewHtml,
+            _footerTemplate: ViewHtmlCommand._footerTemplate,
+            _footerMessages: messages,
             width: 600,
             height: 400,
             resizable: true,
@@ -82,23 +83,26 @@ var ViewHtmlCommand = Command.extend({
             visible: false
         })
             .find(textarea).val(content).end()
-            .find(".k-dialog-update").on("click", apply).end()
-            .find(".k-dialog-close").on("click", close).end()
-            .data("kendoWindow").center().open();
+            .data("kendoWindow");
 
+            window.center().open();
+
+            window.wrapper.find(".k-dialog-update").on("click", apply).end();
+            window.wrapper.find(".k-dialog-close").on("click", close).end();
         dialog.find(textarea).trigger("focus");
     }
 });
 
 extend(ViewHtmlCommand, {
-    template: ({ dialogUpdate, dialogCancel }) =>
+    template: () =>
     '<div class="k-editor-dialog k-popup-edit-form k-viewhtml-dialog">' +
         '<span class="k-input k-textarea k-input-solid k-input-md k-rounded-md k-editor-textarea"><textarea class="k-input-inner !k-overflow-auto !k-resize-none"></textarea></span>' +
-        '<div class="k-edit-buttons">' +
-            `<button class="k-dialog-update k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">${kendo.htmlEncode(dialogUpdate)}</span></button>` +
-            `<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">${kendo.htmlEncode(dialogCancel)}</span></button>` +
-        '</div>' +
     '</div>',
+    _footerTemplate: ({ dialogUpdate, dialogCancel }) =>
+    `<div class="k-actions k-actions-start k-actions-horizontal k-window-actions">` +
+        kendo.html.renderButton(`<button class="k-dialog-update">${kendo.htmlEncode(dialogUpdate)}</button>`, { themeColor: "primary", icon: "check" }) +
+        kendo.html.renderButton(`<button class="k-dialog-close">${kendo.htmlEncode(dialogCancel)}</button>`, { icon: "cancel-outline" }) +
+    `</div>`,
     indent: function(content) {
         return content.replace(/<\/(p|li|ul|ol|h[1-6]|table|tr|td|th)>/ig, "</$1>\n")
                       .replace(/<(ul|ol)([^>]*)><li/ig, "<$1$2>\n<li")
@@ -109,6 +113,6 @@ extend(ViewHtmlCommand, {
 
 kendo.ui.editor.ViewHtmlCommand = ViewHtmlCommand;
 
-Editor.EditorUtils.registerTool("viewHtml", new Tool({ command: ViewHtmlCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "View HTML" }) }));
+Editor.EditorUtils.registerTool("viewHtml", new Tool({ command: ViewHtmlCommand }));
 
 })(window.kendo.jQuery);

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../kendo.core.js";
+import "../kendo.icons.js";
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -26,7 +27,7 @@ import "../kendo.core.js";
         cardMenuButton: "k-taskboard-card-menu-button k-icon-button",
         flatButton: "k-button-md k-rounded-md k-button-flat k-button-flat-base",
         body: "k-card-body",
-        actionsIcon: "k-icon k-i-more-vertical",
+        actionsIcon: "more-vertical",
         moveCursor: "k-cursor-move",
         categoryBorder: "k-taskboard-card-category",
         headerActions: "k-card-header-actions",
@@ -55,7 +56,7 @@ import "../kendo.core.js";
         `<div class="${encode(data.styles.body)}"><p>${encode(kendo.getter(data.dataDescriptionField)(data))}</p></div>`,
 
         cardMenuButtonTemplate: ({ styles }) => `<div class="${encode(styles.headerActions)}"><button aria-label="menu" class="${encode(styles.button)} ${encode(styles.flatButton)} ${encode(styles.cardMenuButton)}">` +
-                                    `<span class="k-button-icon ${encode(styles.actionsIcon)}"></span>` +
+                                    kendo.ui.icon({ icon: encode(styles.actionsIcon), iconClass: "k-button-icon" }) +
                                 '</button></div>',
 
         _render: function() {

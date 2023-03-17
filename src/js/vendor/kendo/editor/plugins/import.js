@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -16,7 +16,6 @@ var kendo = window.kendo,
     Command = Editor.Command,
     Tool = Editor.Tool,
     registerTool = EditorUtils.registerTool,
-    ToolTemplate = Editor.ToolTemplate,
     loadingOverlay = '<div contenteditable="false" class="k-loading-mask" style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px;"><div class="k-loading-image"></div><div class="k-loading-color"></div></div>';
 
 var ImportCommand = Command.extend({
@@ -112,7 +111,9 @@ extend(Editor, {
 
 registerTool("import", new Tool({
     command: ImportCommand,
-    template: new ToolTemplate({ template: EditorUtils.iconTextButtonTemplate, title: "Import" })
+    ui: {
+        showText: "both"
+    }
 }));
 
 }(window.kendo.jQuery));

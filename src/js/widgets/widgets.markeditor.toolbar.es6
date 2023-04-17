@@ -205,11 +205,15 @@ const MarkEditorToolBar = ToolBar.extend({
      * @param options
      */
     init(element, options = {}) {
-        // eslint-disable-next-line no-param-reassign
+        /* eslint-disable no-param-reassign */
         options.items = this._expandTools(
             options.tools || MarkEditorToolBar.prototype.options.tools
         );
+        options.defaultTools = toolDefaults;
+        options.parentMessages = TOOLBAR_MESSAGES;
+        /* eslint-enable no-param-reassign */
         ToolBar.fn.init.call(this, element, options);
+        // debugger;
         const handleClick = this._click.bind(this);
         this.element.addClass('k-spreadsheet-toolbar kj-markeditor-toolbar');
         this._addSeparators(this.element);

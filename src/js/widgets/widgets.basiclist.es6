@@ -193,9 +193,7 @@ const BasicList = Widget.extend({
                     // We need to trigger a change and a blur otherwise
                     // the change event might not be raised to induce data bindings
                     e.item
-                        .find(
-                            'input:not(.k-disabled, .k-formatted-value)'
-                        )
+                        .find('input:not(.k-disabled, .k-formatted-value)')
                         .change()
                         .blur();
                 },

@@ -120,7 +120,9 @@ const ButtonBox = Widget.extend({
             .addClass(`k-icon ${options.iconClass} k-button-icon`)
             .wrap(`<${CONSTANTS.BUTTON}/>`)
             .parent()
-            .addClass('k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button')
+            .addClass(
+                'k-input-button k-button k-button-md k-button-solid k-button-solid-base k-icon-button'
+            )
             .attr({
                 // ariaControls
                 ariaLabel: 'select',

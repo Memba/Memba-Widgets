@@ -136,7 +136,8 @@ SystemJS.config({
         'kendo.multicolumncombobox':
             'src/js/vendor/kendo/kendo.multicolumncombobox.js',
         'kendo.multiselect': 'src/js/vendor/kendo/kendo.multiselect.js',
-        'kendo.multiviewcalendar': 'src/js/vendor/kendo/kendo.multiviewcalendar.js',
+        'kendo.multiviewcalendar':
+            'src/js/vendor/kendo/kendo.multiviewcalendar.js',
         'kendo.notification': 'src/js/vendor/kendo/kendo.notification.js',
         'kendo.numerictextbox': 'src/js/vendor/kendo/kendo.numerictextbox.js',
         'kendo.ooxml': 'src/js/vendor/kendo/kendo.ooxml.js',

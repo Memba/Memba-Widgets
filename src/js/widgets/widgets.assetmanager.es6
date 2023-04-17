@@ -21,7 +21,7 @@ import 'kendo.progressbar';
 import 'kendo.tabstrip';
 // import 'kendo.upload'; // <--- does not work with AWS S3
 import 'kendo.window';
-import { iconUri } from '../app/app.uris.es6'
+import { iconUri } from '../app/app.uris.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -1528,10 +1528,7 @@ const AssetManager = Widget.extend({
                 .find('.k-i-track-changes-enable')
                 .parent()
                 .removeClass('k-disabled');
-            this.toolbar
-                .find('.k-i-delete')
-                .parent()
-                .removeClass('k-disabled');
+            this.toolbar.find('.k-i-delete').parent().removeClass('k-disabled');
             this.trigger(CONSTANTS.CHANGE);
         }
     },

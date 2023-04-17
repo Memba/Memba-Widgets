@@ -86,7 +86,7 @@ describe('widgets.codeeditor', () => {
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
@@ -113,7 +113,7 @@ describe('widgets.codeeditor', () => {
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
@@ -145,7 +145,7 @@ describe('widgets.codeeditor', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
@@ -176,7 +176,7 @@ describe('widgets.codeeditor', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);

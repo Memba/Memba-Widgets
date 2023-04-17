@@ -143,9 +143,7 @@ const CodeInput = DataBoundWidget.extend({
             .appendTo(element);
 
         // Static input showing `Custom`
-        this.customInput = $(
-            '<input class="k-textbox k-disabled" disabled>'
-        )
+        this.customInput = $('<input class="k-textbox k-disabled" disabled>')
             .width('100%')
             .val(options.messages.custom)
             .appendTo(formulaWrapper);

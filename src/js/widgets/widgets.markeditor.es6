@@ -154,7 +154,9 @@ const MarkEditor = Widget.extend({
      * @private
      */
     _resize(size, force) {
-        this.toolBar.resize(force); // kendo.resize(this.toolBar.element);
+        if (this.toolBar) {
+            this.toolBar.resize(force); // kendo.resize(this.toolBar.element);
+        }
         this.codeMirror.refresh();
     },
 
@@ -483,9 +485,13 @@ const MarkEditor = Widget.extend({
         const that = this;
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        that.toolBar.element.children('a.k-button').each((index, element) => {
-            that.toolBar.enable(element, enabled);
-        });
+        if (that.toolBar) {
+            that.toolBar.element
+                .children('a.k-button')
+                .each((index, element) => {
+                    that.toolBar.enable(element, enabled);
+                });
+        }
         that.codeMirror.setOption('readOnly', !enabled);
         // Consider also doing https://github.com/codemirror/CodeMirror/issues/1099
     },

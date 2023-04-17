@@ -375,7 +375,7 @@ function getLabel() {
         attributes: {
             style: styleGenerator(),
             // text: ' >y\'H[kDj\\', // Breaks templates
-            text: jsc.string()().replace(/#/g, '\\#').replace(/\\$/,'') // Note: avoids breaking kendo templates
+            text: jsc.string()().replace(/#/g, '\\#').replace(/\\$/, ''), // Note: avoids breaking kendo templates
         },
         id: new ObjectId().toString(),
         properties: {

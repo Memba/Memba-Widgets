@@ -22,7 +22,7 @@ The files to load are described with two attributes:
   files: [
       {pattern: 'src/styles/vendor/kendo.common.min.css', served: true, included: true},
       {pattern: 'src/styles/vendor/kendo.default.min.css', served: true, included: true},
-      //{pattern: 'http://code.jquery.com/jquery-3.6.4.min.js', served: true, included: true},
+      //{pattern: 'http://code.jquery.com/jquery-3.7.0.min.js', served: true, included: true},
       {pattern: 'src/js/vendor/jquery.min.js', served: true, included: true},
       {pattern: 'src/js/vendor/kendo.all.min.js', served: true, included: true},
       {pattern: 'src/js/kidoju.tools.js', served: true, included: true},

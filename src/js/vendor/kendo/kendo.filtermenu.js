@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -103,7 +103,7 @@ var __meta__ = {
                 `<div class="k-filter-help-text">${messages.info}</div>`
             : '') +
             `<select title="${messages.operator}" data-${ns}bind="value: filters[0].operator" data-${ns}role="dropdownlist">` +
-                `${Object.keys(operators).map((op) =>
+                `${Object.keys(operators || {}).map((op) =>
                     `<option value="${op}">${operators[op]}</option>`
                 )}` +
             '</select>' +
@@ -126,7 +126,7 @@ var __meta__ = {
                 '</select>'
                 ) +
                 `<select title="${messages.additionalOperator}" data-${ns}bind="value: filters[1].operator" data-${ns}role="dropdownlist">` +
-                    `${Object.keys(operators).map((op) =>
+                    `${Object.keys(operators || {}).map((op) =>
                         `<option value="${op}">${operators[op]}</option>`
                     )}` +
                 '</select>' +
@@ -159,7 +159,7 @@ var __meta__ = {
                                     `<span class="k-listgroup-form-field-label k-filter-operator-text">${messages.operator}</span>` +
                                     '<span class="k-listgroup-form-field-wrapper">' +
                                         `<select id="operator_${filterMenuGuid}" title="${messages.operator}" class="k-filter-operator" data-${ns}bind="value: filters[0].operator" autocomplete="${AUTOCOMPLETEVALUE}" >` +
-                                            `${Object.keys(operators).map((op) =>
+                                            `${Object.keys(operators || {}).map((op) =>
                                                 `<option value="${op}">${operators[op]}</option>`
                                             )}` +
                                         '</select>' +
@@ -173,7 +173,7 @@ var __meta__ = {
                                         (values ?
                                         `<select id="value_${filterMenuGuid}" title="${messages.value}" data-${ns}bind="value:filters[0].value" autocomplete="${AUTOCOMPLETEVALUE}" >` +
                                             `<option value="">${messages.selectValue}</option>` +
-                                            `${Object.keys(values).map((val) =>
+                                            `${Object.keys(values || {}).map((val) =>
                                                 `<option value="${values[val].value}">${values[val].text}</option>`
                                             )}` +
                                         '</select>'
@@ -209,7 +209,7 @@ var __meta__ = {
                                     `<span class="k-listgroup-form-field-label k-filter-operator-text">${messages.additionalOperator}</span>` +
                                     '<span class="k-listgroup-form-field-wrapper">' +
                                         `<select id="additionalOperator_${filterMenuGuid}" title="${messages.additionalOperator}" class="k-filter-operator" data-${ns}bind="value: filters[1].operator" autocomplete="${AUTOCOMPLETEVALUE}" >` +
-                                            `${Object.keys(operators).map((op) =>
+                                            `${Object.keys(operators || {}).map((op) =>
                                                 `<option value="${op}">${operators[op]}</option>`
                                             )}` +
                                         '</select>' +
@@ -223,7 +223,7 @@ var __meta__ = {
                                         (values ?
                                         `<select id="additionalValue_${filterMenuGuid}" title="${messages.additionalValue}" data-${ns}bind="value:filters[1].value" autocomplete="${AUTOCOMPLETEVALUE}" >` +
                                             `<option value="">${messages.selectValue}</option>` +
-                                            `${Object.keys(values).map((val) =>
+                                            `${Object.keys(values || {}).map((val) =>
                                                 `<option value="${values[val].value}">${values[val].text}</option>`
                                             )}` +
                                         '</select>'

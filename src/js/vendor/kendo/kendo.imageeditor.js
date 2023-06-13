@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -34,7 +34,10 @@ var __meta__ = {
         EXECUTE = "execute",
 
         CLICK = "click",
-        CHANGE = "change";
+        TOGGLE = "toggle",
+        CHANGE = "change",
+
+        CANVAS_TEMPLATE = (label) => `<canvas role='img' aria-label='${label}'>Canvas element</canvas>`;
 
     var imageEditorStyles = {
         wrapper: "k-widget k-imageeditor",
@@ -73,6 +76,7 @@ var __meta__ = {
             width: "100%",
             height: 570,
             imageUrl: "",
+            imageLabel: "",
             toolbar: {
             },
             saveAs: {
@@ -221,6 +225,7 @@ var __meta__ = {
             that.toolbar.toggleTools();
 
             that.toolbar.bind(CLICK, that._toolbarClick.bind(that));
+            that.toolbar.bind(TOGGLE, that._toolbarClick.bind(that));
             that.toolbar.bind(CHANGE, that._toolbarClick.bind(that));
 
             return that.toolbar;
@@ -331,12 +336,14 @@ var __meta__ = {
                 canExport = false;
             }
 
-            that.toolbar.toggleTools({
-                redo: canRedo,
-                undo: canUndo,
-                enable: hasImage,
-                canExport: canExport
-            });
+            if (that.toolbar) {
+                that.toolbar.toggleTools({
+                    redo: canRedo,
+                    undo: canUndo,
+                    enable: hasImage,
+                    canExport: canExport
+                });
+            }
         },
 
         drawImage: function(imageUrl) {
@@ -363,7 +370,7 @@ var __meta__ = {
 
         drawCanvas: function(image) {
             var that = this;
-            var canvas = $("<canvas>Canvas element</canvas>")[0];
+            var canvas = $(kendo.template(CANVAS_TEMPLATE)(that.options.imageLabel))[0];
             var ctx = canvas.getContext('2d');
 
             if (that._canvas) {

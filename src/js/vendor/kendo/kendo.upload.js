@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.core.js";
 import "./kendo.progressbar.js";
 import "./kendo.icons.js";
+import "./kendo.html.button.js";
 
 var __meta__ = {
     id: "upload",
     name: "Upload",
     category: "web",
     description: "The Upload widget uses progressive enhancement to deliver the best possible uploading experience to users.",
-    depends: ["core", "progressbar", "icons"]
+    depends: ["core", "progressbar", "icons", "html.button"]
 };
 
 (function($, undefined) {
@@ -87,6 +88,7 @@ var __meta__ = {
             that._toggleDropZone();
 
             that.wrapper
+                .on("keydown", ".k-upload-button", that._onUploadButtonKeydown.bind(that))
                 .on("click", ".k-upload-action", that._onFileAction.bind(that))
                 .on("click", ".k-clear-selected", that._onClearSelected.bind(that))
                 .on("click", ".k-upload-selected", that._onUploadSelected.bind(that))
@@ -627,6 +629,15 @@ var __meta__ = {
             }
         },
 
+        _onUploadButtonKeydown: function(e) {
+            var key = e.keyCode,
+                kendoKeys = kendo.keys;
+
+            if (key === kendoKeys.ENTER || key === kendoKeys.SPACEBAR) {
+                this.wrapper.find(".k-upload-button-wrap input").last().trigger("click");
+            }
+        },
+
         _readDirectory: function(item) {
             var deferred = new $.Deferred();
             var dirReader = item.createReader();
@@ -816,7 +827,7 @@ var __meta__ = {
             var isError = errors && errors.length > 0;
             var invalidClass = isError ? " k-file-invalid k-file-error" : "";
             var fileDetails = isError ?
-                    "<span class='k-file-validation-message'>" + that.localization[errors[0]] + "</span>" :
+                    "<span class='k-file-validation-message' aria-live='polite'>" + that.localization[errors[0]] + "</span>" :
                     "<span class='k-file-size'>" + fileSize + "</span>";
             var template = "";
 
@@ -869,7 +880,7 @@ var __meta__ = {
             }
 
             if (filesHaveValidationErrors) {
-                template += "<span class='k-file-validation-message'>" + that.localization.invalidFiles + "</span>";
+                template += "<span class='k-file-validation-message' aria-live='polite'>" + that.localization.invalidFiles + "</span>";
             } else {
                 template += "<span class='k-file-summary'>Total: " + files.length + " files, " + totalFileSize + "</span>";
             }
@@ -1040,7 +1051,7 @@ var __meta__ = {
         _renderAction: function(iconName, actionText, iconClass) {
             if (iconName !== "") {
                 return $(
-                "<button type='button' class='k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-upload-action' aria-label='" + actionText + "' tabindex='-1'>" +
+                "<button type='button' class='k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-upload-action' aria-hidden='true' aria-label='" + actionText + "' tabindex='-1'>" +
                     kendo.ui.icon($(`<span title="${actionText}"></span>`), { icon: iconName, iconClass: "k-button-icon" + (iconClass ? ` ${iconClass}` : "") }) +
                 "</button>"
                 ).on("focus", function() { $(this).addClass(FOCUS_STATE); })
@@ -1186,10 +1197,10 @@ var __meta__ = {
 
                 if (fileInfo.length > 0) {
                     fileInfo.addClass('k-hidden')
-                        .after('<span class="k-file-validation-message">' + files.length + ' ' + that.localization.uploadSuccess + '</span>');
+                        .after('<span class="k-file-validation-message" aria-live="polite">' + files.length + ' ' + that.localization.uploadSuccess + '</span>');
                 } else if (fileSize.length > 0) {
                     fileSize.addClass('k-hidden')
-                        .after('<span class="k-file-validation-message">' + that.localization.uploadSuccess + '</span>');
+                        .after('<span class="k-file-validation-message" aria-live="polite">' + that.localization.uploadSuccess + '</span>');
                 }
 
                 that._updateHeaderUploadStatus();
@@ -1267,10 +1278,10 @@ var __meta__ = {
 
             if (fileInfo.length > 0) {
                 fileInfo.addClass('k-hidden')
-                    .after('<span class="k-file-validation-message">' + files.length + ' ' + that.localization.uploadFail + '</span>');
+                    .after('<span class="k-file-validation-message" aria-live="polite">' + files.length + ' ' + that.localization.uploadFail + '</span>');
             } else if (fileSize.length > 0) {
                 fileSize.addClass('k-hidden')
-                    .after('<span class="k-file-validation-message">' + that.localization.uploadFail + '</span>');
+                    .after('<span class="k-file-validation-message" aria-live="polite">' + that.localization.uploadFail + '</span>');
             }
 
             that._updateUploadProgress(fileEntry);
@@ -1312,8 +1323,6 @@ var __meta__ = {
         },
 
         _hideUploadProgress: function(fileEntry) {
-            var that = this;
-
             $(PROGRESSBAR_SELECTOR, fileEntry)
                 .delay(PROGRESSHIDEDELAY)
                 .fadeOut(PROGRESSHIDEDURATION, function() {
@@ -1614,9 +1623,11 @@ var __meta__ = {
             var that = this;
             var options = that.options;
             var hasLabel = !!input.attr("id") && $("[for='" + input.attr("id") + "']").length > 0;
-            var uploadButton = $("<div class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button'><span class='k-button-text'>Select files...</span></div>");
+            var uploadButton = $("<div class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button' tabindex='0' role='button'><span class='k-button-text'></span></div>");
 
-            input.wrap("<div class='k-upload'><div class='k-dropzone k-upload-dropzone'><div class='k-upload-button-wrap'></div></div></div>");
+            uploadButton.find('.k-button-text').text(that.localization.select);
+
+            input.wrap("<div class='k-upload' role='application'><div class='k-dropzone k-upload-dropzone'><div class='k-upload-button-wrap'></div></div></div>");
             uploadButton.prependTo(input.parent());
 
             if (!options.async.saveUrl) {
@@ -1627,12 +1638,14 @@ var __meta__ = {
 
             input.closest(".k-upload").addClass("k-upload-empty");
 
-            input.closest(".k-button")
-                .append("<span>" + that.localization.select + "</span>");
-
             if (!hasLabel && !input.attr("aria-label")) {
                 input.attr("aria-label", that.localization.select);
             }
+
+            input.attr({
+                tabindex: -1,
+                "aria-hidden": true
+            });
 
             return input.closest(".k-upload");
         },

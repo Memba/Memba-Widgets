@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -25,7 +25,7 @@ import "../kendo.icons.js";
     var TOOLTIP_TEMPLATE = '<div class="k-tooltip">' +
             '<div class="k-tooltip-content"></div>' +
         '</div>';
-    var TOOLTIP_CLOSE_TEMPLATE = `<div class="k-tooltip-button">${kendo.ui.icon($('<a href="#">close</a>'), { icon: "x" })}</div>`;
+    var TOOLTIP_CLOSE_TEMPLATE = `<div class="k-tooltip-button">${kendo.ui.icon($('<a href="#" title="Close"></a>'), { icon: "x" })}</div>`;
 
     var SurfaceTooltip = kendo.Class.extend({
         init: function(surface, options) {
@@ -279,28 +279,20 @@ import "../kendo.icons.js";
         },
 
         _measure: function(options) {
-            var popup = this.getPopup();
-            var width, height;
             this.element.css({
-                width: "auto",
-                height: "auto"
-            });
-            var visible = popup.visible();
-            if (!visible) {
-                popup.wrapper.show();
-            }
-
-            this.element.css({
-                width: defined(options.width) ? options.width : "auto",
-                height: defined(options.height) ? options.height : "auto"
+                width: defined(options.width) ? options.width : 'auto',
+                height: defined(options.height) ? options.height : 'auto'
             });
 
-            width = outerWidth(this.element);
-            height = outerHeight(this.element);
+            const clone = this.element.clone().appendTo(document.body).css({ visibility: 'hidden' });
+            const width = outerWidth(clone);
+            const height = outerHeight(clone);
+            clone.remove();
 
-            if (!visible) {
-                popup.wrapper.hide();
-            }
+            this.element.css({
+                width: width,
+                height: height
+            });
 
             return {
                 width: width,

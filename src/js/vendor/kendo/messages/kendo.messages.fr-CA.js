@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -192,6 +192,67 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
 });
 }
 
+/* Gantt messages */
+
+if (kendo.ui.Gantt) {
+  kendo.ui.Gantt.prototype.options.messages =
+    $.extend(true, kendo.ui.Gantt.prototype.options.messages, {
+      "actions": {
+        "addChild": "Ajouter descendant",
+        "append": "Ajouter une Tâche",
+        "insertAfter": "Ajouter après",
+        "insertBefore": "Ajouter avant",
+        "pdf": "Exporter en PDF"
+      },
+      "cancel": "Annuler",
+      "deleteDependencyWindowTitle": "Effacer la dépendance",
+      "deleteTaskWindowTitle": "Effacer la tâche",
+      "destroy": "Effacer)",
+      "editor": {
+        "assingButton": "Assigner",
+        "editorTitle": "Tâche",
+        "end": "Fin",
+        "percentComplete": "Complété",
+        "resources": "Ressources",
+        "resourcesEditorTitle": "Ressources",
+        "resourcesHeader": "Ressources",
+        "start": "Début",
+        "title": "Titre",
+        "unitsHeader": "Unité"
+      },
+      "save": "Sauvegarder",
+      "views": {
+        "day": "Jours",
+        "end": "Fin",
+        "month": "Mois",
+        "start": "Début",
+        "week": "Semaine",
+        "year": "Année"
+      }
+    });
+}
+
+/* GanttList messages */
+
+if (kendo.ui.GanttList) {
+  kendo.ui.GanttList.prototype.options.messages =
+    $.extend(true, kendo.ui.GanttList.prototype.options.messages, {
+      "noRows": "Aucun enregistrement à afficher",
+      "loading": "Chargement...",
+      "requestFailed": "La requête a échoué.",
+      "retry": "Réessayer",
+      "commands": {
+        "edit": "Modifier",
+        "update": "Mettre à jour",
+        "canceledit": "Annuler",
+        "create": "Créer",
+        "createchild": "Créer un élément enfant",
+        "destroy": "Supprimer",
+        "excel": "Export Excel",
+        "pdf": "Export PDF"
+      }
+    });
+}
 /* RecurrenceEditor messages */
 
 if (kendo.ui.RecurrenceEditor) {

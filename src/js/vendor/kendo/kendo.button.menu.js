@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -170,13 +170,14 @@ var __meta__ = {
 
         _renderListItem: function(item) {
             var that = this,
+                attributesId = item.attributes ? item.attributes.id : null,
                 id, menuItem;
 
             item = extend({}, baseItem, item, {
                 enabled: item.enable && item.enabled // backward compatibility: support both enable and enabled options.
             });
 
-            id = item.id || kendo.guid();
+            id = item.id || attributesId || kendo.guid();
             menuItem = $("<li id=\"" + id + "\" role=\"" + ROLE_MENU_ITEM + "\" class=\"" + cssClasses.listItem + "\">" + that._renderItemButton(item) + "</li>");
 
             if (item.click) {
@@ -185,6 +186,12 @@ var __meta__ = {
 
             if (item.attributes) {
                 delete item.attributes.target;
+
+                if (item.attributes.class) {
+                    menuItem.addClass(item.attributes.class);
+                    delete item.attributes.class;
+                }
+
                 menuItem.attr(item.attributes);
             }
 

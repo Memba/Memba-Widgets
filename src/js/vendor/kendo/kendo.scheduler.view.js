@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -157,31 +157,31 @@ var __meta__ = {
 
                for (var slotIndex = 0; slotIndex < collection.count(); slotIndex++) {
                    var slot = collection.at(slotIndex);
-                   var width = slot.offsetWidth;
-                   var height = slot.offsetHeight;
+                   var width = slot.element.offsetWidth;
+                   var height = slot.element.offsetHeight;
                    var nextSlot;
 
-                   var horizontalEnd = slot.offsetLeft + width;
-                   var verticalEnd = slot.offsetTop + height;
+                   var horizontalEnd = slot.element.offsetLeft + width;
+                   var verticalEnd = slot.element.offsetTop + height;
 
                    if (!byDate) {
                         nextSlot = collection.at(slotIndex + 1);
                    }
 
                    if (nextSlot) {
-                       if (nextSlot.offsetLeft != slot.offsetLeft) {
+                       if (nextSlot.element.offsetLeft != slot.element.offsetLeft) {
                            if (this._isRtl) {
-                               horizontalEnd = slot.offsetLeft + (slot.offsetLeft - nextSlot.offsetLeft);
+                               horizontalEnd = slot.element.offsetLeft + (slot.element.offsetLeft - nextSlot.element.offsetLeft);
                            } else {
-                               horizontalEnd = nextSlot.offsetLeft;
+                               horizontalEnd = nextSlot.element.offsetLeft;
                            }
                        } else {
-                           verticalEnd = nextSlot.offsetTop;
+                           verticalEnd = nextSlot.element.offsetTop;
                        }
                    }
 
-                   if (x >= slot.offsetLeft && x < horizontalEnd &&
-                       y >= slot.offsetTop && y < verticalEnd) {
+                   if (x >= slot.element.offsetLeft && x < horizontalEnd &&
+                       y >= slot.element.offsetTop && y < verticalEnd) {
                        return slot;
                    }
                }

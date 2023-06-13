@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -505,7 +505,7 @@ var __meta__ = {
             var that = this;
 
             that.groupContainer.find(".k-chip-list").remove();
-            that._list = $("<div/>").kendoChipList({ size: that.options.size || "meduim" }).data("kendoChipList");
+            that._list = $("<div/>").kendoChipList({ selectable: "none", size: that.options.size || "medium" }).data("kendoChipList");
             that._list.element.insertBefore(that._messageContainer);
         }
     });

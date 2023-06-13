@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11368,6 +11368,9 @@ kendo.deepExtend(kendo, {
     drawing: drawing,
     geometry: geometry
 });
+
+// Use unique SVG Definition IDs for Kendo UI
+defId = 1000;
 
 kendo.drawing.Segment = kendo.geometry.Segment;
 kendo.dataviz.drawing = kendo.drawing;

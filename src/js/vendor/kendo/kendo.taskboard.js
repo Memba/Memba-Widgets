@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -60,6 +60,7 @@ import "./kendo.textbox.js";
             ACTION = "action",
             CHANGE = "change",
             CLICK = "click",
+            TOGGLE = "toggle",
             ERROR = "change",
             DATABINDING = "dataBinding",
             DATABOUND = "dataBound",
@@ -576,6 +577,7 @@ import "./kendo.textbox.js";
                 that.options.toolbar = that.toolbar.options;
 
                 that.toolbar.bind(CLICK, that._toolbarClick.bind(that));
+                that.toolbar.bind(TOGGLE, that._toolbarClick.bind(that));
                 that.toolbar.bind(CHANGE, that._toolbarClick.bind(that));
             },
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -207,7 +207,7 @@ import "../kendo.icons.js";
                 for (idx = 0; idx < sheets.length; idx++) {
                     var sheet = sheets[idx];
                     var isSelectedSheet = (idx === selectedIndex);
-                    var attr = { className: classNames.sheetsBarKItem + EMPTYCHAR };
+                    var attr = { className: classNames.sheetsBarKItem + EMPTYCHAR, role: "tab" };
                     var elementContent = [];
 
                     if (isSelectedSheet) {
@@ -250,7 +250,8 @@ import "../kendo.icons.js";
                 var classNames = SheetsBar.classNames;
                 var itemsWrapper = element('div', { className: 'k-tabstrip-items-wrapper k-hstack' } );
                 var childrenElements = [null, element("ul", {
-                    className: classNames.sheetsBarKReset
+                    className: classNames.sheetsBarKReset,
+                    role: "tablist"
                 }, sheetElements), null ];
 
                 renderScrollButtons = true;
@@ -258,11 +259,11 @@ import "../kendo.icons.js";
                 if (renderScrollButtons) {
                     var baseButtonClass = classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonBare + EMPTYCHAR;
 
-                    childrenElements[0] = (element("span", {className: baseButtonClass + classNames.sheetsBarPrev }, [
+                    childrenElements[0] = (element("span", { ariaHidden: "true", className: baseButtonClass + classNames.sheetsBarPrev }, [
                         element($(kendo.ui.icon({ icon: classNames.sheetsBarArrowWIcon, iconClass: "k-button-icon" }))[0])
                     ]));
 
-                    childrenElements[2] = (element("span", {className: baseButtonClass + classNames.sheetsBarNext }, [
+                    childrenElements[2] = (element("span", { ariaHidden: "true", className: baseButtonClass + classNames.sheetsBarNext }, [
                         element($(kendo.ui.icon({ icon: classNames.sheetsBarArrowEIcon, iconClass: "k-button-icon" }))[0])
                     ]));
                 }
@@ -374,6 +375,8 @@ import "../kendo.icons.js";
                 var element = kendo.dom.element;
                 var classNames = SheetsBar.classNames;
                 return element("a", {
+                    role: "button",
+                    ariaLabel: "Add new sheet",
                     className: classNames.sheetsBarAdd + EMPTYCHAR + classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonDefaults
                 }, [element($(kendo.ui.icon({ icon: classNames.sheetsBarPlusIcon, iconClass: "k-button-icon" }))[0])]);
             },

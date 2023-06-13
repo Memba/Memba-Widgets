@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -39,7 +39,6 @@ var __meta__ = {
         POPUP_BUTTON = "k-popup-button",
         KSEPARATOR = "k-separator",
         SPACER_CLASS = "k-spacer",
-        BUTTON_ICON = "k-button-icon",
         UPLOAD_BUTTON = "k-upload-button",
         POPUP = "k-popup",
         RESIZABLE_TOOLBAR = "k-toolbar-resizable",
@@ -111,6 +110,7 @@ var __meta__ = {
         COMMA = ",",
         ID = "id",
         UID = "uid",
+        NBSP = "&nbsp;",
 
         K_DROP_DOWN_BUTTON = "kendoDropDownButton",
         K_SPLIT_BUTTON = "kendoSplitButton",
@@ -525,7 +525,11 @@ var __meta__ = {
             }
 
             if (element) {
-                element.appendTo(this.element);
+                if (this.overflowAnchor) {
+                    element.insertBefore(this.overflowAnchor);
+                } else {
+                    element.appendTo(this.element);
+                }
 
                 element.find("[disabled]").removeAttr("disabled");
 
@@ -648,6 +652,7 @@ var __meta__ = {
                 delete options.imageUrl;
                 delete options.icon;
             }
+
             if (options.showText === TOOLBAR) {
                 if (!options.attributes) {
                     options.attributes = {};
@@ -656,6 +661,9 @@ var __meta__ = {
                 options.attributes[ARIA_LABEL] = options.text;
 
                 options.text = NOTHING;
+            } else if (options.text === undefined || options.text === NOTHING) {
+                options.text = NBSP;
+                options.encoded = false;
             }
 
             that.overflowMenu.append(options);
@@ -750,7 +758,12 @@ var __meta__ = {
 
             separator.addClass(KSEPARATOR);
             separator.attr(ROLE, SEPARATOR);
-            separator.appendTo(this.element);
+
+            if (this.overflowAnchor) {
+                separator.insertBefore(this.overflowAnchor);
+            } else {
+                separator.appendTo(this.element);
+            }
 
             this._addAttributes(options, separator);
 
@@ -768,7 +781,12 @@ var __meta__ = {
         _addSpacer: function() {
             var spacer = $(SPACER_EL);
             spacer.addClass(SPACER_CLASS);
-            spacer.appendTo(this.element);
+
+            if (this.overflowAnchor) {
+                spacer.insertBefore(this.overflowAnchor);
+            } else {
+                spacer.appendTo(this.element);
+            }
         },
 
         _addTemplate: function(options) {
@@ -776,22 +794,25 @@ var __meta__ = {
                 overflowTemplate = options.overflowTemplate,
                 element, menuitem, inputsInTemplate = $(NOTHING);
 
-            if (template) {
-                template = isFunction(template) ? template(options) : template;
-                element = $(TEMPLATE_WRAPPER);
-                element.html(template);
-            }
-
-            if (overflowTemplate && this.overflowMenu) {
+            if (overflowTemplate && this.overflowMenu && options.overflow !== OVERFLOW_NEVER) {
                 overflowTemplate = isFunction(overflowTemplate) ? overflowTemplate(options)[0] : overflowTemplate;
                 this.overflowMenu.append({});
                 menuitem = this.overflowMenu.element
                     .find(DOT + MENU_ITEM)
                     .last()
-                    .addClass(STATE_HIDDEN)
                     .find(DOT + MENU_LINK)
                     .html(overflowTemplate)
                     .parent();
+            }
+
+            if (template && options.overflow !== OVERFLOW_ALWAYS) {
+                template = isFunction(template) ? template(options) : template;
+                element = $(TEMPLATE_WRAPPER);
+                element.html(template);
+
+                if (menuitem) {
+                    menuitem.addClass(STATE_HIDDEN);
+                }
             }
 
             if (element) {
@@ -1411,7 +1432,7 @@ var __meta__ = {
 
         _onMenuItemSelect: function(e, click, toggle) {
             var item = $(e.item),
-                togglable = item.find(MENU_LINK_TOGGLE).length > 0,
+                togglable = item.find(DOT + MENU_LINK_TOGGLE).length > 0,
                 id = item.attr(ID);
 
             if (id && id.indexOf(DASH + OVERFLOW) > -1) {

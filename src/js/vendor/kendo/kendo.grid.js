@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -5487,7 +5487,11 @@ var __meta__ = {
                     delete t.attr;
 
                     if (!!className) {
-                        t.attributes["class"] = className;
+                        if (t.attributes["class"] === undefined) {
+                            t.attributes["class"] = "";
+                        }
+
+                        t.attributes["class"] += (" " + className);
                     }
 
                     if (t.template) {
@@ -5518,6 +5522,8 @@ var __meta__ = {
                         attributes[keyValue[0]] = keyValue[1].replaceAll('"', "").replaceAll("'", "");
                     }
                 });
+            } else if (isPlainObject(attr)) {
+                attributes = attr;
             }
 
             return attributes;
@@ -8640,6 +8646,7 @@ var __meta__ = {
             var virtualColumns = that._hasVirtualColumns();
             var active;
             var widget;
+            var value;
 
             if ((inlineMode || incellMode || virtualColumns) && editedModel) {
                 that._clearEditableState();
@@ -8653,7 +8660,13 @@ var __meta__ = {
                     widget = kendo.widgetInstance(active, kendo.ui);
 
                     if (widget && isFunction(widget.value) && active.is(INPUT)) {
-                        widget.value(active.val());
+                        value = active.val();
+
+                        if (active.is("[type='checkbox'")) {
+                            value = active.is(":checked");
+                        }
+
+                        widget.value(value);
                         widget.trigger(CHANGE);
                     }
                 }

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -33,7 +33,7 @@ var __meta__ = {
         ComboBox = ui.ComboBox,
         percentageUnitsRegex = /^\d+(\.\d+)?%$/i,
         MCCOMBOBOX = "k-dropdowngrid",
-        POPUPCLASS = "k-dropdowngrid-popup k-popup-flush";
+        POPUPCLASS = "k-dropdowngrid-popup";
 
     var MultiColumnComboBox = ComboBox.extend({
         init: function(element, options) {

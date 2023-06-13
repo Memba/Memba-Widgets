@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -95,6 +95,7 @@ var __meta__ = {
             that._customOptions = {};
 
             that._wrapper();
+            that._inputValuesContainer();
             that._tagList();
             that._input();
             that._textContainer();
@@ -447,6 +448,8 @@ var __meta__ = {
                 if (shouldTrigger) {
                     that._change();
                 }
+
+                that._refreshTagListAria();
                 that._close();
             };
 
@@ -1342,6 +1345,7 @@ var __meta__ = {
 
             if (this.persistTagList) {
                 this.updatePersistTagList(added, removed);
+                that._refreshTagListAria();
 
                 return;
             }
@@ -1361,7 +1365,7 @@ var __meta__ = {
                 for (idx = 0; idx < added.length; idx++) {
                     addedItem = added[idx];
 
-                    that.input.before(that.tagTemplate(addedItem.dataItem));
+                    that.tagList.append(that.tagTemplate(addedItem.dataItem));
 
                     that._setOption(getter(addedItem.dataItem), true);
                 }
@@ -1381,10 +1385,16 @@ var __meta__ = {
                 }
             }
 
+            that._refreshTagListAria();
             that._refreshFloatingLabel();
 
             that._angularTagItems("compile");
             that._placeholder();
+        },
+
+        _refreshTagListAria: function() {
+            var that = this;
+            html.renderChipList(that.tagList, $.extend({ selectable: that.value().length === 0 ? "none" : "multiple" }, that.options));
         },
 
         _updateTagListHTML: function() {
@@ -1398,13 +1408,15 @@ var __meta__ = {
             });
 
             if (values.length) {
-                that.input.before(that.tagTemplate({
+                that.tagList.append(that.tagTemplate({
                     values: values,
                     dataItems: that.dataItems(),
                     maxTotal: that._maxTotal,
                     currentTotal: total
                 }));
             }
+
+            that._refreshTagListAria();
         },
 
         _select: function(candidate) {
@@ -1504,10 +1516,10 @@ var __meta__ = {
             var that = this;
             var element = that.element;
             var accessKey = element[0].accessKey;
-            var input = that.tagList.children("input.k-input-inner");
+            var input = that._inputValuesContainer.children("input.k-input-inner");
 
             if (!input[0]) {
-                input = $('<input class="k-input-inner" />').appendTo(that.tagList);
+                input = $('<input class="k-input-inner" />').appendTo(that._inputValuesContainer);
             }
 
             element.removeAttr("accesskey");
@@ -1522,13 +1534,24 @@ var __meta__ = {
             }
         },
 
+        _inputValuesContainer: function() {
+            var that = this,
+                inputValuesContainer = that.wrapper.children(".k-input-values");
+
+            if (!inputValuesContainer[0]) {
+                inputValuesContainer = $('<div class="k-input-values"></div>').appendTo(that.wrapper);
+            }
+
+            that._inputValuesContainer = inputValuesContainer;
+        },
+
         _tagList: function() {
             var that = this,
                 options = that.options,
-                tagList = that.wrapper.children(".k-input-values");
+                tagList = that._inputValuesContainer.children(".k-chip-list");
 
             if (!tagList[0]) {
-                tagList = $(html.renderChipList('<div unselectable="on" class="k-input-values k-selection-multiple" />', $.extend({}, options))).appendTo(that.wrapper);
+                tagList = $(html.renderChipList('<div unselectable="on" class="k-selection-multiple" />', $.extend({ selectable: "none" }, options))).appendTo(that._inputValuesContainer);
             }
 
             that.tagList = tagList;
@@ -1566,7 +1589,10 @@ var __meta__ = {
                         themeColor: "base",
                         text: tagTemplate(data),
                         attr: {
-                            unselectable: "on"
+                            unselectable: "on",
+                            "aria-selected": true,
+                            role: "option",
+                            "aria-keyshortcuts": isMultiple ? "Enter Delete" : "Enter"
                         },
                         removable: isMultiple,
                         removableAttr: {
@@ -1587,14 +1613,14 @@ var __meta__ = {
         },
 
         _loader: function() {
-            this._loading = $('<span class="k-icon k-i-loading k-input-loading-icon ' + HIDDENCLASS + '"></span>').insertAfter(this.tagList);
+            this._loading = $('<span class="k-icon k-i-loading k-input-loading-icon ' + HIDDENCLASS + '"></span>').insertAfter(this._inputValuesContainer);
         },
 
         _clearButton: function() {
             List.fn._clearButton.call(this);
 
             if (this.options.clearButton) {
-                this._clear.insertAfter(this.tagList);
+                this._clear.insertAfter(this._inputValuesContainer);
                 this.wrapper.addClass("k-multiselect-clearable");
             }
         },

@@ -1,11 +1,13 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
+import { defaultBreakpoints, mediaQuery } from './utils/mediaquery.js';
+
 var __meta__ = {
     id: "core",
     name: "Core",
@@ -18,7 +20,7 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
-    version: '2023.1.314'.replace(/^\s+|\s+$/g, ''),
+    version: '2023.1.425'.replace(/^\s+|\s+$/g, ''),
     licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
@@ -127,7 +129,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2023.1.314".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2023.1.425".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -2799,6 +2801,7 @@ function pad(number, digits, end) {
         isLocalUrl: function(url) {
             return url && !localUrlRe.test(url);
         },
+        mediaQuery: mediaQuery,
 
         expr: function(expression, safe, paramName) {
             expression = expression || "";
@@ -5267,6 +5270,8 @@ function pad(number, digits, end) {
         // Use external global flags for templates.
         kendo.debugTemplates = window.DEBUG_KENDO_TEMPLATES;
 
+        // Setup default mediaQuery breakpoints
+        kendo.setDefaults('breakpoints', defaultBreakpoints);
     })();
 
     // Implement type() as it has been depricated in jQuery

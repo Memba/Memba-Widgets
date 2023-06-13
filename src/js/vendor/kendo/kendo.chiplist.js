@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -51,7 +51,6 @@ var __meta__ = {
             html.renderChipList(element, $.extend({}, options));
 
             that._selectable = that.options.selectable;
-            that._applyAriaAttributes();
             that._bindEvents();
             that._items();
         },
@@ -97,18 +96,6 @@ var __meta__ = {
             Widget.fn.destroy.call(this);
         },
 
-        _applyAriaAttributes: function() {
-            var that = this;
-            if (that._selectable !== "none") {
-                that.element.attr({
-                    "aria-multiselectable": that._selectable === "multiple",
-                    role: "listbox",
-                    "aria-label": that.element.attr("id") + " listbox",
-                    "aria-orientation": "horizontal"
-                });
-            }
-        },
-
         _updateCssClasses: function() {
             var that = this,
                 options = that.options,
@@ -138,7 +125,7 @@ var __meta__ = {
                 attributes["aria-selected"] = itemOptions.selected;
             }
 
-            if (itemOptions.removable) {
+            if (options.removable || itemOptions.removable) {
                 attributes["aria-keyshortcuts"] = "Enter Delete";
             }
 
@@ -409,6 +396,10 @@ var __meta__ = {
 
             chip = that._getChipFromElement(item);
             if (chip) {
+                if (that._selectable !== "none") {
+                    chip.wrapper.attr("role", "option");
+                }
+
                 targetElement[method](chip.wrapper);
             } else if (item && isPlainObject(item) && !isEmptyObject(item)) {
                 chipEl = $("<span></span>");

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -417,7 +417,7 @@ import "./kendo.button.js";
                     isBoolField = fieldType && fieldType === "boolean",
                     fieldTemplate, renderedField;
 
-                if (isBoolField && isHorizontal) {
+                if (isBoolField && isHorizontal && !item.editor) {
                     fieldTemplate = that._noLabelfieldTemplate;
                 } else {
                     fieldTemplate = that._fieldTemplate;
@@ -427,7 +427,7 @@ import "./kendo.button.js";
                     styles: formStyles,
                     id: item.id || item.field || "",
                     field: item.field || "",
-                    label: isBoolField ? null : that._formatLabel(item.field, item.label),
+                    label: isBoolField && !item.editor ? null : that._formatLabel(item.field, item.label),
                     colSpan: item.colSpan || "",
                     optional: that.options.messages.optional,
                     hidden: that._isHidden(item.editor) || that._isAntiForgeryToken(item.field)
@@ -454,7 +454,7 @@ import "./kendo.button.js";
                     field = fields[i];
                     fieldElement = that.wrapper.find("[name='" + field.name + "']:not([type='hidden'])");
 
-                    if (!fieldElement || !field.label || field.isHidden || field.type !== "boolean") {
+                    if (!fieldElement || !field.label || field.isHidden || field.type !== "boolean" || field.editor) {
                         continue;
                     }
 

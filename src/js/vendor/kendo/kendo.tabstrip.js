@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -371,6 +371,8 @@ var __meta__ = {
                             kendo.resize(contentHolder);
                         } }, animation, {
                             complete: function() {
+                                // See https://github.com/telerik/kendo-ui-core/issues/6660
+                                that.element.css('min-height', oldMinHeight);
                                 item.removeAttr("data-animating");
 
                                 that.trigger(ACTIVATE, { item: item[0], contentElement: contentHolder[0] });
@@ -412,12 +414,9 @@ var __meta__ = {
             var oldMinHeight = that.element.css('min-height');
             that.element.css('min-height', that.element.outerHeight());
 
-            visibleContents
-                    .removeClass(ACTIVESTATE);
-
+            visibleContents.removeClass(ACTIVESTATE);
             that.tabGroup.find("." + TABONTOP).removeClass(TABONTOP);
-                    item.addClass(TABONTOP) // change these directly to bring the tab on top.
-                        .css("z-index");
+            item.addClass(TABONTOP).css("z-index");
 
             if (kendo.size(animation.effects)) {
                 item.kendoAddClass(ACTIVESTATE, { duration: animation.duration });
@@ -436,8 +435,6 @@ var __meta__ = {
             } else {
                 showContent();
             }
-
-            that.element.css('min-height', oldMinHeight);
 
             return true;
         },

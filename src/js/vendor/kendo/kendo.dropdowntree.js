@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -966,13 +966,18 @@ var __meta__ = {
         },
 
         _clearTextAndValue: function() {
-            this._selection._clearValue();
+            var shouldTrigger = this._selection._clearValue();
+
             this.setValue([]);
             this._clearInput();
             this._clearText();
             this.popup.position();
             this._toggleCloseVisibility();
             this._refreshFloatingLabel();
+
+            if (shouldTrigger) {
+                this.trigger(CHANGE);
+            }
         },
 
         _clearText: function() {
@@ -2104,8 +2109,10 @@ var __meta__ = {
             }
 
             if (!dropdowntree._valueMethodCalled && triggerChange) {
-                dropdowntree.trigger(CHANGE);
+                return true;
             }
+
+            return false;
         },
 
         _checkLoadedItem: function(tempItem, value) {
@@ -2178,7 +2185,9 @@ var __meta__ = {
                             themeColor: "base",
                             rounded: "medium",
                             attr: {
-                                unselectable: "on"
+                                unselectable: "on",
+                                "aria-keyshortcuts": "Enter Delete"
+
                             },
                             text: (isMultiple ? tagTemplate(data) : ('<span unselectable="on" data-bind="text: tags.length"></span>' +
                             '<span unselectable="on">&nbsp;' + singleTag + '</span>' )),
@@ -2216,7 +2225,7 @@ var __meta__ = {
                 var isMultiple = dropdowntree.options.tagMode === "multiple";
                 var tagCollection = isMultiple ? "tags" : "multipleTag";
 
-                tagList = $(html.renderChipList('<div unselectable="on" class="k-input-values" data-template="tagTemplate" data-bind="source: ' + tagCollection + '" />', $.extend({}, dropdowntree.options))).appendTo(dropdowntree.wrapper);
+                tagList = $(html.renderChipList('<div unselectable="on" class="k-input-values" data-template="tagTemplate" data-bind="source: ' + tagCollection + '" />', $.extend({ selectable: "none" }, dropdowntree.options))).appendTo(dropdowntree.wrapper);
             }
 
             dropdowntree.tagList = tagList;
@@ -2231,7 +2240,15 @@ var __meta__ = {
             dropdowntree.tagList.attr("data-stop", true);
         },
 
+        _refreshTagListAria: function() {
+            var that = this;
+            if (that.tagList) {
+                html.renderChipList(that.tagList, $.extend({ selectable: that.tagList.items().length === 0 ? "none" : "multiple" }, that.options));
+            }
+        },
+
         _setValue: function(value) {
+            var that = this;
             var dropdowntree = this._dropdowntree;
             var oldValues = dropdowntree._values;
             if (value === undefined || value === null) {
@@ -2250,6 +2267,7 @@ var __meta__ = {
 
             dropdowntree._valueMethodCalled = false;
             dropdowntree._toggleCloseVisibility();
+            that._refreshTagListAria();
             dropdowntree._refreshFloatingLabel();
         },
 
@@ -2291,9 +2309,11 @@ var __meta__ = {
             if (tagsArray.length) {
                 dropdowntree._preventChangeTrigger = false;
                 if (!dropdowntree._valueMethodCalled) {
-                    dropdowntree.trigger(CHANGE);
+                    return true;
                 }
             }
+
+            return false;
         },
 
         _checkLoadedItem: function(tempItem, value) {

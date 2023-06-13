@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -115,7 +115,6 @@ var __meta__ = {
             themeColor: 'primary',
             fillMode: 'solid',
             size: 'medium',
-            shape: 'rectangle',
             rounded: 'full',
             align: 'bottom end',
             alignOffset: {
@@ -242,17 +241,17 @@ var __meta__ = {
         _aria: function() {
             var that = this,
                 element = that.element,
-                popup = that._popup,
+                list = that._list,
                 enabled = that._enabled;
 
             element.attr(ARIA_DISABLED, !enabled);
-            element.attr(ARIA_HASPOPUP, popup ? true : null);
-            element.attr(ARIA_EXPANDED, popup ? false : null);
-            element.attr(ARIA_CONTROLS, popup ? popup.element.attr(ID) : null);
+            element.attr(ARIA_HASPOPUP, list ? true : null);
+            element.attr(ARIA_EXPANDED, list ? false : null);
+            element.attr(ARIA_CONTROLS, list ? list.attr(ID) : null);
 
-            if (popup) {
-                popup.element.attr(ARIA_ROLE, ROLE_MENU);
-                popup.element.find(DOT + cssClasses.item)
+            if (list) {
+                list.attr(ARIA_ROLE, ROLE_MENU);
+                list.find(DOT + cssClasses.item)
                     .attr(ARIA_ROLE, ROLE_MENU_ITEM)
                     .attr(TABINDEX, -1);
             }
@@ -360,17 +359,19 @@ var __meta__ = {
                 element = that.element,
                 options = that.options,
                 list = that._list,
-                positionOptions;
+                positionOptions, popupEl;
 
             if (!list) {
                 return;
             }
 
+            popupEl = list.wrap("<div>").parent();
+
             positionOptions = that._getPopupPosition();
 
-            that._popup = new ui.Popup(list, extend({}, options.popup, {
+            that._popup = new ui.Popup(popupEl, extend({}, options.popup, {
                 anchor: element,
-                appendTo: list.parent(),
+                appendTo: popupEl.parent(),
                 copyAnchorStyles: false,
                 autosize: false,
                 collision: "",
@@ -392,17 +393,17 @@ var __meta__ = {
 
             that._popup.element.addClass([cssClasses.popup, cssClasses.popupTransparent].join(' '));
 
-            that._setPopupId();
+            that._setPopupListId();
         },
 
-        _setPopupId: function() {
+        _setPopupListId: function() {
             var that = this,
                 id = that.element.attr(ID);
 
             if (!id) {
                 id = kendo.guid();
             }
-            that._popup.element.attr(ID, id + "-list");
+            that._list.attr(ID, id + "-list");
         },
 
         _getPopupPosition: function() {
@@ -476,12 +477,12 @@ var __meta__ = {
 
         _attachEvents: function() {
             var that = this,
-                popup = that._popup;
+                list = that._list;
 
             that.element.on(CLICK + NS, that._click.bind(that));
 
-            if (popup) {
-                popup.element
+            if (list) {
+                list
                     .on(CLICK + NS, DOT + cssClasses.item, that._itemClick.bind(that))
                     .on(KEYDOWN + NS, DOT + cssClasses.item, that._itemKeydown.bind(that))
                     .on(HOVEREVENTS, DOT + cssClasses.item, that._itemHover.bind(that));
@@ -675,16 +676,6 @@ var __meta__ = {
             that.setOptions({ themeColor: color });
         },
 
-        shape: function(shape) {
-            var that = this;
-
-            if (shape === undefined) {
-                return that.options.shape;
-            }
-
-            this.setOptions({ shape: shape });
-        },
-
         hide: function() {
             var that = this;
 
@@ -746,12 +737,12 @@ var __meta__ = {
             var that = this;
 
             if (that._popup) {
-                that._popup.destroy();
-                that._popup = null;
-
                 that._list.off(NS);
                 that._list.remove();
                 that._list = null;
+
+                that._popup.destroy();
+                that._popup = null;
             }
         },
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -266,6 +266,8 @@ var __meta__ = {
                        .attr(ARIA_DISABLED, disable)
                        .attr(ARIA_READONLY, readonly);
             }
+
+            that._toggleCloseVisibility();
         },
 
         close: function() {
@@ -690,7 +692,7 @@ var __meta__ = {
             that._loading.addClass(HIDDENCLASS);
             that.element.attr("aria-busy", false);
             that._busy = null;
-            that._showClear();
+            that._toggleCloseVisibility();
         },
 
         _showBusy: function() {
@@ -804,7 +806,9 @@ var __meta__ = {
         },
 
         _toggleCloseVisibility: function() {
-            if (this.value()) {
+            var preventShow = this.element.is(":disabled") || this.element.is("[readonly]");
+
+            if (this.value() && !preventShow) {
                 this._showClear();
             } else {
                 this._hideClear();

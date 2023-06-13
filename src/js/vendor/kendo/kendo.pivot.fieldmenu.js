@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1077,7 +1077,7 @@ var __meta__ = {
                 '<div class="k-filter-menu-container">' +
                     `<div class="k-filter-help-text">${messages.info}</div>` +
                     '<select>' +
-                        `${Object.keys(messages.operators).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
+                        `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
                     '</select>' +
                     `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" type="text" ${ARIA_LABEL}="${messages.filter}" title="${messages.filter}" /></span>` +
                     '<div class="k-actions">' +
@@ -1136,7 +1136,7 @@ var __meta__ = {
                                         '<form class="k-filter-menu k-group k-reset">' +
                                             '<div class="k-filter-menu-container">' +
                                                     '<select class="k-dropdown k-picker k-dropdown-list" style="overflow:visible">' +
-                                                        `${Object.keys(messages.operators).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
+                                                        `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
                                                     '</select>' +
                                                     '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" value=""></span>' +
                                                 '<div class="k-actions k-hstack k-justify-content-stretch">' +

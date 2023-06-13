@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -656,7 +656,7 @@
                     previous: "Zur vorherigen Seite",
                     next: "Zur nächsten Seite",
                     last: "Zur letzten Seite",
-                    of: " von {0} ",
+                    of: "von",
                     page: "Seite",
                     pages: "Seiten"
                 },

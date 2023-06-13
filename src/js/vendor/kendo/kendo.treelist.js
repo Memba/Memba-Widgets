@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -5677,8 +5677,8 @@ var __meta__ = {
             var children = [];
             var model = options.model;
             var column = options.column;
+            var iconType = kendo.defaults.iconType;
             var iconClass;
-            var iconType = "svg";
             var attr = {
                 "role": "gridcell",
                 "class": "k-table-td",
@@ -5833,8 +5833,7 @@ var __meta__ = {
             var paramName = templateSettings.paramName;
 
             if (field && paramName) {
-                dirtyField = field.charAt(0) === "[" ? kendo.expr(field, paramName + ".dirtyFields") : paramName + `.dirtyFields['${field}']`;
-                return ({ dirty, dirtyFields }) => (dirty && dirtyFields && dirtyField ? '<span class="k-dirty"></span>' : '');
+                return ({ dirty, dirtyFields }) => (dirty && dirtyFields && dirtyFields[field] ? '<span class="k-dirty"></span>' : '');
             }
 
             return () => "";

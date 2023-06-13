@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -26,12 +26,12 @@ var defaultValues = {
 
 var operatorsTemplate = ({ ns, operatorsLabel, operators }) =>
     `<select data-${ns}bind='value: operator' title='${operatorsLabel}' data-${ns}role='dropdownlist'>` +
-        `${Object.keys(operators).map(op => "<option value='" + op + "'>" + (operators[op].text || operators[op]) + "</option>" ).join("")}` +
+        `${Object.keys(operators || {}).map(op => "<option value='" + op + "'>" + (operators[op].text || operators[op]) + "</option>" ).join("")}` +
     "</select>";
 
 var logicTemplate = ({ ns, operators }) =>
     `<div data-${ns}bind='value: logic' data-${ns}role='filterbuttongroup'>` +
-        `${Object.keys(operators).map(op => "<span value='" + op + "'>" + operators[op] + "</span>" ).join("")}` +
+        `${Object.keys(operators || {}).map(op => "<span value='" + op + "'>" + operators[op] + "</span>" ).join("")}` +
     "</div>";
 
 var mainContainer =
@@ -97,7 +97,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
        `<div role='group' aria-label='${filterExpressionLabel}' class='k-toolbar k-toolbar-md' id='${uid}'>` +
          "<div class='k-filter-toolbar-item k-filter-field'>" +
             `<select data-${ns}bind='value: field' title='${fieldsLabel}' class='k-filter-dropdown' data-auto-width='true' data-${ns}role='dropdownlist'>` +
-                `${Object.keys(fields).map(current => "<option value='" + fields[current].name + "'>" + fields[current].label + "</option>").join("")}` +
+                `${Object.keys(fields || {}).map(current => "<option value='" + fields[current].name + "'>" + fields[current].label + "</option>").join("")}` +
             "</select>" +
          "</div>" +
          "<div class='k-filter-toolbar-item k-filter-operator'>" +

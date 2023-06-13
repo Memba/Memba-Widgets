@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -532,7 +532,7 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "pdf": "Export to PDF",
     "save": "Save changes",
     "select": "Select",
-    "update": "Update",
+    "update": "Save",
     "search": "Search..."
   },
   "editable": {
@@ -589,7 +589,7 @@ $.extend(true, kendo.ui.TreeList.prototype.options.messages,{
     "retry": "Retry",
     "commands": {
         "edit": "Edit",
-        "update": "Update",
+        "update": "Save",
         "canceledit": "Cancel",
         "create": "Add new record",
         "createchild": "Add child record",
@@ -1521,7 +1521,7 @@ if (kendo.ui.PDFViewer) {
                 previous: "Go to the previous page",
                 next: "Go to the next page",
                 last: "Go to the last page",
-                of: " of {0} ",
+                of: "of",
                 page: "page",
                 pages: "pages"
             },

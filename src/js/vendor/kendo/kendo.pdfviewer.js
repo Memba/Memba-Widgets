@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -158,7 +158,7 @@ var __meta__ = {
                         previous: "Go to the previous page",
                         next: "Go to the next page",
                         last: "Go to the last page",
-                        of: " of {0} ",
+                        of: "of",
                         page: "page",
                         pages: "pages"
                     },
@@ -210,6 +210,7 @@ var __meta__ = {
             spacer: { type: "spacer" },
             zoomInOut: {
                 type: "buttonGroup",
+                fillMode: "flat",
                 attributes: { "class": "k-zoom-in-out-group" },
                 buttons: [
                     { type: "button", icon: "zoom-out", name: "zoomOut", command: "ZoomCommand", showText: "overflow", options: "{ \"zoomOut\": true, \"updateComboBox\": true }", fillMode: "flat" },
@@ -234,6 +235,7 @@ var __meta__ = {
             },
             toggleSelection: {
                 type: "buttonGroup",
+                fillMode: "flat",
                 attributes: { "class": "k-toggle-selection-group" },
                 buttons: [
                     {
@@ -301,9 +303,10 @@ var __meta__ = {
         pagerTools: [
             {
                 type: "buttonGroup",
+                fillMode: "flat",
                 buttons: [
-                    { type: "button", icon: "caret-alt-to-left", name: "first", showText: "overflow", options: "{ \"value\": \"first\" }", fillMode: "flat", attributes: { class: "k-first-link" } },
-                    { type: "button", icon: "caret-alt-left", name: "previous", showText: "overflow", options: "{ \"value\": \"prev\" }", fillMode: "flat", attributes: { class: "k-prev-link" }, rounded: "none" },
+                    { type: "button", icon: "caret-alt-to-left", name: "first", showText: "overflow", options: "{ \"value\": \"first\" }", attributes: { class: "k-first-link" } },
+                    { type: "button", icon: "caret-alt-left", name: "previous", showText: "overflow", options: "{ \"value\": \"prev\" }", attributes: { class: "k-prev-link" }, rounded: "none" },
                 ]
             },
             {
@@ -331,6 +334,7 @@ var __meta__ = {
             },
             {
                 type: "buttonGroup",
+                fillMode: "flat",
                 buttons: [
                     { type: "button", icon: "caret-alt-right", name: "next", showText: "overflow", options: "{ \"value\": \"next\" }", fillMode: "flat", attributes: { class: "k-next-link" }, rounded: "none" },
                     { type: "button", icon: "caret-alt-to-right", name: "last", showText: "overflow", options: "{ \"value\": \"last\" }", fillMode: "flat", attributes: { class: "k-last-link" } }
@@ -485,11 +489,22 @@ var __meta__ = {
                     t.componentOptions.dataSource = zoomLevels;
                     t.componentOptions.value = value;
                 } else if (t.name === "pager") {
+                    t = $.extend({}, that.defaultTools.pager, t);
+
                     var pagerTools = that.pagerTools;
 
                     that.pager = true;
 
                     t = pagerTools.map(p => {
+                        var compMessages;
+
+                        if (p.componentOptions && p.componentOptions.messages) {
+                            compMessages = p.componentOptions.messages;
+                            Object.keys(messages).forEach(key => {
+                                p.componentOptions.messages[key] = messages.pager[key];
+                            });
+                        }
+
                         if (p.buttons) {
                             p.buttons = p.buttons.map((b) => {
                                 b.command = t.command;

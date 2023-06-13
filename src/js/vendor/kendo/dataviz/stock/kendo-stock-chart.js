@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -187,10 +187,12 @@ dataviz.setDefaultOptions(NavigatorHint, {
 
 var NAVIGATOR_PANE = "_navigator";
 var NAVIGATOR_AXIS = NAVIGATOR_PANE;
+var DEFAULT_PANE = "_default";
 
 var constants = {
 	NAVIGATOR_AXIS: NAVIGATOR_AXIS,
-	NAVIGATOR_PANE: NAVIGATOR_PANE
+	NAVIGATOR_PANE: NAVIGATOR_PANE,
+	DEFAULT_PANE: DEFAULT_PANE
 };
 
 var ZOOM_ACCELERATION = 3;
@@ -329,7 +331,7 @@ var Navigator = dataviz.Class.extend({
     redrawSlaves: function() {
         var chart = this.chart;
         var plotArea = chart._plotArea;
-        var slavePanes = plotArea.panes.slice(0, -1);
+        var slavePanes = plotArea.panes.filter(function (pane) { return pane.options.name !== NAVIGATOR_PANE; });
 
         // Update the original series and categoryAxis before partial refresh.
         plotArea.srcSeries = chart.options.series;
@@ -575,7 +577,13 @@ Navigator.setup = function(options, themeOptions) {
         paneOptions.height = 0.1;
     }
 
-    panes.push(paneOptions);
+    if (options.navigator.position !== 'top') {
+        panes.push(paneOptions);
+    } else {
+        panes.unshift(paneOptions);
+    }
+
+    panes.forEach(function (pane) { return pane.name = pane.name || DEFAULT_PANE; });
 
     Navigator.attachAxes(options, naviOptions);
     Navigator.attachSeries(options, naviOptions, themeOptions);
@@ -585,6 +593,8 @@ Navigator.attachAxes = function(options, naviOptions) {
     var series = naviOptions.series || [];
     var categoryAxes = options.categoryAxis = [].concat(options.categoryAxis);
     var valueAxes = options.valueAxis = [].concat(options.valueAxis);
+    var allAxes = categoryAxes.concat(valueAxes);
+    allAxes.forEach(function (axis) { return axis.pane = axis.pane || DEFAULT_PANE; });
 
     var equallySpacedSeries = dataviz.filterSeriesByType(series, datavizConstants.EQUALLY_SPACED_SERIES);
     var justifyAxis = equallySpacedSeries.length === 0;
@@ -857,7 +867,10 @@ dataviz.setDefaultOptions(StockChart, {
                 visible: false
             },
             tooltip: {
-                visible: true
+                visible: false
+            },
+            highlight: {
+                visible: false
             },
             line: {
                 width: 2

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.314 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -116,11 +116,11 @@ var __meta__ = {
                 }
 
                 result +=
-                '<li class="k-timeline-track-item">' +
+                '<li class="k-timeline-track-item" role="tab">' +
                     '<div class="k-timeline-date-wrap">' +
                          (showDateLabels ? `<span class="k-timeline-date">${kendo.toString(data[i][dateField], dateFormat)}</span>` : '') +
                     '</div>' +
-                    '<a class="k-timeline-circle"></a>' +
+                    '<span class="k-timeline-circle"></span>' +
                 '</li>';
             }
 
@@ -153,9 +153,9 @@ var __meta__ = {
                         '</div>'
                         : '') +
                     '</div>' +
-                    '<a class="k-timeline-circle"></a>' +
+                    '<span class="k-timeline-circle"></span>' +
                     `<div class="${collapsibleEvents ? 'k-timeline-card k-collapsed' : 'k-timeline-card'}">` +
-                        `<div class="k-card" ${navigatable ? `aria-describedby="${encode(data[i].uid)}-date" tabindex="0" role="button" aria-live="polite" aria-atomic="true"` : ''} >` +
+                        `<div aria-expanded="false" class="k-card" ${navigatable ? `aria-describedby="${encode(data[i].uid)}-date" tabindex="0" role="button" aria-live="polite" aria-atomic="true"` : ''} >` +
                             `<span class="${reverse ? 'k-timeline-card-callout k-card-callout k-callout-e' : 'k-timeline-card-callout k-card-callout k-callout-w'}"></span>` +
                             `${itemTemplate({ titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i], altField: altField, navigatable: navigatable, collapsibleEvents: collapsibleEvents })}` +
                         '</div>' +
@@ -167,10 +167,10 @@ var __meta__ = {
             return result;
         },
         ARROWSHTML =
-        '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-left k-disabled" title="previous">' +
+        '<a aria-hidden="true" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-left k-disabled" title="previous">' +
             kendo.ui.icon({ icon: "caret-alt-left", iconClass: "k-button-icon" }) +
         '</a>' +
-        '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-right k-disabled" title="next">' +
+        '<a aria-hidden="true" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-right k-disabled" title="next">' +
             kendo.ui.icon({ icon: "caret-alt-right", iconClass: "k-button-icon" }) +
         '</a>';
 
@@ -202,22 +202,32 @@ var __meta__ = {
 
         var Page = kendo.Class.extend({
             init: function(container) {
-                this.cardContainer = $("<div class='k-card' />");
+                this.cardContainer = $("<div class='k-card' role='tabpanel'/>");
                 var cardWrapper = $("<div class='k-timeline-card'></div>").append(this.cardContainer);
 
                 this.element = $("<li class='" + className(VIRTUAL_PAGE_CLASS) + "'></li>").append(cardWrapper);
                 container.append(this.element);
             },
 
-            content: function(htmlContent, uid) {
+            content: function(htmlContent, uid, label) {
                 var callOut = $("<span class='k-timeline-card-callout k-card-callout k-callout-n'></span>");
                 this.cardContainer.html(htmlContent);
                 this.cardContainer.append(callOut);
                 this.element.attr("data-uid", uid);
+                this.element.find(".k-card").attr({
+                    role: "tabpanel",
+                    "aria-label": label
+                });
             },
 
             position: function(position) { //position can be -1, 0, 1
                 this.element.css("transform", "translate3d(" + this.element.width() * position + "px, 0, 0)");
+
+                if (position === 0) {
+                    this.element.find(".k-card").attr("tabindex", 0);
+                } else {
+                    this.element.find(".k-card").removeAttr("tabindex");
+                }
             },
 
             setPageCallout: function(propery, value) {
@@ -266,7 +276,8 @@ var __meta__ = {
                     pages: pages,
                     eventTemplate: options.eventTemplate,
                     eventHeight: options.eventHeight,
-                    dataFieldMappings: options.dataFieldMappings
+                    dataFieldMappings: options.dataFieldMappings,
+                    dateFormat: options.dateFormat
                 });
 
                 this.bind([TRANSITION_END], options);
@@ -294,6 +305,7 @@ var __meta__ = {
             setPageContent: function(page, data) {
                 var template = typeof this.eventTemplate === Function ? this.eventTemplate : kendo.template(this.eventTemplate);
                 var dataFieldMappings = this.dataFieldMappings;
+                var label = kendo.toString(data.date, this.dateFormat);
                 var html;
 
                 html = template({
@@ -306,7 +318,7 @@ var __meta__ = {
                     altField: dataFieldMappings.altField
                 });
 
-                page.content(html, data.uid);
+                page.content(html, data.uid, label);
             },
             updatePage: function(isForward, data, calloutOffset) {
                 var pages = this.pages;
@@ -382,7 +394,7 @@ var __meta__ = {
 
                 var trackWrap = $("<div />");
                 var trackEl = $("<div />");
-                var scrollableWrap = $("<ul />");
+                var scrollableWrap = $("<ul role='tablist' tabindex='0' />");
                 var eventsWrap = $("<div />");
                 var eventsList = $("<ul />");
 
@@ -394,9 +406,9 @@ var __meta__ = {
 
                 trackWrap.addClass("k-timeline-track-wrap");
                 trackEl.addClass("k-timeline-track");
-                scrollableWrap.addClass("k-timeline-scrollable-wrap");
+                scrollableWrap.addClass(SCROLLABLEWRAPCLASS);
                 eventsWrap.addClass("k-timeline-events-list");
-                eventsList.addClass("k-timeline-scrollable-wrap");
+                eventsList.addClass(SCROLLABLEWRAPCLASS);
 
                 if (options.eventHeight) {
                     eventsList.height(options.eventHeight);
@@ -523,7 +535,7 @@ var __meta__ = {
                 });
 
                 if (options.initialEventIndex) {
-                    that._trackWrap.append($(html).find(".k-timeline-scrollable-wrap").css("transform", "translateX(-100%)").parent());
+                    that._trackWrap.append($(html).find("." + SCROLLABLEWRAPCLASS).css("transform", "translateX(-100%)").parent());
                 } else {
                     that._scrollableWrap.html(html);
                 }
@@ -536,7 +548,8 @@ var __meta__ = {
                     transitionEnd: this._transitionEnd.bind(this),
                     eventTemplate: itemTemplate,
                     dataFieldMappings: dataFieldMappings,
-                    eventHeight: options.eventHeight
+                    eventHeight: options.eventHeight,
+                    dateFormat: options.dateFormat
                 });
             },
 
@@ -597,7 +610,6 @@ var __meta__ = {
                 var trackItems = trackItem.parent().children(":not(.k-timeline-flag-wrap)");
                 var itemIndex = trackItems.index(trackItem);
                 var forward;
-
 
                 if (this.options.navigatable) {
                     that._removeCurrent();
@@ -848,7 +860,7 @@ var __meta__ = {
 
             _redrawEvents: function() {
                 var that = this;
-                var numOfEvents = Math.floor(that.element.find(".k-timeline-scrollable-wrap").width() / 150);
+                var numOfEvents = Math.floor(that.element.find("." + SCROLLABLEWRAPCLASS).width() / 150);
                 var width;
 
                 if (that.element.width() <= 480) {
@@ -856,14 +868,14 @@ var __meta__ = {
                     width = 100;
                     that.numOfEvents = 1;
                     that._tackItemWidth = width;
-                    that.element.find("li.k-timeline-track-item").css("flex", "1 0 " + width + "%");
+                    that.element.find("li." + TRACKITEMCLASS).css("flex", "1 0 " + width + "%");
                     that._repositionEvents();
                 } else {
                     that.element.removeClass("k-timeline-mobile");
                     if (numOfEvents != that.numOfEvents) {
                         that.numOfEvents = numOfEvents;
                         width = 100 / numOfEvents;
-                        applyCssStyles(that.element.find("li.k-timeline-track-item"), "flex", "1 0 " + width + "%");
+                        applyCssStyles(that.element.find("li." + TRACKITEMCLASS), "flex", "1 0 " + width + "%");
                         that._tackItemWidth = width;
                         that._repositionEvents();
                     }
@@ -909,7 +921,7 @@ var __meta__ = {
                         applyCssStyles(trackWrapScrollableElement, "transform", "translateX(-" + leftOffset + "%)");
                         that._firstIndexInView = that._currentIndex;
                     } else {
-                        circleElement = trackWrapScrollableElement.find("li.k-timeline-track-item").eq(that._currentIndex).find(".k-timeline-circle");
+                        circleElement = trackWrapScrollableElement.find("li." + TRACKITEMCLASS).eq(that._currentIndex).find(".k-timeline-circle");
                         calloutOffset = calculateOffset(circleElement, that._trackWrap);
                         page.setPageCallout("left", (calloutOffset / page.element.width()) * 100 + "%");
                         that._firstIndexInView = Math.round(Math.abs(end) / width);
@@ -935,8 +947,9 @@ var __meta__ = {
                 var firstEventElement = that._trackWrap.find(".k-timeline-circle").first();
                 var dataItem = that.dataSource.view()[0];
                 var navigatable = that.options.navigatable;
+                var current;
 
-                that.maxEvents = that._trackWrap.find(".k-timeline-track-item").length;
+                that.maxEvents = that._trackWrap.find("." + TRACKITEMCLASS).length;
 
                 that._currentIndex = 1;
 
@@ -957,25 +970,27 @@ var __meta__ = {
                 if (navigatable) {
                     that._trackWrap
                         .find(".k-timeline-track-item.k-timeline-flag-wrap")
+                        .attr("role", "none")
                         .attr("aria-hidden", true);
 
                     that._trackWrap.find(".k-timeline-track-item:not(.k-timeline-flag-wrap)")
-                        .attr("role", "option")
                         .attr("aria-selected", false)
                         .first()
                         .attr("aria-selected", true);
 
                     that._cardId = kendo.guid();
                     that._scrollableWrap
-                        .attr("role", "listbox")
-                        .attr("aria-orientation", "horizontal")
-                        .attr("tabindex", 0)
                         .on("focus" + NS, function() {
                             that.pane.pages[1].cardContainer.attr("id", that._cardId);
-                            that._setCurrent(that._scrollableWrap.find(".k-timeline-track-item").eq(that._currentIndex));
+
+                            if (that._currentBullet) {
+                                that._currentBullet.addClass("k-focus");
+                            }
                         })
                         .on("focusout" + NS, function() {
-                            that._removeCurrent();
+                            if (that._currentBullet) {
+                                that._currentBullet.removeClass("k-focus");
+                            }
                         })
                         .on("keydown" + NS, function(e) {
                             var handled;
@@ -1000,7 +1015,7 @@ var __meta__ = {
                                         that.previous();
                                         that.open(next);
                                     } else {
-                                        that._setCurrent(next);
+                                        that._setCurrentEvent({ currentTarget: next });
                                     }
                                 }
 
@@ -1019,14 +1034,9 @@ var __meta__ = {
                                         that.next();
                                         that.open(next);
                                     } else {
-                                        that._setCurrent(next);
+                                        that._setCurrentEvent({ currentTarget: next });
                                     }
                                 }
-                            }
-
-                            if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
-                                handled = true;
-                                that._currentBullet.trigger("click");
                             }
 
                             if (handled) {
@@ -1035,7 +1045,10 @@ var __meta__ = {
                             }
                         });
 
-                    that._ariaLabel(that._scrollableWrap);
+                    current = that._scrollableWrap.find("." + TRACKITEMCLASS).eq(that._currentIndex);
+
+                    that._setCurrent(current);
+                    current.removeClass("k-focus");
                 }
             },
 
@@ -1055,6 +1068,7 @@ var __meta__ = {
 
                 if (next.attr("aria-selected") === "true") {
                     next.attr("aria-describedby", that._cardId);
+                    that.pane.pages[1].cardContainer.attr("id", that._cardId);
                 }
 
                 that._currentBullet = next;

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -158,7 +158,7 @@ var __meta__ = {
             buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + messages.destroy + "</button>").kendoButton({
                 name: "delete",
                 themeColor: "primary",
-                icon: "delete",
+                icon: "trash",
                 click: (e) => {
                     e.preventDefault();
                     popup.close();
@@ -222,7 +222,7 @@ var __meta__ = {
                 buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + messages.destroy + "</button>").kendoButton({
                     name: "delete",
                     themeColor: "primary",
-                    icon: "delete",
+                    icon: "trash",
                     fillMode: "flat",
                     click: this._onDelete.bind(this)
                 }));
@@ -242,7 +242,7 @@ var __meta__ = {
                 html += (kendo.template(template, settings))(model);
             } else {
                 this.renderForm = true;
-                html += '<div class="k-gantt-edit-tabstrip" style="min-height:' + TAB_HEIGHT + '"></div>';
+                html += '<div role="form" class="k-gantt-edit-tabstrip" style="min-height:' + TAB_HEIGHT + '"></div>';
             }
 
             var formEl = $(html);
@@ -716,7 +716,7 @@ var __meta__ = {
                 dependencies = fields.dependencies,
                 tabStripDs = [{
                     name: messages.general,
-                    content: "<form class='k-gantt-form-default'></form>"
+                    content: "<div class='k-gantt-form-default'></div>"
                 }];
 
             if (resourceField) {
@@ -740,7 +740,7 @@ var __meta__ = {
             if (fields.other) {
                 tabStripDs.push({
                     name: messages.other,
-                    content: "<form class='k-gantt-form-other'></form>"
+                    content: "<div class='k-gantt-form-other'></div>"
                 });
             }
 

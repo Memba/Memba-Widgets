@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -211,10 +211,60 @@ var __meta__ = {
             that.wrapper.off(ns);
             clearTimeout(that._pasteTimeout);
 
+            if (that.filterInput) {
+                that.filterInput.off(ns);
+            }
+
             that._arrow.off(CLICK + " " + MOUSEDOWN);
             that._clear.off(CLICK + " " + MOUSEDOWN);
 
             Select.fn.destroy.call(that);
+        },
+
+        _onActionSheetCreate: function() {
+            var that = this;
+
+            if (that.filterInput) {
+                that.filterInput
+                    .on("keydown" + ns, that._keydown.bind(that))
+                    .on("input" + ns, that._search.bind(that))
+                    .on("paste" + ns, that._inputPaste.bind(that))
+                    .attr({
+                        "role": "combobox",
+                        "aria-expanded": false
+                    });
+
+                that.popup.bind("activate", () => {
+                    that.filterInput.val(that.input.val());
+                    that.filterInput.trigger("focus");
+                });
+
+                that.popup.bind("deactivate", () => {
+                    that.input.trigger("focus");
+                });
+            }
+        },
+
+        _onCloseButtonPressed: function() {
+            var that = this;
+            var textField = that.options.dataTextField || "text";
+            var current = that.listView.focus();
+
+            if (!current) {
+                if (that._syncValueAndText() || that._isSelect) {
+                    if (!that.dataItem() || that.dataItem()[textField] !== that.input.val()) {
+                        var input = that.filterInput && activeElement() === that.filterInput[0] ? that.filterInput : that.input;
+                        that._accessor(input.val());
+                    }
+                }
+
+                if (that.options.highlightFirst) {
+                    that.listView.value(that.input.val());
+                    that._blur();
+                } else {
+                    that._oldText = that.text();
+                }
+            }
         },
 
         _isValueChanged: function(value) {
@@ -228,6 +278,10 @@ var __meta__ = {
             var hasText = text && text !== that._oldText && text !== that.options.placeholder;
             var index = that.selectedIndex;
             var isCustom = index === -1;
+
+            if (that.filterInput && activeElement() === that.filterInput[0] && isCustom && hasText) {
+                that.input.val(that.filterInput.val());
+            }
 
             if (!that.options.syncValueAndText && !that.value() && isCustom && hasText) {
                 that._old = "";
@@ -276,6 +330,10 @@ var __meta__ = {
             var that = this;
             var value = that.value();
             var isClearButton = !$(e.relatedTarget).closest('.k-clear-value').length;
+
+            if (that.filterInput && e.relatedTarget === that.filterInput[0]) {
+                return;
+            }
 
             that._userTriggered = true;
             that.wrapper.removeClass(FOCUSED);
@@ -501,7 +559,7 @@ var __meta__ = {
 
         _listBound: function() {
             var that = this;
-            var isActive = that.input[0] === activeElement();
+            var isActive = that.input[0] === activeElement() || that.filterInput && that.filterInput[0] === activeElement();
 
             var data = that.dataSource.flatView();
             var skip = that.listView.skip();
@@ -733,7 +791,7 @@ var __meta__ = {
             text = text === null ? "" : text;
 
             var that = this;
-            var input = that.input[0];
+            var input = that.filterInput && that.filterInput[0] === activeElement() ? that.filterInput[0] : that.input[0];
             var ignoreCase = that.options.ignoreCase;
             var loweredText = text;
             var dataItem;
@@ -1077,7 +1135,8 @@ var __meta__ = {
                 } else {
                     if (that._syncValueAndText() || that._isSelect) {
                         if (!that.dataItem() || that.dataItem()[textField] !== that.input.val()) {
-                            that._accessor(that.input.val());
+                            var input = that.filterInput && activeElement() === that.filterInput[0] ? that.filterInput : that.input;
+                            that._accessor(input.val());
                         }
                     }
 
@@ -1216,8 +1275,11 @@ var __meta__ = {
         },
 
         _clearValue: function() {
+            var that = this;
+            var input = that.filterInput && that.filterInput[0] === activeElement() ? that.filterInput : that.input;
+
             Select.fn._clearValue.call(this);
-            this.input.trigger("focus");
+            input.trigger("focus");
         }
     });
 

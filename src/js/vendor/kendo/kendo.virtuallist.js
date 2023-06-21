@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -303,7 +303,10 @@ var __meta__ = {
 
             that.element.attr("role", "listbox");
 
-            that.content = that.wrapper = that.element.wrap("<div unselectable='on' class='" + contentClasses + "'></div>").parent();
+            var contentSelector = "." + contentClasses.split(' ').join('.');
+            var wrapper = that.element.closest(contentSelector);
+
+            that.content = that.wrapper = wrapper.length ? wrapper : that.element.wrap("<div unselectable='on' class='" + contentClasses + "'></div>").parent();
 
             if (that.options.columns && that.options.columns.length) {
                 var thead = that.element.closest(".k-data-table").find('.k-table-thead');

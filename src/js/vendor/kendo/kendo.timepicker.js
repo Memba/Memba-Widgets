@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11,13 +11,14 @@ import "./kendo.popup.js";
 import "./kendo.dateinput.js";
 import "./kendo.html.button.js";
 import "./kendo.label.js";
+import "./kendo.actionsheet.js";
 
 var __meta__ = {
     id: "timepicker",
     name: "TimePicker",
     category: "web",
     description: "The TimePicker widget allows the end user to select a value from a list of predefined values or to type a new value.",
-    depends: [ "calendar", "popup", "html.button", "label" ]
+    depends: [ "calendar", "popup", "html.button", "label", "actionsheet" ]
 };
 
 (function($, undefined) {
@@ -29,6 +30,7 @@ var __meta__ = {
         extractFormat = kendo._extractFormat,
         support = kendo.support,
         browser = support.browser,
+        mediaQuery = kendo.mediaQuery,
         ui = kendo.ui,
         Widget = ui.Widget,
         OPEN = "open",
@@ -58,69 +60,6 @@ var __meta__ = {
         isArray = Array.isArray,
         extend = $.extend,
         DATE = Date,
-        dateFormatRegExp = /d{1,2}|E{1,6}|e{1,6}|c{3,6}|c{1}|M{1,5}|L{1,5}|y{1,4}|H{1,2}|h{1,2}|k{1,2}|K{1,2}|m{1,2}|a{1,5}|s{1,2}|S{1,3}|z{1,4}|Z{1,5}|x{1,5}|X{1,5}|G{1,5}|q{1,5}|Q{1,5}|"[^"]*"|'[^']*'/g,
-        LITERAL = "literal",
-        MONTH = "month",
-        HOUR = "hour",
-        ZONE = "zone",
-        WEEKDAY = "weekday",
-        QUARTER = "quarter",
-        DATE_FIELD_MAP = {
-            "G": "era",
-            "y": "year",
-            "q": QUARTER,
-            "Q": QUARTER,
-            "M": MONTH,
-            "L": MONTH,
-            "d": "day",
-            "E": WEEKDAY,
-            "c": WEEKDAY,
-            "e": WEEKDAY,
-            "h": HOUR,
-            "H": HOUR,
-            "k": HOUR,
-            "K": HOUR,
-            "m": "minute",
-            "s": "second",
-            "a": "dayperiod",
-            "x": ZONE,
-            "X": ZONE,
-            "z": ZONE,
-            "Z": ZONE
-        },
-        NAME_TYPES = {
-            month: {
-                type: "months",
-                minLength: 3,
-                standAlone: "L"
-            },
-
-            quarter: {
-                type: "quarters",
-                minLength: 3,
-                standAlone: "q"
-            },
-
-            weekday: {
-                type: "days",
-                minLength: {
-                    E: 0,
-                    c: 3,
-                    e: 3
-                },
-                standAlone: "c"
-            },
-
-            dayperiod: {
-                type: "dayPeriods",
-                minLength: 0
-            },
-
-            era: {
-                type: "eras",
-                minLength: 0
-            }
-        },
         TODAY = new DATE(),
         MODERN_RENDERING_TEMPLATE = ({ mainSize, messages, buttonSize }) =>
         '<div>' +
@@ -158,6 +97,20 @@ var __meta__ = {
         that.options = options;
         that._dates = [];
 
+        that.bigScreenMQL = mediaQuery("large");
+        that.smallScreenMQL = mediaQuery("small");
+        if (that.options.adaptiveMode == "auto") {
+            that.smallScreenMQL.onChange(function() {
+                if (that.popup && kendo.isFunction(that.popup.fullscreen)) {
+                    that.popup.fullscreen(that.smallScreenMQL.mediaQueryList.matches);
+                    if (that.options.timeView && that.options.timeView.list === "scroll") {
+                        that.addTranslate();
+                        that._updateRanges();
+                    }
+                }
+            });
+        }
+
         that._createList(options.timeView && options.timeView.list === "scroll");
 
         if (id) {
@@ -180,9 +133,10 @@ var __meta__ = {
             }
         },
         _createScrollList: function() {
+            var size = this.options.adaptiveMode != "auto" || this.bigScreenMQL.mediaQueryList.matches ? this.options.size || "medium" : "large";
             var templateOptions = $.extend({}, this.options, {
-                mainSize: kendo.getValidCssClass("k-timeselector-", "size", this.options.size || "medium"),
-                buttonSize: this.options.size || "medium"
+                mainSize: kendo.getValidCssClass("k-timeselector-", "size", size),
+                buttonSize: size
             });
             this.popupContent = $(kendo.template(MODERN_RENDERING_TEMPLATE)(templateOptions))
             .on(MOUSEDOWN, preventDefault);
@@ -245,7 +199,7 @@ var __meta__ = {
         },
         _createClassicRenderingList: function() {
             var that = this;
-            var listParent = $('<div class="k-list ' + kendo.getValidCssClass("k-list-", "size", that.options.size) + '"><ul tabindex="-1" role="listbox" aria-hidden="true" unselectable="on" class="k-list-ul"/></div>');
+            var listParent = $('<div class="k-list ' + kendo.getValidCssClass("k-list-", "size", that.options.size) + '"><div class="k-list-content"><ul tabindex="-1" role="listbox" aria-hidden="true" unselectable="on" class="k-list-ul"/></div></div>');
 
             that.ul = listParent.find("ul")
                 .css({
@@ -359,7 +313,9 @@ var __meta__ = {
         },
 
         close: function() {
-            this.popup.close();
+            if (this.popup) {
+                this.popup.close();
+            }
         },
 
         destroy: function() {
@@ -372,6 +328,14 @@ var __meta__ = {
             }
             if (that.popup) {
                 that.popup.destroy();
+            }
+
+            if (that.bigScreenMQL) {
+                that.bigScreenMQL.destroy();
+            }
+
+            if (that.smallScreenMQL) {
+                that.smallScreenMQL.destroy();
             }
         },
 
@@ -459,7 +423,7 @@ var __meta__ = {
             }
 
             if (options.timeView && options.timeView.list === "scroll") {
-                html = that._createListContent(splitDateFormat(format));
+                html = that._createListContent(kendo.date.splitDateFormat(format));
             } else {
                 that.getDatesInRange(msStart, msMax, startDate, max, msInterval, start).forEach(function(date) {
                     html += template(toString(date, format, options.culture));
@@ -647,8 +611,8 @@ var __meta__ = {
                 this._currentlySelected = new Date();
             }
 
-            var max = this.options.max;
-            var min = this.options.min;
+            var max = this.options.endTime ? this.options.endTime : this.options.max;
+            var min = this.options.startTime ? this.options.startTime : this.options.min;
 
             if (this.options.validateDate) {
                 if (max.getFullYear() === this._currentlySelected.getFullYear() &&
@@ -730,7 +694,9 @@ var __meta__ = {
         _cancelClickHandler: function(e) {
             e.preventDefault();
             this.value(this._value);
-            this.popup.close();
+            if (this.popup) {
+                this.popup.close();
+            }
         },
 
         _setClickHandler: function(e) {
@@ -738,7 +704,9 @@ var __meta__ = {
             this._value = new Date(this._currentlySelected);
 
             this.options.change(kendo.toString(this._currentlySelected, this.options.format, this.options.culture), true);
-            this.popup.close();
+            if (this.popup) {
+                this.popup.close();
+            }
         },
 
         _listScrollHandler: function(e) {
@@ -877,7 +845,7 @@ var __meta__ = {
             for (var i = 0; i < length; i++) {
                 part = parts[i];
 
-                if (part.type === "literal") {
+                if (part.type === "literal" || part.type == "dayperiod") {
                     result += this._literalTemplate(part);
                 } else {
                     values = this._getValues(part, true);
@@ -943,11 +911,12 @@ var __meta__ = {
         },
 
         _literalTemplate: function(part) {
+            var isDayTimePattern = part.pattern === " tt" || part.pattern === "aa";
             var result = '<div class="k-time-separator">' +
-                (part.pattern === " tt" ? ':' : part.pattern) +
+                (isDayTimePattern ? ':' : part.pattern) +
                 '</div>';
 
-            if (part.pattern === " tt") {
+            if (isDayTimePattern) {
                 result += this._itemTemplate(["AM", "PM"], part, "AM/PM", 4);
             }
 
@@ -1091,8 +1060,8 @@ var __meta__ = {
         _height: function() {
             var that = this;
             var list = that.list;
-            var parent = list.closest(".k-child-animation-container");
-            var container = list.closest(".k-animation-container");
+            var parent = list.parent(".k-child-animation-container");
+            var container = parent.closest(".k-animation-container");
             var height = that.options.height;
             var elements = list.add(container);
             var ul = that.ul[0];
@@ -1101,7 +1070,7 @@ var __meta__ = {
                 elements.add(parent).show();
 
                 list.add(parent)
-                    .height(ul.scrollHeight > height ? height : "auto");
+                    .height(ul.scrollHeight > height && (that.options.adaptiveMode != "auto" || that.bigScreenMQL.mediaQueryList.matches) ? height : "auto");
 
                 elements.hide();
             }
@@ -1134,7 +1103,8 @@ var __meta__ = {
         },
 
         _adjustListWidth: function() {
-            var list = this.list,
+            var that = this,
+                list = this.list,
                 width = list[0].style.width,
                 wrapper = this.options.anchor,
                 computedStyle, computedWidth,
@@ -1155,7 +1125,7 @@ var __meta__ = {
 
             list.css({
                 fontFamily: wrapper.css("font-family"),
-                width: width
+                width: that.options.adaptiveMode != "auto" || that.bigScreenMQL.mediaQueryList.matches ? width : "100%"
             })
             .data("width", width);
         },
@@ -1167,26 +1137,63 @@ var __meta__ = {
                 anchor = options.anchor;
 
             if (!this.options.omitPopup) {
+                if (options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches) {
+                    var popupContent = that.popupContent || list;
+                    popupContent.appendTo(document.body);
 
-                that.popup = new ui.Popup(that.popupContent || list, extend(options.popup, {
-                    anchor: anchor,
-                    open: options.open,
-                    close: options.close,
-                    animation: options.animation,
-                    isRtl: support.isRtl(options.anchor),
-                    activate: function() {
-                        if (that.options.timeView && that.options.timeView.list === "scroll") {
-                            that.addTranslate();
-                            if (that._value) {
-                                that.applyValue(that._value);
-                            } else {
-                                that._updateCurrentlySelected();
+                    that.popup = new ui.ActionSheet(popupContent, {
+                        adaptive: true,
+                        focusOnActivate: false,
+                        title: "Set time",
+                        subtitle: "00/00/00",
+                        closeButton: true,
+                        fullscreen: that.smallScreenMQL.mediaQueryList.matches,
+                        popup: extend(options.popup, {
+                            anchor: anchor,
+                            open: options.open,
+                            close: options.close,
+                            animation: options.animation,
+                            isRtl: support.isRtl(options.anchor),
+                        }),
+                        activate: function() {
+                            if (that.options.timeView && that.options.timeView.list === "scroll") {
+                                that.addTranslate();
+                                if (that._value) {
+                                    that.applyValue(that._value);
+                                } else {
+                                    that._updateCurrentlySelected();
+                                }
+                                that._updateRanges();
+                                that._focusList(that.list.find(".k-time-list-wrapper").eq(0));
                             }
-                            that._updateRanges();
-                            that._focusList(that.list.find(".k-time-list-wrapper").eq(0));
                         }
-                    }
-                }));
+                    });
+
+                    that._updateCurrentlySelected();
+                    that._updateRanges();
+                    popupContent.find(".k-time-footer").appendTo(popupContent);
+                } else {
+                    that.popup = new ui.Popup(that.popupContent || list, extend(options.popup, {
+                        anchor: anchor,
+                        open: options.open,
+                        close: options.close,
+                        animation: options.animation,
+                        isRtl: support.isRtl(options.anchor),
+                        activate: function() {
+                            if (that.options.timeView && that.options.timeView.list === "scroll") {
+                                that.addTranslate();
+                                if (that._value) {
+                                    that.applyValue(that._value);
+                                } else {
+                                    that._updateCurrentlySelected();
+                                }
+                                that._updateRanges();
+                                that._focusList(that.list.find(".k-time-list-wrapper").eq(0));
+                            }
+                        }
+                    }));
+                }
+
             } else {
                 list.appendTo(options.timeDiv);
             }
@@ -1272,7 +1279,7 @@ var __meta__ = {
 
     var TimePicker = Widget.extend({
         init: function(element, options) {
-            var that = this, ul, timeView, disabled;
+            var that = this, disabled;
 
             options = options || {};
             options.componentType = options.componentType || "classic";
@@ -1299,58 +1306,16 @@ var __meta__ = {
                 that.options.height = null;
             }
 
-            that.timeView = timeView = new TimeView(extend({}, options, {
-                id: element.attr(ID),
-                anchor: that.wrapper,
-                format: options.format,
-                change: function(value, trigger) {
-                    if (trigger) {
-                        that._change(value);
-                    } else {
-                        element.val(value);
-                    }
-                },
-                open: function(e) {
-                    if (that.options.timeView && that.options.timeView.list !== "scroll") {
-                        that.timeView._adjustListWidth();
-                    } else {
-                        that.timeView._updateTitle();
-                    }
+            that.bigScreenMQL = mediaQuery("large");
+            if (that.options.adaptiveMode == "auto") {
+                that.bigScreenMQL.onChange(()=> {
+                    that._createTimeViewProxy();
+                    that._update(that.element.val());
+                });
+            }
 
-                    if (that.trigger(OPEN)) {
-                        e.preventDefault();
-                    } else {
-                        element.attr(ARIA_EXPANDED, true);
-                        ul.attr(ARIA_HIDDEN, false);
-
-                        if (timeView.current()) {
-                            element.attr(ARIA_ACTIVEDESCENDANT, timeView._optionID);
-                        }
-                    }
-                },
-                close: function(e) {
-                    if (that.trigger(CLOSE)) {
-                        e.preventDefault();
-                    } else {
-                        element.attr(ARIA_EXPANDED, false);
-                        ul.attr(ARIA_HIDDEN, true);
-                        element[0].removeAttribute(ARIA_ACTIVEDESCENDANT);
-                    }
-                },
-                active: function(current) {
-                    if (element && element.length) {
-                        element[0].removeAttribute(ARIA_ACTIVEDESCENDANT);
-                    }
-                    if (current) {
-                        element.attr(ARIA_ACTIVEDESCENDANT, timeView._optionID);
-                    }
-                },
-                specifiedRange: that._specifiedRange,
-                maxSet: +options.max != +TODAY
-            }));
-            ul = timeView.ul;
-
-            that._ariaLabel(ul);
+            that._createTimeView();
+            that._createTimeViewProxy = that._createTimeView.bind(that);
 
             that._icon();
             that._reset();
@@ -1365,7 +1330,7 @@ var __meta__ = {
                    .attr({
                         "role": "combobox",
                         "aria-expanded": false,
-                        "aria-controls": timeView._timeViewID,
+                        "aria-controls": that.timeView._timeViewID,
                         "autocomplete": "off"
                    });
 
@@ -1429,6 +1394,7 @@ var __meta__ = {
                 millisecond: "millisecond",
                 now: "Now"
             },
+            adaptiveMode: "none",
             componentType: "classic",
             size: "medium",
             fillMode: "solid",
@@ -1552,10 +1518,9 @@ var __meta__ = {
 
             if (that._dateInput) {
                 labelOptions.floatCheck = () => {
-                    that._dateInput._toggleDateMask(true);
 
                     if (!that.value() && !that._dateInput._hasDateInput() && document.activeElement !== that.element[0]) {
-                        that._dateInput._toggleDateMask(false);
+                        that.element.val("");
                         return true;
                     }
 
@@ -1610,6 +1575,12 @@ var __meta__ = {
             if (that.label) {
                 that.label.destroy();
             }
+
+            if (that.bigScreenMQL) {
+                that.bigScreenMQL.destroy();
+            }
+
+            that._createTimeViewProxy = null;
         },
 
         close: function() {
@@ -1678,7 +1649,7 @@ var __meta__ = {
 
             that.timeView.toggle();
 
-            if (!support.touch && element[0] !== activeElement()) {
+            if (!support.touch && element[0] !== activeElement() && !(that.options.timeView && that.options.timeView.list === "scroll")) {
                 element.trigger("focus");
             }
         },
@@ -1706,6 +1677,74 @@ var __meta__ = {
             }
 
             that._typing = false;
+        },
+
+        _createTimeView: function() {
+            var that = this;
+            var options = that.options;
+            var element = that.element;
+            var timeView,
+                ul;
+
+            if (that.timeView) {
+                that.timeView.destroy();
+                that.timeView = null;
+            }
+
+            that.timeView = timeView = new TimeView(extend({}, options, {
+                id: element.attr(ID),
+                size: options.adaptiveMode != "auto" || that.bigScreenMQL.mediaQueryList.matches ? options.size : "large",
+                anchor: that.wrapper,
+                format: options.format,
+                change: function(value, trigger) {
+                    if (trigger) {
+                        that._change(value);
+                    } else {
+                        element.val(value);
+                    }
+                },
+                open: function(e) {
+                    if (that.options.timeView && that.options.timeView.list !== "scroll") {
+                        that.timeView._adjustListWidth();
+                    } else {
+                        that.timeView._updateTitle();
+                    }
+
+                    if (that.trigger(OPEN)) {
+                        e.preventDefault();
+                    } else {
+                        element.attr(ARIA_EXPANDED, true);
+                        ul.attr(ARIA_HIDDEN, false);
+
+                        if (timeView.current()) {
+                            element.attr(ARIA_ACTIVEDESCENDANT, timeView._optionID);
+                        }
+                    }
+                },
+                close: function(e) {
+                    if (that.trigger(CLOSE)) {
+                        e.preventDefault();
+                    } else {
+                        element.attr(ARIA_EXPANDED, false);
+                        ul.attr(ARIA_HIDDEN, true);
+                        element[0].removeAttribute(ARIA_ACTIVEDESCENDANT);
+                    }
+                },
+                active: function(current) {
+                    if (element && element.length) {
+                        element[0].removeAttribute(ARIA_ACTIVEDESCENDANT);
+                    }
+                    if (current) {
+                        element.attr(ARIA_ACTIVEDESCENDANT, timeView._optionID);
+                    }
+                },
+                specifiedRange: that._specifiedRange,
+                maxSet: +options.max != +TODAY
+            }));
+
+            ul = timeView.ul;
+
+            that._ariaLabel(ul);
         },
 
         _icon: function() {
@@ -1858,60 +1897,6 @@ var __meta__ = {
             time.getMilliseconds());
     }
 
-    function datePattern(format, info) {
-        var calendar = info.calendar;
-        var result;
-        if (typeof format === "string") {
-            if (calendar.patterns[format]) {
-                result = calendar.patterns[format];
-            } else {
-                result = format;
-            }
-        }
-
-        if (!result) {
-            result = calendar.patterns.d;
-        }
-
-        return result;
-    }
-
-    function addLiteral(parts, value) {
-        var lastPart = parts[parts.length - 1];
-        if (lastPart && lastPart.type === "LITERAL") {
-            lastPart.pattern += value;
-        } else {
-            parts.push({
-                type: LITERAL,
-                pattern: value
-            });
-        }
-    }
-
-    function isHour12(pattern) {
-        return pattern === "h" || pattern === "K";
-    }
-
-    function dateNameType(formatLength) {
-        var nameType;
-        if (formatLength <= 3) {
-            nameType = "abbreviated";
-        } else if (formatLength === 4) {
-            nameType = "wide";
-        } else if (formatLength === 5) {
-            nameType = "narrow";
-        } else if (formatLength === 6) {
-            nameType = "short";
-        }
-
-        return nameType;
-    }
-
-    function startsWith(text, searchString, position) {
-        position = position || 0;
-        return text.indexOf(searchString, position) === position;
-    }
-
     function includes(text, subStr) {
         var returnValue = false;
 
@@ -1920,69 +1905,6 @@ var __meta__ = {
         }
 
         return returnValue;
-    }
-
-    function splitDateFormat(format) {
-        var info = kendo.culture();
-        var pattern = datePattern(format, info);
-        var parts = [];
-        var lastIndex = dateFormatRegExp.lastIndex = 0;
-        var match = dateFormatRegExp.exec(pattern);
-        var specifier;
-        var type;
-        var part;
-        var names;
-        var minLength;
-        var patternLength;
-
-        while (match) {
-            var value = match[0];
-
-            if (lastIndex < match.index) {
-                addLiteral(parts, pattern.substring(lastIndex, match.index));
-            }
-
-            if (startsWith(value, '"') || startsWith(value, "'")) {
-                addLiteral(parts, value);
-            } else {
-                specifier = value[0];
-                type = DATE_FIELD_MAP[specifier];
-                part = {
-                    type: type,
-                    pattern: value
-                };
-
-                if (type === "hour") {
-                    part.hour12 = isHour12(value);
-                }
-
-                names = NAME_TYPES[type];
-
-                if (names) {
-                    minLength = typeof names.minLength === "number" ? names.minLength : names.minLength[specifier];
-                    patternLength = value.length;
-
-                    if (patternLength >= minLength) {
-                        part.names = {
-                            type: names.type,
-                            nameType: dateNameType(patternLength),
-                            standAlone: names.standAlone === specifier
-                        };
-                    }
-                }
-
-                parts.push(part);
-            }
-
-            lastIndex = dateFormatRegExp.lastIndex;
-            match = dateFormatRegExp.exec(pattern);
-        }
-
-        if (lastIndex < pattern.length) {
-            addLiteral(parts, pattern.substring(lastIndex));
-        }
-
-        return parts;
     }
 
     function pad(value, size) {

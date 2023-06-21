@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -98,12 +98,9 @@ var __meta__ = {
                                     `${expandable ? kendo.ui.icon($('<span role="presentation"></span>'), { icon: `chevron-${encode(iconClass)}` }) : ''}` +
                                 '</th>',
         COLLAPSEMEMBER = "collapseMember",
-        STATE_EXPANDED = "k-i-caret-alt-down",
         STATE_EXPANDED_ICONNAME = "caret-alt-down",
         STATE_EXPANDED_SELECTOR = `.k-i-${STATE_EXPANDED_ICONNAME},.k-svg-i-${STATE_EXPANDED_ICONNAME}`,
-        STATE_COLLAPSED = "k-i-caret-alt-right",
         STATE_COLLAPSED_ICONNAME = "caret-alt-right",
-        STATE_COLLAPSED_SELECTOR = `.k-i-${STATE_COLLAPSED_ICONNAME},.k-svg-i-${STATE_COLLAPSED_ICONNAME}`,
         HEADER_TEMPLATE = ({ member }) => `<span>${encode(member.caption || member.name)}</span>`,
         PIVOTGRID_TREND_ICONS_MAP = {
             "kpi-trend-decrease": "caret-alt-down",
@@ -4941,6 +4938,8 @@ var __meta__ = {
             var rowBuilder;
 
             Widget.fn.init.call(that, element, options);
+
+            STATE_COLLAPSED_ICONNAME = kendo.support.isRtl(that.element) ? "caret-alt-left" : "caret-alt-right";
 
             that._dataSource();
 

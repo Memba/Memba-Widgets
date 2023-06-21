@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -277,7 +277,7 @@ var __meta__ = {
                     that._toggleResize(true);
                 }
 
-                that.wrapper = wrapper = kendo.wrap(element, options.autosize)
+                that.wrapper = wrapper = kendo.wrap(element, options.autosize, options._resizeOnWrap)
                     .css({
                         overflow: HIDDEN,
                         display: "block",
@@ -765,7 +765,7 @@ var __meta__ = {
     var tabKeyTrapNS = "kendoTabKeyTrap";
     var focusableNodesSelector = "a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex], *[contenteditable]";
     var TabKeyTrap = Class.extend({
-        init: function(element) {
+        init: function(element, options) {
             this.element = $(element);
             this.element.autoApplyNS(tabKeyTrapNS);
         },
@@ -796,7 +796,9 @@ var __meta__ = {
             var sortedElements = this._sortFocusableElements(elements);
             var next = this._nextFocusable(e, sortedElements);
 
-            this._focus(next);
+            if (next) {
+                this._focus(next);
+            }
 
             e.preventDefault();
         },

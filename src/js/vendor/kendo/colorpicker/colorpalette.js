@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -207,9 +207,7 @@ import "../kendo.core.js";
             item.addClass(ITEMSELECTEDCLASS).attr("aria-selected", true);
         },
         _template: kendo.template(({colors, columns, tileSize, value, id}) => {
-            let startPart =
-            '<div class="k-colorpalette-table-wrap">' +
-            '<table class="k-colorpalette-table k-palette" role="presentation"><tr role="row">';
+            let startPart = '<table class="k-colorpalette-table" role="presentation"><tr role="row">';
 
             let cellElements = "";
             for (var i = 0; i < colors.length; ++i) {
@@ -227,7 +225,7 @@ import "../kendo.core.js";
                     `aria-label="${colors[i].toCss()}"></td>`;
             }
 
-            let endPart = '</tr></table></div>';
+            let endPart = '</tr></table>';
             return startPart + cellElements + endPart;
         }),
         _tileSize: function() {

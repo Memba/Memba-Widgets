@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,13 +12,15 @@ import "./kendo.window.js";
 import "./kendo.treeview.js";
 import "./kendo.dropdownlist.js";
 import "./kendo.icons.js";
+import "./kendo.expansionpanel.js";
+import "./kendo.html.button.js";
 
 var __meta__ = {
     id: "pivot.fieldmenu",
     name: "PivotFieldMenu",
     category: "web",
     description: "The PivotFieldMenu widget allows the user to filter on fields displayed in PivotGrid",
-    depends: [ "menu", "window", "treeview", "treeview.draganddrop", "dropdownlist", "icons" ],
+    depends: [ "menu", "window", "treeview", "treeview.draganddrop", "dropdownlist", "icons", 'expansionpanel', 'html.button' ],
     advanced: true
 };
 
@@ -31,7 +33,8 @@ var __meta__ = {
     var NS = ".kendoPivotFieldMenu";
     var Widget = ui.Widget;
     var FILTER_ITEM = "k-filter-item";
-    var ARIA_LABEL = "aria-label";
+    var ARIA_LABEL = "aria-label",
+    EXPANSIONPANEL = "kendoExpansionPanel";
 
     var PivotFieldMenuV2 = Widget.extend({
         init: function(element, options) {
@@ -108,6 +111,24 @@ var __meta__ = {
             this._dataSource();
         },
 
+        _createExpanders: function() {
+            var that = this;
+            var options = that.options;
+            var expanderOptions = {
+                expanded: false,
+                headerClass: "k-columnmenu-item",
+                wrapperClass: "k-item",
+                useBareTemplate: true
+            };
+
+            that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
+                title: kendo.ui.icon("grid-layout") + '<span>' + options.messages.include + '</span>'
+            }));
+            that.wrapper.find(".k-column-menu-filter")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
+                title: kendo.ui.icon("filter") + '<span>' + options.messages.filterFields + '</span>'
+            }));
+        },
+
         _createTreeView: function(element) {
             var that = this;
 
@@ -147,6 +168,8 @@ var __meta__ = {
                 sortable: options.sortable,
                 messages: options.messages
             }));
+
+            that._createExpanders();
 
             that.menu = that.wrapper[MENU]({
                 filter: options.filter,
@@ -285,10 +308,8 @@ var __meta__ = {
 
         _click: function(e) {
             var item = $(e.currentTarget).closest(":not(path,svg)");
-            var next = item.next();
-            if (item.hasClass("k-expander")) {
-                this._toggle(next, item);
-            } else if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-asc-small,.k-svg-i-sort-asc-small").length) {
+
+            if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-asc-small,.k-svg-i-sort-asc-small").length) {
                 this._sort("asc");
             } else if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-desc-small,.k-svg-i-sort-desc-small").length) {
                 this._sort("desc");
@@ -435,23 +456,9 @@ var __meta__ = {
         },
 
         _collapseItems: function(items) {
-            items.find(".k-expander-indicator").each((ind,el) => kendo.ui.icon($(el), { icon: "chevron-up" }));
+            items.find(".k-expander-indicator span").each((ind,el) => kendo.ui.icon($(el), { icon: "chevron-up" }));
 
             items.nextAll().hide();
-        },
-
-        _toggle: function(content, item) {
-            var that = this;
-            var animations = that.options.animation;
-            var shouldExpand = content.is(":visible");
-            var animation = !shouldExpand ? animations.expand : animations.collapse;
-
-            item.find(".k-expander-indicator").each((ind,el) => kendo.ui.icon($(el), { icon: !shouldExpand ? "chevron-up" : "chevron-down" }));
-
-            content
-                .kendoStop(true, true)
-                .kendoAnimate(animation);
-
         },
 
         _sort: function(dir) {
@@ -1101,52 +1108,34 @@ var __meta__ = {
                         '</div>' +
                     '</div>' +
                     '<div class="k-columnmenu-item-wrapper">' +
-                        '<div class="k-widget k-expander k-item">' +
-                            '<div class="k-columnmenu-item">' +
-                                `${kendo.ui.icon("grid-layout")}${encode(messages.include)}` +
-                                '<span class="k-expander-spacer"></span>' +
-                                kendo.ui.icon($('<span class="k-expander-indicator"></span>'), { icon: "chevron-down" }) +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="k-columnmenu-item-content" style="width: 100%; height: auto; display:none">' +
+                        '<div class="k-columnmenu-item-content k-columns-item">' +
                             '<div class="k-column-list-wrapper">' +
                                 '<div class="k-column-list">' +
                                     '<div class="k-treeview">' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
-                            '<div class="k-actions k-hstack k-justify-content-stretch">' +
-                                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-includes-reset"><span class="k-button-text">${encode(messages.reset)}</span></button>` +
-                                `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-includes-apply"><span class="k-button-text">${encode(messages.apply)}</span></button>` +
+                            '<div class="k-columnmenu-actions">' +
+                                kendo.html.renderButton(`<button class="k-button-includes-reset">${encode(messages.reset)}</button>`) +
+                                kendo.html.renderButton(`<button class="k-button-includes-apply">${encode(messages.apply)}</button>`, { themeColor: "primary" }) +
                             '</div>' +
                         '</div>' +
                     '</div>' +
                     '<div class="k-columnmenu-item-wrapper">' +
-                        '<div class="k-widget k-expander k-item">' +
-                            '<div class="k-columnmenu-item">' +
-                                `${kendo.ui.icon("filter")}${encode(messages.filterFields)}` +
-                                '<span class="k-expander-spacer"></span>' +
-                                kendo.ui.icon($('<span class="k-expander-indicator"></span>'), { icon: "chevron-down" }) +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="k-columnmenu-item-content" style="display:none">' +
-                            '<div class="k-animation-container k-animation-container-relative" style="display: block; ">' +
-                                '<div class="k-child-animation-container">' +
-                                    '<div class="kendo-grid-filter-menu-container">' +
-                                        '<form class="k-filter-menu k-group k-reset">' +
-                                            '<div class="k-filter-menu-container">' +
-                                                    '<select class="k-dropdown k-picker k-dropdown-list" style="overflow:visible">' +
-                                                        `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
-                                                    '</select>' +
-                                                    '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" value=""></span>' +
-                                                '<div class="k-actions k-hstack k-justify-content-stretch">' +
-                                                    `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-filter-clear"><span class="k-button-text">${(messages.clear)}</span></button>` +
-                                                    `<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter"><span class="k-button-text">${encode(messages.filter)}</span></button>` +
-                                                '</div>' +
-                                            '</div>' +
-                                        '</form>' +
+                        '<div class="k-columnmenu-item-content k-column-menu-filter">' +
+                            '<div class="kendo-grid-filter-menu-container">' +
+                                '<form class="k-filter-menu k-group k-reset">' +
+                                    '<div class="k-filter-menu-container">' +
+                                            '<select class="k-dropdown k-picker k-dropdown-list" style="overflow:visible">' +
+                                                `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
+                                            '</select>' +
+                                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" value=""></span>' +
+                                        '<div class="k-actions k-hstack k-justify-content-stretch">' +
+                                            kendo.html.renderButton(`<button class="k-button-filter-clear">${encode(messages.clear)}</button>`) +
+                                            kendo.html.renderButton(`<button class="k-button-filter">${encode(messages.filter)}</button>`, { themeColor: "primary" }) +
+                                        '</div>' +
                                     '</div>' +
-                                '</div>' +
+                                '</form>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +

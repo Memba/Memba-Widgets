@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -367,7 +367,7 @@ var __meta__ = {
             that._wrapper();
 
             id = element
-                .addClass("k-widget k-calendar k-calendar-range" + (options.weekNumber ? " k-week-number" : ""))
+                .addClass(`k-widget k-calendar k-calendar-range ${kendo.getValidCssClass("k-calendar-", "size", that.options.size || "medium")}` + (options.weekNumber ? " k-week-number" : ""))
                 .on(KEYDOWN + ns, DOT + CALENDAR_VIEW, that._move.bind(that))
                 .on(FOCUS + ns, DOT + CALENDAR_VIEW, that._focus.bind(that))
                 .on(BLUR + ns, DOT + CALENDAR_VIEW, that._blur.bind(that))
@@ -437,7 +437,9 @@ var __meta__ = {
             depth: MONTH,
             messages: {
                 weekColumnHeader: ""
-            }
+            },
+            size: "medium",
+            orientation: "horizontal"
         },
 
         events: [
@@ -724,9 +726,9 @@ var __meta__ = {
                 }
             } else {
                 if (!that._navContainer) {
-                    that._navContainer = $('<span class="k-calendar-nav k-hstack">' +
-                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-prev-view" ' + ARIA_LABEL + `="Previous">${kendo.ui.icon({ icon: "chevron-left", iconClass: "k-button-icon" })}</a>` +
-                    '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-next-view" ' + ARIA_LABEL + `="Next">${kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" })}</a>` +
+                    that._navContainer = $(`<span class="k-calendar-nav ${that.options.orientation != "vertical" ? "k-hstack" : "k-vstack"}">` +
+                    `<a tabindex="-1" href="#" role="button" class="k-button ${kendo.getValidCssClass("k-button-", "size", that.options.size || "medium")} k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-prev-view" ` + ARIA_LABEL + `="Previous">${kendo.ui.icon({ icon: "chevron-left", iconClass: "k-button-icon" })}</a>` +
+                    `<a tabindex="-1" href="#" role="button" class="k-button ${kendo.getValidCssClass("k-button-", "size", that.options.size || "medium")} k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-next-view" ` + ARIA_LABEL + `="Next">${kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" })}</a>` +
                     '</span>').appendTo(that.header);
                     that[PREVARROW] = that._navContainer.find(".k-calendar-prev-view");
                     that[NEXTARROW] = that._navContainer.find(".k-calendar-next-view");
@@ -1276,7 +1278,7 @@ var __meta__ = {
 
             that._currentView = currentView;
 
-            that.tablesWrapper.attr("class", "k-calendar-view k-calendar-" + currentView.name + "view k-hstack k-align-items-start k-justify-content-center");
+            that.tablesWrapper.attr("class", "k-calendar-view k-calendar-" + currentView.name + `view ${that.options.orientation != "vertical" ? "k-hstack" : "k-vstack"} k-align-items-start k-justify-content-center`);
 
             that._updateHeader();
 
@@ -1433,12 +1435,12 @@ var __meta__ = {
             var header = element.find(".k-calendar-header");
 
             if (!header.length) {
-                header = $('<div class="k-calendar-header k-hstack">' +
-                    '<a id="calendar-title" tabindex="-1" href="#" role="button" class="k-calendar-title k-title k-button k-button-md k-rounded-md k-button-flat k-button-flat-base" aria-live="polite"></a>' +
+                header = $(`<div class="k-calendar-header ${that.options.orientation != "vertical" ? "k-hstack" : "k-vstack"}">` +
+                    `<a id="calendar-title" tabindex="-1" href="#" role="button" class="k-calendar-title k-title k-button ${kendo.getValidCssClass("k-button-", "size", that.options.size || "medium")} k-rounded-md k-button-flat k-button-flat-base" aria-live="polite"></a>` +
                     '<span class="k-spacer"></span>' +
-                    '<span class="k-calendar-nav k-hstack">' +
-                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-prev-view" ' + ARIA_LABEL + `="Previous">${kendo.ui.icon({ icon: "chevron-left", iconClass: "k-button-icon" })}</a>` +
-                        '<a tabindex="-1" href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-next-view" ' + ARIA_LABEL + `="Next">${kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" })}</a>` +
+                    `<span class="k-calendar-nav ${that.options.orientation != "vertical" ? "k-hstack" : "k-vstack"}">` +
+                        `<a tabindex="-1" href="#" role="button" class="k-button ${kendo.getValidCssClass("k-button-", "size", that.options.size || "medium")} k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-prev-view" ` + ARIA_LABEL + `="Previous">${kendo.ui.icon({ icon: "chevron-left", iconClass: "k-button-icon" })}</a>` +
+                        `<a tabindex="-1" href="#" role="button" class="k-button ${kendo.getValidCssClass("k-button-", "size", that.options.size || "medium")} k-rounded-md k-button-flat k-button-flat-base k-icon-button k-calendar-next-view" ` + ARIA_LABEL + `="Next">${kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" })}</a>` +
                     '</span>' +
                 '</div>').prependTo(element);
             }
@@ -1514,7 +1516,7 @@ var __meta__ = {
 
             if (!footer[0]) {
                 footer = $(`<div class="k-footer">
-                    <button tabindex="-1" class="k-calendar-nav-today k-flex k-button k-button-md k-button-flat k-button-flat-primary k-rounded-md">
+                    <button tabindex="-1" class="k-calendar-nav-today k-flex k-button ${kendo.getValidCssClass("k-button-", "size", that.options.size || "medium")} k-button-flat k-button-flat-primary k-rounded-md">
                         <span class="k-button-text"></span>
                     </button>
                 </div>`).appendTo(element);

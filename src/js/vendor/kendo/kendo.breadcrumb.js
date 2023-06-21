@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -37,7 +37,7 @@ var __meta__ = {
         DOT = ".";
 
     var breadcrumbStyles = {
-        widget: "k-widget k-breadcrumb",
+        widget: "k-breadcrumb",
         overlay: "k-breadcrumb-container",
         textbox: "k-input-inner",
         textboxWrapper: "k-textbox k-input k-input-md k-rounded-md k-input-solid",
@@ -465,8 +465,8 @@ var __meta__ = {
             };
 
             const iconElm = data.showIcon ? kendo.ui.icon($(`<span class="${encode(data.iconClass)}"></span>`), { icon: encode(data.icon) }) : '';
-            const delimiterElm = data.renderDelimiter ? kendo.ui.icon($(`<span class="k-breadcrumb-delimiter-icon" aria-hidden="true"></span>`), { icon: encode(data.delimiterIcon) }) : '';
-            const text = `${data.showText ? (data.encoded !== false ? encode(data.text) : data.text) : '' }`;
+            const delimiterElm = data.renderDelimiter ? kendo.ui.icon($(`<span class="k-breadcrumb-delimiter-icon" aria-hidden="true"></span>`), { icon: encode(data.delimiterIcon), size: "xsmall" }) : '';
+            const text = data.showText ? `<span class="k-breadcrumb-item-text">${data.encoded !== false ? encode(data.text) : data.text}</span>` : '';
 
             const linkElm = `<a href="${encode(data.href)}" class="${encode(data.linkClass)} ${getLinkClasses()}"
                 ${data.lastSegment ? 'aria-current="page"' : ''}

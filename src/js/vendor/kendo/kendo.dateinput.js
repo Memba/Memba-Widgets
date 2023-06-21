@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,7 @@
 import "./kendo.core.js";
 import "./kendo.label.js";
 import "./kendo.icons.js";
+import "./kendo.dateinput.common.js";
 
 var __meta__ = {
     id: "dateinput",
@@ -21,15 +22,13 @@ var __meta__ = {
 (function($, undefined) {
     var global = window;
     var kendo = global.kendo;
-    var caret = kendo.caret;
     var ui = kendo.ui;
     var Widget = ui.Widget;
-    var keys = kendo.keys;
+    var DateInputCommon = ui.DateInputCommon;
     var ns = ".kendoDateInput";
     var objectToString = {}.toString;
     var isPlainObject = $.isPlainObject;
 
-    var INPUT_EVENT_NAME = (kendo.support.propertyChangeEvent ? "propertychange.kendoDateInput input" : "input") + ns;
 
     var FOCUSED = "k-focus";
     var STATEDISABLED = "k-disabled";
@@ -39,7 +38,56 @@ var __meta__ = {
     var READONLY = "readonly";
     var CHANGE = "change";
 
-    var knownSymbols = "dMyHhmftsz";
+    var IntlService = kendo.Class.extend({
+        init: function(options) {
+            const info = options.culture ? kendo.getCulture(options.culture) : kendo.culture();
+            this.messages = options.messages;
+            this.cldr = { };
+            this.cldr[info.name] = {
+                name: info.name,
+                calendar: info.calendar || {},
+                numbers: info.numberFormat
+            };
+        },
+
+        parseDate: function(value, format, culture) {
+            return kendo.parseDate(value, format, culture);
+        },
+
+        formatDate: function(date, format, culture) {
+            return kendo.toString(date, format, culture);
+        },
+
+        splitDateFormat: function(format) {
+            return kendo.date.splitDateFormat(format);
+        },
+
+        dateFormatNames: function(locale, options) {
+            return kendo.date.dateFormatNames(options);
+        },
+
+        dateFieldName: function(options) {
+            return this.messages[options.type] || {};
+        }
+    });
+
+    function buildKeys() {
+        const cultureInfo = kendo.culture();
+        let keys = [];
+
+        keys.push(cultureInfo.calendars.standard["/"]);
+        keys.push(cultureInfo.calendars.standard[":"]);
+
+        return keys;
+    }
+
+    function getCultureFormat(culture, format) {
+        if (!culture) {
+            return format;
+        }
+        const cultureInfo = kendo.getCulture(culture);
+        return cultureInfo.calendars.standard.patterns[format] || format;
+    }
 
     var DateInput = Widget.extend({
         init: function(element, options) {
@@ -55,11 +103,12 @@ var __meta__ = {
 
             var wrapperClass = (element.parent().attr("class") || "");
             var skipStyling = wrapperClass.indexOf("picker") >= 0 && wrapperClass.indexOf("rangepicker") < 0;
+            var initialValue = that.options.value || element.val();
 
-            that.wrapper = element.wrap("<span class='k-dateinput k-input'></span>").parent();
             if (skipStyling) {
-                that.wrapper = that.wrapper.parent();
+                that.wrapper = that.element.parent();
             } else {
+                that.wrapper = element.wrap("<span class='k-dateinput k-input'></span>").parent();
                 that.wrapper.addClass(element[0].className).removeClass('input-validation-error');
             }
             that.wrapper[0].style.cssText = element[0].style.cssText;
@@ -72,6 +121,44 @@ var __meta__ = {
 
             that._form();
 
+            that.dateInputInstance = new DateInputCommon(element[0], {
+                format: getCultureFormat(options.culture, options.format),
+                autoCorrectParts: options.autoCorrectParts,
+                autoSwitchKeys: options.autoSwitchKeys.length ? options.autoSwitchKeys : buildKeys(),
+                enableMouseWheel: options.enableMouseWheel,
+                twoDigitYearMax: options.twoDigitYearMax,
+                steps: options.steps,
+                formatPlaceholder: options.messages,
+                events: {
+                    inputEnd: function(e) {
+                        if (e.error) {
+                            that._blinkInvalidState();
+                        }
+                    },
+                    keydown: function(e) {
+                        if (e.event.keyCode == kendo.keys.UP || e.event.keyCode == kendo.keys.DOWN) {
+                            setTimeout(function() {
+                                that.element.trigger(CHANGE);
+                            });
+                        }
+                    },
+                    blur: function(e) {
+                        that._change();
+                        e.preventDefault();
+                    },
+                },
+                intlService: new IntlService({
+                    culture: options.culture,
+                    messages: that.options.messages
+                }),
+                autoSwitchParts: options.autoSwitchParts
+            });
+
+            that._emptyMask = this.element.val();
+            if (options.value) {
+                that.value(options.value);
+            }
+
             that.element
                 .addClass("k-input-inner")
                 .attr("autocomplete", "off")
@@ -80,7 +167,6 @@ var __meta__ = {
                 })
                 .on("focusout" + ns, function() {
                     that.wrapper.removeClass(FOCUSED);
-                    that._change();
                 });
 
             try {
@@ -96,7 +182,7 @@ var __meta__ = {
             } else {
                 that.readonly(element.is("[readonly]"));
             }
-            that.value(that.options.value || element.val());
+            that.value(initialValue);
             if (!skipStyling) {
                 that._applyCssClasses();
             }
@@ -110,6 +196,10 @@ var __meta__ = {
 
         options: {
             name: "DateInput",
+            autoCorrectParts: true,
+            autoSwitchKeys: [],
+            autoSwitchParts: false,
+            enableMouseWheel: true,
             culture: "",
             value: "",
             format: "",
@@ -123,9 +213,19 @@ var __meta__ = {
                 "hour": "hours",
                 "minute": "minutes",
                 "second": "seconds",
+                "milliseconds": "milliseconds",
                 "dayperiod": "AM/PM"
             },
             size: "medium",
+            steps: {
+                year: 1,
+                month: 1,
+                day: 1,
+                hour: 1,
+                minute: 1,
+                second: 1,
+                millisecond: 1,
+            },
             fillMode: "solid",
             rounded: "medium",
             label: null
@@ -154,19 +254,41 @@ var __meta__ = {
         setOptions: function(options) {
             var that = this;
             Widget.fn.setOptions.call(that, options);
-            this._unbindInput();
-            this._bindInput();
-            this._updateElementValue();
+            that.dateInputInstance.destroy();
+            that.dateInputInstance = null;
 
-            if (options.label && that._inputLabel) {
-                that.label.setOptions(options.label);
-            } else if (options.label === false) {
-                that.label._unwrapFloating();
-                that._inputLabel.remove();
-                delete that._inputLabel;
-            } else if (options.label) {
-                that._label();
-            }
+            that.dateInputInstance = new DateInputCommon(this.element[0], {
+                format: getCultureFormat(that.options.culture, that.options.format),
+                autoSwitchKeys: that.options.autoSwitchKeys.length ? that.options.autoSwitchKeys : buildKeys(),
+                autoCorrectParts: that.options.autoCorrectParts,
+                enableMouseWheel: that.options.enableMouseWheel,
+                steps: that.options.steps,
+                twoDigitYearMax: that.options.twoDigitYearMax,
+                formatPlaceholder: that.options.messages,
+                events: {
+                    inputEnd: function(e) {
+                        if (e.error) {
+                            that._blinkInvalidState();
+                        }
+                    },
+                    keydown: function(e) {
+                        if (e.event.keyCode == kendo.keys.UP || e.event.keyCode == kendo.keys.DOWN) {
+                            setTimeout(function() {
+                                that.element.trigger(CHANGE);
+                            });
+                        }
+                    },
+                    blur: function(e) {
+                        that._change();
+                        e.preventDefault();
+                    },
+                },
+                intlService: new IntlService({
+                    culture: that.options.culture,
+                    messages: that.options.messages
+                }),
+                autoSwitchParts: that.options.autoSwitchParts
+            });
         },
 
         destroy: function() {
@@ -186,7 +308,7 @@ var __meta__ = {
 
         value: function(value) {
             if (value === undefined) {
-                return this._dateTime.getDateObject();
+                return this.dateInputInstance.value;
             }
 
             if (value === null) {
@@ -201,39 +323,16 @@ var __meta__ = {
                 value = null;
             }
 
-            this._dateTime = new customDateTime(value, this.options.format, this.options.culture, this.options.messages);
-
-            this._updateElementValue();
-            this._oldValue = value;
+            this.dateInputInstance.writeValue(value);
 
             if (this.label && this.label.floatingLabel) {
                 this.label.floatingLabel.refresh();
             }
         },
 
-        _updateElementValue: function() {
-            var stringAndFormat = this._dateTime.toPair(this.options.format, this.options.culture, this.options.messages);
-            this.element.val(stringAndFormat[0]);
-            this._oldText = stringAndFormat[0];
-            this._format = stringAndFormat[1];
-        },
-
-        _toggleDateMask: function(toShow) {
-            var that = this;
-
-            if (toShow) {
-                that._updateElementValue();
-            } else {
-                this.element.val("");
-            }
-        },
-
         _hasDateInput: function() {
-            var emptyInput = (new customDateTime(null, this.options.format, this.options.culture, this.options.messages))
-                                .toPair(this.options.format, this.options.culture, this.options.messages)[0];
-            var currentInput = this._dateTime.toPair(this.options.format, this.options.culture, this.options.messages)[0];
 
-            return emptyInput !== currentInput;
+            return this._emptyMask !== this.element.val();
         },
 
         readonly: function(readonly) {
@@ -268,10 +367,8 @@ var __meta__ = {
             that.label = new kendo.ui.Label(null, $.extend({}, labelOptions, {
                 widget: that,
                 floatCheck: () => {
-                    that._toggleDateMask(true);
-
                     if (!that.value() && !that._hasDateInput() && document.activeElement !== that.element[0]) {
-                        that._toggleDateMask(false);
+                        this.element.val("");
                         return true;
                     }
 
@@ -290,24 +387,13 @@ var __meta__ = {
                 })
                 .on("focusout" + ns, function() {
                     that.wrapper.removeClass(FOCUSED);
-                    that._change();
-                })
-                .on("paste" + ns, that._paste.bind(that))
-                .on("keydown" + ns, that._keydown.bind(that))
-                .on(INPUT_EVENT_NAME, that._input.bind(that))
-                .on("mouseup" + ns, that._mouseUp.bind(that))
-                .on("DOMMouseScroll" + ns + " mousewheel" + ns, that._scroll.bind(that));
+                });
         },
 
         _unbindInput: function() {
             this.element
-                .off("keydown" + ns)
-                .off("paste" + ns)
                 .off("focus" + ns)
-                .off("focusout" + ns)
-                .off(INPUT_EVENT_NAME)
-                .off("mouseup" + ns)
-                .off("DOMMouseScroll" + ns + " mousewheel" + ns);
+                .off("focusout" + ns);
         },
 
         _editable: function(options) {
@@ -365,47 +451,6 @@ var __meta__ = {
             }
         },
 
-        _input: function() {
-            var that = this;
-            var element = that.element[0];
-            var blinkInvalid = false;
-
-            if (kendo._activeElement() !== element) {
-                return;
-            }
-
-            var diff = approximateStringMatching(
-                this._oldText,
-                this._format,
-                this.element[0].value,
-                caret(this.element[0])[0]);
-
-            var navigationOnly = (diff.length === 1 && diff[0][1] === " ");
-            if (!navigationOnly) {
-                for (var i = 0; i < diff.length; i++) {
-                    var valid = this._dateTime.parsePart(diff[i][0], diff[i][1]);
-                    blinkInvalid = blinkInvalid || !valid;
-                }
-            }
-            this._updateElementValue();
-
-            if (diff.length && diff[0][0] !== " ") {
-                this._selectSegment(diff[0][0]);
-
-                //android fix
-                if (!navigationOnly) {
-                    var difSym = diff[0][0];
-                    setTimeout(function() { that._selectSegment(difSym); });
-                }
-            }
-            if (navigationOnly) {
-                var newEvent = { keyCode: 39, preventDefault: function() { } };
-                this._keydown(newEvent);
-            }
-            if (blinkInvalid) {
-                that._blinkInvalidState();
-            }
-        },
 
         _blinkInvalidState: function() {
             var that = this;
@@ -430,35 +475,6 @@ var __meta__ = {
             that._invalidStateTimeout = null;
         },
 
-        _mouseUp: function() {
-            var selection = caret(this.element[0]);
-            if (selection[0] === selection[1]) {
-                this._selectNearestSegment();
-            }
-        },
-
-        _scroll: function(e) {
-            if (kendo._activeElement() !== this.element[0] || this.element.is("[readonly]")) {
-                return;
-            }
-            e = window.event || e;
-
-            var newEvent = { keyCode: 37, preventDefault: function() { } };
-
-            if (e.shiftKey) {
-                newEvent.keyCode = (e.wheelDelta || -e.detail) > 0 ? 37 : 39;
-            } else {
-                newEvent.keyCode = (e.wheelDelta || -e.detail) > 0 ? 38 : 40;
-            }
-            this._keydown(newEvent);
-            e.returnValue = false;
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            if (e.stopPropagation) {
-                e.stopPropagation();
-            }
-        },
 
         _form: function() {
             var that = this;
@@ -486,84 +502,6 @@ var __meta__ = {
             e.preventDefault();
         },
 
-        _keydown: function(e) {
-            var key = e.keyCode;
-            var selection;
-            if (key == 37 || key == 39) { //left/right
-                e.preventDefault();
-                selection = caret(this.element[0]);
-                if (selection[0] != selection[1]) {
-                    this._selectNearestSegment();
-                }
-                var dir = (key == 37) ? -1 : 1;
-                var index = (dir == -1) ? caret(this.element[0])[0] - 1 : caret(this.element[0])[1] + 1;
-                while (index >= 0 && index < this._format.length) {
-                    if (knownSymbols.indexOf(this._format[index]) >= 0) {
-                        this._selectSegment(this._format[index]);
-                        break;
-                    }
-                    index += dir;
-                }
-            }
-            if (key == 38 || key == 40) { //up/down
-                e.preventDefault();
-                selection = caret(this.element[0]);
-                var symbol = this._format[selection[0]];
-                if (knownSymbols.indexOf(symbol) >= 0) {
-                    var interval = 1;
-                    if (symbol == 'm') {
-                        interval = this.options.interval || 1;
-                    }
-                    this._dateTime.modifyPart(symbol, key == 38 ? interval * 1 : interval * -1);
-                    this._updateElementValue();
-                    this._selectSegment(symbol);
-                    this.element.trigger(CHANGE);
-                }
-            }
-            if (kendo.support.browser.msie && kendo.support.browser.version < 10) {
-                var keycode = e.keyCode ? e.keyCode : e.which;
-                if (keycode === 8 || keycode === 46) {
-                    var that = this;
-                    setTimeout(function() {
-                        that._input();
-                    }, 0);
-                }
-            }
-            if (key === keys.ENTER) {
-                this._change();
-            }
-        },
-
-        _selectNearestSegment: function() {
-            var selection = caret(this.element[0]);
-            var start = selection[0];
-            for (var i = start, j = start - 1; i < this._format.length || j >= 0; i++ , j--) {
-                if (i < this._format.length && knownSymbols.indexOf(this._format[i]) !== -1) {
-                    this._selectSegment(this._format[i]);
-                    return;
-                }
-                if (j >= 0 && knownSymbols.indexOf(this._format[j]) !== -1) {
-                    this._selectSegment(this._format[j]);
-                    return;
-                }
-            }
-        },
-
-        _selectSegment: function(symbol) {
-            var begin = -1, end = 0;
-            for (var i = 0; i < this._format.length; i++) {
-                if (this._format[i] === symbol) {
-                    end = i + 1;
-                    if (begin === -1) {
-                        begin = i;
-                    }
-                }
-            }
-            if (begin < 0) {
-                begin = 0;
-            }
-            caret(this.element, begin, end);
-        }
 
     });
 
@@ -575,367 +513,6 @@ var __meta__ = {
     }]);
 
     ui.plugin(DateInput);
-
-    var customDateTime = function(initDate, initFormat, initCulture, initMessages) {
-
-        var value = null;
-        var year = true, month = true, date = true, hours = true, minutes = true, seconds = true, milliseconds = true;
-        var typedMonthPart = "";
-        var typedDayPeriodPart = "";
-        var placeholders = {};
-
-        //TODO: rewrite pad method
-        var zeros = ["", "0", "00", "000", "0000"];
-        function pad(number, digits, end) {
-            number = number + "";
-            digits = digits || 2;
-            end = digits - number.length;
-
-            if (end) {
-                return zeros[digits].substring(0, end) + number;
-            }
-
-            return number;
-        }
-        var dateFormatRegExp = /dddd|ddd|dd|d|MMMM|MMM|MM|M|yyyy|yy|HH|H|hh|h|mm|m|fff|ff|f|tt|ss|s|zzz|zz|z|"[^"]*"|'[^']*'/g;
-        var months = null, calendar = null, days = null, returnsFormat = false;
-        var matcher = function(match) {
-            var mins, sign;
-            var result;
-
-            switch (match) {
-                case ("d"): result = date ? value.getDate() : placeholders.day; break;
-                case ("dd"): result = date ? pad(value.getDate()) : placeholders.day; break;
-                case ("ddd"): result = date && month && year ? days.namesAbbr[value.getDay()] : placeholders.weekday; break;
-                case ("dddd"): result = date && month && year ? days.names[value.getDay()] : placeholders.weekday; break;
-
-                case ("M"): result = month ? value.getMonth() + 1 : placeholders.month; break;
-                case ("MM"): result = month ? pad(value.getMonth() + 1) : placeholders.month; break;
-                case ("MMM"): result = month ? months.namesAbbr[value.getMonth()] : placeholders.month; break;
-                case ("MMMM"): result = month ? months.names[value.getMonth()] : placeholders.month; break;
-
-                case ("yy"): result = year ? pad(value.getFullYear() % 100) : placeholders.year; break;
-                case ("yyyy"): result = year ? pad(value.getFullYear(), 4) : placeholders.year; break;
-
-                case ("h"): result = hours ? value.getHours() % 12 || 12 : placeholders.hour; break;
-                case ("hh"): result = hours ? pad(value.getHours() % 12 || 12) : placeholders.hour; break;
-                case ("H"): result = hours ? value.getHours() : placeholders.hour; break;
-                case ("HH"): result = hours ? pad(value.getHours()) : placeholders.hour; break;
-
-                case ("m"): result = minutes ? value.getMinutes() : placeholders.minute; break;
-                case ("mm"): result = minutes ? pad(value.getMinutes()) : placeholders.minute; break;
-                case ("s"): result = seconds ? value.getSeconds() : placeholders.second; break;
-                case ("ss"): result = seconds ? pad(value.getSeconds()) : placeholders.second; break;
-                case ("f"): result = milliseconds ? Math.floor(value.getMilliseconds() / 100) : milliseconds; break;
-                case ("ff"):
-                    result = value.getMilliseconds();
-                    if (result > 99) {
-                        result = Math.floor(result / 10);
-                    }
-                    result = milliseconds ? pad(result) : match;
-                    break;
-                case ("fff"): result = milliseconds ? pad(value.getMilliseconds(), 3) : match; break;
-                case ("tt"): result = hours ? (value.getHours() < 12 ? calendar.AM[0] : calendar.PM[0]) : placeholders.dayperiod; break;
-                case ("zzz"):
-                    mins = value.getTimezoneOffset();
-                    sign = mins < 0;
-                    result = Math.abs(mins / 60).toString().split(".")[0];
-                    mins = Math.abs(mins) - (result * 60);
-                    result = (sign ? "+" : "-") + pad(result);
-                    result += ":" + pad(mins);
-                    break;
-                case ("z"):
-                case ("zz"):
-                    result = value.getTimezoneOffset() / 60;
-                    sign = result < 0;
-                    result = Math.abs(result).toString().split(".")[0];
-                    result = (sign ? "+" : "-") + (match === "zz" ? pad(result) : result);
-                    break;
-            }
-            result = (result !== undefined ? result : match.slice(1, match.length - 1));
-
-            if (returnsFormat) {
-                result = "" + result;
-                var formatResult = "";
-                if (match == "ddd") { match = "EEE"; }
-                if (match == "dddd") { match = "EEEE"; }
-                for (var i = 0; i < result.length; i++) {
-                    formatResult += match[0];
-                }
-                return formatResult;
-            } else {
-                return result;
-            }
-        };
-
-        function generateMatcher(retFormat) {
-            returnsFormat = retFormat;
-            return matcher;
-        }
-
-        function setExisting(symbol, val) {
-            switch (symbol) {
-                case "y": year = val; break;
-                case "M": month = val;
-                    if (!val) {
-                        value.setMonth(0);
-                        typedMonthPart = "";
-                    }
-                    break;
-                case "d": date = val; break;
-                case "H":
-                case "h": hours = val;
-                    if (!val) {
-                        typedDayPeriodPart = "";
-                    }
-                    break;
-                case "m": minutes = val; break;
-                case "s": seconds = val; break;
-                default: return;
-            }
-        }
-
-        this.setValue = function(val) {
-            date = val;
-        };
-
-        this.getValue = function() {
-            return date;
-        };
-
-        this.modifyPart = function(symbol, offset) {
-            var newValue = new Date((value && value.getTime) ? value.getTime() : value);
-            switch (symbol) {
-                case "y": newValue.setFullYear(newValue.getFullYear() + offset); break;
-                case "M":
-                    var newMonth = newValue.getMonth() + offset;
-                    newValue.setMonth(newMonth);
-                    if (newValue.getMonth() % 12 !== (newMonth + 12) % 12) {
-                        //handle case when new month does not have such date
-                        newValue.setDate(1);
-                        newValue.setMonth(newMonth);
-                    }
-                    break;
-                case "d":
-                case "E": newValue.setDate(newValue.getDate() + offset); break;
-                case "H":
-                case "h": newValue.setHours(newValue.getHours() + offset); break;
-                case "m": newValue.setMinutes(newValue.getMinutes() + offset); break;
-                case "s": newValue.setSeconds(newValue.getSeconds() + offset); break;
-                case "t": newValue.setHours((newValue.getHours() + 12) % 24); break;
-                default: break;
-            }
-            if (newValue.getFullYear() > 0) {
-                setExisting(symbol, true);
-                value = newValue;
-            }
-        };
-
-        this.parsePart = function(symbol, currentChar) {
-            if (!currentChar) {
-                setExisting(symbol, false);
-                return true;
-            }
-            var newValue = new Date((value && value.getTime) ? value.getTime() : value);
-            var lastDateOfMonth = new Date(newValue.getFullYear(), newValue.getMonth() + 1, 0).getDate();
-            var newHours;
-            switch (symbol) {
-                case "d":
-                    var newDate = (date ? newValue.getDate() * 10 : 0) + parseInt(currentChar, 10);
-                    if (isNaN(newDate)) { return; }
-                    while (newDate > lastDateOfMonth) {
-                        newDate = parseInt(newDate.toString().slice(1), 10);
-                    }
-                    if (newDate < 1) {
-                        date = false;
-                    } else {
-                        newValue.setDate(newDate);
-                        if (newValue.getMonth() !== value.getMonth()) {
-                            return;
-                        }
-                        date = true;
-                    }
-                    break;
-                case "M":
-                    var newMonth = (month ? (newValue.getMonth() + 1) * 10 : 0) + parseInt(currentChar, 10);
-                    if (!isNaN(newMonth)) {
-                        while (newMonth > 12) {
-                            newMonth = parseInt(newMonth.toString().slice(1), 10);
-                        }
-                        if (newMonth < 1) {
-                            month = false;
-                        } else {
-                            newValue.setMonth(newMonth - 1);
-                            if (newValue.getMonth() !== newMonth - 1) {
-                                newValue.setDate(1);
-                                newValue.setMonth(newMonth - 1);
-                            }
-                            month = true;
-                        }
-                    }
-                    else {
-                        var monthNames = calendar.months.names;
-                        typedMonthPart += currentChar.toLowerCase();
-
-                        while (typedMonthPart.length > 0) {
-                            for (var i = 0; i < monthNames.length; i++) {
-                                if (monthNames[i].toLowerCase().indexOf(typedMonthPart) === 0) {
-                                    newValue.setMonth(i);
-                                    month = true;
-                                    value = newValue;
-                                    return true;
-                                }
-                            }
-                            typedMonthPart = typedMonthPart.substring(1, typedMonthPart.length);
-                        }
-                        return false;
-                    }
-                    break;
-                case "y":
-                    var newYear = (year ? (newValue.getFullYear()) * 10 : 0) + parseInt(currentChar, 10);
-                    if (isNaN(newYear)) {return;}
-                    while (newYear > 9999) {
-                        newYear = parseInt(newYear.toString().slice(1), 10);
-                    }
-                    if (newYear < 1) {
-                        year = false;
-                    } else {
-                        newValue.setFullYear(newYear);
-                        year = true;
-                    }
-                    break;
-                case "h":
-                    newHours = (hours ? (newValue.getHours() % 12 || 12) * 10 : 0) + parseInt(currentChar, 10);
-                    if (isNaN(newHours)) { return; }
-                    while (newHours > 12) {
-                        newHours = parseInt(newHours.toString().slice(1), 10);
-                    }
-                    newValue.setHours(Math.floor(newValue.getHours() / 12) * 12 + newHours % 12);
-                    hours = true;
-                    break;
-                case "H":
-                    newHours = (hours ? (newValue.getHours()) * 10 : 0) + parseInt(currentChar, 10);
-                    if (isNaN(newHours)) { return; }
-                    while (newHours > 23) {
-                        newHours = parseInt(newHours.toString().slice(1), 10);
-                    }
-                    newValue.setHours(newHours);
-                    hours = true;
-                    break;
-                case "m":
-                    var newMinutes = (minutes ? (newValue.getMinutes()) * 10 : 0) + parseInt(currentChar, 10);
-                    if (isNaN(newMinutes)) { return; }
-                    while (newMinutes > 59) {
-                        newMinutes = parseInt(newMinutes.toString().slice(1), 10);
-                    }
-                    newValue.setMinutes(newMinutes);
-                    minutes = true;
-                    break;
-                case "s":
-                    var newSeconds = (seconds ? (newValue.getSeconds()) * 10 : 0) + parseInt(currentChar, 10);
-                    if (isNaN(newSeconds)) { return; }
-                    while (newSeconds > 59) {
-                        newSeconds = parseInt(newSeconds.toString().slice(1), 10);
-                    }
-                    newValue.setSeconds(newSeconds);
-                    seconds = true;
-                    break;
-                case "t":
-                    if (hours) {
-                        typedDayPeriodPart += currentChar.toLowerCase();
-                        while (typedDayPeriodPart.length > 0) {
-                            if (calendar.AM[0].toLowerCase().indexOf(typedDayPeriodPart) === 0 && newValue.getHours() >= 12 ||
-                                calendar.PM[0].toLowerCase().indexOf(typedDayPeriodPart) === 0 && newValue.getHours() < 12) {
-                                newValue.setHours((newValue.getHours() + 12) % 24);
-                                value = newValue;
-                                return true;
-                            }
-                            typedDayPeriodPart = typedDayPeriodPart.substring(1, typedDayPeriodPart.length);
-                        }
-                        return false;
-                    }
-                    break;
-                default: break;
-            }
-            value = newValue;
-            return true;
-        };
-
-        this.toPair = function(format, culture , messages) {
-            if (!format) {
-                return ["", ""];
-            }
-            culture = kendo.getCulture(culture);
-            calendar = culture.calendars.standard;
-            format = calendar.patterns[format] || format;
-            days = calendar.days;
-            months = calendar.months;
-            placeholders = messages;
-            return [
-                format.replace(dateFormatRegExp, generateMatcher(false)),
-                format.replace(dateFormatRegExp, generateMatcher(true))
-            ];
-        };
-
-        this.getDateObject = function() {
-            return (year && month && date && hours && minutes && seconds && milliseconds) ?
-                new Date(value.getTime()) : null;
-        };
-
-        if (!initDate) {
-            value = new Date();
-            var sampleFormat = this.toPair(initFormat, initCulture, initMessages)[1];
-            for (var i = 0; i < sampleFormat.length; i++) {
-                setExisting(sampleFormat[i], false);
-            }
-        } else {
-            value = new Date(initDate.getTime());
-        }
-    };
-
-    function approximateStringMatching(oldText, oldFormat, newText, caret) {
-        var oldTextSeparator = oldText[caret + oldText.length - newText.length];
-        oldText = oldText.substring(0, caret + oldText.length - newText.length);
-        newText = newText.substring(0, caret);
-        var diff = [];
-        var i;
-        //handle typing single character over the same selection
-        if (oldText === newText && caret > 0) {
-            diff.push([oldFormat[caret - 1], newText[caret - 1]]);
-            return diff;
-        }
-        if (oldText.indexOf(newText) === 0 && (newText.length === 0 || oldFormat[newText.length - 1] !== oldFormat[newText.length])) {
-            //handle delete/backspace
-            var deletedSymbol = "";
-            for (i = newText.length; i < oldText.length; i++) {
-                if (oldFormat[i] !== deletedSymbol && knownSymbols.indexOf(oldFormat[i]) >= 0) {
-                    deletedSymbol = oldFormat[i];
-                    diff.push([deletedSymbol, ""]);
-                }
-            }
-            return diff;
-        }
-
-        //handle entering space or separator, for nagivation to next item
-        if (newText[newText.length - 1] === " " || newText[newText.length - 1] === oldTextSeparator) {
-            return [[oldFormat[caret - 1], " "]];
-        }
-
-        //handle inserting text (new text is longer than previous)
-        //handle typing over literal as well
-        if (newText.indexOf(oldText) === 0 || knownSymbols.indexOf(oldFormat[caret - 1]) === -1) {
-            var symbol = oldFormat[0];
-            for (i = Math.max(0, oldText.length - 1); i < oldFormat.length; i++) {
-                if (knownSymbols.indexOf(oldFormat[i]) >= 0) {
-                    symbol = oldFormat[i];
-                    break;
-                }
-            }
-            return [[symbol, newText[caret - 1]]];
-        }
-        //handle typing over correctly selected part
-        return [[oldFormat[caret - 1], newText[caret - 1]]];
-}
 
 })(window.kendo.jQuery);
 

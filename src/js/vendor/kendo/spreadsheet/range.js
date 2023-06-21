@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -186,7 +186,7 @@ import "../util/main.js";
                     // it's a Formula object which stringifies to the
                     // formula as text (without the starting `=`).
                     value = "=" + formula;
-                } else OUT: { 
+                } else OUT: {
                     if (existingFormat && type == "date") {
                         // check if we could parse back the displayed value.
                         // https://github.com/telerik/kendo/issues/5335
@@ -195,7 +195,7 @@ import "../util/main.js";
                         var t2 = kendo.spreadsheet.formatting.text(x.value, existingFormat);
                         if (t1 == t2) {
                             value = t1;
-                            break OUT; 
+                            break OUT;
                         }
                     }
                     if (type === "date") {
@@ -441,6 +441,7 @@ import "../util/main.js";
                     sheet._set(ref, propName, propValue);
                 };
 
+                var isValue = false;
                 for (ci = topLeftCol; ci <= bottomRightCol; ci ++) {
                     if (!isAutofill && sheet.isHiddenColumn(ci)) {
                         continue;
@@ -456,12 +457,14 @@ import "../util/main.js";
                         if (row) {
                             data = row[ci - topLeftCol];
                             if (data) {
-                                Object.keys(data).forEach(setProp);
+                                var keys = Object.keys(data);
+                                keys.forEach(setProp);
+                                isValue = isValue || keys.includes("value");
                             }
                         }
                     }
                 }
-                sheet.triggerChange({ recalc: true, ref: this._ref });
+                sheet.triggerChange({ recalc: true, ref: this._ref, isValue: isValue });
                 return this;
             }
         },
@@ -797,7 +800,7 @@ import "../util/main.js";
                                     // invalid Formula and display #ERROR, like G.S. does, so in
                                     // case of a parse error we'll just set the value as string.
                                     try {
-                                        if (cellState.value == null) { 
+                                        if (cellState.value == null) {
                                             range._set("value", null);
                                         } else {
                                             range.input(cellState.value);
@@ -855,7 +858,7 @@ import "../util/main.js";
                             width = sheet.columnWidth(col);
                         }
                         var data = cell.value;
-                        if (cell.format && data != null) { 
+                        if (cell.format && data != null) {
                             data = kendo.spreadsheet.formatting.format(data, cell.format);
                         }
                         var textHeight = kendo.spreadsheet.util.getTextHeight(

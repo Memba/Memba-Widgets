@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -131,9 +131,9 @@ var ExportAsTool = Tool.extend({
     },
 
     changeHandler: function(e) {
+        this._exec(e.sender.value());
         e.sender.value(null);
         e.sender.wrapper.find(".k-export-tool-text").text(kendo.htmlEncode(this.editor.options.messages.exportAs));
-        this._exec(e.sender.value());
     },
 
     update: function(ui, editor) {

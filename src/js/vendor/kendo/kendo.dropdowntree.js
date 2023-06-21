@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "./dropdowntree/treeview.js";
 import "./kendo.popup.js";
+import "./kendo.actionsheet.js";
 import "./kendo.binder.js";
 import "./kendo.html.chip.js";
 import "./kendo.html.chiplist.js";
@@ -21,7 +22,7 @@ var __meta__ = {
     name: "DropDownTree",
     category: "web",
     description: "The DropDownTree widget displays a hierarchy of items and allows the selection of single or multiple items.",
-    depends: [ "treeview", "popup", "binder", "html.chip", "html.chiplist", "html.button", "html.input", "label", "icons" ]
+    depends: [ "treeview", "popup", "binder", "html.chip", "html.chiplist", "html.button", "html.input", "label", "icons", "actionsheet" ]
 };
 
 (function($, undefined) {
@@ -29,6 +30,7 @@ var __meta__ = {
         ui = kendo.ui,
         html = kendo.html,
         encode = kendo.htmlEncode,
+        mediaQuery = kendo.mediaQuery,
         Widget = ui.Widget,
         TreeView = ui._dropdowntree,
         ObservableArray = kendo.data.ObservableArray,
@@ -61,6 +63,7 @@ var __meta__ = {
 
     var DropDownTree = kendo.ui.Widget.extend( {
         init: function(element, options) {
+            var that = this;
             this.ns = ns;
 
             kendo.ui.Widget.fn.init.call(this, element, options);
@@ -81,6 +84,16 @@ var __meta__ = {
                 this._values = Array.isArray(value) ? value.slice(0) : [value];
             }
 
+            that.bigScreenMQL = mediaQuery("large");
+            that.smallScreenMQL = mediaQuery("small");
+            if (that.options.adaptiveMode == "auto") {
+                that.smallScreenMQL.onChange(function() {
+                    if (that.popup && kendo.isFunction(that.popup.fullscreen)) {
+                        that.popup.fullscreen(that.smallScreenMQL.mediaQueryList.matches);
+                    }
+                });
+            }
+
             this._inputTemplate();
 
             this._accessors();
@@ -98,7 +111,7 @@ var __meta__ = {
                 "aria-hidden": true
             });
 
-            this.list = $("<div class='k-list-container'/>")
+            this.list = $("<div/>")
                 .append(this.tree);
 
             this._header();
@@ -106,7 +119,39 @@ var __meta__ = {
             this._footer();
             this._reset();
             this._popup();
-            this.popup.one("open", this._popupOpen.bind(this));
+
+            if (that.options.adaptiveMode == "auto") {
+                that.bigScreenMQL.onChange(() => {
+                    that.list = $("<div class='k-list-container'/>")
+                        .append(that.tree);
+                    that._header.bind(that)();
+                    that._noData.bind(that)();
+                    that._footer.bind(that)();
+                    that._reset.bind(that)();
+
+                    if (that.popup) {
+                        that.popup.destroy();
+                        that.popup.element.remove();
+                        that.popup = null;
+                    }
+                    if (that.treeview) {
+                        that.treeview.destroy();
+                    }
+
+                    that._popup.bind(that)();
+                    that._filterHeader.bind(that)();
+                    that._treeview.bind(that)();
+
+                    that._renderFooter.bind(that)();
+
+                    that._checkAll.bind(that)();
+                    that._enable.bind(that)();
+                    that._toggleCloseVisibility.bind(that)();
+
+                    that._aria.bind(that)();
+                });
+            }
+
             this._clearButton();
             this._filterHeader();
             this._treeview();
@@ -217,7 +262,7 @@ var __meta__ = {
 
         _getSelection: function() {
             if (this._isMultipleSelection()) {
-                this.options._altname = "MultiSelectDropDownTree";
+                this.options._altname = "MultiSelectTree";
                 return new ui.DropDownTree.MultipleSelection(this);
             } else {
                 return new ui.DropDownTree.SingleSelection(this);
@@ -244,6 +289,7 @@ var __meta__ = {
 
         options: {
             name: "DropDownTree",
+            adaptiveMode: "none",
             animation: {},
             autoBind: true,
             autoClose: true,
@@ -351,11 +397,6 @@ var __meta__ = {
             if (popup.visible() || !this._allowOpening()) {
                 return;
             }
-
-            if (this._isMultipleSelection()) {
-                popup.element.addClass("k-multiple-selection");
-            }
-            popup.element.addClass("k-popup-dropdowntree");
 
             popup.one("activate", this._focusInputHandler);
             popup._hovered = true;
@@ -471,6 +512,14 @@ var __meta__ = {
 
             if (this.tagList) {
                 this.tagList.off(ns);
+            }
+
+            if (this.bigScreenMQL) {
+                this.bigScreenMQL.destroy();
+            }
+
+            if (this.smallScreenMQL) {
+                this.smallScreenMQL.destroy();
             }
 
             kendo.unbind(this.tagList);
@@ -736,27 +785,80 @@ var __meta__ = {
             }
         },
 
+        _hasActionSheet: function() {
+            return this.options.adaptiveMode === "auto" && !this.bigScreenMQL.mediaQueryList.matches;
+        },
+
         _popup: function() {
+            var that = this;
             var list = this;
 
-            if (list.options.checkboxes && list.options.checkAll) {
-                list.list.attr("role", "application");
+            if (that.options.checkboxes) {
+                if (that.options.checkAll) {
+                    that.list.attr("role", "application");
+                }
+
+                that.list.addClass("k-multiselecttree-popup");
+            } else {
+                that.list.addClass("k-dropdowntree-popup");
             }
 
-            list.popup = new ui.Popup(list.list, extend({}, list.options.popup, {
-                anchor: list.wrapper,
-                open: list._openHandler.bind(list),
-                close: list._closeHandler.bind(list),
-                animation: list.options.animation,
-                isRtl: support.isRtl(list.wrapper),
-                autosize: list.options.autoWidth,
-                deactivate: () => {
-                    this._refreshFloatingLabel();
-                },
-                activate: () => {
-                    this._refreshFloatingLabel();
-                }
-            }));
+            if (list.options.adaptiveMode == "auto" && !list.bigScreenMQL.mediaQueryList.matches) {
+                $(document.body).append(list.list);
+                list.popup = new ui.ActionSheet(list.list, {
+                    adaptive: true,
+                    hideOverflowContent: true,
+                    headerTemplate: (options) =>
+                        `<div class="k-text-center k-actionsheet-titlebar" >` +
+                            '<div class="k-actionsheet-titlebar-group k-hbox">' +
+                                `<div  class="k-actionsheet-title">` +
+                                    `<div class="k-text-center">${list.label ? list.label.element.text() : list.options.label || list.options.placeholder || "Select"}</div>` +
+                                    (list.options.placeholder && (list.label || list.options.label) ? `<div class="k-actionsheet-subtitle k-text-center">${list.options.placeholder || ""}</div>` : "") +
+                                '</div>' +
+                                (options.closeButton ?
+                                '<div class="k-actionsheet-actions">' +
+                                    kendo.html.renderButton(`<button tabindex="-1" ${kendo.attr("ref-actionsheet-close-button")}></button>`, { icon: "x", fillMode: "flat", size: "large" }) +
+                                '</div>'
+                                : "") +
+                                '</div>' +
+                            (this._isFilterEnabled() ? `<div class="k-actionsheet-titlebar-group k-actionsheet-filter"></div>` : '') +
+                        '</div>',
+                    closeButton: true,
+                    focusOnActivate: false,
+                    fullscreen: list.smallScreenMQL.mediaQueryList.matches,
+                    popup: extend({}, list.options.popup, {
+                        anchor: list.wrapper,
+                        open: list._openHandler.bind(list),
+                        close: list._closeHandler.bind(list),
+                        animation: list.options.animation,
+                        isRtl: support.isRtl(list.wrapper),
+                        autosize: list.options.autoWidth,
+                    }),
+                    deactivate: () => {
+                        this._refreshFloatingLabel();
+                    },
+                    activate: () => {
+                        this._refreshFloatingLabel();
+                    }
+                });
+            } else {
+                list.popup = new ui.Popup(list.list, extend({}, list.options.popup, {
+                    anchor: list.wrapper,
+                    open: list._openHandler.bind(list),
+                    close: list._closeHandler.bind(list),
+                    animation: list.options.animation,
+                    isRtl: support.isRtl(list.wrapper),
+                    autosize: list.options.autoWidth,
+                    deactivate: () => {
+                        this._refreshFloatingLabel();
+                    },
+                    activate: () => {
+                        this._refreshFloatingLabel();
+                    }
+                }));
+
+                list.popup.one("open", list._popupOpen.bind(list));
+            }
         },
 
         _angularElement: function(element, action) {
@@ -784,8 +886,8 @@ var __meta__ = {
                     "aria-selected": true
                 });
             } else {
-                this.span.parent().removeAttr("role");
-                this.span.parent().removeAttr("aria-selected");
+                this.span.removeAttr("role");
+                this.span.removeAttr("aria-selected");
             }
         },
 
@@ -874,6 +976,7 @@ var __meta__ = {
                 this.close();
                 this.wrapper.trigger("focus");
             }
+
             this.popup.position();
             this._toggleCloseVisibility();
             this._updateSelectedOptions();
@@ -955,6 +1058,7 @@ var __meta__ = {
                 this.close();
                 this.wrapper.trigger("focus");
             }
+
             this.popup.position();
             this._toggleCloseVisibility();
         },
@@ -1132,8 +1236,7 @@ var __meta__ = {
             }
 
             if (this.options.clearButton) {
-                this._clear.insertAfter(this.tagList || this.span.parent());
-                this.wrapper.addClass("k-dropdowntree-clearable");
+                this._clear.insertAfter(this.span.parent());
             } else {
                 if (!this.options.clearButton) {
                     this._clear.remove();
@@ -1187,7 +1290,8 @@ var __meta__ = {
 
         _treeview: function() {
             var that = this;
-            if (that.options.height) {
+
+            if (that.options.adaptiveMode != "auto" && that.options.height) {
                 that.tree.css('max-height',that.options.height);
             }
             that.tree.attr('id', kendo.guid());
@@ -1303,7 +1407,7 @@ var __meta__ = {
 
         _filterHeader: function() {
             var filterTemplate = '<div class="k-list-filter">' +
-                '<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid" type="text" autocomplete="off">' +
+                '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid" type="text" autocomplete="off">' +
                     kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
                 '</span>' +
             '</div>';
@@ -1331,10 +1435,17 @@ var __meta__ = {
 
                 this.filterInput.on("input" , this._filterChange.bind(this));
 
-                $(filterTemplate)
-                    .insertBefore(this.tree)
-                    .find(".k-searchbox")
+                if (this._hasActionSheet()) {
+                    $(filterTemplate)
+                    .appendTo(this.popup.wrapper.find(".k-actionsheet-filter"))
+                    .find(".k-textbox")
                     .append(this.filterInput);
+                } else {
+                    $(filterTemplate)
+                    .insertBefore(this.tree)
+                    .find(".k-textbox")
+                    .append(this.filterInput);
+                }
             }
         },
 
@@ -1688,6 +1799,7 @@ var __meta__ = {
 
         _wrapperClick: function(e) {
             e.preventDefault();
+
             this.popup.unbind("activate", this._focusInputHandler);
             this._focused = this.wrapper;
             this._prevent = false;
@@ -1999,9 +2111,9 @@ var __meta__ = {
         values: kendo.cssProperties.roundedValues.concat([['full', 'full']])
     }]);
 
-    kendo.cssProperties.registerPrefix("MultiSelectDropDownTree", "k-input-");
+    kendo.cssProperties.registerPrefix("MultiSelectTree", "k-input-");
 
-    kendo.cssProperties.registerValues("MultiSelectDropDownTree", [{
+    kendo.cssProperties.registerValues("MultiSelectTree", [{
         prop: "rounded",
         values: kendo.cssProperties.roundedValues.concat([['full', 'full']])
     }]);
@@ -2147,8 +2259,7 @@ var __meta__ = {
             dropdowntree._tags = new ObservableArray([]);
             dropdowntree._multipleTags = new ObservableArray([]);
             this._tagList();
-            dropdowntree.span = $('<span unselectable="on" class="k-input-inner"><span class="k-input-value-text"></span></span>').appendTo(dropdowntree.tagList).find(".k-input-value-text");
-
+            dropdowntree.span = $('<span unselectable="on" class="k-input-inner"><span class="k-input-value-text"></span></span>').appendTo(dropdowntree.wrapper).find(".k-input-value-text");
         },
 
         _preselect: function(data, value) {
@@ -2206,10 +2317,10 @@ var __meta__ = {
         _wrapper: function() {
             var dropdowntree = this._dropdowntree,
                 element = dropdowntree.element,
-                wrapper = element.parent("span.k-dropdowntree");
+                wrapper = element.parent(".k-multiselecttree");
 
             if (!wrapper[0]) {
-                wrapper = element.wrap('<span class="k-dropdowntree k-input" unselectable="on" />').parent();
+                wrapper = element.wrap('<span class="k-multiselecttree k-input" unselectable="on" />').parent();
                 wrapper[0].style.cssText = element[0].style.cssText;
                 wrapper[0].title = element[0].title;
             }
@@ -2225,7 +2336,7 @@ var __meta__ = {
                 var isMultiple = dropdowntree.options.tagMode === "multiple";
                 var tagCollection = isMultiple ? "tags" : "multipleTag";
 
-                tagList = $(html.renderChipList('<div unselectable="on" class="k-input-values" data-template="tagTemplate" data-bind="source: ' + tagCollection + '" />', $.extend({ selectable: "none" }, dropdowntree.options))).appendTo(dropdowntree.wrapper);
+                tagList = $(html.renderChipList('<div unselectable="on" class="k-input-values k-selection-multiple" data-template="tagTemplate" data-bind="source: ' + tagCollection + '" />', $.extend({ selectable: "none" }, dropdowntree.options))).appendTo(dropdowntree.wrapper);
             }
 
             dropdowntree.tagList = tagList;

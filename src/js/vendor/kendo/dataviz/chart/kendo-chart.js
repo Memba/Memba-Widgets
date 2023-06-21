@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -72,7 +72,6 @@ var round = dataviz.round;
 var limitValue = dataviz.limitValue;
 var grep = dataviz.grep;
 var elementStyles = dataviz.elementStyles;
-var hasClasses = dataviz.hasClasses;
 var bindEvents = dataviz.bindEvents;
 var services = dataviz.services;
 var unbindEvents = dataviz.unbindEvents;
@@ -619,7 +618,7 @@ var INSIDE_END = "insideEnd";
 var INSIDE_BASE = "insideBase";
 var OUTSIDE_END = "outsideEnd";
 
-var MOUSEWHEEL = "DOMMouseScroll mousewheel";
+var MOUSEWHEEL = "wheel";
 var MOUSEWHEEL_DELAY = 150;
 var MOUSEWHEEL_ZOOM_RATE = 0.3;
 
@@ -9349,10 +9348,10 @@ PlotAreaFactory.current = new PlotAreaFactory();
 var ZOOM_ACCELERATION = 3;
 var SELECTOR_HEIGHT_ADJUST = 0.1;
 
-function createDiv(className) {
+function createDiv(classNames) {
     var element = document.createElement("div");
-    if (className) {
-        element.className = className;
+    if (classNames) {
+        element.className = classNames;
     }
 
     return element;
@@ -9360,7 +9359,7 @@ function createDiv(className) {
 
 function closestHandle(element) {
     var current = element;
-    while (current && !hasClasses(current, "k-handle")) {
+    while (current && !dataviz.hasClasses(current, "k-handle")) {
         current = current.parentNode;
     }
 
@@ -9398,7 +9397,7 @@ var Selection = Class.extend({
 
     createElements: function() {
         var options = this.options;
-        var wrapper = this.wrapper = createDiv("k-selector");
+        var wrapper = this.wrapper = createDiv("k-selector k-pointer-events-none");
         elementStyles(wrapper, {
             top: options.offset.top,
             left: options.offset.left,
@@ -9406,18 +9405,21 @@ var Selection = Class.extend({
             height: options.height,
             direction: 'ltr'
         });
-        var selection = this.selection = createDiv("k-selection");
-        this.leftMask = createDiv("k-mask");
-        this.rightMask = createDiv("k-mask");
+
+        var selection = this.selection = createDiv("k-selection k-pointer-events-none");
+
+        this.leftMask = createDiv("k-mask k-pointer-events-none");
+        this.rightMask = createDiv("k-mask k-pointer-events-none");
 
         wrapper.appendChild(this.leftMask);
         wrapper.appendChild(this.rightMask);
         wrapper.appendChild(selection);
 
-        selection.appendChild(createDiv("k-selection-bg"));
+        var body = this.body = createDiv("k-selection-bg k-pointer-events-none");
+        selection.appendChild(body);
 
-        var leftHandle = this.leftHandle = createDiv("k-handle k-left-handle");
-        var rightHandle = this.rightHandle = createDiv("k-handle k-right-handle");
+        var leftHandle = this.leftHandle = createDiv("k-handle k-left-handle k-pointer-events-auto");
+        var rightHandle = this.rightHandle = createDiv("k-handle k-right-handle k-pointer-events-auto");
         leftHandle.appendChild(createDiv());
         rightHandle.appendChild(createDiv());
 
@@ -9451,10 +9453,10 @@ var Selection = Class.extend({
         if (this.options.mousewheel !== false) {
             this._mousewheelHandler = this._mousewheel.bind(this);
             var obj;
-            bindEvents(this.wrapper, ( obj = {}, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj ));
+            bindEvents(this.chartElement, ( obj = {}, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj ));
         }
 
-        this._domEvents = services.DomEventsBuilder.create(this.wrapper, {
+        this._domEvents = services.DomEventsBuilder.create(this.chartElement, {
             stopPropagation: true, // applicable for the jQuery UserEvents
             start: this._start.bind(this),
             move: this._move.bind(this),
@@ -9515,9 +9517,10 @@ var Selection = Class.extend({
         if (this.wrapper) {
             if (this._mousewheelHandler) {
                 var obj;
-                unbindEvents(this.wrapper, ( obj = {}, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj ));
+                unbindEvents(this.chartElement, ( obj = {}, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj ));
                 this._mousewheelHandler = null;
             }
+
             this.chartElement.removeChild(this.wrapper);
             this.wrapper = null;
         }
@@ -9532,18 +9535,35 @@ var Selection = Class.extend({
         };
     },
 
+    _pointInPane: function(x, y) {
+        var paneBox = this.categoryAxis.pane.box;
+        var modelCoords = this.chart._toModelCoordinates(x, y);
+        return paneBox.containsPoint(modelCoords);
+    },
+
     _start: function(e) {
         var options = this.options;
         var target = eventElement(e);
-
         if (this._state || !target) {
             return;
         }
 
+        var coords = dataviz.eventCoordinates(e);
+        var inPane = this._pointInPane(coords.x, coords.y);
+        if (!inPane) {
+            return;
+        }
+
+        var handle = closestHandle(target);
+        var bodyRect = this.body.getBoundingClientRect();
+        var inBody = !handle && coords.x >= bodyRect.x && coords.x <= bodyRect.x + bodyRect.width &&
+                       coords.y >= bodyRect.y && coords.y <= bodyRect.y + bodyRect.height;
+
         this.chart._unsetActivePoint();
         this._state = {
-            moveTarget: closestHandle(target) || target,
+            moveTarget: handle,
             startLocation: e.x ? e.x.location : 0,
+            inBody: inBody,
             range: {
                 from: this._index(options.from),
                 to: this._index(options.to)
@@ -9594,14 +9614,14 @@ var Selection = Class.extend({
         var scale = elementStyles(this.wrapper, "width").width / (categoryAxis.categoriesCount() - 1);
         var offset = Math.round(delta / scale) * (reverse ? -1 : 1);
 
-        if (!target) {
+        if (!target && !state.inBody) {
             return;
         }
 
-        var leftHandle = hasClasses(target, "k-left-handle");
-        var rightHandle = hasClasses(target, "k-right-handle");
+        var leftHandle = target && dataviz.hasClasses(target, "k-left-handle");
+        var rightHandle = target && dataviz.hasClasses(target, "k-right-handle");
 
-        if (hasClasses(target, "k-selection k-selection-bg")) {
+        if (state.inBody) {
             range.from = Math.min(
                 Math.max(min, from - offset),
                 max - span
@@ -9679,6 +9699,7 @@ var Selection = Class.extend({
         range.to = Math.min(range.from + span, max);
 
         this._start(e);
+
         if (this._state) {
             this._state.range = range;
             this.trigger(SELECT, this._rangeEventArgs(range));
@@ -9691,7 +9712,7 @@ var Selection = Class.extend({
 
         var delta = dataviz.mousewheelDelta(e);
 
-        this._start({ target: this.selection });
+        this._start(e);
 
         if (this._state) {
             var range = this._state.range;
@@ -9729,6 +9750,12 @@ var Selection = Class.extend({
 
     _gesturestart: function(e) {
         var options = this.options;
+        var touch = e.touches[0];
+        var inPane = this._pointInPane(touch.pageX, touch.pageY);
+
+        if (!inPane) {
+            return;
+        }
 
         this._state = {
             range: {
@@ -9753,6 +9780,10 @@ var Selection = Class.extend({
     },
 
     _gesturechange: function(e) {
+        if (!this._state) {
+            return;
+        }
+
         var ref = this;
         var chart = ref.chart;
         var state = ref._state;

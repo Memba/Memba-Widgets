@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,12 +10,13 @@ import "./kendo.data.js";
 import "./kendo.popup.js";
 import "./kendo.label.js";
 import "./kendo.icons.js";
+import "./kendo.actionsheet.js";
 
 var __meta__ = {
     id: "list",
     name: "List",
     category: "framework",
-    depends: [ "data", "popup", "label", "icons" ],
+    depends: [ "data", "popup", "label", "icons", "actionsheet" ],
     hidden: true
 };
 
@@ -122,11 +123,19 @@ var __meta__ = {
                 }
             }
 
+            if (options.adaptiveMode === "auto") {
+                that.largeMQL = kendo.mediaQuery("large");
+                that.mediumMQL = kendo.mediaQuery("medium");
+                that.smallMQL = kendo.mediaQuery("small");
+            }
+
             that._listSize = kendo.cssProperties.getValidClass({
                 widget: "List",
                 propName: "size",
                 value: options.size
             });
+
+            that._filterHeader();
 
             that.ul = $(UL_EL).attr({
                 tabIndex: -1,
@@ -171,7 +180,8 @@ var __meta__ = {
             messages: {
                 "noData": "No data found.",
                 "clear": "clear"
-            }
+            },
+            adaptiveMode: "none"
         },
 
         setOptions: function(options) {
@@ -285,6 +295,26 @@ var __meta__ = {
             }
 
             this._angularElement(list.header, "compile");
+        },
+
+        _filterHeader: function() {
+            this.filterTemplate = '<div class="k-list-filter">' +
+                '<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid" type="text" autocomplete="off">' +
+                    kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
+                '</span>' +
+            '</div>';
+
+            if (this._isFilterEnabled()) {
+                this.filterInput = $('<input class="k-input-inner" type="text" />')
+                    .attr({
+                        placeholder: this.element.attr("placeholder"),
+                        title: this.options.filterTitle || this.element.attr("title"),
+                        role: "searchbox",
+                        "aria-label": this.options.filterTitle,
+                        "aria-haspopup": "listbox",
+                        "aria-autocomplete": "list"
+                    });
+            }
         },
 
         _columnsHeader: function() {
@@ -423,8 +453,9 @@ var __meta__ = {
             return options;
         },
 
-        _initList: function() {
+        _initList: function(opts) {
             var that = this;
+            var skipValueUpdate = opts && opts.skipValueUpdate;
             var listOptions = that._listOptions({
                 selectedItemChange: that._listChange.bind(that)
             });
@@ -432,12 +463,17 @@ var __meta__ = {
             if (!that.options.virtual) {
                 that.listView = new kendo.ui.StaticList(that.ul, listOptions);
             } else {
-                that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
+                that.listView = new kendo.ui.VirtualList(that.ul, Object.assign(listOptions, {
+                    height: that._hasActionSheet() ? 362 : that.options.height, // Hardcoded virtual list height for action sheet untill better solution is found
+                }));
                 that.list.addClass("k-virtual-list");
             }
 
             that.listView.bind("listBound", that._listBound.bind(that));
-            that._setListValue();
+
+            if (!skipValueUpdate) {
+                that._setListValue();
+            }
         },
 
         _setListValue: function(value) {
@@ -756,6 +792,12 @@ var __meta__ = {
 
             that._unbindDataSource();
 
+            if (that.largeMQL || that.mediumMQL || that.smallMQL) {
+                that.largeMQL.destroy();
+                that.mediumMQL.destroy();
+                that.smallMQL.destroy();
+            }
+
             that.listView.destroy();
             that.list.off(ns);
 
@@ -1026,7 +1068,7 @@ var __meta__ = {
                 wrapper = that.wrapper,
                 computedStyle, computedWidth;
 
-            if (!list.data(WIDTH) && width) {
+            if ((!list.data(WIDTH) && width) || that._hasActionSheet()) {
                 return;
             }
 
@@ -1055,6 +1097,11 @@ var __meta__ = {
         },
 
         _closeHandler: function(e) {
+            if (e.closeButton) {
+                this._onCloseButtonPressed();
+            }
+
+
             if (this.trigger(CLOSE)) {
                 e.preventDefault();
             } else {
@@ -1128,8 +1175,14 @@ var __meta__ = {
             }
         },
 
+        _hasActionSheet: function() {
+            return this.options.adaptiveMode === "auto" && (this.mediumMQL.mediaQueryList.matches
+                    || this.smallMQL.mediaQueryList.matches);
+        },
+
         _resizePopup: function(force) {
-            if (this.options.virtual) {
+            if (this.options.virtual
+                    || this._hasActionSheet()) {
                 return;
             }
 
@@ -1153,6 +1206,32 @@ var __meta__ = {
 
             list.list.wrap("<div>");
 
+            if (list.options.adaptiveMode === "auto") {
+                list.largeMQL.onEnter(list._createPopup.bind(list));
+                list.mediumMQL.onEnter(list._createActionSheet.bind(list));
+                list.smallMQL
+                    .onEnter(() => {
+                        if (!list.popup) {
+                            list._createActionSheet();
+                        }
+
+                        list.popup.fullscreen(true);
+                    });
+            } else {
+                list._createPopup();
+            }
+        },
+
+        _createPopup: function() {
+            var list = this;
+
+            if (list.popup) {
+                list._cachedFilterValue = list.filterInput ? list.filterInput.val() : null;
+                list.popup.destroy();
+                list._removeFilterHeader();
+                list._removeStaticHeader();
+            }
+
             list.popup = new ui.Popup(list.list.parent(), extend({}, list.options.popup, {
                 anchor: list.wrapper,
                 open: list._openHandler.bind(list),
@@ -1168,8 +1247,128 @@ var __meta__ = {
                 }
             }));
 
+            list._addFilterHeader = list._isFilterEnabled() && list.options.popupFilter ? () => {
+                list._filterHeader();
+                list.list
+                    .parent()
+                    .prepend($(list.filterTemplate))
+                    .find(".k-searchbox")
+                    .append(list.filterInput);
+                list.enable();
+            } : $.noop;
+
+            list._postCreatePopup();
+        },
+
+        _onActionSheetCreate: $.noop,
+        _onCloseButtonPressed: $.noop,
+
+        _createActionSheet: function() {
+            var list = this;
+
+            if (list.popup) {
+                list._cachedFilterValue = list.filterInput ? list.filterInput.val() : null;
+                list.popup.destroy();
+                list._removeFilterHeader();
+                list._removeStaticHeader();
+                list.list.parent().css({
+                    width: "",
+                    height: "",
+                    minWidth: ""
+                });
+            }
+
+            list.popup = new ui.ActionSheet(list.list.parent(), {
+                headerTemplate: (options) =>
+                `<div class="k-text-center k-actionsheet-titlebar" >` +
+                        '<div class="k-actionsheet-titlebar-group k-hbox">' +
+                            `<div  class="k-actionsheet-title">` +
+                                (list.options.label ? `<div class="k-text-center">${list.options.label}</div>` : '') +
+                                (list.options.placeholder ? `<div class="k-actionsheet-subtitle k-text-center">${list.options.placeholder || ""}</div>` : "") +
+                            '</div>' +
+                            (options.closeButton ?
+                            '<div class="k-actionsheet-actions">' +
+                                kendo.html.renderButton(`<button tabindex="-1" ${kendo.attr("ref-actionsheet-close-button")}></button>`, { icon: "x", fillMode: "flat", size: "large" }) +
+                            '</div>'
+                            : "") +
+                        '</div>' +
+                    (this._isFilterEnabled() ? `<div class="k-actionsheet-titlebar-group k-actionsheet-filter">${list.filterTemplate}</div>` : '') +
+                '</div>',
+                open: list._openHandler.bind(list),
+                close: list._closeHandler.bind(list),
+                focusOnActivate: false,
+                adaptive: true,
+                appendTo: (list.options.popup && list.options.popup.appendTo) || document.body,
+                closeButton: true,
+                fullscreen: list.smallMQL.mediaQueryList.matches,
+                activate: () => {
+                    this._refreshFloatingLabel();
+                },
+                deactivate: () => {
+                    this._refreshFloatingLabel();
+                },
+                popup: extend({}, list.options.popup, {
+                    autosize: list.options.autoWidth
+                })
+            });
+
+            list._addFilterHeader = this._isFilterEnabled() ? () => {
+                list._filterHeader();
+                list.popup.element
+                    .find(".k-searchbox")
+                    .append(list.filterInput);
+                list.enable();
+            } : $.noop;
+
+
+            list._postCreatePopup();
+            list._onActionSheetCreate();
+        },
+
+        _removeFilterHeader: function() {
+            if (this.filterInput) {
+                this.filterInput
+                    .off(this.ns)
+                    .closest(".k-list-filter")
+                    .remove();
+
+                this.filterInput = null;
+            }
+        },
+
+        _removeStaticHeader: function() {
+            this.listView.header.remove();
+        },
+
+        _postCreatePopup: function() {
+            var list = this;
+            var listViewValue;
+
+            list._addFilterHeader();
+
+            if (list.filterInput && list._cachedFilterValue) {
+                list.filterInput.val(list._cachedFilterValue);
+            }
+
             list.popup.element.prepend(list.header)
                 .on(MOUSEDOWN + this.ns, this._listMousedown.bind(this));
+
+            if (list.listView) {
+                listViewValue = list.listView.value();
+
+                if (list.listView._clean) {
+                    list.listView._clean();
+                }
+
+                // Dirty hack to clean MultiSelect taglist
+                if (list.tagList && list.options.virtual) {
+                    list.tagList.empty();
+                }
+
+                list.listView.destroy();
+                list._initList({ skipValueUpdate: true });
+                list.listView.value(listViewValue);
+            }
         },
 
         _toggleHover: function(e) {
@@ -2070,9 +2269,9 @@ var __meta__ = {
             this._templates();
             this._render();
 
-            if (options.label) {
+            if (this.label && options.label) {
                 this.label.setOptions(options.label);
-            } else if (options.label === false) {
+            } else if (this.label && options.label === false) {
                 this.label._unwrapFloating();
                 this._inputLabel.remove();
                 delete this._inputLabel;

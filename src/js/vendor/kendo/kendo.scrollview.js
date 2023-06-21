@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1310,8 +1310,8 @@ var __meta__ = {
 
             itemsWrapper.attr("id", itemsWrapperId);
 
-            prevArrow = $(`<a class="k-scrollview-prev" role="button" aria-label="${messages.previousButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon("chevron-left")}</a>`);
-            nextArrow = $(`<a class="k-scrollview-next" role="button" aria-label="${messages.nextButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon("chevron-right")}</a>`);
+            prevArrow = $(`<a class="k-scrollview-prev" role="button" aria-label="${messages.previousButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon({ icon: "chevron-left", size: "xxxlarge" })}</a>`);
+            nextArrow = $(`<a class="k-scrollview-next" role="button" aria-label="${messages.nextButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon({ icon: "chevron-right", size: "xxxlarge" })}</a>`);
 
             prevArrow.hide();
             nextArrow.hide();

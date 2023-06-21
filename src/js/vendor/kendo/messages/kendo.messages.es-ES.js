@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -982,6 +982,19 @@
       $.extend(true, kendo.ui.Prompt.prototype.options.localization, {
         "okText": "OK",
         "cancel": "Cancelar"
+      });
+  }
+
+  /* Wizard messages */
+  if (kendo.ui.Wizard) {
+    kendo.ui.Wizard.prototype.options.messages =
+      $.extend(true, kendo.ui.Wizard.prototype.options.messages, {
+        "reset": "Reiniciar",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "done": "Hecho",
+        "step": "Paso",
+        "of": "de"
       });
   }
 

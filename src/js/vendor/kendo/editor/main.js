@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -92,7 +92,8 @@ import "../kendo.icons.js";
                 mergeCellsVertically: "cells-merge-vertically",
                 splitCellHorizontally: "cell-split-horizontally",
                 splitCellVertically: "cell-split-vertically",
-                tableWizard: "table-properties",
+                tableProperties: "table-properties",
+                tableCellProperties: "table-cell-properties",
                 tableWizardInsert: "table-wizard",
                 tableAlignLeft: "table-position-start",
                 tableAlignCenter: "table-position-center",
@@ -156,12 +157,14 @@ import "../kendo.icons.js";
     };
 
     var messages = {
+        auto: "Auto",
         bold: "Bold",
         italic: "Italic",
         underline: "Underline",
         strikethrough: "Strikethrough",
         superscript: "Superscript",
         subscript: "Subscript",
+        fitToCell: "Fit to cell",
         justifyCenter: "Center text",
         justifyLeft: "Align text left",
         justifyRight: "Align text right",
@@ -209,7 +212,7 @@ import "../kendo.icons.js";
         linkOpenInNewWindow: "Open link in new window",
         dialogUpdate: "Update",
         dialogInsert: "Insert",
-        dialogOk: "Ok",
+        dialogOk: "Confirm",
         dialogCancel: "Cancel",
         cleanFormatting: "Clean formatting",
         createTable: "Create a table",
@@ -228,9 +231,11 @@ import "../kendo.icons.js";
         tableAlignCenter: "Table Align Center",
         tableAlignRight: "Table Align Right",
         tableWizard: "Table Wizard",
-        tableTab: "Table",
+        tableProperties: "Table Properties",
+        tableCellProperties: "Cell Properties",
+        tableTab: "General",
         cellTab: "Cell",
-        accessibilityTab: "Accessibility",
+        accessibilityTab: "Advanced",
         caption: "Caption",
         summary: "Summary",
         width: "Width",
@@ -240,11 +245,16 @@ import "../kendo.icons.js";
         cellPadding: "Cell Padding",
         cellMargin: "Cell Margin",
         alignment: "Alignment",
+        captionAlignment: "Caption alignment",
+        position: "Position",
         background: "Background",
+        tableBackground: "Table background",
         cssClass: "CSS Class",
         id: "ID",
         border: "Border",
         borderStyle: "Border Style",
+        borderWidth: "Border Width",
+        borderColor: "Border Color",
         collapseBorders: "Collapse borders",
         wrapText: "Wrap text",
         associateCellsWithHeaders: "Associate headers",
@@ -263,7 +273,9 @@ import "../kendo.icons.js";
         alignRemove: "Remove Alignment",
         columns: "Columns",
         rows: "Rows",
-        selectAllCells: "Select All Cells",
+        selectAllCells: "Apply to all cells",
+        applyToColumn: "apply to column",
+        applyToRow: "apply to row",
         exportAs: "Export As",
         "import": "Import",
         print: "Print",
@@ -290,7 +302,7 @@ import "../kendo.icons.js";
         links: ["insertImage", "insertFile", "createLink", "unlink"],
         lists: ["insertUnorderedList", "insertOrderedList", "insertUpperRomanList", "insertLowerRomanList",],
         dent: ["indent", "outdent"],
-        tablesWizard: ["tableWizard"],
+        tablesWizard: ["tableProperties", "tableCellProperties"],
         tablesInsert: ["createTable"],
         tablesAddDelete: [ "addColumnLeft", "addColumnRight", "addRowAbove", "addRowBelow", "deleteRow", "deleteColumn" ],
         tablesMerge: [ "mergeCellsHorizontally", "mergeCellsVertically", "splitCellHorizontally", "splitCellVertically" ],
@@ -448,7 +460,8 @@ import "../kendo.icons.js";
                 "createLink",
                 "unlink",
                 "insertImage",
-                "tableWizard",
+                "tableProperties",
+                "tableCellProperties",
                 "createTable",
                 "addRowAbove",
                 "addRowBelow",
@@ -1558,7 +1571,11 @@ import "../kendo.icons.js";
                 }
 
                 if (!toolOptions.componentOptions.dataSource) {
-                    toolOptions.componentOptions.dataSource = that.options[name] || options.items;
+                    if (that.options[name] && Array.isArray(that.options[name])) {
+                        toolOptions.componentOptions.dataSource = that.options[name];
+                    } else {
+                        toolOptions.componentOptions.dataSource = options.items;
+                    }
                 }
             }
             if (toolOptions.template) {

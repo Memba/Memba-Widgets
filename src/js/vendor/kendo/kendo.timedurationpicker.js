@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -25,6 +25,7 @@ var __meta__ = {
         html = kendo.html,
         map = $.map,
         extend = $.extend,
+        mediaQuery = kendo.mediaQuery,
         OPEN = "open",
         FOCUS = "focus",
         CLOSE = "close",
@@ -145,11 +146,24 @@ var __meta__ = {
             that.options.readonly = options.readonly !== undefined ? options.readonly : Boolean(that.element.attr("readonly"));
             that.options.enable = options.enable !== undefined ? options.enable : !(Boolean(that.element.is("[disabled]") || $(element).parents("fieldset").is(':disabled')));
 
+            that.bigScreenMQL = mediaQuery("large");
+            if (that.options.adaptiveMode == "auto") {
+                that.bigScreenMQL.onChange(()=> {
+                    if (that._timeSelector) {
+                        that._timeSelector.destroy();
+                        that._timeSelector = null;
+                    }
+
+                    that._popupView();
+                });
+            }
+
             that._wrapper();
             that._button();
             that._applyCssClasses();
             that._input();
             that._popupView();
+
             that._buildMask();
             that._validation();
             that._editable({
@@ -172,6 +186,7 @@ var __meta__ = {
             separator: ",",
             shortcuts: [],
             value: null,
+            adaptiveMode: "none",
             size: "medium",
             fillMode: "solid",
             rounded: "medium",
@@ -200,6 +215,11 @@ var __meta__ = {
             if (that._timeSelector) {
                 that._timeSelector.destroy();
                 that._timeSelector = null;
+            }
+
+
+            if (that.bigScreenMQL) {
+                that.bigScreenMQL.destroy();
             }
         },
 
@@ -280,10 +300,11 @@ var __meta__ = {
                 that._timeSelector = new kendo.ui.TimeSelector(that._maskedInput, {
                     id: that.element.attr("id") + "_timeSelector",
                     anchor: that.wrapper,
+                    adaptiveMode: options.adaptiveMode,
                     columns: options.columns,
                     shortcuts: options.shortcuts,
                     value: options.value,
-                    size: options.size,
+                    size: options.adaptiveMode != "auto" || that.bigScreenMQL.mediaQueryList.matches ? options.size : "large",
                     fillMode: options.fillMode,
                     rounded: options.rounded,
                     messages: options.messages,

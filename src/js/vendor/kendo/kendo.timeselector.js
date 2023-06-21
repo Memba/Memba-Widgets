@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,13 +8,14 @@
  */
 import "./kendo.popup.js";
 import "./kendo.html.button.js";
+import "./kendo.actionsheet.js";
 
 var __meta__ = {
     id: "timeselector",
     name: "TimeSelector",
     category: "web",
     description: "The TimeSelector widget allows the end user to select a time range from a popup",
-    depends: [ "popup", "html.button" ]
+    depends: [ "popup", "html.button", "actionsheet" ]
 };
 
 (function($, undefined) {
@@ -24,6 +25,7 @@ var __meta__ = {
         Widget = ui.Widget,
         html = kendo.html,
         extend = $.extend,
+        mediaQuery = kendo.mediaQuery,
         CHANGE = "change",
         CLICK = "click",
         SCROLL = "scroll",
@@ -48,6 +50,17 @@ var __meta__ = {
             var that = this;
 
             Widget.fn.init.call(that, element, options);
+
+            that.bigScreenMQL = mediaQuery("large");
+            that.smallScreenMQL = mediaQuery("small");
+            if (that.options.adaptiveMode == "auto" ) {
+                that.smallScreenMQL.onChange(function() {
+                    if (that.popup && kendo.isFunction(that.popup.fullscreen)) {
+                        that.popup.fullscreen(that.smallScreenMQL.mediaQueryList.matches);
+                    }
+                });
+            }
+
             that._wrappers();
             that._buttons();
             that._attchHandlers();
@@ -59,6 +72,7 @@ var __meta__ = {
             name: "TimeSelector",
             columns: [],
             shortcuts: [],
+            adaptiveMode: "none",
             size: "medium",
             fillMode: "solid",
             rounded: "medium",
@@ -134,6 +148,14 @@ var __meta__ = {
             if (this.popup) {
                 this.popup.destroy();
                 this.popup = null;
+            }
+
+            if (this.bigScreenMQL) {
+                this.bigScreenMQL.destroy();
+            }
+
+            if (this.smallScreenMQL) {
+                this.smallScreenMQL.destroy();
             }
         },
 
@@ -329,7 +351,7 @@ var __meta__ = {
                 for (var i = 0; i < options.shortcuts.length; i++) {
                     shortcut = options.shortcuts[i];
 
-                    $(html.renderButton('<button class="k-button k-button-md k-button-solid k-button-solid-base k-rounded-md">' + shortcut.text + '</button>', {
+                    $(html.renderButton(`<button class="k-button ${kendo.getValidCssClass("k-button-", "size", that.options.size || "medium")} k-button-solid k-button-solid-base k-rounded-md">` + shortcut.text + '</button>', {
                         rounded: options.rounded
                     }))
                     .attr(kendo.attr("value"), shortcut.value)
@@ -344,12 +366,14 @@ var __meta__ = {
 
             $("<div class='k-actions k-actions-stretched k-actions-horizontal k-timeduration-footer'>"
                 +
-                html.renderButton('<button class="k-time-cancel k-button k-button-md">' + options.messages.cancel + '</button>', {
-                 rounded: options.rounded
+                html.renderButton('<button class="k-time-cancel k-button">' + options.messages.cancel + '</button>', {
+                 rounded: options.rounded,
+                 size: options.size
                 })
                 +
-                html.renderButton('<button class="k-time-accept k-button k-button-md k-button-solid k-button-solid-primary">' + options.messages.set + '</button>', {
-                 rounded: options.rounded
+                html.renderButton('<button class="k-time-accept k-button k-button-solid k-button-solid-primary">' + options.messages.set + '</button>', {
+                 rounded: options.rounded,
+                 size: options.size
                 })
                 +
             "</div>").appendTo(that._timeSelectorWrapper);
@@ -361,7 +385,7 @@ var __meta__ = {
 
             that._timeSelectorWrapper = $("<div></div>");
 
-            that._listContainer = $("<div tabindex='0' class='k-timeselector k-timeselector-md'></div>");
+            that._listContainer = $(`<div tabindex='0' class='k-timeselector ${kendo.getValidCssClass("k-timeselector-", "size", that.options.size || "medium")}'></div>`);
             that._listContainer.appendTo(that._timeSelectorWrapper);
 
             if (options.shortcuts) {
@@ -378,21 +402,49 @@ var __meta__ = {
             var that = this,
                 options = that.options;
 
-            that.popup = new ui.Popup(that._timeSelectorWrapper, extend(true, {}, options.popup, {
-                anchor: options.anchor,
-                open: options.open,
-                close: options.close,
-                isRtl: kendo.support.isRtl(options.anchor),
-                activate: function() {
-                    that.addTranslate();
-                    if (that._value) {
-                        that.applyValue(that._value);
-                    } else {
-                        that._updateCurrentlySelected();
+            if (options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches) {
+                that._timeSelectorWrapper.appendTo(document.body);
+                that.popup = new ui.ActionSheet(that._timeSelectorWrapper, {
+                    adaptive: true,
+                    title: "Set time",
+                    subtitle: "00/00/00",
+                    closeButton: true,
+                    fullscreen: that.smallScreenMQL.mediaQueryList.matches,
+                    popup: extend(true, {}, options.popup, {
+                        anchor: options.anchor,
+                        open: options.open,
+                        close: options.close,
+                        isRtl: kendo.support.isRtl(options.anchor)
+                    }),
+                    activate: function() {
+                        that.addTranslate();
+                        if (that._value) {
+                            that.applyValue(that._value);
+                        } else {
+                            that._updateCurrentlySelected();
+                        }
+                        that._focusList(that._listContainer.find(".k-time-list-wrapper").eq(0));
                     }
-                    that._focusList(that._listContainer.find(".k-time-list-wrapper").eq(0));
-                }
-            }));
+                });
+
+                that._timeSelectorWrapper.find(".k-timeduration-footer").appendTo(that.popup.element);
+            } else {
+                that.popup = new ui.Popup(that._timeSelectorWrapper, extend(true, {}, options.popup, {
+                    anchor: options.anchor,
+                    open: options.open,
+                    close: options.close,
+                    isRtl: kendo.support.isRtl(options.anchor),
+                    activate: function() {
+                        that.addTranslate();
+                        if (that._value) {
+                            that.applyValue(that._value);
+                        } else {
+                            that._updateCurrentlySelected();
+                        }
+                        that._focusList(that._listContainer.find(".k-time-list-wrapper").eq(0));
+                    }
+                }));
+            }
         }
     });
 

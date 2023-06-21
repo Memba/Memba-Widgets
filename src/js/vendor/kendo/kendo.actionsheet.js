@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,13 +9,14 @@
 import "./kendo.core.js";
 import "./kendo.popup.js";
 import "./kendo.icons.js";
+import "./kendo.html.button.js";
 
 var __meta__ = {
-    id: "ActionSheet",
+    id: "actionsheet",
     name: "ActionSheet",
     category: "web", // suite
     description: "The ActionSheet widget displays a set of choices related to a task the user initiates.",
-    depends: ["core", "popup"] // dependencies
+    depends: ["core", "popup", "icons", "html.button"] // dependencies
 };
 
 (function($, undefined) {
@@ -24,27 +25,61 @@ var __meta__ = {
     var Widget = kendo.ui.Widget;
     var ui = kendo.ui;
     var ns = ".kendoActionSheet";
+    var DOT = ".";
     var Popup = ui.Popup;
+    var keys = kendo.keys;
+    var isFunction = kendo.isFunction;
     var TabKeyTrap = Popup.TabKeyTrap;
     var DOCUMENT_ELEMENT = $(document.documentElement);
     var MOUSEDOWN = "down";
     var OPEN = "open";
     var CLOSE = "close";
     var ACTIVATE = "activate";
+    var DEACTIVATE = "deactivate";
+    var FOCUSABLE = ":kendoFocusable:not([tabindex='-1'])";
     var ACTION_SHEET_CONTAINER = "k-actionsheet-container";
     var OVERLAY = "k-overlay";
-    var ACTION_SHEET = "k-actionsheet k-actionsheet-jq";
+    var ACTION_SHEET = "k-actionsheet";
+    var ACTION_SHEET_ADAPTIVE = "k-adaptive-actionsheet";
     var ACTION_SHEET_BOTTOM = "k-actionsheet-bottom";
+    var ACTION_SHEET_FULLSCREEN = "k-actionsheet-fullscreen";
+    var ACTIONABLE_BUTTON_SELECTOR = `.k-actionsheet-item:not(.${STATEDISABLED}),.k-actions .k-button[ref-actionsheet-action-button]:not(.${STATEDISABLED})`;
     var STATEDISABLED = "k-disabled";
+    var ARIA_DISABLED = "aria-disabled";
+    var DISABLED = "disabled";
     var HIDDEN = "k-hidden";
-    var HEADER_ID = "actionsheet-header";
+    var ACTIONSHEET_TITLE_ID = kendo.guid();
     var extend = $.extend;
     var template = kendo.template;
     var CLICK = "click";
     var KEYDOWN = "keydown";
     var hexColor = /^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/;
-    var HEADER_TEMPLATE = ({ title }) => `<span id="${HEADER_ID}" class="k-actionsheet-header">${title}</span>`;
-    var ITEM_TEMPLATE = ({ disabled, icon, text, description }) => `<span role="button" tabindex="0" class="k-actionsheet-item ${disabled ? STATEDISABLED : ""}"><span class="k-actionsheet-action">${icon ? icon : ""}<span class="k-actionsheet-item-text"><span class="k-actionsheet-item-title">${encode(text)}</span>${description ? '<span class="k-actionsheet-item-description">' + encode(description) + '</span>' : ''}</span></span></span>`;
+    var HEADER_TEMPLATE = (options) =>
+        `<div class="k-text-center k-actionsheet-titlebar" >` +
+            (options.title ?
+                '<div class="k-actionsheet-titlebar-group k-hbox">' +
+                    `<div id="${ACTIONSHEET_TITLE_ID}" class="k-actionsheet-title">` +
+                        `<div class="k-text-center">${options.title}</div>` +
+                        (options.subtitle ? `<div class="k-actionsheet-subtitle k-text-center">${options.subtitle || ""}</div>` : "") +
+                    '</div>' +
+                    (options.closeButton ?
+                    '<div class="k-actionsheet-actions">' +
+                        kendo.html.renderButton(`<button ${kendo.attr("ref-actionsheet-close-button")}></button>`, { icon: "x", fillMode: "flat", size: "large" }) +
+                    '</div>'
+                    : "") +
+                '</div>'
+            : "") +
+        '</div>';
+    var ITEM_TEMPLATE = ({ disabled, icon, text, description }) =>
+                    `<span role="button" tabindex="0" class="k-actionsheet-item ${disabled ? STATEDISABLED : ""}">` +
+                        `<span class="k-actionsheet-action">` +
+                            (icon ? `<span class="k-icon-wrap">${icon}</span>` : "") +
+                            `<span class="k-actionsheet-item-text">` +
+                                `<span class="k-actionsheet-item-title">${encode(text)}</span>` +
+                                `${description ? '<span class="k-actionsheet-item-description">' + encode(description) + '</span>' : ''}` +
+                            '</span>' +
+                        '</span>' +
+                    '</span>';
     var SEPARATOR = '<hr class="k-hr" />';
     var defaultItem = {
         text: "",
@@ -54,6 +89,14 @@ var __meta__ = {
         iconColor: "",
         click: $.noop,
         group: "top",
+        disabled: false
+    };
+
+    var defaultActionButton = {
+        text: "",
+        icon: "",
+        iconClass: "",
+        click: $.noop,
         disabled: false
     };
 
@@ -94,34 +137,54 @@ var __meta__ = {
     var ActionSheet = Widget.extend({
         init: function(element, options) {
             var that = this;
+            options = options || {};
 
             Widget.fn.init.call(that, element, options);
 
+            if (options.appendTo) {
+                that.element.appendTo(options.appendTo);
+            }
+
             that._hasItems = options.items && options.items.length;
+            that._hasActionButtons = options.actionButtons && options.actionButtons.length;
             that._mapItems();
+            that._mapActionButtons();
             that._wrapper();
             that._popup();
-            that._header();
-            that._items();
-            that._footer();
+            that._createContent();
+            that._createHeader();
+            that._createFooter();
+            that._applyAria();
 
             that._tabKeyTrap = new TabKeyTrap(that.wrapper);
 
             that.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
+            that.clickEvent = kendo.applyEventMap(CLICK, kendo.guid());
             that._mousedownProxy = that._mousedown.bind(that);
+            that._clickProxy = that._click.bind(that);
             that.wrapper.on(KEYDOWN + ns, that, that._keydown.bind(that));
         },
 
         events: [
             OPEN,
-            CLOSE
+            CLOSE,
+            ACTIVATE,
+            DEACTIVATE
         ],
 
         options: {
             name: "ActionSheet",
             title: "",
             items: [],
-            popup: null
+            popup: null,
+            fullscreen: false,
+            footerTemplate: null,
+            headerTemplate: null,
+            contentTemplate: null,
+            actionButtons: [],
+            closeButton: false,
+            adaptive: false,
+            focusOnActivate: true
         },
 
         _mapItems: function() {
@@ -134,25 +197,57 @@ var __meta__ = {
             that.options.items = that.options.items.map(defaultItemsMapper);
         },
 
+        _mapActionButtons: function() {
+            var that = this;
+
+            if (!that._hasActionButtons) {
+                return;
+            }
+
+            that.options.actionButtons = that.options.actionButtons.map(defaultActionButtonsMapper);
+        },
+
         _wrapper: function() {
             var that = this;
             var element = that.element;
             var wrapper;
 
-            element.addClass(ACTION_SHEET + " " + ACTION_SHEET_BOTTOM + " k-popup");
+            var positionClass = that.options.fullscreen == true ? ACTION_SHEET_FULLSCREEN : ACTION_SHEET_BOTTOM;
+
+            element.addClass(ACTION_SHEET + " " + positionClass + (that.options.adaptive ? " " + ACTION_SHEET_ADAPTIVE : " k-actionsheet-jq"));
             that.wrapper = wrapper = element.wrap("<div class='" + ACTION_SHEET_CONTAINER + " " + HIDDEN + "'></div>").parent();
             wrapper.prepend($('<div></div>').addClass(OVERLAY));
+        },
+
+        _applyAria: function() {
+            var that = this;
+            var element = that.element;
+            var actionsheetTitleId = that.wrapper.find(".k-actionsheet-title").attr("id");
 
             element.attr({
                 role: "dialog",
                 "aria-modal": true,
-                "aria-labelledby": HEADER_ID
+                "aria-labelledby": that.options.title ? actionsheetTitleId : null
             });
         },
 
         _popup: function() {
             var that = this;
             var options = that.options;
+
+            var popupAnimation = !options.adaptive ? false :
+                {
+                    open: {
+                        effects: "slideIn:up",
+                        transition: true,
+                        duration: 200
+                    }
+                };
+
+            options.open = null;
+            options.close = null;
+            options.activate = null;
+            options.deactivate = null;
 
             that.popup = new Popup(that.element, extend(options.popup,
                 options,
@@ -162,22 +257,48 @@ var __meta__ = {
                     omitOriginOffsets: true,
                     appendTo: that.wrapper,
                     modal: true,
-                    animation: false,
-                    anchor: that.wrapper
+                    animation: popupAnimation,
+                    position: "top center",
+                    anchor: options.anchor || that.wrapper
                 }));
 
-            that.popup.bind(ACTIVATE, that._openHandler.bind(that));
+            if (options.focusOnActivate) {
+                that.popup.bind(ACTIVATE, that._openHandler.bind(that));
+            }
+
+            that.popup.bind(ACTIVATE, (ev) => {
+                that.trigger(ACTIVATE, ev);
+            });
+
+            that.popup.bind(DEACTIVATE, (ev) => {
+                that.wrapper.addClass(HIDDEN);
+                DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy);
+                DOCUMENT_ELEMENT.off(that.clickEvent, that._clickProxy);
+                that.trigger(DEACTIVATE, ev);
+            });
+
+            that.popup.bind(OPEN, (ev) => {
+                that.trigger(OPEN, ev);
+            });
+
+            that.popup.bind(CLOSE, (ev) => {
+                var closeButtonPressed = that._closeButtonPressed;
+                that._closeButtonPressed = false;
+                that.trigger(CLOSE, extend({}, ev, {
+                    closeButton: closeButtonPressed
+                }));
+            });
         },
 
-        _header: function() {
+        _createHeader: function() {
             var that = this;
             var options = that.options;
 
-            if (!options.title) {
+            if (!options.title && !options.headerTemplate) {
                 return;
             }
 
-            that.element.append(template(HEADER_TEMPLATE)(options));
+            that.element.prepend(template(options.headerTemplate || HEADER_TEMPLATE)(options));
         },
 
         _items: function() {
@@ -187,75 +308,230 @@ var __meta__ = {
                 return;
             }
 
-            that._createItems(topGroupFilter);
+            var groupedItems = that.options.items.reduce((itemsByGroup, currentItem) => {
+                const group = currentItem["group"] || "top";
+                itemsByGroup[group] = itemsByGroup[group] || [];
+                itemsByGroup[group].push(currentItem);
+                return itemsByGroup;
+            }, new Map());
+
+            var topItems = groupedItems["top"];
+            var bottomItems = groupedItems["bottom"];
+
+            that._createItems(topItems);
+
+            if (topItems && topItems.length && bottomItems && bottomItems.length) {
+                that._content.append(SEPARATOR);
+            }
+
+            that._createItems(bottomItems);
         },
 
-        _createItems: function(itemsFilter) {
+        _createContent: function() {
             var that = this;
-            var items = that.options.items.filter(itemsFilter);
+            var options = that.options;
+            that.element.wrapInner($("<div class='k-actionsheet-content'></div>"));
+            var contentContainer = that._content = that.element.find(".k-actionsheet-content");
+
+            if (that._hasItems) {
+                contentContainer.empty();
+                that._items();
+                return;
+            }
+
+            if (options.contentTemplate || options.hideOverflowContent) {
+                contentContainer.addClass("!k-overflow-hidden");
+            }
+            if (options.contentTemplate) {
+                contentContainer.html(template(options.contentTemplate)(options));
+            }
+        },
+
+        _createItems: function(items) {
+            var that = this;
             var idx;
             var item;
             var itemTemplate;
             var itemElement;
-            var container = $("<div class='k-actionsheet-items' role='group'></div>");
+            var contentContainer = that._content;
+            var itemsContainer = $("<div class='k-list-ul' role='group'></div>");
             var icon;
 
-            if (!items.length) {
+            if (!items || !items.length) {
                 return;
             }
 
-            that.element.append(container);
+            contentContainer.append(itemsContainer);
             itemTemplate = template(ITEM_TEMPLATE);
 
             for (idx = 0; idx < items.length; idx++) {
                 item = items[idx];
                 icon = createIcon(item);
                 itemElement = $(itemTemplate(extend({}, item, { icon: icon && icon.prop('outerHTML') })));
-                container.append(itemElement);
+                itemsContainer.append(itemElement);
 
                 if (item.click) {
-                    itemElement.on(CLICK + ns, item.click.bind(that));
+                    itemElement.data("action", item.click);
                 }
             }
         },
 
-        _footer: function() {
+        _createActionButtons: function() {
             var that = this;
+            var options = that.options;
+            var actionButtons = options.actionButtons;
+            var actionsContainer = that._footer;
+            var actionButtonElement;
 
-            if (!that._hasItems) {
+            for (var i = 0; i < actionButtons.length; i++) {
+                var action = actionButtons[i];
+                var enable = action.disabled !== true;
+                actionButtonElement = $(kendo.html.renderButton(`<button ref-actionsheet-action-button>${action.text || ""}</button>`, $.extend({ size: "large" }, action)));
+                actionsContainer.append(actionButtonElement);
+                actionButtonElement.toggleClass(STATEDISABLED, !enable);
+                actionButtonElement.attr(DISABLED, !enable);
+
+                if (enable) {
+                    actionButtonElement.removeAttr(ARIA_DISABLED);
+                } else {
+                    actionButtonElement.attr(ARIA_DISABLED, !enable);
+                }
+
+                if (action.click) {
+                    actionButtonElement.data("action", action.click);
+                }
+            }
+        },
+
+        _createFooter: function() {
+            var that = this;
+            var options = that.options;
+            var actionsContainer;
+
+            if (!that._hasActionButtons && !options.footerTemplate) {
                 return;
             }
-            that.element.append(SEPARATOR);
-            that._createItems(bottomGroupFilter);
+
+            actionsContainer = that._footer = $("<div class='k-actionsheet-footer'></div>");
+            actionsContainer.insertAfter(that._content);
+
+            if (that._hasActionButtons) {
+                actionsContainer.addClass("k-actions k-actions-stretched k-actions-horizontal");
+                that._createActionButtons();
+                return;
+            }
+
+            if (options.footerTemplate) {
+                that._footer.append(template(options.footerTemplate)(options));
+            }
         },
 
         destroy: function() {
             var that = this;
-
+            that.close();
             Widget.fn.destroy.call(that);
+            that._content = null;
+            that._footer = null;
+            that._header = null;
             that.element.off(ns);
             that.wrapper.off(ns);
             that.popup.destroy();
         },
 
-        open: function() {
+        open: function(options) {
             var that = this;
+
+            that.altTarget = options && options.altTarget;
 
             that.wrapper.removeClass(HIDDEN);
             that._elementHeight = that._elementHeight || that.element.outerHeight();
-            that.popup.open((that.wrapper.outerWidth() - that.element.outerWidth()) / 2, that.wrapper.outerHeight() - that._elementHeight);
+
+            if (that.options.adaptive) {
+                that.wrapper.width("100%");
+            }
+
+            that.popup.open("auto", 0);
+            that.popup.wrapper.find(">.k-child-animation-container").css({ bottom: 0, width: "100%" });
+
             DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy)
                 .on(that.downEvent, that._mousedownProxy);
 
+            DOCUMENT_ELEMENT.off(that.clickEvent, that._clickProxy)
+                .on(that.clickEvent, that._clickProxy);
+
             that._tabKeyTrap.trap();
+        },
+
+        visible: function() {
+            return this.popup.visible();
+        },
+
+        toggle: function() {
+            !this.visible() ? this.open() : this.close();
+        },
+
+        fullscreen: function(isFullScreen) {
+            var that = this;
+
+            that.element.toggleClass(ACTION_SHEET_FULLSCREEN, isFullScreen === true);
+            that.element.toggleClass(ACTION_SHEET_BOTTOM, isFullScreen !== true);
+            that.element.closest(".k-child-animation-container").css({ height: isFullScreen ? "100%" : "auto" });
         },
 
         close: function() {
             var that = this;
 
             that.popup.close();
-            that.wrapper.addClass(HIDDEN);
-            DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy);
+        },
+
+        position: $.noop,
+
+        _focusFirstFocusableElement: function() {
+            var that = this;
+            var focusableElements = that.element.find(FOCUSABLE);
+            var firstFocusableElement = focusableElements.first();
+
+            if (firstFocusableElement.length) {
+                firstFocusableElement.trigger("focus");
+            }
+        },
+
+        _focusLastFocusableElement: function() {
+            var that = this;
+            var focusableElements = that.element.find(FOCUSABLE);
+            var lastFocusableElement = focusableElements.last();
+
+            if (lastFocusableElement.length) {
+                lastFocusableElement.trigger("focus");
+            }
+        },
+
+        _openHandler: function() {
+            var that = this;
+            if (that._hasItems) {
+                var firstItem = that._content.find(".k-actionsheet-item")[0];
+                if (firstItem) {
+                    firstItem.focus();
+                }
+            } else {
+                that._focusFirstFocusableElement();
+            }
+        },
+
+        _isActionableButton: function(target) {
+            return $(target).closest(ACTIONABLE_BUTTON_SELECTOR).length > 0;
+        },
+
+        _triggerAction: function(e) {
+            var that = this;
+            var action = $(e.target).closest(ACTIONABLE_BUTTON_SELECTOR).data("action");
+            if (isFunction(action)) {
+                action(e);
+            }
+
+            if (!e.isDefaultPrevented()) {
+                that.close();
+            }
         },
 
         _keydown: function(e) {
@@ -267,15 +543,33 @@ var __meta__ = {
             if (keyCode == keys.ESC) {
                 e.stopPropagation();
                 that.close();
-            } else if (target.hasClass("k-actionsheet-item ") && keyCode === keys.ENTER) {
-                target.trigger(CLICK);
+            } else if (that._isActionableButton(target) && isButtonKeyTrigger(e)) {
+                that._triggerAction(e);
+            } else if (e.keyCode === kendo.keys.TAB) {
+                var allFocusables = this.wrapper.find(FOCUSABLE);
+                var firstFocusable = allFocusables.first();
+                var lastFocusable = allFocusables.last();
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable[0]) {
+                        lastFocusable.trigger("focus");
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable[0]) {
+                        firstFocusable.trigger("focus");
+                        e.preventDefault();
+                    }
+                }
             }
         },
 
-        _openHandler: function() {
+        _click: function(e) {
             var that = this;
+            var target = kendo.eventTarget(e);
 
-            that.element.find('.k-actionsheet-item').eq(0).trigger("focus");
+            if (that._isActionableButton(target)) {
+                that._triggerAction(e);
+            }
         },
 
         _mousedown: function(e) {
@@ -283,22 +577,27 @@ var __meta__ = {
             var container = that.element[0];
             var target = kendo.eventTarget(e);
 
-            if (!contains(container, target)) {
+            if (that.altTarget && that.altTarget.is($(target))) {
+                return;
+            }
+
+            if (!contains(container, target) || $(target).closest(`[${kendo.attr("ref-actionsheet-close-button")}]`, $(container).find("k-actionsheet-titlebar")).length > 0) {
+                that._closeButtonPressed = true;
                 that.close();
             }
         }
     });
 
-    function topGroupFilter(item) {
-        return item.group === "top";
-    }
-
-    function bottomGroupFilter(item) {
-        return item.group !== "top";
+    function isButtonKeyTrigger(e) {
+        return e.keyCode == keys.ENTER || e.keyCode == keys.SPACEBAR;
     }
 
     function defaultItemsMapper(item) {
         return extend({}, defaultItem, item);
+    }
+
+    function defaultActionButtonsMapper(actionButton) {
+        return extend({}, defaultActionButton, actionButton);
     }
 
     ui.plugin(ActionSheet);

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -36,6 +36,7 @@ var __meta__ = {
         EXPANDED = "k-expanded",
         EXPANDER_CONTENT = "k-expander-content",
         EXPANDER_CONTENT_WRAPPER = "k-expander-content-wrapper",
+        D_NONE = "k-d-none",
         INDICATOR = ".k-expander-indicator",
         FOCUSED = "k-focus",
         CLICK = "click",
@@ -47,7 +48,9 @@ var __meta__ = {
                 (!useBareTemplate ? `<div class="k-expander-title">${encode(title)}</div>` : title) +
                 '<span class="k-expander-spacer"></span>' +
                 (!useBareTemplate ? `<div class="k-expander-sub-title">${encode(subTitle)}</div>` : '') +
-                (iconClass && iconClass.includes("k-icon") ? `<span class="k-expander-indicator ${encode(iconClass)}"></span>` : kendo.ui.icon({ icon: iconClass, iconClass: "k-expander-indicator" })) +
+                `<span class="k-expander-indicator">` +
+                    (iconClass && iconClass.includes("k-icon") ? `<span class="${encode(iconClass)}"></span>` : kendo.ui.icon({ icon: iconClass })) +
+                `</span>` +
             '</div>';
 
     var ExpansionPanel = Widget.extend({
@@ -104,6 +107,7 @@ var __meta__ = {
             title: '',
             subTitle: '',
             headerClass: null,
+            wrapperClass: null,
             useBareTemplate: false
         },
 
@@ -120,23 +124,27 @@ var __meta__ = {
                 element.attr("id", elementId);
             }
 
-            wrapper = element.wrap("<div class='k-widget k-expander" + (that.options.expanded ? " " + EXPANDED : "") + "'></div>").parent();
+            wrapper = element.wrap("<div class='k-expander" + (that.options.expanded ? " " + EXPANDED : "") + "'></div>").parent();
             header = kendo.template(headerTemplate)({
                 title: that.options.title,
                 subTitle: that.options.subTitle,
                 iconClass: that.options.expanded ? that.options.expandIconClass : that.options.collapseIconClass,
                 useBareTemplate: that.options.useBareTemplate,
                 ns: kendo.ns,
-                elementId: elementId
+                elementId: elementId + "_wrapper"
             });
             that.header = $(header);
             wrapper.prepend(that.header);
-            that._indicator = wrapper.find(INDICATOR);
+            that._indicator = wrapper.find(INDICATOR + " span");
             wrapper[0].style.cssText = DOMElement.style.cssText;
             DOMElement.style.width = "100%";
 
             that.wrapper = wrapper.addClass(that.options.disabled ? STATEDISABLED : '');
-            that.contentWrapper = that.element.wrap('<div></div>').parent().addClass(EXPANDER_CONTENT_WRAPPER);
+            that.contentWrapper = that.element
+                .wrap('<div id="' + elementId + '_wrapper"></div>')
+                .parent()
+                .addClass(EXPANDER_CONTENT_WRAPPER)
+                .toggleClass(D_NONE, !that.options.expanded);
 
             that.header.attr(ARIA_DISABLED, that.options.disabled)
                         .attr(ARIA_EXPANDED, that.options.expanded);
@@ -151,6 +159,10 @@ var __meta__ = {
 
             if (that.options.headerClass) {
                 that.header.addClass(that.options.headerClass);
+            }
+
+            if (that.options.wrapperClass) {
+                that.header.addClass(that.options.wrapperClass);
             }
         },
 
@@ -224,12 +236,13 @@ var __meta__ = {
                 wrapper.removeClass(EXPANDED);
             }
 
+            that.contentWrapper.toggleClass(D_NONE, !expand);
             element.attr(ARIA_HIDDEN, !expand);
             that.header.attr(ARIA_EXPANDED, expand);
 
             that.contentWrapper
-            .kendoStop(true, true)
-            .kendoAnimate(animation);
+                .kendoStop(true, true)
+                .kendoAnimate(animation);
         },
 
         _completeHandler: function() {

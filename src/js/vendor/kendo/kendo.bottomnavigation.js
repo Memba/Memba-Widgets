@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -59,7 +59,7 @@ var __meta__ = {
         item: template(() => `<span class="${bottomNavigationStyles.item}"></span>`),
         anchor: template(({ url }) => `<a class="${bottomNavigationStyles.item}"  href="${kendo.htmlEncode(url)}"></a>`),
         text: template(({ text }) => `<span class="${bottomNavigationStyles.text}" >${text}</span>`),
-        icon: template(({ icon }) => kendo.ui.icon($(`<span class="${bottomNavigationStyles.navIcon}"></span>`), { icon: icon }))
+        icon: template(({ icon }) => kendo.ui.icon($(`<span class="${bottomNavigationStyles.navIcon}"></span>`), { icon: icon, size: "xlarge" }))
     };
 
     var BottomNavigation = Widget.extend({
@@ -69,6 +69,11 @@ var __meta__ = {
             Widget.fn.init.call(that, element, options);
 
             that.element = $(element);
+
+            // Backwards compatibility, so that we keep 'fill' as a legacy option
+            if (this.options.fillMode === null) {
+                this.options.fillMode = this.options.fill;
+            }
 
             that._updateCssClasses();
             that._items();
@@ -81,6 +86,8 @@ var __meta__ = {
             items: [],
             themeColor: "primary",
             itemFlow: "vertical",
+            // Backwards compatibility, so that we keep 'fill' as a legacy option
+            fillMode: null,
             fill: "flat",
             shadow: false,
             border: true,
@@ -127,12 +134,12 @@ var __meta__ = {
             });
 
             that.element.addClass(styles.widget);
-            that.element.addClass(kendo.getValidCssClass(PREFIX, "themeColor", options.themeColor));
-            that.element.addClass(kendo.getValidCssClass(PREFIX, "fill", options.fill));
             that.element.addClass(kendo.getValidCssClass(K_POS, "positionMode", options.positionMode));
             that.element.toggleClass(styles.border, options.border);
             that.element.toggleClass(styles.shadow, options.shadow);
             that._itemFlow(options.itemFlow);
+
+            that._applyCssClasses();
         },
 
         _itemFlow: function(orientation) {
@@ -361,5 +368,7 @@ var __meta__ = {
     });
 
     ui.plugin(BottomNavigation);
+
+    kendo.cssProperties.registerPrefix("BottomNavigation", "k-bottom-nav-");
 })(window.kendo.jQuery);
 

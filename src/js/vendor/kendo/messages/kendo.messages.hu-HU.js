@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -716,6 +716,9 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
     "text": "Biztos, hogy törli ezt a munkalapot?",
     "title": "Munkalap törlése"
   },
+  "overflowDialog": {
+    "errorMessage": 'Nem illeszthető be, mert a másolási és a beillesztési terület nem azonos méretű és alakú.'
+  },
   "validationDialog": {
     "title": "Adatellenőrzés",
     "hintMessage": "Kérem, írjon be egy érvényes {0} értéket {1}.",
@@ -944,7 +947,8 @@ $.extend(true, kendo.spreadsheet.messages.view,{
   "errors": {
     "shiftingNonblankCells": "Adatvesztés nélkül nem lehet a cellákat beszúrni. Válasszon másik beszúrási pozíciót, vagy törölje az adatokat a munkalap végéről.",
     "filterRangeContainingMerges": "Nem lehet szűrőt készíteni összevonásokat tartalmazó tartományon belül",
-    "validationError": "A beírt érték megsérti a cellára beállított adatellenőrzési szabályokat."
+    "validationError": "A beírt érték megsérti a cellára beállított adatellenőrzési szabályokat.",
+	"cannotModifyDisabled": 'Nem lehet módosítani a letiltott cellákat.'
   },
   "tabs": {
     "home": "Elejére",
@@ -978,6 +982,22 @@ $.extend(true, kendo.ui.ListBox.prototype.options.messages,{
     "transferAllTo": "Összes felvétele",
     "transferAllFrom": "Összes eltávolítása"
   }
+});
+}
+
+/* DateTimePicker messages */
+if (kendo.ui.DateTimePicker) {
+kendo.ui.DateTimePicker.prototype.options.messages =
+$.extend(true, kendo.ui.DateTimePicker.prototype.options.messages, {
+  "set": "Beállít",
+  "cancel": "Mégse",
+  "hour": "Óra",
+  "minute": "Perc",
+  "second": "Másodperc",
+  "milisecond": "Millisec",
+  "now": "Most",
+  "date": "Dátum",
+  "time": "Idő"
 });
 }
 
@@ -1076,7 +1096,8 @@ $.extend(true, kendo.ui.Dialog.prototype.options.localization, {
 if (kendo.ui.Calendar) {
 kendo.ui.Calendar.prototype.options.messages =
 $.extend(true, kendo.ui.Calendar.prototype.options.messages, {
-  "weekColumnHeader": ""
+  "weekColumnHeader": "",
+  "today": "Ma"
 });
 }
 

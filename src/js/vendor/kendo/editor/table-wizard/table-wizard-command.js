@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -38,6 +38,7 @@ var TableWizardCommand = Command.extend({
         var cmd = this;
         var editor = cmd.editor;
         var range = cmd.range = cmd.lockRange();
+        var isTableCellWizard = cmd.options.tableCellWizard;
         var selectedTable = cmd._sourceTable = !cmd.options.insertNewTable ? cmd._selectedTable(range) : undefined;
         var selectedCells = cmd._selectedTableCells = selectedTable ? cmd._selectedCells(range) : undefined;
         var options = {
@@ -50,7 +51,7 @@ var TableWizardCommand = Command.extend({
         };
 
         var dialog = new Editor.TableWizardDialog(options);
-        dialog.open();
+        dialog.open(isTableCellWizard);
     },
 
     onDialogClose: function(data) {
@@ -122,11 +123,13 @@ var TableWizardCommand = Command.extend({
 
         cellProp = data.cellProperties;
         if (selectedCells[0]) {
-            dom.attr(selectedCells[0], { id: cellProp.id || null });
+            dom.attr(selectedCells[0], { id: (cellProp || {}).id || null });
         }
-        (cellProp.selectAllCells ? $(tableRows).children() : $(selectedCells)).each(function(i, cell) {
-            cmd._updateCellProperties(cell, cellProp);
-        });
+        if (cellProp) {
+            (cellProp.selectAllCells ? $(tableRows).children() : $(selectedCells)).each(function(i, cell) {
+                cmd._updateCellProperties(cell, cellProp);
+            });
+        }
 
         cmd._updateCaption(table, tableProp);
 
@@ -230,7 +233,6 @@ var TableWizardCommand = Command.extend({
         var cellProp = data.cellProperties;
         var columns = tableProp.columns;
         var rows = headerRows ? tableProp.headerRows : tableProp.rows;
-        var cellPropToAll = cellProp.selectAllCells;
         var headerColumns = tableProp.headerColumns;
 
         for (var r = initialIndex, row; r < rows; r++) {
@@ -245,10 +247,11 @@ var TableWizardCommand = Command.extend({
 
                 row.appendChild(cell);
                 cell.innerHTML = "&nbsp;";
-                if (r === 0 && c === 0 && cellProp.id) {
+                if (cellProp && r === 0 && c === 0 && cellProp.id) {
                     cell.id = cellProp.id;
                 }
-                cmd._updateCellProperties(cell, (cellPropToAll || (r === 0 && c === 0)) ? cellProp : {});
+
+                cmd._updateCellProperties(cell, cellProp && (cellProp.selectAllCells || (r === 0 && c === 0)) ? cellProp : {});
             }
         }
     },
@@ -456,10 +459,11 @@ var TableWizardCommand = Command.extend({
         tds.each(swapCell);
     },
     _getStylesData: function(data) {
+        var that = this;
         var alignment = this._getAlignmentData(data.alignment);
         var whiteSpace = "wrapText" in data ? (data.wrapText ? "" : "nowrap") : null;
 
-        return {
+        return $.extend({
             width: data.width ? data.width + data.widthUnit : null,
             height: data.height ? data.height + data.heightUnit : null,
             textAlign: alignment.textAlign,
@@ -470,7 +474,7 @@ var TableWizardCommand = Command.extend({
             borderColor: data.borderColor || "",
             borderCollapse: data.collapseBorders ? "collapse" : null,
             whiteSpace: whiteSpace
-        };
+        }, that._getTablePositionData(data.position));
     },
     _getAlignmentData: function(alignment) {
         var textAlign = "";
@@ -486,6 +490,13 @@ var TableWizardCommand = Command.extend({
             }
         }
         return { textAlign: textAlign, verticalAlign: verticalAlign };
+    },
+    _getTablePositionData: function(position) {
+        if (!position) {
+            return {};
+        }
+
+        return { marginLeft: position != "left" ? "auto" : "", marginRight: position != "right" ? "auto" : "" };
     },
     parseTable: function(table, selectedCells) {
         if (!table) {
@@ -505,6 +516,7 @@ var TableWizardCommand = Command.extend({
         cssClass = cssClass.replace(/^k-table$/, "");
 
         var tableAlignment = cmd._getAlignment(table, true);
+        var tablePosition = cmd._getTablePosition(table);
         var captionAlignment = caption ? cmd._getAlignment(caption) : undefined;
         var numberOfHeaderRows = dom._getNumberOfHeaderRows(table);
 
@@ -533,6 +545,7 @@ var TableWizardCommand = Command.extend({
                 cellSpacing: table.cellSpacing,
                 cellPadding: table.cellPadding,
                 alignment: tableAlignment.textAlign,
+                position: tablePosition,
                 bgColor: tStyle.backgroundColor || table.bgColor,
                 className: cssClass,
                 id: table.id,
@@ -598,6 +611,18 @@ var TableWizardCommand = Command.extend({
 
         return data;
     },
+    _getTablePosition: function(element) {
+        var style = element.style;
+        if (style.marginLeft == "auto" && style.marginRight == "auto") {
+            return "center";
+        }
+
+        if (style.marginLeft == "auto") {
+            return "right";
+        }
+
+        return "left";
+    },
     _getAlignment: function(element, horizontalOnly) {
         var style = element.style;
         var hAlign = style.textAlign || element.align || "";
@@ -636,6 +661,7 @@ var TableWizardCommand = Command.extend({
 var TableWizardTool = Editor.Tool.extend({
     command: function(options) {
         options.insertNewTable = this.options.insertNewTable;
+        options.tableCellWizard = !!this.options.tableCellWizard;
         return new TableWizardCommand(options);
     }
 });
@@ -653,9 +679,23 @@ var TableWizardEditTool = TableWizardTool.extend({
     }
 });
 
+var TableCellWizardEditTool = TableWizardTool.extend({
+    update: function(ui, nodes) {
+        var isFormatted = !tableFormatFinder.isFormatted(nodes),
+            toolbar = ui.closest(".k-toolbar").getKendoToolBar();
+
+        if (isFormatted === true) {
+            toolbar.hide(ui);
+        } else {
+            toolbar.show(ui);
+        }
+    }
+});
+
 kendo.ui.editor.TableWizardTool = TableWizardTool;
 kendo.ui.editor.TableWizardCommand = TableWizardCommand;
 
-registerTool("tableWizard", new TableWizardEditTool({ command: TableWizardCommand, insertNewTable: false }));
+registerTool("tableProperties", new TableWizardEditTool({ command: TableWizardCommand, insertNewTable: false, property: "tableProperties" }));
+registerTool("tableCellProperties", new TableCellWizardEditTool({ command: TableWizardCommand, tableCellWizard: true, insertNewTable: false, property: "tableCellProperties" }));
 
 })(window.kendo.jQuery);

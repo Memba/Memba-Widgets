@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -610,7 +610,7 @@ var __meta__ = {
                 },
                 toggleIcon: function(icon, item) {
                     if (item.expanded !== true) {
-                        return ui.icon(icon, { icon: 'caret-alt-right' });
+                        return ui.icon(icon, { icon: `caret-alt-${kendo.support.isRtl(that.element) ? 'left' : 'right'}` });
                     } else {
                         return ui.icon(icon, { icon: 'caret-alt-down' });
                     }

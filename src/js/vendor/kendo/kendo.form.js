@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -161,13 +161,13 @@ import "./kendo.button.js";
             },
 
             _noLabelfieldTemplate: ({ styles, colSpan, hidden, field })=>
-                                    `<div class='${encode(styles.field)} ${colSpan ? `k-colspan-${encode(colSpan)}` : '' } ${hidden ? encode(styles.hidden) : '' }'>` +
+                                    `<div class='${encode(styles.field)} ${colSpan ? `k-colspan-${encode(colSpan)} k-col-span-${encode(colSpan)}` : '' } ${hidden ? encode(styles.hidden) : '' }'>` +
                                         `<span class='${encode(styles.emptyLabel)}'></span>` +
                                         `<div class='k-form-field-wrap' data-container-for='${encode(field)}'></div>` +
                                     "</div>",
 
             _fieldTemplate: ({ styles, colSpan, hidden, field, label, id, optional }) =>
-                            `<div class='${encode(styles.field)} ${colSpan ? `k-colspan-${encode(colSpan)}` : ''} ${hidden ? `${encode(styles.hidden)}` : ''}'>` +
+                            `<div class='${encode(styles.field)} ${colSpan ? `k-colspan-${encode(colSpan)} k-col-span-${encode(colSpan)}` : ''} ${hidden ? `${encode(styles.hidden)}` : ''}'>` +
                                 ((label && !hidden) ?
                                 `<label class='${encode(styles.label)}' for='${encode(id)}' id='${encode(id)}-form-label'>` +
                                     ((typeof label.encoded != 'undefined' && label.encoded === false) ?
@@ -188,7 +188,7 @@ import "./kendo.button.js";
                             "</label>",
 
             _groupTemplate: ({ styles, colSpan, label }) =>
-                            `<fieldset class='${encode(styles.fieldset)} ${colSpan ? `k-colspan-${encode(colSpan)}` : ''}'>` +
+                            `<fieldset class='${encode(styles.fieldset)} ${colSpan ? `k-colspan-${encode(colSpan)} k-col-span-${encode(colSpan)}` : ''}'>` +
                                 `<legend class='${encode(styles.legend)}'>${encode(label.text || label)}</legend>` +
                             "</fieldset>",
 
@@ -474,7 +474,7 @@ import "./kendo.button.js";
 
                 for (var i = 0; i < fields.length; i += 1) {
                     field = fields[i];
-                    fieldElement = that.wrapper.find("[name='" + field.name + "']");
+                    fieldElement = that.wrapper.find(`[name='${field.name}'],[id='${field.name}']`);
 
                     if (!fieldElement || !field.hint || field.isHidden) {
                         continue;

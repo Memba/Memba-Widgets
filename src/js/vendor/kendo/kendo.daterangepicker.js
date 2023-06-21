@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -22,6 +22,7 @@ var __meta__ = {
     var kendo = window.kendo,
         ui = kendo.ui,
         keys = kendo.keys,
+        mediaQuery = kendo.mediaQuery,
         Widget = ui.Widget,
         MONTH = "month",
         OPEN = "open",
@@ -66,10 +67,20 @@ var __meta__ = {
         var div;
 
         if (!calendar) {
-            div = $(DIV).attr(ID, kendo.guid())
-                        .appendTo(that.popup.element);
+            var contentElement = that.popup._content || that.popup.element;
+            if (options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches) {
+                contentElement = contentElement.append($('<div class="k-scrollable-wrap"></div>')).find(".k-scrollable-wrap");
+            }
 
-            that.calendar = calendar = new ui.MultiViewCalendar(div);
+            div = $(DIV).attr(ID, kendo.guid())
+                        .appendTo(contentElement);
+
+            that.calendar = calendar = new ui.MultiViewCalendar(div, {
+                size: options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches ? "large" : options.size || "medium",
+                orientation: options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches ? "vertical" : "horizontal",
+                views: options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches ? 1 : 2,
+            });
+
             that._setOptions(options);
 
             calendar.navigate(that._value || that._current, options.start);
@@ -84,6 +95,7 @@ var __meta__ = {
     };
 
     DateRangeView.prototype._setOptions = function(options) {
+        var that = this;
         this.calendar.setOptions({
             focusOnNav: false,
             change: options.change,
@@ -99,7 +111,8 @@ var __meta__ = {
             weekNumber: options.weekNumber,
             start: options.start,
             disableDates: options.disableDates,
-            range: options.range
+            range: options.range,
+            size: options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches ? "large" : options.size || "medium"
         });
     };
 
@@ -167,7 +180,6 @@ var __meta__ = {
     var DateRangePicker = Widget.extend({
         init: function(element, options) {
             var that = this;
-            var div;
             var disabled;
 
             Widget.fn.init.call(that, element, options);
@@ -185,46 +197,15 @@ var __meta__ = {
             that._range = that.options.range;
             that._changeTriggered = false;
 
-            that.dateView = new DateRangeView(extend({}, options, {
-                id: element.attr(ID),
-                anchor: that.wrapper,
-                views: 2,
-                selectable: "range",
-                range: that._range,
-                change: function() {
-                    var range = this.selectRange();
-                    that.range(range);
-                    that.trigger(CHANGE);
-                    that._changeTriggered = true;
-                    that._startDateInput.trigger(CHANGE);
-                    that._endDateInput.trigger(CHANGE);
-                    that._changeTriggered = false;
-                },
-                close: function(e) {
-                    if (that.trigger(CLOSE)) {
-                        e.preventDefault();
-                    } else {
-                        that._inputs.attr(ARIA_EXPANDED, false);
-                        div.attr(ARIA_HIDDEN, true);
+            that._initializeDateView();
+            that._initializeDateViewProxy = that._initializeDateView.bind(that);
 
-                        setTimeout(function() {
-                            if (that._inputs) {
-                                that._inputs.removeAttr(ARIA_ACTIVEDESCENDANT);
-                            }
-                        });
-                    }
-                },
-                open: function(e) {
-                    if (that.trigger(OPEN)) {
-                        e.preventDefault();
-                    } else {
-                        that._inputs.attr(ARIA_EXPANDED, true);
-                        div.attr(ARIA_HIDDEN, false);
-                        that._updateARIA();
-                    }
-                }
-            }));
-            div = that.dateView.div;
+            that.bigScreenMQL = mediaQuery("large");
+            that.bigScreenMQL.onChange(()=> {
+                that._initializeDateViewProxy();
+            });
+
+
             that._ariaTemplate = template(this.options.ARIATemplate).bind(that);
             that._reset();
             that._aria();
@@ -253,6 +234,7 @@ var __meta__ = {
             max: new Date(2099, 11, 31),
             start: MONTH,
             depth: MONTH,
+            adaptiveMode: "none",
             animation: {},
             month: {},
             startField: "",
@@ -297,7 +279,7 @@ var __meta__ = {
             this._inputs
                 .attr({
                     role: "combobox",
-                    "aria-haspopup": "grid",
+                    "aria-haspopup": "dialog",
                     "aria-expanded": false,
                     "aria-controls": this.dateView._dateViewID,
                     "autocomplete": "off"
@@ -384,7 +366,57 @@ var __meta__ = {
                 that.trigger(CHANGE);
             }
         },
+        _initializeDateView: function() {
+            var that = this;
+            var div;
 
+            if (that.dateView) {
+                that.dateView.destroy();
+                that.dateView = null;
+            }
+
+            that.dateView = new DateRangeView(extend({}, that.options, {
+                id: that.element.attr(ID),
+                anchor: that.wrapper,
+                views: 2,
+                selectable: "range",
+                range: that._range,
+                change: function() {
+                    var range = this.selectRange();
+                    that.range(range);
+                    that.trigger(CHANGE);
+                    that._changeTriggered = true;
+                    that._startDateInput.trigger(CHANGE);
+                    that._endDateInput.trigger(CHANGE);
+                    that._changeTriggered = false;
+                },
+                close: function(e) {
+                    if (that.trigger(CLOSE)) {
+                        e.preventDefault();
+                    } else {
+                        that._inputs.attr(ARIA_EXPANDED, false);
+                        div.attr(ARIA_HIDDEN, true);
+
+                        setTimeout(function() {
+                            if (that._inputs) {
+                                that._inputs.removeAttr(ARIA_ACTIVEDESCENDANT);
+                            }
+                        });
+                    }
+                },
+                open: function(e) {
+                    if (that.trigger(OPEN)) {
+                        e.preventDefault();
+                    } else {
+                        that._inputs.attr(ARIA_EXPANDED, true);
+                        div.attr(ARIA_HIDDEN, false);
+                        that._updateARIA();
+                    }
+                }
+            }));
+
+            div = that.dateView.div;
+        },
         _initializeDateInputs: function() {
             var that = this;
             var options = that.options;
@@ -549,6 +581,12 @@ var __meta__ = {
 
             that._inputs.off(ns);
             that._inputs = null;
+
+            if (that.bigScreenMQL) {
+                that.bigScreenMQL.destroy();
+            }
+
+            that._createDateViewProxy = null;
 
             that.dateView.destroy();
 

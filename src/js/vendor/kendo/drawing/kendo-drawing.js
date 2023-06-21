@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9281,10 +9281,16 @@ function pushNodeInfo(element, style, group) {
     };
     var decoration = getPropertyValue(style, "text-decoration");
     if (decoration && decoration != "none") {
-        var color = getPropertyValue(style, "color");
+        var color = getPropertyValue(style, "text-decoration-color");
         decoration.split(/\s+/g).forEach(function(name){
             if (!nodeInfo[name]) {
                 nodeInfo[name] = color;
+                if (name == "underline") {
+                    var offset = getPropertyValue(style, "text-underline-offset");
+                    if (offset != "auto") {
+                        nodeInfo["underline-offset"] = parseFloat(offset);
+                    }
+                }
             }
         });
     }
@@ -10905,17 +10911,28 @@ function renderText(element, node, group) {
     var underline = nodeInfo["underline"];
     var lineThrough = nodeInfo["line-through"];
     var overline = nodeInfo["overline"];
-    var hasDecoration = underline || lineThrough || overline;
+    var underlineOffset = nodeInfo["underline-offset"];
+
+    if (underline) {
+        forEachRect(decorateUnder);
+    }
 
     // doChunk returns true when all text has been rendered
     while (!doChunk()) {}
 
-    if (hasDecoration) {
-        range.selectNode(node);
-        slice$1$1(range.getClientRects()).forEach(decorate);
+    if (lineThrough || overline) {
+        forEachRect(decorateOver);
     }
 
     return;                 // only function declarations after this line
+
+    function forEachRect(callback) {
+        range.selectNode(node);
+        var clientRects = slice$1$1(range.getClientRects());
+
+        forEachRect = function (cb) { return clientRects.forEach(cb); };
+        forEachRect(callback);
+    }
 
     function actuallyGetRangeBoundingRect(range) {
         // XXX: to be revised when this Chrome bug is fixed:
@@ -11142,24 +11159,35 @@ function renderText(element, node, group) {
         group.append(text);
     }
 
-    function decorate(box) {
-        line(underline, box.bottom);
-        line(lineThrough, box.bottom - box.height / 2.7);
-        line(overline, box.top);
-        function line(color, ypos) {
-            if (color) {
-                var width = fontSize / 12;
-                var path = new Path({ stroke: {
-                    width: width,
-                    color: color
-                }});
+    function drawTextLine(lineWidth, textBox, color, ypos) {
+        if (color) {
+            var path = new Path({ stroke: {
+                width: lineWidth,
+                color: color
+            }});
 
-                ypos -= width;
-                path.moveTo(box.left, ypos)
-                    .lineTo(box.right, ypos);
-                group.append(path);
-            }
+            ypos -= lineWidth;
+            path.moveTo(textBox.left, ypos)
+                .lineTo(textBox.right, ypos);
+            group.append(path);
         }
+    }
+
+    function decorateOver(box) {
+        var width = fontSize / 12;
+        drawTextLine(width, box, lineThrough, box.bottom - box.height / 2.7);
+        drawTextLine(width, box, overline, box.top);
+    }
+
+    function decorateUnder(box) {
+        var width = fontSize / 12;
+        var underlinePos = box.bottom;
+        if (underlineOffset != null) {
+            underlinePos += underlineOffset;
+        } else {
+            underlinePos += width; // for "auto" it seems better to add line width
+        }
+        drawTextLine(width, box, underline, underlinePos);
     }
 }
 

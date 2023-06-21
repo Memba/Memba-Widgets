@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -127,6 +127,7 @@ var __meta__ = {
         DELETERECURRINGCONFIRM = "Are you sure you want to delete this event occurrence?",
         RESETSERIESCONFIRM = "Are you sure you want to reset the whole series?",
         DELETESERIESCONFIRM = "Are you sure you want to delete the whole series?",
+        ONGOING_CLASS = "k-event-ongoing",
         COMMANDBUTTONTMPL = ({ className, attr, text, icon, fillMode, themeColor }) =>
             kendo.html.renderButton(`<button type="button" class="${className}" ${attr}>${text}</button>`, {
                 icon: icon,
@@ -159,12 +160,14 @@ var __meta__ = {
             },
             today: {
                 name: "today",
+                type: "button",
                 attributes: {
                     class: "k-nav-today",
                 }
             },
             previous: {
                 name: "previous",
+                type: "button",
                 icon: "caret-alt-left",
                 showText: "overflow",
                 attributes: {
@@ -173,6 +176,7 @@ var __meta__ = {
             },
             next: {
                 name: "next",
+                type: "button",
                 icon: "caret-alt-right",
                 showText: "overflow",
                 attributes: {
@@ -207,6 +211,7 @@ var __meta__ = {
             },
             create: {
                 name: "create",
+                type: "button",
                 icon: "plus",
                 attributes: {
                     class: "k-create-event"
@@ -3214,6 +3219,12 @@ var __meta__ = {
                 updateInterval: 10000,
                 useLocalTimezone: true
             },
+            ongoingEvents: {
+                cssClass: ONGOING_CLASS,
+                enabled: false,
+                updateInterval: 60000,
+                useLocalTimezone: true
+            },
             footer: {},
             messages: {
                 today: "Today",
@@ -4991,7 +5002,8 @@ var __meta__ = {
             var views = this.views,
                 defaults = $.extend(true, {}, DEFAULT_TOOLS),
                 viewsButtons = [],
-                viewsDdl, mobileViews;
+                isRtl = kendo.support.isRtl(this.wrapper),
+                viewsDdl, viewsMobile;
 
             Object.keys(views).map(name => {
                 var current = $.extend(true, {}, defaults.view);
@@ -5009,30 +5021,36 @@ var __meta__ = {
 
             if (viewsButtons.length > 1) {
                 viewsDdl = VIEWS_DROPDOWN_TEMPLATE({ views: this.views, label: this.options.messages.selectView, type: "k-views-dropdown" });
-                mobileViews = VIEWS_DROPDOWN_TEMPLATE({ views: this.views, label: this.options.messages.selectView, type: "k-scheduler-mobile-views" });
+                viewsMobile = VIEWS_DROPDOWN_TEMPLATE({ views: this.views, label: this.options.messages.selectView, type: "k-scheduler-mobile-views" });
             }
 
             defaults.viewsDdl = {
                 template: viewsDdl
             };
 
-            defaults.mobileViews = {
-                template: mobileViews
+            defaults.viewsMobile = {
+                template: viewsMobile
             };
 
             this._viewsButtons = viewsButtons;
 
+            if (isRtl) {
+                defaults.previous.icon = "k-i-arrow-right";
+                defaults.next.icon = "k-i-arrow-left";
+            }
+
             return defaults;
         },
 
-        _processTools: function() {
+        _processToolbarArray: function() {
             var options = this.options,
+                toolbarOptions = options.toolbar,
                 commands = [],
                 isMobile = this._isMobile(),
                 tools, pdf, search;
 
-            if (options.toolbar) {
-                commands = Array.isArray(options.toolbar) ? options.toolbar : [options.toolbar];
+            if (toolbarOptions) {
+                commands = Array.isArray(toolbarOptions) ? toolbarOptions : [toolbarOptions];
             }
 
             pdf = $.grep(commands, function(item) {
@@ -5069,7 +5087,7 @@ var __meta__ = {
                 tools.push("refresh");
             } else if (this._viewsCount > 1) {
                 if (isMobile) {
-                    tools.push("mobileViews");
+                    tools.push("viewsMobile");
                 } else {
                     tools.push("viewsDdl");
                     tools.push(this._viewsButtons);
@@ -5079,11 +5097,72 @@ var __meta__ = {
             return tools;
         },
 
+        _processViewTools: function(items) {
+            var result = items,
+                viewsIndex = -1;
+
+            items.some((item, index) => {
+                if (item === "views" || item.name === "views") {
+                    viewsIndex = index;
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (viewsIndex > -1) {
+                result.splice(viewsIndex, 1, "viewsDdl", this._viewsButtons);
+            }
+
+            return result;
+        },
+
+        _processToolbarItems: function() {
+            var desktopItems = this.options.toolbar.items.desktop || this.options.toolbar.items,
+                mobileItems = this.options.toolbar.items.mobile || this.options.toolbar.items,
+                isMobile = this._isMobile();
+
+            if (!isMobile) {
+                if (desktopItems.main) {
+                    if (desktopItems.navigation) {
+                        desktopItems = desktopItems.main.concat(desktopItems.navigation);
+                    } else {
+                        desktopItems = desktopItems.main;
+                    }
+                }
+
+                return { tools: this._processViewTools(desktopItems) };
+            } else {
+                if (Array.isArray(mobileItems)) {
+                    return {
+                        tools: this._processViewTools(mobileItems),
+                        navigation: []
+                    };
+                } else {
+                    return {
+                        tools: this._processViewTools(mobileItems.main),
+                        navigation: this._processViewTools(mobileItems.navigation)
+                    };
+                }
+            }
+        },
+
+        _processTools: function() {
+            var options = this.options,
+                toolbarOptions = options.toolbar;
+
+            if (toolbarOptions && toolbarOptions.items) {
+                return this._processToolbarItems();
+            } else {
+                return { tools: this._processToolbarArray() };
+            }
+        },
+
         _toolbar: function() {
             var that = this;
             var options = that.options;
             var defaults = that._processDefaults();
-            var tools = that._processTools();
+            var { tools, navigation } = that._processTools();
             var toolbar = $("<div class='k-scheduler-toolbar'>");
             var secondToolbar;
 
@@ -5098,14 +5177,14 @@ var __meta__ = {
                 parentMessages: options.messages
             });
 
-            if (that._isMobile()) {
+            if (that._isMobile() && (!navigation || navigation.length !== 0)) {
                 secondToolbar = $("<div class='k-scheduler-toolbar'>");
                 that.wrapper.append(secondToolbar);
                 that.toolbar = that.toolbar.add(secondToolbar);
 
                 secondToolbar.kendoToolBar({
                     resizable: false,
-                    tools: [...defaultMobileToolsSecond],
+                    tools: navigation || [...defaultMobileToolsSecond],
                     defaultTools: defaults,
                     parentMessages: options.messages
                 });

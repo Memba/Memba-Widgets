@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -115,7 +115,11 @@ var __meta__ = {
                     that._placeholder(false);
                     wrapper.addClass(FOCUSED);
                 })
-                .on("focusout" + ns, function() {
+                .on("focusout" + ns, function(ev) {
+                    if (that.filterInput && ev.relatedTarget === that.filterInput[0]) {
+                        return;
+                    }
+
                     that._change();
                     that._placeholder();
                     that.close();
@@ -184,6 +188,40 @@ var __meta__ = {
             fillMode: "solid",
             rounded: "medium",
             label: null
+        },
+
+        _onActionSheetCreate: function() {
+            var that = this;
+
+            if (that.filterInput) {
+                that.filterInput
+                    .on("keydown" + ns, that._keydown.bind(that))
+                    .on("keypress" + ns, that._keypress.bind(that))
+                    .on("input" + ns, that._search.bind(that))
+                    .on("paste" + ns, that._search.bind(that))
+                    .attr({
+                        autocomplete: AUTOCOMPLETEVALUE,
+                        role: "combobox",
+                        "aria-expanded": false
+                    });
+
+                that.popup.bind("activate", () => {
+                    that.filterInput.val(that.element.val());
+                    that.filterInput.trigger("focus");
+                });
+
+                that.popup.bind("deactivate", () => {
+                    that.element.trigger("focus");
+                });
+            }
+        },
+
+        _onCloseButtonPressed: function() {
+            var that = this;
+
+            if (that.filterInput && activeElement() === that.filterInput[0]) {
+                that.element.val(that.filterInput.val());
+            }
         },
 
         _dataSource: function() {
@@ -289,6 +327,10 @@ var __meta__ = {
             that._clear.off(ns);
             that.wrapper.off(ns);
 
+            if (that.filterInput) {
+                that.filterInput.off(ns);
+            }
+
             List.fn.destroy.call(that);
         },
 
@@ -306,14 +348,15 @@ var __meta__ = {
             ignoreCase = options.ignoreCase,
             separator = that._separator(),
             length,
-            accentFoldingFiltering = that.dataSource.options.accentFoldingFiltering;
+            accentFoldingFiltering = that.dataSource.options.accentFoldingFiltering,
+            element = that.filterInput && activeElement() === that.filterInput[0] ? that.filterInput : that.element;
 
             word = word || that._accessor();
 
             clearTimeout(that._typingTimeout);
 
             if (separator) {
-                word = wordAtCaret(caret(that.element)[0], word, separator);
+                word = wordAtCaret(caret(element)[0], word, separator);
             }
 
             length = word.length;
@@ -454,7 +497,7 @@ var __meta__ = {
             var data = that.dataSource.flatView();
             var length = data.length;
             var groupsLength = that.dataSource._group ? that.dataSource._group.length : 0;
-            var isActive = that.element[0] === activeElement();
+            var isActive = that.element[0] === activeElement() || that.filterInput && that.filterInput[0] === activeElement();
             var action;
 
             that._renderFooter();
@@ -564,6 +607,10 @@ var __meta__ = {
             that._old = value;
             that._oldText = value;
 
+            if (that.filterInput && activeElement() === that.filterInput[0]) {
+                that.element.val(that.filterInput.val());
+            }
+
             if (valueUpdated || itemSelected) {
                 // trigger the DOM change event so any subscriber gets notified
                 that.element.trigger(CHANGE);
@@ -579,7 +626,7 @@ var __meta__ = {
 
         _accessor: function(value) {
             var that = this,
-                element = that.element[0];
+                element = that.filterInput && activeElement() === that.filterInput[0] ? that.filterInput[0] : that.element[0];
 
             if (value !== undefined) {
                 element.value = value === null ? "" : value;

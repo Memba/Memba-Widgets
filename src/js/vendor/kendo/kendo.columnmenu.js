@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -44,7 +44,7 @@ var __meta__ = {
         MENU = "kendoMenu",
         EXPANSIONPANEL = "kendoExpansionPanel",
         NS = ".kendoColumnMenu",
-        COLUMNHEADERATTR = "[scope='col']",
+        COLUMN_HEADER_SELECTOR = ".k-table-th",
         Widget = ui.Widget;
 
     function trim(text) {
@@ -152,7 +152,7 @@ var __meta__ = {
             that.field = element.attr(kendo.attr("field"));
             that.title = element.attr(kendo.attr("title"));
 
-            columnHeader = $(element.closest(COLUMNHEADERATTR));
+            columnHeader = $(element.closest(COLUMN_HEADER_SELECTOR));
             if (columnHeader.length) {
                 that.appendTo = columnHeader.find(options.appendTo);
             } else {
@@ -1358,7 +1358,7 @@ ${kendo.ui.icon("sort-desc-small")}${messages.sortDescending}\
 ${modernColumnsTemplateIterator(columns, encodeTitles, ns)}\
 </div>\
 </div>\
-<div class="k-columnmenu-actions">` +
+<div class="k-actions-stretched k-columnmenu-actions">` +
 kendo.html.renderButton(`<button>${messages.apply}</button>`, { themeColor: "primary", icon: "check" }) +
 kendo.html.renderButton(`<button>${messages.reset}</button>`, { icon: "undo" }) +
 `</div>\

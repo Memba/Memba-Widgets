@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -448,7 +448,7 @@ var __meta__ = {
                 idx,
                 length,
                 fields = that.options.fields || [],
-                container = that.options.clearContainer ? that.element.empty() : that.element,
+                container = that._container = that.options.clearContainer ? that.element.empty() : that.element,
                 model = that.options.model || {},
                 rules = {},
                 field,
@@ -512,9 +512,17 @@ var __meta__ = {
                 errorTemplate: that.options.errorTemplate || undefined,
                 rules: rules });
 
-            if (!that.options.skipFocus) {
-                container.find(":kendoFocusable").eq(0).trigger("focus");
-            }
+                if (!that.options.skipFocus) {
+                    that._focusTimeout = setTimeout(() => {
+                        that._focusEditor();
+                    }, 1);
+               }
+        },
+
+        _focusEditor: function() {
+             var that = this;
+
+             that._container.find(":kendoFocusable").eq(0).trigger("focus");
         }
    });
 

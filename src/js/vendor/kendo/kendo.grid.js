@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -132,7 +132,7 @@ var __meta__ = {
         PROGRESS = "progress",
         ERROR = "error",
         HIERARCHY_CELL_CLASS = "k-hierarchy-cell",
-        DATA_CELL = ":not(.k-group-cell):not([" + kendo.attr("virtual") + "]):not(.k-hierarchy-cell:not(:has(.k-icon.k-i-caret-alt-down,.k-icon.k-i-caret-alt-right,.k-svg-icon.k-svg-i-caret-alt-down,.k-svg-icon.k-svg-i-caret-alt-right))):visible",
+        DATA_CELL = ":not(.k-group-cell):not([" + kendo.attr("virtual") + "]):not(.k-hierarchy-cell:not(:has(.k-icon.k-i-caret-alt-down,.k-icon.k-i-caret-alt-right,.k-svg-icon.k-svg-i-caret-alt-down,.k-svg-icon.k-svg-i-caret-alt-right,.k-svg-icon.k-svg-i-caret-alt-left,.k-icon.k-i-caret-alt-left))):visible",
         SELECTION_CELL_SELECTOR = "tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)",
         NAVROW = "tr:not(.k-footer-template):visible",
         NAVCELL = ":not(.k-group-cell):not(.k-detail-cell):not(.k-hierarchy-cell):visible",
@@ -141,6 +141,8 @@ var __meta__ = {
         HEADERCELLS = "th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)",
         CARET_ALT_DOWN = "a[class*='-i-caret-alt-down']",
         CARET_ALT_RIGHT = "a[class*='-i-caret-alt-right']",
+        CARET_ALT_RIGHT_CACHE = CARET_ALT_RIGHT,
+        CARET_ALT_LEFT = "a[class*='-i-caret-alt-left']",
         WRAPPER = ".k-grid",
         NS = ".kendoGrid",
         CONTENTRLOCKEDCONTAINER = "k-grid-content-locked",
@@ -172,6 +174,8 @@ var __meta__ = {
         LOAD_END = "loadEnd",
 
         FOCUSED = "k-focus",
+        HOVER = "k-hover",
+        ACTIVE = "k-active",
         FOCUSABLE = ":kendoFocusable",
         SELECTED = "k-selected",
         CHECKBOX = "k-checkbox",
@@ -188,7 +192,11 @@ var __meta__ = {
         STICKY_HEADER_CLASS = "k-grid-header-sticky k-header",
         STICKY_FOOTER_CLASS = "k-grid-footer-sticky k-table-td",
         STICKY_HEADER_NO_BORDER_CLASS = "k-grid-no-left-border",
+        ROW_RESIZER = "k-row-resizer",
+        ROW_RESIZER_WRAP = "k-resizer-wrap",
+        GROUPING_ROW = "k-grouping-row",
         RESIZE = "resize",
+        ROWRESIZE = "rowResize",
         COLUMNRESIZE = "columnResize",
         COLUMNREORDER = "columnReorder",
         COLUMNLOCK = "columnLock",
@@ -199,7 +207,14 @@ var __meta__ = {
         NAVIGATE = "navigate",
         CLICK = "click",
         MOUSEDOWN = "mousedown",
+        MOUSEUP = "mouseup",
+        MOUSEENTER = "mouseenter",
+        MOUSELEAVE = "mouseleave",
+        MOUSEMOVE = "mousemove",
+        DUBLECLICK = "dblclick",
         HEIGHT = "height",
+        WIDTH = "width",
+        AUTO = "auto",
         TABINDEX = "tabIndex",
         FUNCTION = "function",
         STRING = "string",
@@ -223,6 +238,9 @@ var __meta__ = {
         COLLAPSE = "Collapse",
         EXPAND = "Expand",
         ID = "id",
+        PX = "px",
+        TR = "tr",
+        DIV = "div",
 
         ARIA_LABEL = "aria-label",
         ARIA_OWNS = "aria-owns",
@@ -353,7 +371,7 @@ var __meta__ = {
                 wrapper;
 
             element.css( {
-                width: "auto",
+                width: AUTO,
                 overflow: "hidden"
             }).css((isRtl ? "padding-left" : "padding-right"), scrollbar);
             that.content = element.children().first();
@@ -1150,8 +1168,9 @@ var __meta__ = {
 
     function decorateCellWithClass(html) {
         let element = html;
-        if (element.indexOf("class") !== -1) {
-            const cssClasses = element.match(/class=["][^"]+/g)[0].split('\"').pop();
+        let classes = element.match(/class=["][^"]+/g);
+        if (classes) {
+            const cssClasses = classes[0].split('\"').pop();
             element = element.replace(cssClasses, cssClasses + " k-table-td");
         } else {
             element = element.replace("<td","<td class='k-table-td'");
@@ -1560,7 +1579,7 @@ var __meta__ = {
         var container = cell.closest("table");
         var result = $().add(cell);
 
-        var row = cell.closest("tr");
+        var row = cell.closest(TR);
         var headerRows = container.find("tr:not(.k-filter-row)");
         var level = headerRows.index(row);
         if (level > 0) {
@@ -1603,7 +1622,7 @@ var __meta__ = {
         var container = cell.closest("thead");
         var result = $().add(cell);
 
-        var row = cell.closest("tr");
+        var row = cell.closest(TR);
         var headerRows = container.find("tr:not(.k-filter-row)");
         var level = headerRows.index(row) + cell[0].rowSpan;
         var colSpanAttr = kendo.attr("colspan");
@@ -1655,7 +1674,7 @@ var __meta__ = {
         if (tbodySupportsInnerHtml) {
             tbody[0].innerHTML = html;
         } else {
-            placeholder = document.createElement("div");
+            placeholder = document.createElement(DIV);
             placeholder.innerHTML = "<table class='k-grid-table k-table'><tbody class='k-table-tbody'>" + html + "</tbody></table>";
             $(placeholder).find("table").addClass(kendo.getValidCssClass("k-table-", "size", size));
             tbody = placeholder.firstChild.firstChild;
@@ -1705,7 +1724,7 @@ var __meta__ = {
             cols = map(visibleColumns, function(column) {
                     width = column.width;
                     if (width && parseInt(width, 10) !== 0) {
-                        return kendo.format('<col style="width:{0}"/>', typeof width === STRING ? width : width + "px");
+                        return kendo.format('<col style="width:{0}"/>', typeof width === STRING ? width : width + PX);
                     }
 
                     return "<col />";
@@ -1796,7 +1815,7 @@ var __meta__ = {
                     cell = $(cell);
                     cell.attr("colspan", parseInt(cell.attr("colspan"), 10) - 1);
                     cell.find("col").eq(columnIndex).remove();
-                    row = cell.find("tr").first();
+                    row = cell.find(TR).first();
                 }
 
                 setCellVisibility(row[0].cells, columnIndex, false);
@@ -1859,7 +1878,7 @@ var __meta__ = {
                     cell = $(cell);
                     cell.attr("colspan", parseInt(cell.attr("colspan"), 10) + 1);
                     normalizeCols(cell.find(">form>table"), visibleColumns(columns), false, 0);
-                    row = cell.find("tr").first();
+                    row = cell.find(TR).first();
                 }
 
                 setCellVisibility(row[0].cells, columnIndex, true);
@@ -1890,7 +1909,6 @@ var __meta__ = {
 
         return width;
     }
-
     var Grid = kendo.ui.DataBoundWidget.extend({
         init: function(element, options, events) {
             var that = this;
@@ -1904,6 +1922,7 @@ var __meta__ = {
             }
 
             isRtl = kendo.support.isRtl(element);
+            CARET_ALT_RIGHT = isRtl ? CARET_ALT_LEFT : CARET_ALT_RIGHT_CACHE;
 
             that._element();
 
@@ -1932,6 +1951,8 @@ var __meta__ = {
             that._tbody();
 
             that._thead();
+
+            that._rowResizing();
 
             that._groupable();
 
@@ -1995,6 +2016,7 @@ var __meta__ = {
            REMOVE,
            SAVECHANGES,
            CELLCLOSE,
+           ROWRESIZE,
            COLUMNRESIZE,
            COLUMNREORDER,
            COLUMNSHOW,
@@ -2026,6 +2048,8 @@ var __meta__ = {
             that._pageable();
 
             that._thead();
+
+            that._rowResizing();
 
             if (scrollable) {
                 if (scrollable.virtual) {
@@ -2209,6 +2233,8 @@ var __meta__ = {
                 that.resizable = null;
             }
 
+            that._destroyRowResizing();
+
             that._destroyVirtualScrollable();
 
             if (that.editableUserEvents) {
@@ -2386,7 +2412,7 @@ var __meta__ = {
         _items: function(container, includeGroupRows) {
             return container.children().filter(function() {
                 var tr = $(this);
-                return (includeGroupRows ? !tr.hasClass("k-detail-row") : !tr.hasClass("k-grouping-row")) && !tr.hasClass("k-detail-row") && !tr.hasClass("k-group-footer");
+                return (includeGroupRows ? !tr.hasClass("k-detail-row") : !tr.hasClass(GROUPING_ROW)) && !tr.hasClass("k-detail-row") && !tr.hasClass("k-group-footer");
             });
         },
 
@@ -2461,7 +2487,7 @@ var __meta__ = {
                 gridId = table.attr(ID),
                 tableTabindex = table.attr(TABINDEX),
                 tbodyId, headerGroupId, footerGroupId, tableOwned,
-                numberOfFixedRows = this.thead.find("tr").length + this.wrapper.find(".k-grid-footer-wrap table tr").length,
+                numberOfFixedRows = this.thead.find(TR).length + this.wrapper.find(".k-grid-footer-wrap table tr").length,
                 trailingColumns = this._trailingColumns(),
                 virtual = this.virtualScroll,
                 pageable = this.options.pageable,
@@ -2474,7 +2500,7 @@ var __meta__ = {
             }
 
             table.find("tbody, thead, tfoot").attr(ROLE, ROWGROUP);
-            table.find("tr").attr(ROLE, ROW);
+            table.find(TR).attr(ROLE, ROW);
             table.find("th").attr(ROLE, COLUMNHEADER);
             table.find("td").attr(ROLE, GRIDCELL);
 
@@ -2663,7 +2689,7 @@ var __meta__ = {
                 groupId = rowGroup.attr(ID) || kendo.guid();
 
                 table.attr(ROLE, NONE);
-                table.find("tr").attr(ROLE, ROW);
+                table.find(TR).attr(ROLE, ROW);
                 table.find(el).attr(ROLE, role);
                 rowGroup.attr({
                     role: ROWGROUP,
@@ -2694,8 +2720,8 @@ var __meta__ = {
                 wrapper = that.wrapper,
                 table = wrapper.find(".k-grid-" + type + " .k-grid-" + type + "-wrap table"),
                 lockedTable = wrapper.find(".k-grid-" + type + " .k-grid-" + type + "-locked table"),
-                rows = table.find("tr"),
-                lockedRows = lockedTable.find("tr");
+                rows = table.find(TR),
+                lockedRows = lockedTable.find(TR);
 
             lockedTable.attr(ROLE, NONE);
             lockedTable.find(group + ", tbody").attr(ROLE, NONE);
@@ -2716,9 +2742,9 @@ var __meta__ = {
         _ariaLockedContent: function() {
             var that = this,
                 table = that.table,
-                tableRows = table.find("tr"),
+                tableRows = table.find(TR),
                 lockedTable = that.wrapper.find(".k-grid-content-locked table"),
-                lockedRows = lockedTable.find("tr");
+                lockedRows = lockedTable.find(TR);
 
             lockedTable.attr(ROLE, NONE);
             lockedTable.find("tbody").attr(ROLE, NONE);
@@ -2914,7 +2940,7 @@ var __meta__ = {
             .data("th", th)
             .show();
 
-            resizeHandle.off("dblclick" + NS).on("dblclick" + NS, function() {
+            resizeHandle.off(DUBLECLICK + NS).on(DUBLECLICK + NS, function() {
                 that._autoFitLeafColumn(parseInt(th.attr(kendo.attr("index")), 10));
             });
         },
@@ -2923,7 +2949,7 @@ var __meta__ = {
             var that = this,
                 lockedHead = that.lockedHeader ? that.lockedHeader.find("thead").first() : $();
 
-            that.thead.add(lockedHead).on("mousemove" + NS, "tr:not(.k-filter-row) > th", function(e) {
+            that.thead.add(lockedHead).on(MOUSEMOVE + NS, "tr:not(.k-filter-row) > th", function(e) {
                 var button = typeof e.buttons !== "undefined" ? e.buttons : (e.which || e.button);
 
                 var th = $(this);
@@ -2942,7 +2968,7 @@ var __meta__ = {
                     return;
                 }
 
-                that._createResizeHandle(th.closest("div"), th);
+                that._createResizeHandle(th.closest(DIV), th);
             });
         },
 
@@ -3014,7 +3040,7 @@ var __meta__ = {
                     th.find(DOT + HEADER_COLUMN_MENU_CLASS).hide();
                     th.find(DOT + FILTER_MENU_CLASS).hide();
 
-                    that._createResizeHandle(th.closest("div"), th);
+                    that._createResizeHandle(th.closest(DIV), th);
 
                     if (!that._resizeHandleDocumentClickHandler) {
                         that._resizeHandleDocumentClickHandler = that._resizeHandleDocumentClick.bind(that);
@@ -3117,7 +3143,7 @@ var __meta__ = {
                 isLocked,
                 col, th;
 
-            if (options.resizable) {
+            if (options.resizable === true || (options.resizable && options.resizable.columns === true)) {
                 container = options.scrollable ? that.wrapper.find(".k-grid-header-wrap").first() : that.wrapper;
 
                 if (isMobile) {
@@ -3246,7 +3272,7 @@ var __meta__ = {
                         }
 
                         if (columnWidth != newWidth) {
-                            header = that.lockedHeader ? that.lockedHeader.find("thead").first().find("tr").first().add(that.thead.find("tr").first()) : th.parent();
+                            header = that.lockedHeader ? that.lockedHeader.find("thead").first().find(TR).first().add(that.thead.find(TR).first()) : th.parent();
 
                             var index = th.attr(kendo.attr("index"));
                             if (!index) {
@@ -3274,6 +3300,367 @@ var __meta__ = {
                     }
                 });
 
+            }
+        },
+
+        // Row resizing functionality below
+        _addLockedRowResizing: function(tr) {
+            var index = tr.index();
+
+            return this.lockedTable.find(TR).eq(index)
+                .add(this.tbody.find(TR).eq(index));
+        },
+
+        _getMinRowHeight: function(row) {
+            var minHeight = 0;
+
+            row.each((i, el) => {
+                var currentMinHeight;
+
+                el.style.height = '';
+                currentMinHeight = outerHeight(el);
+
+                if (currentMinHeight > minHeight) {
+                    minHeight = currentMinHeight;
+                }
+            });
+
+            return minHeight;
+        },
+
+        _cacheRowHeight: function(rows, height) {
+            var that = this;
+
+            if (!that._cachedRowsHeight) {
+                that._cachedRowsHeight = {};
+            }
+
+            rows.each((i, el) => {
+                var uid = el.getAttribute("data-uid");
+
+                that._cachedRowsHeight[uid] = height;
+            });
+        },
+
+        _clearCachedRowsHeight: function(rows) {
+            var that = this;
+
+            if (rows && that._cachedRowsHeight) {
+                rows.each((i, el) => {
+                    var uid = el.getAttribute("data-uid");
+
+                    delete that._cachedRowsHeight[uid];
+                });
+            } else {
+                that._cachedRowsHeight = null;
+            }
+        },
+
+        _mapCachedRowsHeight: function(method, target) {
+            var input = this._cachedRowsHeight,
+                ds = this.dataSource,
+                output = {};
+
+            Object.keys(input).forEach((key) => {
+                var item = ds[method](key);
+
+                output[item[target]] = input[key];
+            });
+
+            this._cachedRowsHeight = output;
+        },
+
+        _rowResizerDblClick: function() {
+            var that = this,
+                resizer = that.rowResizer,
+                row = resizer.data(TR),
+                oldHeight = outerHeight(row),
+                newHeight, rows;
+
+            if (row.hasClass(SELECTED)) {
+                rows = that.select();
+            } else {
+                rows = row;
+            }
+
+            if (that.lockedTable) {
+                row = that._addLockedRowResizing(row);
+
+                if (row.hasClass(SELECTED)) {
+                    rows = that.lockedTable.find(DOT + SELECTED);
+                } else {
+                    rows = that.lockedTable.find(TR).eq(row.index());
+                }
+
+                rows.each((i, el) => {
+                    var rowIndex = el.rowIndex,
+                        rowPair = $(el).add(that.tbody.find(TR).eq(rowIndex)),
+                        pairMinHeight = that._getMinRowHeight(rowPair);
+
+                    rowPair.css(HEIGHT, pairMinHeight);
+                });
+            } else {
+                rows.css(HEIGHT, AUTO);
+            }
+
+            that._clearCachedRowsHeight(rows);
+
+            resizer.removeClass(HOVER);
+            resizer.removeClass(ACTIVE);
+
+            newHeight = outerHeight(row);
+
+            if (oldHeight != newHeight) {
+                that.trigger(ROWRESIZE, {
+                    row,
+                    rows,
+                    oldHeight,
+                    newHeight
+                });
+            }
+        },
+
+        _setupRowResizer(resizer, row, top) {
+            resizer
+                .data(TR, row)
+                .css({
+                    top: top
+                });
+        },
+
+        _attachRowResizerEvents: function() {
+            var rowResizer = this.rowResizer,
+                delay = 200,
+                isIn = false;
+
+            rowResizer
+                .on(MOUSEDOWN + NS, (e) => {
+                    if (e.button === 0) {
+                        rowResizer.removeClass(HOVER);
+                        rowResizer.addClass(ACTIVE);
+                    }
+                })
+                .on(MOUSEUP + NS, (e) => {
+                    if (e.button === 0) {
+                        rowResizer.removeClass(ACTIVE);
+                        rowResizer.addClass(HOVER);
+                    }
+                })
+                .on(MOUSEENTER + NS, () => {
+                    isIn = true;
+
+                    setTimeout(() => {
+                        if (isIn) {
+                            rowResizer.addClass(HOVER);
+                        }
+                    }, delay);
+                })
+                .on(MOUSELEAVE + NS, () => {
+                    isIn = false;
+                    rowResizer.removeClass(HOVER);
+                });
+        },
+
+        _getResizerTop: function(tr, container) {
+            var resizer = this.rowResizer,
+                inner = resizer.find(DOT + ROW_RESIZER)[0],
+                paddingTop = parseInt(getComputedStyle(resizer[0]).paddingTop);
+
+            return tr.offset().top -
+                parseFloat(tr.css("marginTop")) -
+                (container.offset().top + parseFloat(container.css("borderTopWidth"))) -
+                inner.clientHeight -
+                paddingTop +
+                container.scrollTop();
+        },
+
+        _getResizerContainer: function() {
+            var container = this.tbody.closest(DIV);
+
+            if (this.lockedTable) {
+                container = container.closest(DOT + "k-grid-container");
+            }
+
+            return container;
+        },
+
+        _createRowResizer: function(e) {
+            var that = this,
+                tr = $(e.currentTarget),
+                targetHeight = e.currentTarget.clientHeight,
+                positionIntarget = e.offsetY,
+                rowResizer = that.rowResizer,
+                previousRow = tr.prev(TR + ":visible"),
+                container = that._getResizerContainer(),
+                top;
+
+            if (!rowResizer) {
+                rowResizer = that.rowResizer = $('<div class="k-resizer-wrap"><div class="k-row-resizer"></div></div>');
+                container.append(rowResizer);
+                that._attachRowResizerEvents();
+
+                rowResizer.off(DUBLECLICK + NS).on(DUBLECLICK + NS, that._rowResizerDblClick.bind(that));
+            }
+
+            top = that._getResizerTop(tr, container);
+
+            if (previousRow.length !== 0 && targetHeight / 2 > positionIntarget) {
+                if (!previousRow.hasClass(GROUPING_ROW)) {
+                    that._setupRowResizer(rowResizer, previousRow, top);
+                }
+            } else {
+                if (!tr.hasClass(GROUPING_ROW)) {
+                    that._setupRowResizer(rowResizer, tr, top + targetHeight);
+                }
+            }
+        },
+
+        _detachRowResizerEvents: function() {
+            var rowResizer = this.rowResizer;
+
+            rowResizer
+                .off(MOUSEDOWN + NS)
+                .off(MOUSEUP + NS)
+                .off(MOUSEENTER + NS)
+                .off(MOUSELEAVE + NS);
+        },
+
+        _mapResizedRows: function(rows, multiSelectionLocked, newHeight) {
+            var that = this;
+
+            rows.each((i, el) => {
+                var minHeight;
+
+                if (multiSelectionLocked) {
+                    var rowIndex = el.rowIndex,
+                        pairNew = newHeight,
+                        pairMin = 0,
+                        rowPair = $(el).add(that.tbody.find(TR).eq(rowIndex));
+
+                    rowPair.each((i, r) => {
+                        var currentMinHeight;
+
+                        r.style.height = '';
+                        currentMinHeight = outerHeight(r);
+
+                        if (currentMinHeight > pairMin) {
+                            pairMin = currentMinHeight;
+                        }
+                    });
+
+                    if (pairNew < pairMin) {
+                        pairNew = pairMin;
+
+                        that._clearCachedRowsHeight(rowPair.eq(0));
+                    } else {
+                        that._cacheRowHeight(rowPair.eq(0), pairNew);
+                    }
+
+                    rowPair.css(HEIGHT, pairNew);
+                } else {
+                    el.style.height = '';
+                    minHeight = outerHeight(el);
+
+                    if (newHeight > minHeight) {
+                        el.style.height = newHeight + PX;
+
+                        that._cacheRowHeight($(el), newHeight);
+                    } else {
+                        that._clearCachedRowsHeight($(el));
+                    }
+                }
+            });
+        },
+
+        _rowResizing: function() {
+            var that = this,
+                options = that.options,
+                container, rowStart, rowHeight, tr;
+
+            if (options.resizable && options.resizable.rows === true) {
+                that.tbody
+                    .parent()
+                    .add(that.lockedTable)
+                    .on(MOUSEMOVE + NS, ".k-grid-footer tr, .k-table-tbody tr", that._createRowResizer.bind(that));
+
+                if (that.rowResizing) {
+                    that.rowResizing.destroy();
+                }
+
+                container = that._getResizerContainer();
+
+                that.rowResizing = new ui.Resizable(container, {
+                    handle: DOT + ROW_RESIZER_WRAP,
+                    start: function(e) {
+                        tr = $(e.currentTarget).data(TR);
+
+                        if (that.lockedTable) {
+                            tr = that._addLockedRowResizing(tr);
+                        }
+
+                        tr.addClass(HOVER);
+
+                        that._detachRowResizerEvents();
+
+                        rowStart = e.y.location;
+                        rowHeight = outerHeight(tr);
+                    },
+                    resize: function(e) {
+                        var newHeight = rowHeight + e.y.location - rowStart,
+                            minHeight = 0;
+
+                        if (tr.length > 1) {
+                            minHeight = that._getMinRowHeight(tr);
+                        }
+
+                        if (newHeight < minHeight) {
+                            newHeight = minHeight;
+                        }
+
+                        tr.css('height', newHeight);
+
+                        that._setupRowResizer(that.rowResizer, tr, that._getResizerTop(tr, container) + newHeight);
+                    },
+                    resizeend: function() {
+                        var newHeight = outerHeight(tr),
+                            multiSelectionLocked = false,
+                            rows;
+
+                        if (tr.hasClass(SELECTED)) {
+                            rows = that.select();
+
+                            if (tr.length > 1 && rows.length > tr.length) {
+                                rows = that.lockedTable.find(DOT + SELECTED).not(tr);
+                                multiSelectionLocked = true;
+                            }
+                        } else {
+                            rows = tr;
+                        }
+
+                        that._mapResizedRows(rows, multiSelectionLocked, newHeight);
+
+                        tr.removeClass(HOVER);
+
+                        that.rowResizer.removeClass(ACTIVE);
+                        that.rowResizer.addClass(HOVER);
+                        that._attachRowResizerEvents();
+
+                        if (multiSelectionLocked) {
+                            rows = that.select();
+                        }
+
+                        if (rowHeight != newHeight) {
+                            that.trigger(ROWRESIZE, {
+                                row: tr,
+                                rows,
+                                oldHeight: rowHeight,
+                                newHeight
+                            });
+                        }
+
+                        tr = null;
+                    }
+                });
             }
         },
 
@@ -3755,7 +4142,7 @@ var __meta__ = {
             // if scrolling is disabled, we need some additional repainting of the table
             col.width("");
             tables.css("table-layout", "fixed");
-            col.width("auto");
+            col.width(AUTO);
             tables.addClass("k-autofitting");
             tables.css("table-layout", "");
 
@@ -3765,7 +4152,7 @@ var __meta__ = {
             var newColumnWidth = Math.ceil(Math.max(
                 thWidth,
                 outerWidth(contentTable.find("tr:not(.k-grouping-row)").eq(0).children(notGroupOrHierarchyVisibleCell).eq(index)),
-                outerWidth(footerTable.find("tr").eq(0).children(notGroupOrHierarchyVisibleCell).eq(index))
+                outerWidth(footerTable.find(TR).eq(0).children(notGroupOrHierarchyVisibleCell).eq(index))
             )) + 1;
 
             if (minWidth && minWidth > newColumnWidth) {
@@ -3798,7 +4185,7 @@ var __meta__ = {
 
                 if (totalWidth) {
                     tables.each(function() {
-                        this.style.width = totalWidth + "px";
+                        this.style.width = totalWidth + PX;
                     });
                 }
             }
@@ -4036,8 +4423,8 @@ var __meta__ = {
         _modelForContainer: function(container) {
             container = $(container);
 
-            if (!container.is("tr") && this._editMode() !== "popup") {
-                container = container.closest("tr");
+            if (!container.is(TR) && this._editMode() !== "popup") {
+                container = container.closest(TR);
             }
 
             var id = container.attr(kendo.attr("uid")) || container.find(".k-popup-edit-form").attr(kendo.attr("uid"));
@@ -4050,7 +4437,7 @@ var __meta__ = {
             var virtualOffset = 0;
 
             if (this._hasVirtualColumns()) {
-                virtualOffset = parseInt($(cell).closest("tr").find("td").first().attr("colspan"), 10);
+                virtualOffset = parseInt($(cell).closest(TR).find("td").first().attr("colspan"), 10);
                 virtualOffset = (virtualOffset > 1 ? virtualOffset - 1 : 0);
             }
 
@@ -4079,7 +4466,7 @@ var __meta__ = {
                 var mode = that._editMode();
                 if (mode === "incell") {
                     that.table.add(that.lockedTable)
-                        .on("mousedown" + NS, NAVROW + ">" + NAVCELL, function(e) {
+                        .on(MOUSEDOWN + NS, NAVROW + ">" + NAVCELL, function(e) {
                             var target = $(e.target);
                             if (that._editMode() === "incell" && target.hasClass("k-checkbox") && target.prev().attr(kendo.attr("bind"))) {
                                 e.preventDefault();
@@ -4174,7 +4561,7 @@ var __meta__ = {
                                 return;
                             }
                             e.preventDefault();
-                            that.editRow(element.closest("tr"));
+                            that.editRow(element.closest(TR));
                         });
 
                         if (that._isVirtualInlineEditable()) {
@@ -4195,7 +4582,7 @@ var __meta__ = {
                         }
                         e.preventDefault();
                         e.stopPropagation();
-                        that.removeRow(element.closest("tr"));
+                        that.removeRow(element.closest(TR));
                     });
                 } else {
                     //Required for the MVC server wrapper delete button
@@ -4414,7 +4801,7 @@ var __meta__ = {
             that.trigger("itemChange", { item: tr, data: model, ns: ui });
 
             if (that.lockedContent) {
-                adjustRowHeight(tr.css("height", "")[0], that._relatedRow(tr).css("height", "")[0]);
+                adjustRowHeight(tr.css(HEIGHT, "")[0], that._relatedRow(tr).css(HEIGHT, "")[0]);
             }
         },
 
@@ -4942,7 +5329,7 @@ var __meta__ = {
                 related,
                 newRow,
                 nextRow,
-                isSelected = row.hasClass("k-selected"),
+                isSelected = row.hasClass(SELECTED),
                 isAlt = row.hasClass("k-alt");
 
             if (model) {
@@ -5072,6 +5459,11 @@ var __meta__ = {
 
         cancelChanges: function() {
             var that = this;
+
+            if (that._cachedRowsHeight) {
+                that._mapCachedRowsHeight("getByUid", "id");
+                that._shouldMapHights = true;
+            }
 
             that.dataSource.cancelChanges();
 
@@ -5272,24 +5664,35 @@ var __meta__ = {
         },
 
         _clickAdd: function(e) {
-            e.preventDefault();
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+
             this.addRow();
         },
 
         _clickCancel: function(e) {
-            e.preventDefault();
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+
             this.cancelChanges();
         },
 
         _clickExcel: function(e) {
-            e.preventDefault();
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+
             this.saveAsExcel();
         },
 
         _clickPdf: function(e) {
             var that = this;
 
-            e.preventDefault();
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
 
             var promise = that.saveAsPDF();
 
@@ -5301,7 +5704,10 @@ var __meta__ = {
         },
 
         _clickSave: function(e) {
-            e.preventDefault();
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+
             this.saveChanges();
         },
 
@@ -5605,9 +6011,9 @@ var __meta__ = {
             } else {
                 that._groupableClickHandler = function(e) {
                     var element = $(this),
-                    groupRow = element.closest("tr");
+                    groupRow = element.closest(TR);
 
-                    var group = that._groupRows ? that._groupRows[that.wrapper.find(".k-grouping-row").index(groupRow)] : { };
+                    var group = that._groupRows ? that._groupRows[that.wrapper.find(DOT + GROUPING_ROW).index(groupRow)] : { };
 
                     if (element.is(CARET_ALT_DOWN)) {
                         if (!that.trigger("groupCollapse", { group: group, element: groupRow })) {
@@ -5952,7 +6358,7 @@ var __meta__ = {
                                 if (!compareElements(lastSelection, that.selectable.value())) {
                                     that.trigger(CHANGE, eventObject);
                                 }
-                            } else if (!current.hasClass("k-selected")) {
+                            } else if (!current.hasClass(SELECTED)) {
                                 that.selectable.clear();
                                 that.selectable.value(current);
                                 that.trigger(CHANGE);
@@ -5972,12 +6378,12 @@ var __meta__ = {
                     grid.table.attr(TABINDEX, 0);
 
                     grid.table.add(grid.lockedTable)
-                        .on("mousedown" + NS + " keydown" + NS, ".k-detail-cell", function(e) {
+                        .on(MOUSEDOWN + NS + " keydown" + NS, ".k-detail-cell", function(e) {
                             if (e.target !== e.currentTarget) {
                                 e.stopImmediatePropagation();
                             }
                         })
-                        .on("mousedown" + NS, NAVROW + ">" + NAVCELL, tableClick.bind(grid));
+                        .on(MOUSEDOWN + NS, NAVROW + ">" + NAVCELL, tableClick.bind(grid));
                 }
                 grid.copyHandler = grid.copySelection.bind(grid);
                 grid.updateClipBoardState = function() {
@@ -6040,7 +6446,7 @@ var __meta__ = {
             }
             var text = "";
             if (selected.length) {
-                if (selected.eq(0).is("tr")) {
+                if (selected.eq(0).is(TR)) {
                     selected = selected.find("td:not(.k-group-cell)");
                 }
                 if (onlyVisible) {
@@ -6059,7 +6465,7 @@ var __meta__ = {
                     cell = $(cell);
                     field = grid._getCellField(cell, hasLockedCols);
 
-                    var tr = cell.closest("tr");
+                    var tr = cell.closest(TR);
                     var rowIndex = tr.index();
                     var cellIndex = cell.index();
                     if (onlyVisible) {
@@ -6224,7 +6630,7 @@ var __meta__ = {
             var isLocked = that._isLocked();
             var footer;
 
-            if (options.scrollable && options.resizable) {
+            if (options.scrollable && (options.resizable === true || (options.resizable && options.resizable.columns === true))) {
                 if (isLocked && that.lockedFooter) {
                     footer = that.lockedFooter.children("table");
                 } else if (that.footer) {
@@ -6248,7 +6654,7 @@ var __meta__ = {
                 var totalHeaderWidth = 0;
 
                 if (header[0].style.width !== "" && parseFloat(header[0].style.width) !== totalHeaderWidth) {
-                    var currentHeaderWidth = header.css("width");
+                    var currentHeaderWidth = header.css(WIDTH);
 
                     for (var i = 0; i < headerColumnsCount; i++) {
                         if (isElementVisible(headerColumns[i])) {
@@ -6261,9 +6667,9 @@ var __meta__ = {
                                 columnWidth = parseFloat(columnStyleWidth);
                             } else {
                                 // remove the header width to calculate the height of a column without fixed width
-                                header.css("width", "auto");
+                                header.css(WIDTH, AUTO);
                                 columnWidth = outerWidth(headerColumns.eq(i));
-                                header.css("width", currentHeaderWidth);
+                                header.css(WIDTH, currentHeaderWidth);
                             }
 
                             totalHeaderWidth += columnWidth;
@@ -6550,7 +6956,7 @@ var __meta__ = {
                 for (j = 0; j < rows.length; j++) {
                     row = $(rows[j]);
 
-                    if (row.hasClass("k-grouping-row")) {
+                    if (row.hasClass(GROUPING_ROW)) {
                         groupHeader = row.find("." + column.groupHeaderColumnTemplateClass);
 
                         groupHeader.addClass(STICKY_CELL_CLASS);
@@ -6603,7 +7009,7 @@ var __meta__ = {
                 for (j = 0; j < rows.length; j++) {
                     row = $(rows[j]);
 
-                    if (row.hasClass("k-grouping-row")) {
+                    if (row.hasClass(GROUPING_ROW)) {
                         groupHeader = row.find("." + column.groupHeaderColumnTemplateClass);
 
                         groupHeader.removeClass(STICKY_CELL_CLASS);
@@ -7250,7 +7656,7 @@ var __meta__ = {
             this._headertables = headerTables;
 
             //dettach all previous events
-            tables.off("mousedown" + NS + " focus" + NS + " focusout" + NS + " keydown" + NS);
+            tables.off(MOUSEDOWN + NS + " focus" + NS + " focusout" + NS + " keydown" + NS);
 
             headerTables
                 .find("a.k-link").attr("tabIndex", -1);
@@ -7265,7 +7671,7 @@ var __meta__ = {
 
             tables
                 //handle click on tables, will attempt to focus the table
-                .on((kendo.support.touch ? "touchstart" + NS : "mousedown" + NS), NAVROW + ">" + NAVCELL, tableClick.bind(that))
+                .on((kendo.support.touch ? "touchstart" + NS : MOUSEDOWN + NS), NAVROW + ">" + NAVCELL, tableClick.bind(that))
                 .on("focus" + NS, that._tableFocus.bind(that))
                 .on("focusout" + NS, that._tableBlur.bind(that))
                 .on("keydown" + NS, that, that._tableKeyDown.bind(that));
@@ -7478,7 +7884,7 @@ var __meta__ = {
             var container = row.parent();
 
             if (altKey) {
-                if (row.hasClass("k-grouping-row")) {
+                if (row.hasClass(GROUPING_ROW)) {
                     this.collapseGroup(row);
                 } else {
                     this.collapseRow(row);
@@ -7524,7 +7930,7 @@ var __meta__ = {
             var container = row.parent();
 
             if (altKey) {
-                if (row.hasClass("k-grouping-row")) {
+                if (row.hasClass(GROUPING_ROW)) {
                     this.expandGroup(row);
                 } else {
                     this.expandRow(row);
@@ -7830,7 +8236,7 @@ var __meta__ = {
                 return false;
             }
 
-            if (row.is(".k-grouping-row")) {
+            if (row.is(DOT + GROUPING_ROW)) {
                 row.find(".k-icon,.k-svg-icon").first().click();
 
                 return true;
@@ -8001,7 +8407,7 @@ var __meta__ = {
             }
 
             var lockedColumnsCount = lockedColumns(this.columns).length;
-            if (lockedColumnsCount && !table.closest("div").hasClass("k-grid-content-locked")[0]) {
+            if (lockedColumnsCount && !table.closest(DIV).hasClass("k-grid-content-locked")[0]) {
                 return index - lockedColumnsCount;
             }
 
@@ -8265,7 +8671,7 @@ var __meta__ = {
                 width = that.options.width,
                 wrapper = that.element;
 
-            if (!wrapper.is("div")) {
+            if (!wrapper.is(DIV)) {
                wrapper = wrapper.wrap("<div/>").parent();
             }
 
@@ -8273,11 +8679,11 @@ var __meta__ = {
 
             if (height) {
                 that.wrapper.css(HEIGHT, height);
-                table.css(HEIGHT, "auto");
+                table.css(HEIGHT, AUTO);
             }
 
             if (width) {
-                that.wrapper.css("width", width);
+                that.wrapper.css(WIDTH, width);
             }
 
             that._initMobile();
@@ -8474,6 +8880,10 @@ var __meta__ = {
                               that.refresh();
                               that._restoreEditableState();
                               that._virtualColScroll = false;
+                        }
+
+                        if (that.rowResizer) {
+                            that.rowResizer.css("left", e.currentTarget.scrollLeft + "px");
                         }
                     });
 
@@ -8719,6 +9129,21 @@ var __meta__ = {
             that.virtualScrollable = null;
         },
 
+        _destroyRowResizing: function() {
+            if (this.rowResizing) {
+                this.rowResizing.destroy();
+
+                this.rowResizing = null;
+            }
+
+            if (this.rowResizer) {
+                this._detachRowResizerEvents();
+                this.rowResizer.off(DUBLECLICK + NS);
+                this.rowResizer = null;
+                this._clearCachedRowsHeight();
+            }
+        },
+
         _renderNoRecordsContent: function() {
             var that = this;
 
@@ -8811,7 +9236,7 @@ var __meta__ = {
                     .add(this.lockedContent)
                     .width(width);
 
-                headerWrap[0].style.width = headerWrap.parent().width() - width - 2 + "px";
+                headerWrap[0].style.width = headerWrap.parent().width() - width - 2 + PX;
 
                 headerTable.add(this.table).width(nonLockedColsWidth);
 
@@ -8820,12 +9245,12 @@ var __meta__ = {
                     contentWidth -= scrollbar;
                 }
 
-                this.content[0].style.width = contentWidth - width - 1 + "px";
+                this.content[0].style.width = contentWidth - width - 1 + PX;
 
                 if (this.lockedFooter && this.lockedFooter.length) {
                     this.lockedFooter.width(width);
                     footerWrap = this.footer.find(".k-grid-footer-wrap");
-                    footerWrap[0].style.width = headerWrap[0].clientWidth + "px";
+                    footerWrap[0].style.width = headerWrap[0].clientWidth + PX;
                     footerWrap.children().first().width(nonLockedColsWidth);
                 }
             }
@@ -8873,7 +9298,7 @@ var __meta__ = {
                         initialHeight = el.height();
                     }
 
-                    el.height("auto");
+                    el.height(AUTO);
                     newHeight = el.height();
 
                     if (initialHeight != newHeight) {
@@ -9045,7 +9470,7 @@ var __meta__ = {
                 });
 
                 selectable = that.options.selectable;
-                if ((selectable || that._checkBoxSelection) && row.hasClass("k-selected")) {
+                if ((selectable || that._checkBoxSelection) && row.hasClass(SELECTED)) {
                    that.select(tmp);
                 }
 
@@ -9056,8 +9481,8 @@ var __meta__ = {
                     column = that.columns[idx];
 
                     cell = childCells.eq(idx);
-                    if (selectable && originalCells.eq(idx).hasClass("k-selected")) {
-                        cell.addClass("k-selected");
+                    if (selectable && originalCells.eq(idx).hasClass(SELECTED)) {
+                        cell.addClass(SELECTED);
                     }
                 }
 
@@ -9610,7 +10035,7 @@ var __meta__ = {
                     menu: menu !== "false",
                     columnMenu: columnMenu !== "false",
                     template: th.attr(kendo.attr("template")),
-                    width: cols.eq(idx).css("width")
+                    width: cols.eq(idx).css(WIDTH)
                 };
             });
 
@@ -9734,7 +10159,7 @@ var __meta__ = {
 
         _checkboxClick: function(e) {
             var that = this,
-                row = $(e.target).closest("tr"),
+                row = $(e.target).closest(TR),
                 isSelecting = !row.hasClass(SELECTED);
 
             if (!that._belongsToGrid(row)) {
@@ -9783,7 +10208,7 @@ var __meta__ = {
                     }
 
                     if (hasDetails) {
-                        rowTemplateResult += '<td class="k-hierarchy-cell k-table-td" aria-expanded="false">' + kendo.ui.icon($(`<a href="#" ${ARIA_LABEL}="${EXPAND}" tabindex="-1"></a>`), { icon: "caret-alt-right" }) + '</td>';
+                        rowTemplateResult += '<td class="k-hierarchy-cell k-table-td" aria-expanded="false">' + kendo.ui.icon($(`<a href="#" ${ARIA_LABEL}="${EXPAND}" tabindex="-1"></a>`), { icon: `caret-alt-${isRtl ? "left" : "right"}` }) + '</td>';
                     }
 
                     for (idx = 0; idx < length; idx++) {
@@ -10395,7 +10820,7 @@ var __meta__ = {
             ariaExpandText = expanding ? true : false;
 
             if (!expanding) {
-                kendo.ui.icon(button, { icon: "caret-alt-right" });
+                kendo.ui.icon(button, { icon: `caret-alt-${isRtl ? 'left' : 'right'}` });
             } else {
                 kendo.ui.icon(button, { icon: "caret-alt-down" });
             }
@@ -10661,7 +11086,7 @@ var __meta__ = {
                 lockedCols = lockedCols.add(cols.eq(idx + groups));
             }
 
-            lockedCells.appendTo(html.find("tr"));
+            lockedCells.appendTo(html.find(TR));
             lockedCols.appendTo(html.find("colgroup"));
             that.lockedFooter = html.prependTo(footer);
         },
@@ -10689,7 +11114,7 @@ var __meta__ = {
                 cells = $();
 
             colgroup = that.thead.prev().find(COLGROUP);
-            header = that.thead.find("tr").first().find(".k-header:not(.k-group-cell,.k-hierarchy-cell)");
+            header = that.thead.find(TR).first().find(".k-header:not(.k-group-cell,.k-hierarchy-cell)");
             filtercellCells = that.thead.find(".k-filter-row").find("td:not(.k-group-cell,.k-hierarchy-cell)");
 
             var colOffset = 0;
@@ -10744,7 +11169,7 @@ var __meta__ = {
                 tr = table.find("thead tr:not(.k-filter-row)");
                 for (idx = 0, length = rows.length; idx < length; idx++) {
                     cells = toJQuery(rows[idx]);
-                    tr.eq(idx).append(that.thead.find("tr").eq(idx).find(".k-group-cell").add(cells));
+                    tr.eq(idx).append(that.thead.find(TR).eq(idx).find(".k-group-cell").add(cells));
                 }
 
                 var count = removeEmptyRows(this.thead);
@@ -11144,23 +11569,44 @@ var __meta__ = {
             }
         },
 
+        _setRowCachedHeight: function(row, uid) {
+            var cachedHeights = this._cachedRowsHeight,
+                cachedHeight = cachedHeights[uid],
+                $row;
+
+            if (cachedHeight) {
+                $row = $(row);
+                $row[0].style.height = cachedHeight + "px";
+                row = $row.prop("outerHTML");
+            }
+
+            return row;
+        },
+
         _rowsHtml: function(data, templates) {
             var that = this,
                 html = "",
                 idx,
                 rowTemplate = templates.rowTemplate,
                 altRowTemplate = templates.altRowTemplate,
-                length;
+                cachedHeights = that._cachedRowsHeight,
+                length, row;
 
             for (idx = 0, length = data.length; idx < length; idx++) {
                 if (that._skipRerenderItemsCount > 0) {
                     that._skipRerenderItemsCount--;
                 } else {
                     if (idx % 2) {
-                        html += altRowTemplate(data[idx]);
+                        row = altRowTemplate(data[idx]);
                     } else {
-                        html += rowTemplate(data[idx]);
+                        row = rowTemplate(data[idx]);
                     }
+
+                    if (cachedHeights) {
+                        row = that._setRowCachedHeight(row, data[idx].uid);
+                    }
+
+                    html += row;
                 }
                 that._data.push(data[idx]);
             }
@@ -11313,22 +11759,22 @@ var __meta__ = {
             }
 
             if (this._isLocked()) {
-                if (!group.closest("div").hasClass("k-grid-content-locked")) {
-                    relatedGroup = group.nextAll("tr");
+                if (!group.closest(DIV).hasClass("k-grid-content-locked")) {
+                    relatedGroup = group.nextAll(TR);
                     group = this.lockedTable.find(">tbody>tr").eq(group.index());
                 } else {
-                    relatedGroup = this.tbody.children("tr").eq(group.index()).nextAll("tr");
+                    relatedGroup = this.tbody.children(TR).eq(group.index()).nextAll(TR);
                 }
             }
 
             if (group.find(CARET_ALT_DOWN).length) {
-                kendo.ui.icon(group.find(CARET_ALT_DOWN), { icon: "caret-alt-right" });
+                kendo.ui.icon(group.find(CARET_ALT_DOWN), { icon: `caret-alt-${isRtl ? 'left' : 'right'}` });
             }
 
             group.find("td[aria-expanded='true']").first().attr(ARIA_EXPANDED, false)
                 .find("a").attr(ARIA_LABEL, EXPAND);
 
-            group = group.nextAll("tr");
+            group = group.nextAll(TR);
 
             var toHide = [];
 
@@ -11336,7 +11782,7 @@ var __meta__ = {
                 tr = group.eq(idx);
                 offset = tr.find(".k-group-cell").length;
 
-                if (tr.hasClass("k-grouping-row")) {
+                if (tr.hasClass(GROUPING_ROW)) {
                     footerCount++;
                 } else if (tr.hasClass("k-group-footer")) {
                     footerCount--;
@@ -11399,11 +11845,11 @@ var __meta__ = {
             }
 
             if (this._isLocked()) {
-                if (!group.closest("div").hasClass("k-grid-content-locked")) {
-                    relatedGroup = group.nextAll("tr");
+                if (!group.closest(DIV).hasClass("k-grid-content-locked")) {
+                    relatedGroup = group.nextAll(TR);
                     group = this.lockedTable.find(">tbody>tr").eq(group.index());
                 } else {
-                    relatedGroup = this.tbody.children("tr").eq(group.index()).nextAll("tr");
+                    relatedGroup = this.tbody.children(TR).eq(group.index()).nextAll(TR);
                 }
             }
 
@@ -11413,7 +11859,7 @@ var __meta__ = {
 
             group.find("td[aria-expanded='false']").first().attr(ARIA_EXPANDED, true)
                 .find("a").attr(ARIA_LABEL, COLLAPSE);
-            group = group.nextAll("tr");
+            group = group.nextAll(TR);
 
             for (idx = 0, length = group.length; idx < length; idx ++ ) {
                 tr = group.eq(idx);
@@ -11426,7 +11872,7 @@ var __meta__ = {
                     tr.show();
                     relatedGroup.eq(idx).show();
 
-                    if (tr.hasClass("k-grouping-row") && tr.find(".k-icon,.k-svg-icon").is(CARET_ALT_DOWN)) {
+                    if (tr.hasClass(GROUPING_ROW) && tr.find(".k-icon,.k-svg-icon").is(CARET_ALT_DOWN)) {
                         that.expandGroup(tr);
                     }
 
@@ -11436,7 +11882,7 @@ var __meta__ = {
                     }
                 }
 
-                if (tr.hasClass("k-grouping-row")) {
+                if (tr.hasClass(GROUPING_ROW)) {
                     if (showFooter) {
                         footersVisibility.push(tr.is(":visible"));
                     }
@@ -11468,7 +11914,7 @@ var __meta__ = {
             var that = this,
                 container = that._isLocked() ? that.lockedHeader.find("thead") : that.thead,
                 filterCells = container.find("tr.k-filter-row").find("td.k-group-cell").length,
-                length = container.find("tr").first().find("th.k-group-cell").length,
+                length = container.find(TR).first().find("th.k-group-cell").length,
                 rows = container.children("tr:not(:first)").filter(function() {
                     return !$(this).children(":visible").length;
                 });
@@ -11479,7 +11925,7 @@ var __meta__ = {
                     rows.find("th.k-group-cell").hide();
                 }
             } else if (groups < length) {
-                container.find("tr").each(function() {
+                container.find(TR).each(function() {
                     $(this).find(".k-group-cell").eq(groups).remove();
                     $(this).find(".k-group-cell").slice(groups).remove();
                 });
@@ -11653,7 +12099,7 @@ var __meta__ = {
 
                 if (width) {
                     tables.each(function() {
-                        this.style.width = width + "px";
+                        this.style.width = width + PX;
                     });
 
                     that._footerWidth = width;
@@ -11858,7 +12304,7 @@ var __meta__ = {
                     that._footerWidth = null;
                     if (width) {
                         tables.each(function() {
-                            this.style.width = width + "px";
+                            this.style.width = width + PX;
                         });
                         that._footerWidth = width;
                         that._setContentWidth();
@@ -11899,7 +12345,7 @@ var __meta__ = {
             }
 
             if (this._hasVirtualColumns()) {
-                colspan = parseInt(this.content.find("tr").first().find("td").first().attr("colspan"), 10);
+                colspan = parseInt(this.content.find(TR).first().find("td").first().attr("colspan"), 10);
             }
 
             for (var i = 0; i < pageSize; i++) {
@@ -12014,6 +12460,10 @@ var __meta__ = {
                 }
             }
 
+            if (that._shouldMapHights) {
+                that._mapCachedRowsHeight("get", "uid");
+                that._shouldMapHights = false;
+            }
 
             if (virtualScroll.columns) {
                 that._templates();
@@ -12263,7 +12713,7 @@ var __meta__ = {
            if (that._group) {
               that.angular(cmd, function() {
                    return {
-                       elements: container.children(".k-grouping-row"),
+                       elements: container.children(DOT + GROUPING_ROW),
                        data: $.map(groupRows(that.dataSource.view()), function(dataItem) {
                            return { dataItem: dataItem };
                        })
@@ -12360,7 +12810,7 @@ var __meta__ = {
        _renderGroupRows: function() {
         var that = this,
         data = that._groupRows,
-        groupRows = that.wrapper.find(".k-grouping-row"),
+        groupRows = that.wrapper.find(DOT + GROUPING_ROW),
         groups = that._groups(),
         groupRowBuilderFunc,
         isLocked = that.lockedContent != null,
@@ -12414,7 +12864,7 @@ var __meta__ = {
 
             newGroupRowElement = $(groupHeaderColumnTemplate ?
                 groupHeaderColumnTemplate(extend({}, groupHeaderData, { groupCells: level, colspan: groups - level, text: text })) :
-                groupRowBuilderFunc(colspan, level, text)
+                groupRowBuilderFunc(colspan, level, text, null, null, null, isRtl)
             );
 
             if (prevElement.is("tbody")) {
@@ -12519,7 +12969,7 @@ var __meta__ = {
            for (idx = 0; idx < length; idx++) {
                if (heights[idx]) {
                    //add one to resolve row misalignment in IE
-                   rows[idx].style.height = rows2[idx].style.height = (heights[idx] + 1) + "px";
+                   rows[idx].style.height = rows2[idx].style.height = (heights[idx] + 1) + PX;
                }
            }
 
@@ -12548,10 +12998,10 @@ var __meta__ = {
 
            grid.toggleUnexportableColumns(grid.columns);
            clone = grid.wrapper.clone().css({
-               height: "auto", width: "auto"
+               height: AUTO, width: AUTO
            }).appendTo(cont);
-           clone.find(".k-grid-content").css({ height: "auto", width: "auto", overflow: "visible" });
-           clone.find('> table, .k-grid-content > table, .k-grid-footer table').css({ height: "auto", width: "100%", overflow: "visible" });
+           clone.find(".k-grid-content").css({ height: AUTO, width: AUTO, overflow: "visible" });
+           clone.find('> table, .k-grid-content > table, .k-grid-footer table').css({ height: AUTO, width: "100%", overflow: "visible" });
            clone.find(".k-grid-pager, .k-grid-toolbar, .k-grouping-header").remove();
            clone.find(".k-grid-header, .k-grid-footer, .k-auto-scrollable").css({ paddingRight: 0 });
 
@@ -12665,7 +13115,7 @@ var __meta__ = {
        Grid.prototype._drawPDF = function(progress) {
            var grid = this;
 
-           if (grid.options.pdf.paperSize && grid.options.pdf.paperSize != "auto") {
+           if (grid.options.pdf.paperSize && grid.options.pdf.paperSize != AUTO) {
                return grid._drawPDF_autoPageBreak(progress);
            }
 
@@ -12791,7 +13241,7 @@ var __meta__ = {
 
                diff = tableHeigth - lockedHeigth;
            }
-           row.style.height = row.offsetHeight + diff + "px";
+           row.style.height = row.offsetHeight + diff + PX;
        }
    }
 
@@ -12801,9 +13251,9 @@ var __meta__ = {
        var offsetHeight2 = row2.offsetHeight;
 
        if (offsetHeight1 > offsetHeight2) {
-           height = offsetHeight1 + "px";
+           height = offsetHeight1 + PX;
        } else if (offsetHeight1 < offsetHeight2) {
-           height = offsetHeight2 + "px";
+           height = offsetHeight2 + PX;
        }
 
        if (height) {
@@ -13032,11 +13482,11 @@ var __meta__ = {
     '<p class="k-reset">&nbsp;</p></td>';
    }
 
-   function groupRowBuilder(colspan, level, text, expanded, uid, includeAdditionalData) {
+   function groupRowBuilder(colspan, level, text, expanded, uid, includeAdditionalData, isRtl) {
     return '<tr ' + (includeAdditionalData ? 'data-group-uid="' + uid + '"' : '') + 'class="k-table-group-row k-grouping-row k-table-row">' + groupCells(level) +
         '<td class="k-table-td" colspan="' + colspan + '" aria-expanded="' + !!expanded + '">' +
         '<p class="k-reset">' +
-        kendo.ui.icon($('<a href="#" tabindex="-1" ' + ARIA_LABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>'), { icon: (expanded ? 'caret-alt-down' : 'caret-alt-right') }) + text +
+        kendo.ui.icon($('<a href="#" tabindex="-1" ' + ARIA_LABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>'), { icon: (expanded ? 'caret-alt-down' : `caret-alt-${isRtl ? 'left' : 'right'}`) }) + text +
     '</p></td></tr>';
    }
 

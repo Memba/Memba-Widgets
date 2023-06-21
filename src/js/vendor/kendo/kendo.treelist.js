@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -183,6 +183,8 @@ var __meta__ = {
     var ICON_DROP_MIDDLE_SELECTOR = "[class*='-i-insert-middle']";
     var ICON_DROP_ADD_SELECTOR = "[class*='-i-insert-plus']";
     var ICON_DROP_DENIED_SELECTOR = "[class*='-i-insert-cancel']";
+    var CARET_ALT_RIGHT = "caret-alt-right";
+    var CARET_ALT_LEFT = "caret-alt-left";
 
     var classNames = {
         wrapper: "k-treelist k-grid k-grid-md k-grid-display-block",
@@ -2219,6 +2221,10 @@ var __meta__ = {
             }
 
             isRtl = kendo.support.isRtl(element);
+
+            ICON_EXPAND_SELECTOR = `[class*='-i-${isRtl ? CARET_ALT_LEFT : CARET_ALT_RIGHT}']`;
+            classNames.iconExpand = isRtl ? CARET_ALT_LEFT : CARET_ALT_RIGHT;
+
             this._dataSource(this.options.dataSource);
             this._aria();
             this._columns();
@@ -3451,7 +3457,7 @@ var __meta__ = {
             var cellSelector = DATA_CELL + "," + FILTER_CELL;
 
             //current is in the header, but not at the last level of multi-level columns
-            if (index || current.hasClass("k-header")) {
+            if ((index || current.hasClass("k-header")) && !row.hasClass("k-filter-row")) {
                 cells = parentColumnsCells(current);
                 return cells.eq(cells.length - 2);
             }
@@ -5325,7 +5331,8 @@ var __meta__ = {
                 }
 
                 attr = {
-                    "style": column.hidden === true ? { "display": "none" } : {}
+                    "style": column.hidden === true ? { "display": "none" } : {},
+                    "className": "k-table-th k-header",
                 };
                 attr[uidAttr] = column.headerAttributes.id;
                 ths.push(kendoDomElement("th", attr));

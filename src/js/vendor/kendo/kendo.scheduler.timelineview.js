@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -36,6 +36,7 @@ var __meta__ = {
         SCHEDULER_HEADER_WRAP_CLASS = "k-scheduler-header-wrap",
         INVERSE_COLOR_CLASS = "k-event-inverse",
         BORDER_SIZE_COEFF = 0.8666,
+        DOT = ".",
         NS = ".kendoTimelineView";
 
     var EVENT_TEMPLATE = kendo.template(({ title, start, end }) =>'<div>' +
@@ -63,6 +64,10 @@ var __meta__ = {
         var staticDate = new Date(1980, 1, 1, 0, 0, 0);
         setTime(staticDate, getMilliseconds(date));
         return staticDate;
+    }
+
+    function createZeroWidthEvent() {
+        return $("<div class='k-event'></div>").appendTo(document.body);
     }
 
     function getWorkDays(options) {
@@ -99,49 +104,6 @@ var __meta__ = {
             columnLevel.colspan = 1;
             return 1;
         }
-    }
-
-    function collidingEvents(elements, left, right) {
-        var idx,
-            startPosition,
-            overlaps,
-            endPosition;
-
-        for (idx = elements.length - 1; idx >= 0; idx--) {
-            startPosition = elements[idx].rectLeft;
-            endPosition = elements[idx].rectRight;
-
-            overlaps = startPosition <= left && endPosition >= left;
-
-            if (overlaps || (startPosition >= left && endPosition <= right) || (left <= startPosition && right >= startPosition)) {
-                if (startPosition < left) {
-                    left = startPosition;
-                }
-
-                if (endPosition > right) {
-                    right = endPosition;
-                }
-            }
-        }
-
-        return eventsForSlot(elements, left, right);
-    }
-
-    function eventsForSlot(elements, left, right) {
-        var events = [];
-
-        for (var idx = 0; idx < elements.length; idx++) {
-            var event = {
-                rectLeft: elements[idx].rectLeft,
-                rectRight: elements[idx].rectRight
-            };
-
-            if ((event.rectLeft < left && event.rectRight > left) || (event.rectLeft >= left && event.rectRight <= right)) {
-                events.push(elements[idx]);
-            }
-        }
-
-        return events;
     }
 
     var TimelineGroupedView = kendo.Class.extend({
@@ -332,7 +294,7 @@ var __meta__ = {
         _updateCurrentVerticalTimeMarker: function(ranges, currentTime) {
             var view = this._view;
             var elementHtml = "<div class='" + CURRENT_TIME_MARKER_CLASS + "'></div>";
-            var headerWrap = view.datesHeader.find("." + SCHEDULER_HEADER_WRAP_CLASS);
+            var headerWrap = view.datesHeader.find(DOT + SCHEDULER_HEADER_WRAP_CLASS);
             var left = Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).left);
             var timesTableMarker = $(elementHtml)
                     .prependTo(headerWrap)
@@ -867,9 +829,13 @@ var __meta__ = {
 
     var TimelineView = SchedulerView.extend({
         init: function(element, options) {
-            var that = this;
+            var that = this,
+            zeroWidthEvent = createZeroWidthEvent();
 
             SchedulerView.fn.init.call(that, element, options);
+
+            that._zeroWidthEventOffset = zeroWidthEvent.outerWidth();
+            zeroWidthEvent.remove();
 
             that._groupedView = that._getGroupedView();
 
@@ -996,9 +962,9 @@ var __meta__ = {
         _updateCurrentTimeMarker: function(currentTime) {
             var options = this.options;
 
-            this.datesHeader.find("." + CURRENT_TIME_MARKER_CLASS).remove();
-            this.times.find("." + CURRENT_TIME_MARKER_CLASS).remove();
-            this.content.find("." + CURRENT_TIME_MARKER_CLASS).remove();
+            this.datesHeader.find(DOT + CURRENT_TIME_MARKER_CLASS).remove();
+            this.times.find(DOT + CURRENT_TIME_MARKER_CLASS).remove();
+            this.content.find(DOT + CURRENT_TIME_MARKER_CLASS).remove();
 
             if (!this._isInDateSlot({ start: currentTime, end: currentTime })) {
                 return;
@@ -1038,7 +1004,7 @@ var __meta__ = {
                         this._groupedView._updateCurrentVerticalTimeMarker(ranges,currentTime);
                     } else {
                         var elementHtml = "<div class='" + CURRENT_TIME_MARKER_CLASS + "'></div>";
-                        var headerWrap = this.datesHeader.find("." + SCHEDULER_HEADER_WRAP_CLASS);
+                        var headerWrap = this.datesHeader.find(DOT + SCHEDULER_HEADER_WRAP_CLASS);
                         var left = Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).left);
                         var timesTableMarker = $(elementHtml)
                                 .prependTo(headerWrap)
@@ -1243,6 +1209,11 @@ var __meta__ = {
             currentTimeMarker: {
                 updateInterval: 10000,
                 useLocalTimezone: true
+            },
+            ongoingEvents: {
+                cssClass: null,
+                enabled: true,
+                updateInterval: 60000
             },
             messages: {
                 defaultRowText: "All events",
@@ -1682,6 +1653,7 @@ var __meta__ = {
             this._positionEvents(eventGroups, eventsByResource.length);
 
             this._currentTime(false);
+            this._ongoingEvents(events);
 
             this.trigger("activate");
         },
@@ -2020,18 +1992,21 @@ var __meta__ = {
         },
 
         _arrangeRows: function(eventObject, slotRange, eventGroup) {
+            var that = this;
             var startIndex = slotRange.start.index;
             var endIndex = slotRange.end.index;
 
             var rect = eventObject.slotRange.innerRect(eventObject.start, eventObject.end, false);
             var rectRight = rect.right + this.options.eventMinWidth;
 
-            var events = collidingEvents(slotRange.events(), rect.left, rectRight);
+            var events = SchedulerView.collidingEvents(slotRange.events(), rect.left, rectRight);
 
             slotRange.addEvent({
                 slotIndex: startIndex,
-                start: startIndex,
-                end: endIndex,
+                slotIndexEnd: endIndex,
+                start: rect.left,
+                end: rectRight,
+                zeroWidthEventOffset: that._zeroWidthEventOffset,
                 rectLeft: rect.left,
                 rectRight: rectRight,
                 element: eventObject.element,
@@ -2039,8 +2014,11 @@ var __meta__ = {
             });
 
             events.push({
-                start: startIndex,
-                end: endIndex,
+                slotIndex: startIndex,
+                slotIndexEnd: endIndex,
+                start: rect.left,
+                end: rectRight,
+                zeroWidthEventOffset: that._zeroWidthEventOffset,
                 uid: eventObject.uid
             });
 

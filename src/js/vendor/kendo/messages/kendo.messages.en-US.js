@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -90,6 +90,7 @@ $.extend(true, kendo.ui.DateRangePicker.prototype.options.messages,{
 if (kendo.ui.Editor) {
 kendo.ui.Editor.prototype.options.messages =
 $.extend(true, kendo.ui.Editor.prototype.options.messages,{
+  "auto": "Auto",
   "bold": "Bold",
   "italic": "Italic",
   "search": "Search",
@@ -153,12 +154,16 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "addRowBelow": "Add row below",
   "deleteRow": "Delete row",
   "deleteColumn": "Delete column",
-  "dialogOk": "Ok",
+  "dialogOk": "Confirm",
+  "tableBackground": "Table background",
+  "tableCellProperties": "Cell properties",
+  "tableProperties": "Table properties",
   "tableWizard": "Table Wizard",
-  "tableTab": "Table",
+  "tableTab": "General",
   "cellTab": "Cell",
-  "accessibilityTab": "Accessibility",
+  "accessibilityTab": "Advanced",
   "caption": "Caption",
+  "captionAlignment": "Caption alignment",
   "summary": "Summary",
   "width": "Width",
   "height": "Height",
@@ -171,9 +176,12 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "cssClass": "CSS Class",
   "id": "ID",
   "border": "Border",
+  "borderColor": "Border color",
+  "borderWidth": "Border width",
   "borderStyle": "Border Style",
   "collapseBorders": "Collapse borders",
   "wrapText": "Wrap text",
+  "fitToCell": "Fit to cell",
   "associateCellsWithHeaders": "Associate headers",
   "alignLeft": "Align Left",
   "alignCenter": "Align Center",
@@ -190,7 +198,9 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "alignRemove": "Remove Alignment",
   "columns": "Columns",
   "rows": "Rows",
-  "selectAllCells": "Select All Cells",
+  "selectAllCells": "Apply to all cells",
+  "applyToColumn": "apply to column",
+  "applyToRow": "apply to row",
   "print": "Print",
   "headerRows": "Header Rows",
   "headerColumns": "Header Columns",

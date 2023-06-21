@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -101,8 +101,6 @@ var __meta__ = {
 
             that._ignoreCase();
 
-            that._filterHeader();
-
             if (options.label) {
                 this._label();
             }
@@ -110,8 +108,6 @@ var __meta__ = {
             that._aria();
 
             that._enable();
-
-            that._attachFocusHandlers();
 
             that._oldIndex = that.selectedIndex = -1;
 
@@ -194,7 +190,8 @@ var __meta__ = {
             size: "medium",
             fillMode: "solid",
             rounded: "medium",
-            label: null
+            label: null,
+            popupFilter: true
         },
 
         events: [
@@ -218,7 +215,8 @@ var __meta__ = {
             this._optionLabel();
             this._inputTemplate();
             this._accessors();
-            this._filterHeader();
+            this._removeFilterHeader();
+            this._addFilterHeader();
             this._enable();
             this._aria();
 
@@ -300,14 +298,16 @@ var __meta__ = {
         },
 
         _focusInput: function() {
-            this._focusElement(this.filterInput);
+            if (!this._hasActionSheet()) {
+                this._focusElement(this.filterInput);
+            }
         },
 
         _resizeFilterInput: function() {
             var filterInput = this.filterInput;
             var originalPrevent = this._prevent;
 
-            if (!filterInput) {
+            if (!filterInput || this._hasActionSheet()) {
                 return;
             }
 
@@ -902,7 +902,7 @@ var __meta__ = {
         _popupOpen: function(e) {
             var popup = this.popup;
 
-            if (e.isDefaultPrevented()) {
+            if (e.isDefaultPrevented() || this._hasActionSheet()) {
                 return;
             }
 
@@ -917,6 +917,11 @@ var __meta__ = {
         _popup: function() {
             Select.fn._popup.call(this);
             this.popup.one("open", this._popupOpen.bind(this));
+        },
+
+        _postCreatePopup: function() {
+            Select.fn._postCreatePopup.call(this);
+            this._attachFocusHandlers();
         },
 
         _getElementDataItem: function(element) {
@@ -1232,41 +1237,6 @@ var __meta__ = {
 
             if (root.length && mobileOS) {
                 popup.options.animation.open.effects = (mobileOS.android || mobileOS.meego) ? "fadeIn" : (mobileOS.ios || mobileOS.wp) ? "slideIn:up" : popup.options.animation.open.effects;
-            }
-        },
-
-        _filterHeader: function() {
-            var filterTemplate = '<div class="k-list-filter">' +
-                '<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid" type="text" autocomplete="off">' +
-                    kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
-                '</span>' +
-            '</div>';
-
-            if (this.filterInput) {
-                this.filterInput
-                    .off(ns)
-                    .closest(".k-list-filter")
-                    .remove();
-
-                this.filterInput = null;
-            }
-
-            if (this._isFilterEnabled()) {
-                this.filterInput = $('<input class="k-input-inner" type="text" />')
-                    .attr({
-                        placeholder: this.element.attr("placeholder"),
-                        title: this.options.filterTitle || this.element.attr("title"),
-                        role: "searchbox",
-                        "aria-label": this.options.filterTitle,
-                        "aria-haspopup": "listbox",
-                        "aria-autocomplete": "list"
-                    });
-
-                this.list
-                    .parent()
-                    .prepend($(filterTemplate))
-                    .find(".k-searchbox")
-                    .append(this.filterInput);
             }
         },
 

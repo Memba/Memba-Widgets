@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11,19 +11,21 @@ import "./kendo.popup.js";
 import "./kendo.dateinput.js";
 import "./kendo.html.button.js";
 import "./kendo.label.js";
+import "./kendo.actionsheet.js";
 
 var __meta__ = {
     id: "datepicker",
     name: "DatePicker",
     category: "web",
     description: "The DatePicker widget allows the user to select a date from a calendar or by direct input.",
-    depends: [ "calendar", "popup", "html.button", "label" ]
+    depends: [ "calendar", "popup", "html.button", "label", "actionsheet" ]
 };
 
 (function($, undefined) {
     var kendo = window.kendo,
     ui = kendo.ui,
     html = kendo.html,
+    mediaQuery = kendo.mediaQuery,
     Widget = ui.Widget,
     parse = kendo.parseDate,
     keys = kendo.keys,
@@ -95,9 +97,31 @@ var __meta__ = {
         that.options = options = options || {};
         id = options.id;
 
+        that.bigScreenMQL = mediaQuery("large");
+        that.smallScreenMQL = mediaQuery("small");
+        if (options.adaptiveMode == "auto" ) {
+            that.smallScreenMQL.onChange(function() {
+                if (that.popup && kendo.isFunction(that.popup.fullscreen)) {
+                    that.popup.fullscreen(that.smallScreenMQL.mediaQueryList.matches);
+                }
+            });
+        }
+
         if (!options.omitPopup) {
             div.appendTo(body);
-            that.popup = new ui.Popup(div, extend(options.popup, options, { name: "Popup", isRtl: kendo.support.isRtl(options.anchor) }));
+            if (options.adaptiveMode == "auto" && !that.bigScreenMQL.mediaQueryList.matches) {
+                that.popup = new ui.ActionSheet(div, {
+                    adaptive: true,
+                    title: "Set dates",
+                    subtitle: "DD / MM / YY",
+                    closeButton: true,
+                    focusOnActivate: false,
+                    fullscreen: that.smallScreenMQL.mediaQueryList.matches,
+                    popup: extend(options.popup, options, { name: "Popup", isRtl: kendo.support.isRtl(options.anchor) })
+                });
+            } else {
+                that.popup = new ui.Popup(div, extend(options.popup, options, { name: "Popup", isRtl: kendo.support.isRtl(options.anchor) }));
+            }
         } else {
             div = options.dateDiv;
         }
@@ -120,19 +144,21 @@ var __meta__ = {
             var div;
 
             if (!calendar) {
+                var size = options.adaptiveMode != "auto" || this.bigScreenMQL.mediaQueryList.matches ? this.options.size : "large";
                 div = $(DIV).attr(ID, kendo.guid())
-                            .appendTo(options.omitPopup ? options.dateDiv : that.popup.element)
+                            .appendTo(options.omitPopup ? options.dateDiv : (that.popup._content || that.popup.element))
                             .on(MOUSEDOWN, preventDefault)
                             .on(CLICK, "td:has(.k-link)", that._click.bind(that));
 
+
                 that.calendar = calendar = new ui.Calendar(div, {
                     componentType: options.componentType,
-                    size: options.size,
+                    size: size,
                     messages: options.messages
                 });
                 that._setOptions(options);
 
-                div.addClass(kendo.getValidCssClass("k-calendar-", "size", options.size));
+                div.addClass(kendo.getValidCssClass("k-calendar-", "size", size));
 
                 calendar.navigate(that._value || that._current, options.start);
 
@@ -180,8 +206,19 @@ var __meta__ = {
         },
 
         destroy: function() {
+            var that = this;
             if (this.popup) {
                 this.popup.destroy();
+            }
+
+            if (that.bigScreenMQL) {
+                that.bigScreenMQL.destroy();
+                that.bigScreenMQL = null;
+            }
+
+            if (that.smallScreenMQL) {
+                that.smallScreenMQL.destroy();
+                that.smallScreenMQL = null;
             }
         },
 
@@ -313,8 +350,7 @@ var __meta__ = {
         init: function(element, options) {
             var that = this,
                 initialValue,
-                disabled,
-                div;
+                disabled;
 
             Widget.fn.init.call(that, element, options);
             element = that.element;
@@ -334,49 +370,16 @@ var __meta__ = {
 
             that._wrapper();
 
-            that.dateView = new DateView(extend({}, options, {
-                id: element.attr(ID),
-                anchor: that.wrapper,
-                change: function() {
-                    // calendar is the current scope
-                    that._change(this.value());
-                    that.close();
-                },
-                close: function(e) {
-                    if (that.trigger(CLOSE)) {
-                        e.preventDefault();
-                    } else {
-                        element.attr(ARIA_EXPANDED, false);
-                        div.attr(ARIA_HIDDEN, true);
+            that._createDateView();
+            that._createDateViewProxy = that._createDateView.bind(that);
 
-                        setTimeout(function() {
-                            element.removeAttr("aria-activedescendant");
-                        });
-                    }
-                },
-                open: function(e) {
-                    var options = that.options,
-                        date;
-
-                    if (that.trigger(OPEN)) {
-                        e.preventDefault();
-                    } else {
-                        if (that.element.val() !== that._oldText) {
-                            date = parse(element.val(), options.parseFormats, options.culture);
-
-                            that.dateView[date ? "current" : "value"](date);
-                        }
-
-                        element.attr(ARIA_EXPANDED, true);
-                        div.attr(ARIA_HIDDEN, false);
-
-                        that._updateARIA(date);
-
-                    }
-                }
-            }));
-
-            div = that.dateView.div;
+            that.bigScreenMQL = mediaQuery("large");
+            if (that.options.adaptiveMode == "auto") {
+                that.bigScreenMQL.onChange(()=> {
+                    that._createDateViewProxy();
+                    that.dateView.value(that._value);
+                });
+            }
 
             that._icon();
 
@@ -445,10 +448,67 @@ var __meta__ = {
                 weekColumnHeader: ""
             },
             componentType: "classic",
+            adaptiveMode: "none",
             size: "medium",
             fillMode: "solid",
             rounded: "medium",
             label: null
+        },
+
+        _createDateView: function() {
+            var that = this,
+            options = that.options,
+            element = that.element,
+            div;
+
+            if (that.dateView) {
+                that.dateView.destroy();
+                that.dateView = null;
+            }
+
+            that.dateView = new DateView(extend({}, options, {
+                id: element.attr(ID),
+                anchor: that.wrapper,
+                change: function() {
+                    // calendar is the current scope
+                    that._change(this.value());
+                    that.close();
+                },
+                close: function(e) {
+                    if (that.trigger(CLOSE)) {
+                        e.preventDefault();
+                    } else {
+                        element.attr(ARIA_EXPANDED, false);
+                        div.attr(ARIA_HIDDEN, true);
+
+                        setTimeout(function() {
+                            element.removeAttr("aria-activedescendant");
+                        });
+                    }
+                },
+                open: function(e) {
+                    var options = that.options,
+                        date;
+
+                    if (that.trigger(OPEN)) {
+                        e.preventDefault();
+                    } else {
+                        if (that.element.val() !== that._oldText) {
+                            date = parse(element.val(), options.parseFormats, options.culture);
+
+                            that.dateView[date ? "current" : "value"](date);
+                        }
+
+                        element.attr(ARIA_EXPANDED, true);
+                        div.attr(ARIA_HIDDEN, false);
+
+                        that._updateARIA(date);
+
+                    }
+                }
+            }));
+
+            div = that.dateView.div;
         },
 
         setOptions: function(options) {
@@ -576,10 +636,9 @@ var __meta__ = {
 
             if (that._dateInput) {
                 labelOptions.floatCheck = () => {
-                    that._dateInput._toggleDateMask(true);
 
                     if (!that.value() && !that._dateInput._hasDateInput() && document.activeElement !== that.element[0]) {
-                        that._dateInput._toggleDateMask(false);
+                        that.element.val("");
                         return true;
                     }
 
@@ -616,6 +675,12 @@ var __meta__ = {
             if (that._form) {
                 that._form.off("reset", that._resetHandler);
             }
+
+            if (that.bigScreenMQL) {
+                that.bigScreenMQL.destroy();
+            }
+
+            that._createDateViewProxy = null;
         },
 
         open: function() {

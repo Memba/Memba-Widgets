@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -769,6 +769,11 @@ var __meta__ = {
             currentTimeMarker: {
                  updateInterval: 10000,
                  useLocalTimezone: true
+            },
+            ongoingEvents: {
+                cssClass: null,
+                enabled: true,
+                updateInterval: 60000
             },
             // a hidden option that provides us a fallback to the previous behaviour
             // e.g. all events of 24 hours or more will be rendered in the allDaySlot
@@ -1891,6 +1896,7 @@ var __meta__ = {
             this.refreshLayout();
 
             this._currentTime(false);
+            this._ongoingEvents(events);
 
             this.trigger("activate");
         },

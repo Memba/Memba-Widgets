@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -366,7 +366,7 @@ var __meta__ = {
         },
         _updateSplitBar: function(splitbar, previousPane, nextPane, previousPaneEl) {
             var catIconIf = function(actionType, iconType, condition) {
-                    var icon = iconType ? ui.icon(iconType) : "";
+                    var icon = iconType ? ui.icon({ icon: iconType, size: "xsmall" }) : "";
                     return condition ? "<span class='k-" + actionType + "'>" + icon + "</span>" : "";
                 },
                 orientation = this.orientation,

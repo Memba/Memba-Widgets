@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -35,7 +35,7 @@ var __meta__ = {
         REFRESH = "refresh",
         CHANGE = "change",
         NS = ".kendoFilterMenu",
-        COLUMNHEADERATTR = "[scope='col']",
+        COLUMN_HEADER_SELECTOR = ".k-table-th",
         EQ = "Is equal to",
         NEQ = "Is not equal to",
         roles = {
@@ -51,7 +51,7 @@ var __meta__ = {
         Widget = ui.Widget;
 
     var actionsFilterButtonsContainer = ({ actionsCssClass, messages }) =>
-    `<div class="${actionsCssClass ? actionsCssClass : "k-actions"}">` +
+    `<div class="k-actions-stretched ${actionsCssClass ? actionsCssClass : "k-actions"}">` +
         kendo.html.renderButton(`<button title="${messages.filter}">${messages.filter}</button>`, { type: "submit", themeColor: "primary", icon: "filter" }) +
         kendo.html.renderButton(`<button title="${messages.clear}">${messages.clear}</button>`, { type: "reset", icon: "filter-clear" }) +
     '</div>';
@@ -366,7 +366,7 @@ var __meta__ = {
 
             that.field = options.field || element.attr(kendo.attr("field"));
 
-            columnHeader = $(element.closest(COLUMNHEADERATTR));
+            columnHeader = $(element.closest(COLUMN_HEADER_SELECTOR));
             if (columnHeader.length) {
                 that.appendTo = columnHeader.find(options.appendTo);
             } else {
@@ -1186,7 +1186,7 @@ var __meta__ = {
                 }
             }
 
-            columnHeader = $(element.closest(COLUMNHEADERATTR));
+            columnHeader = $(element.closest(COLUMN_HEADER_SELECTOR));
             if (columnHeader.length) {
                 this.appendTo = columnHeader.find(options.appendTo);
             } else {

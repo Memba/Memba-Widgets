@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -29,9 +29,11 @@ var __meta__ = {
         keys = kendo.keys,
         NS = ".kendoSchedulerView",
         INVERSE_COLOR_CLASS = "k-event-inverse",
+        ONGOING_CLASS = "k-event-ongoing",
         MIN_HORIZONTAL_SCROLL_SIZE = 1024,
         math = Math,
-        SPACE = " ";
+        SPACE = " ",
+        DOT = ".";
 
     function levels(values, key) {
         var result = [];
@@ -2415,6 +2417,11 @@ var __meta__ = {
 
             Widget.fn.destroy.call(this);
 
+            if (that._ongoingTimer) {
+                clearInterval(that._ongoingTimer);
+                that._ongoingTimer = null;
+            }
+
             if (that.table) {
                 kendo.destroy(that.table);
                 that.table.remove();
@@ -2665,6 +2672,74 @@ var __meta__ = {
                     return labelText + kendo.toString(end, "D") + SPACE + labelMessages.at + SPACE + kendo.toString(end, "t");
                 }
             }
+        },
+
+        _ongoingEvents: function(data) {
+            var that = this,
+                ongoingOptions = that.options.ongoingEvents,
+                shouldMarkOngoing = !!ongoingOptions && (ongoingOptions === true || ongoingOptions.enabled),
+                interval;
+
+            if (shouldMarkOngoing) {
+                that._ongoingUpdater(data);
+
+                interval = ongoingOptions.updateInterval || 60000;
+
+                if (that._ongoingTimer) {
+                    clearInterval(that._ongoingTimer);
+                    that._ongoingTimer = null;
+                }
+
+                if (!isNaN(interval)) {
+                    that._ongoingTimer = setInterval(this._ongoingUpdater.bind(that, data), interval);
+                }
+            }
+        },
+
+        _ongoingUpdater: function(data) {
+            var currentTime = new Date(),
+                ongoingClass = this.options.ongoingEvents.cssClass || ONGOING_CLASS;
+
+            this.content.find(DOT + ongoingClass).removeClass(ongoingClass);
+
+            if (this.groups && this.groups.length > 0) {
+                this._updateOngoing(currentTime, data);
+            }
+        },
+
+        _updateOngoing: function(currentTime, data) {
+            var that = this,
+                el = that.element,
+                ongoingOptions = that.options.ongoingEvents,
+                ongoingClass = ongoingOptions.cssClass || ONGOING_CLASS,
+                useLocalTimezone = ongoingOptions.useLocalTimezone,
+                timezone = that.options.timezone,
+                timezoneOffset, currentTime;
+
+            if (!data) {
+                return;
+            }
+
+            if (useLocalTimezone === false && !!timezone) {
+                timezoneOffset = kendo.timezone.offset(currentTime, timezone);
+                currentTime = kendo.timezone.convert(currentTime, currentTime.getTimezoneOffset(), timezoneOffset);
+            }
+
+            data.forEach((appointment) => {
+                var uid,
+                    start = appointment.start,
+                    end = appointment.end;
+
+                if (appointment.isAllDay) {
+                    end = new Date(end.getTime() + 1000 * 60 * 60 * 24 - 1);
+                }
+
+                if (start <= currentTime && end >= currentTime) {
+                    uid = appointment.uid;
+
+                    el.find("[data-uid=" + uid + "]").addClass(ongoingClass);
+                }
+            });
         }
     });
 
@@ -2699,7 +2774,9 @@ var __meta__ = {
     function rangeIndex(eventElement) {
         return {
             start: eventElement.start,
-            end: eventElement.end
+            end: eventElement.end,
+            slotIndex: eventElement.slotIndex,
+            slotIndexEnd: eventElement.slotIndexEnd
         };
     }
 
@@ -2849,10 +2926,14 @@ var __meta__ = {
             var eventRange = rangeIndex(event);
             var column = null;
 
-            for (var j = 0, columnLength = columns.length; j < columnLength; j++) {
-                var endOverlaps = eventRange.start > columns[j].end;
+            if (event.zeroWidthEventOffset && eventRange.end - eventRange.start < event.zeroWidthEventOffset) {
+                eventRange.end = eventRange.start + event.zeroWidthEventOffset;
+            }
 
-                if (eventRange.start < columns[j].start || endOverlaps) {
+            for (var j = 0, columnLength = columns.length; j < columnLength; j++) {
+                var endOverlaps = (eventRange.start > columns[j].end) || (eventRange.slotIndex > columns[j].slotIndexEnd);
+
+                if (eventRange.start < columns[j].start || eventRange.slotIndex < columns[j].slotIndex || endOverlaps) {
 
                     column = columns[j];
 
@@ -2860,12 +2941,16 @@ var __meta__ = {
                         column.end = eventRange.end;
                     }
 
+                    if (column.slotIndexEnd < eventRange.slotIndexEnd) {
+                        column.slotIndexEnd = eventRange.slotIndexEnd;
+                    }
+
                     break;
                 }
             }
 
             if (!column) {
-                column = { start: eventRange.start, end: eventRange.end, events: [] };
+                column = { slotIndex: eventRange.slotIndex, slotIndexEnd: eventRange.slotIndexEnd, start: eventRange.start, end: eventRange.end, events: [] };
                 columns.push(column);
             }
 

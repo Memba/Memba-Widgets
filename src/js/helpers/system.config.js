@@ -57,6 +57,8 @@ SystemJS.config({
             'src/js/vendor/kendo/kendo.dataviz.sparkline.js',
         'kendo.dataviz.stock': 'src/js/vendor/kendo/kendo.dataviz.stock.js',
         'kendo.dataviz.themes': 'src/js/vendor/kendo/kendo.dataviz.themes.js',
+        'kendo.dateinput.common':
+            'src/js/vendor/kendo/kendo.dateinput.common.js',
         'kendo.dataviz.treemap': 'src/js/vendor/kendo/kendo.dataviz.treemap.js',
         'kendo.dateinput': 'src/js/vendor/kendo/kendo.dateinput.js',
         'kendo.datepicker': 'src/js/vendor/kendo/kendo.datepicker.js',

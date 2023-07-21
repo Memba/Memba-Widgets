@@ -1,7 +1,7 @@
 @include exports( "widgets.codeeditor/theme" ) {
     .k-tooltip {
         .m-codeeditor-json {
-            color: $tooltip-text;
+            color: $kendo-tooltip-text;
             // background-color: $tooltip-bg;
         }
     }

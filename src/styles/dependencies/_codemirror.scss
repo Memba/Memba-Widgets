@@ -13,12 +13,12 @@
 .CodeMirror-scrollbar-filler,
 .CodeMirror-gutter-filler {
     background-color: $component-bg;
-    color: $component-text;
+    color: $kendo-component-text;
 }
 
 // Gutters
 .CodeMirror-gutters {
-    background-color: rgba(contrast-wcag($component-bg), 0.04);
+    //background-color: rgba(contrast-wcag($component-bg), 0.04);
     border-right: $border-width solid $border-color;
 }
 
@@ -26,8 +26,8 @@
 
 .CodeMirror-linenumber {
     /* stylelint-disable-next-line at-rule-no-unknown */
-    @include disabled( $disabled-styling );
-    color: $component-text;
+    @include disabled( $kendo-disabled-styling );
+    color: $kendo-component-text;
 }
 
 .CodeMirror-guttermarker {
@@ -36,13 +36,13 @@
 
 .CodeMirror-guttermarker-subtle {
     /* stylelint-disable-next-line at-rule-no-unknown */
-    @include disabled( $disabled-styling );
-    color: $component-text;
+    @include disabled( $kendo-disabled-styling );
+    color: $kendo-component-text;
 }
 
 // Cursor
 .CodeMirror-cursor {
-    border-left: 1px solid $component-text;
+    border-left: 1px solid $kendo-component-text;
 }
 
 /* Shown when moving in bi-directional text */
@@ -64,7 +64,7 @@
 
 .cm-s-default .cm-header {
     // color: $primary;
-    color: $tertiary;
+    // -- color: $tertiary;
     // color: contrast-wcag($series-a);
 }
 
@@ -123,8 +123,8 @@
 
 .cm-s-default .cm-comment {
     /* stylelint-disable-next-line at-rule-no-unknown */
-    @include disabled( $disabled-styling );
-    color: $component-text;
+    @include disabled( $kendo-disabled-styling );
+    color: $kendo-component-text;
 }
 
 .cm-s-default .cm-string {
@@ -162,8 +162,8 @@
 
 .cm-s-default .cm-hr {
     /* stylelint-disable-next-line at-rule-no-unknown */
-    @include disabled( $disabled-styling );
-    color: $component-text;
+    @include disabled( $kendo-disabled-styling );
+    color: $kendo-component-text;
     font-weight: bold;
 }
 

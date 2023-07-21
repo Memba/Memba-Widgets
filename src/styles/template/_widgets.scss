@@ -3,6 +3,11 @@
  * Sources at https://github.com/Memba
  */
 
+// Temporary fix to errors
+$kendo-utils-accent-color: $kendo-color-primary;
+
+
+
 // Our widgets styles
 @import "../widgets/widgets.assetmanager/_index.scss";
 @import "../widgets/widgets.audiovideo/_index.scss";

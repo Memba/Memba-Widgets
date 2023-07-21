@@ -5,10 +5,10 @@
 
         .kj-codeinput-wrap {
             @include fill(
-                $dropdownlist-text,
-                $dropdownlist-bg,
-                $dropdownlist-border,
-                $dropdownlist-gradient
+                $kendo-picker-text,
+                $kendo-picker-bg,
+                $kendo-picker-border,
+                $kendo-picker-gradient
             );
 
             /*
@@ -21,10 +21,10 @@
             &:hover,
             &.k-hover {
                 @include fill(
-                    $dropdownlist-hovered-text,
-                    $dropdownlist-hovered-bg,
-                    $dropdownlist-hovered-border,
-                    $dropdownlist-hovered-gradient
+                    $kendo-picker-hover-text,
+                    $kendo-picker-hover-bg,
+                    $kendo-picker-hover-border,
+                    $kendo-picker-hover-gradient
                 );
             }
 
@@ -34,12 +34,12 @@
             // TODO review box-shadow on .k-dropdown .k-focus
             &.k-focus {
                 @include fill(
-                    $dropdownlist-focused-text,
-                    $dropdownlist-focused-bg,
-                    $dropdownlist-focused-border,
-                    $dropdownlist-focused-gradient
+                    $kendo-picker-focused-text,
+                    $kendo-picker-focused-bg,
+                    $kendo-picker-focused-border,
+                    $kendo-picker-focused-gradient
                 );
-                @include box-shadow($dropdownlist-focused-shadow);
+                @include box-shadow($kendo-picker-focused-shadow);
             }
             */
         }

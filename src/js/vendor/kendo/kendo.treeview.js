@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -24,7 +24,6 @@ var __meta__ = {
         depends: [ "treeview.draganddrop" ]
     }]
 };
-
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -255,8 +254,7 @@ var __meta__ = {
             that._applyCssClasses();
             that._tabindex();
 
-            that.wrapper.attr("role", "tree");
-            that.wrapper.find(">ul").attr("role", "none");
+            that.wrapper.find(">ul").attr("role", "tree");
 
             that._dataSource(inferred);
 
@@ -394,6 +392,7 @@ var __meta__ = {
                     allowedContainers: ".k-treeview",
                     itemSelector: ".k-treeview .k-item",
                     hintText: this._hintText.bind(this),
+                    clickMoveClick: this.options.dragAndDrop.clickMoveClick === true ? true : false,
                     contains: function(source, destination) {
                         return $.contains(source, destination);
                     },
@@ -1944,7 +1943,7 @@ var __meta__ = {
                 }
             }
 
-            this.wrapper.find(">ul").attr("role", "none");
+            this.wrapper.find(">ul").attr("role", "tree");
 
 
             this.trigger(DATABOUND, { node: node ? parentNode : undefined });
@@ -2033,9 +2032,9 @@ var __meta__ = {
                 prev.removeAttr("id");
             }
 
-            this.wrapper.removeAttr(ARIA_ACTIVEDESCENDANT);
+            this.root.removeAttr(ARIA_ACTIVEDESCENDANT);
             current.attr("id", id);
-            this.wrapper.attr(ARIA_ACTIVEDESCENDANT, id);
+            this.root.attr(ARIA_ACTIVEDESCENDANT, id);
         },
 
         select: function(node) {
@@ -2190,7 +2189,7 @@ var __meta__ = {
                     element.empty();
                 }
 
-                element.attr(ARIA_BUSY, showProgress);
+                this.element.attr(ARIA_BUSY, showProgress);
             } else {
                 nodeIcon(node).replaceWith(
                     $(TOGGLE_ICON_ELM)
@@ -2335,8 +2334,8 @@ var __meta__ = {
 
             node = $(node, that.element);
 
-            if (node.attr("id") === that.element.attr(ARIA_ACTIVEDESCENDANT)) {
-                that.element.removeAttr(ARIA_ACTIVEDESCENDANT);
+            if (node.attr("id") === that.root.attr(ARIA_ACTIVEDESCENDANT)) {
+                that.root.removeAttr(ARIA_ACTIVEDESCENDANT);
             }
 
             this.angular("cleanup", function() {
@@ -2510,4 +2509,5 @@ var __meta__ = {
 
     ui.plugin(TreeView);
 })(window.kendo.jQuery);
+export default kendo;
 

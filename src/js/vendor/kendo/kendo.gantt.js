@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -13,6 +13,7 @@ import "./kendo.gantt.data.js";
 import "./kendo.gantt.editors.js";
 import "./kendo.gantt.list.js";
 import "./kendo.gantt.timeline.js";
+import "./kendo.splitter.js";
 import "./kendo.pdf.js";
 import "./kendo.toolbar.js";
 import "./kendo.html.button.js";
@@ -31,6 +32,7 @@ var __meta__ = {
         supportsMedia = "matchMedia" in window,
         mobileOS = kendo.support.mobileOS,
         Widget = kendo.ui.Widget,
+        encode = kendo.htmlEncode,
         ObservableObject = kendo.data.ObservableObject,
         ObservableArray = kendo.data.ObservableArray,
         Query = kendo.data.Query,
@@ -46,8 +48,6 @@ var __meta__ = {
         PERCENTAGE_FORMAT = "p0",
         TABINDEX = "tabIndex",
         STRING = "string",
-        ARIA_DESCENDANT = "aria-activedescendant",
-        ACTIVE_CELL = "gantt_active_cell",
         DOT = ".",
         TASK_DELETE_CONFIRM = "Are you sure you want to delete this task?",
         DEPENDENCY_DELETE_CONFIRM = "Are you sure you want to delete this dependency?",
@@ -77,9 +77,7 @@ var __meta__ = {
         list: "k-gantt-treelist",
         timelineWrapper: "k-gantt-timeline",
         timeline: "k-gantt-timeline",
-        splitBarWrapper: "k-splitbar k-splitbar-horizontal k-splitbar-draggable-horizontal",
         splitBar: "k-splitbar",
-        splitBarHover: "k-splitbar-horizontal-hover",
         popupWrapper: "k-list-container",
         popupList: "k-list k-reset",
         resizeHandle: "k-resize-handle",
@@ -209,6 +207,7 @@ var __meta__ = {
             this._processDefaults();
             this._toolbar();
             this._footer();
+            this._splitter();
 
             this._adjustDimensions();
 
@@ -226,8 +225,6 @@ var __meta__ = {
             this._list();
 
             this._dependencies();
-
-            this._resizable();
 
             this._scrollable();
 
@@ -266,7 +263,7 @@ var __meta__ = {
         options: {
             name: "Gantt",
             autoBind: true,
-            navigatable: false,
+            navigatable: true,
             selectable: true,
             editable: true,
             resizable: false,
@@ -369,7 +366,6 @@ var __meta__ = {
             list.select(value);
             this._selectionUpdate();
 
-            this.list.element.find("table[role=treegrid]").trigger("focus");
             return;
         },
 
@@ -420,6 +416,10 @@ var __meta__ = {
 
             if (this._resizeDraggable) {
                 this._resizeDraggable.destroy();
+            }
+
+            if (this.layout && this.layout.getKendoSplitter()) {
+                this.layout.getKendoSplitter().destroy();
             }
 
             this.toolbar.off(NS);
@@ -487,9 +487,23 @@ var __meta__ = {
             }
         },
 
+        _splitter: function() {
+            this.splitter = this.layout.kendoSplitter({
+                navigatable: this.options.navigatable,
+                orientation: "horizontal",
+                panes: [
+                    { collapsible: false, scrollable: false, label: "Gantt List" },
+                    { collapsible: false, scrollable: false, label: "Gantt Timeline" }
+                ]
+            }).getKendoSplitter();
+
+            if (this.options.listWidth) {
+                this.splitter.size(".k-pane:first", this.options.listWidth);
+            }
+        },
+
         _wrapper: function() {
             var ganttStyles = Gantt.styles;
-            var splitBarHandleClassName = [ganttStyles.icon, ganttStyles.resizeHandle].join(" ");
             var options = this.options;
             var height = options.height;
             var width = options.width;
@@ -497,7 +511,6 @@ var __meta__ = {
             this.wrapper = this.element.addClass(ganttStyles.wrapper).attr("role", "application");
             this.layout = $("<div class='" + ganttStyles.content + "' />").appendTo(this.wrapper)
                 .append("<div class='" + ganttStyles.listWrapper + "'><div></div></div>")
-                .append("<div class='" + ganttStyles.splitBarWrapper + "'><div class='" + splitBarHandleClassName + "'></div></div>")
                 .append("<div class='" + ganttStyles.timelineWrapper + "'><div></div></div>");
 
             if (options.showPlannedTasks) {
@@ -517,11 +530,10 @@ var __meta__ = {
             }
 
             this.treelistWrapper = this.wrapper.find(DOT + ganttStyles.list);
-            this.splitbar = this.wrapper.find(DOT + ganttStyles.splitBar);
             this.timelineWrapper = this.wrapper.find(DOT + ganttStyles.timeline);
 
             this.treelistWrapper.css("width", options.listWidth);
-            this.timelineWrapper.css("width", this.wrapper.width() - this.treelistWrapper.outerWidth() - this.splitbar.outerWidth() );
+            this.timelineWrapper.css("width", this.wrapper.width() - this.treelistWrapper.outerWidth());
         },
 
         _viewClickHandler: function(e) {
@@ -742,7 +754,8 @@ var __meta__ = {
 
         _mediaQueryHandler: function(e) {
             var that = this;
-            var splitbar = that.splitbar;
+            var splitbar = that.layout.find(".k-splitbar");
+            var splitter = that.layout.getKendoSplitter();
             var treelist = that.treelistWrapper;
             var timeline = that.timelineWrapper;
             var contentSelector = DOT + ganttStyles.gridContent;
@@ -753,12 +766,13 @@ var __meta__ = {
             if (e.matches) {
                 treelist.addClass("k-hidden");
                 splitbar.addClass("k-hidden");
-
+                splitter._suppressResize = true;
                 toolbar.hide(toolbarEl.find(".k-gantt-views"));
                 toolbar.show(toolbarEl.find(".k-views-dropdown"));
 
                 treelist.width("100%");
             } else {
+                splitter._suppressResize = false;
                 treelist.removeClass("k-hidden");
                 splitbar.removeClass("k-hidden");
                 timeline.removeClass("k-hidden");
@@ -868,12 +882,17 @@ var __meta__ = {
             var footerHeight = this.footer ? outerHeight(this.footer) : 0;
             var totalHeight = element.height();
             var totalWidth = element.width();
-            var splitBarWidth = this.splitbar.is(":visible") ? outerWidth(this.splitbar) : 0;
-            var treeListWidth = this.treelistWrapper.is(":visible") ? outerWidth(this.treelistWrapper) : 0;
+            var treeListVisible = this.treelistWrapper.is(":visible");
+            var splitBar = this.layout.find(".k-splitbar");
+            var splitBarWidth = splitBar.is(":visible") ? outerWidth(splitBar) : 0;
+            var treeListWidth = treeListVisible ? outerWidth(this.treelistWrapper) : 0;
             var timelineWidth = totalWidth - ( treeListWidth + splitBarWidth );
 
             this.layout.children().height(totalHeight - (toolbarHeight + footerHeight));
             this.timelineWrapper.width(timelineWidth);
+            if (!treeListVisible) {
+                this.timelineWrapper.css("left", 0);
+            }
 
             if (totalWidth < (treeListWidth + splitBarWidth)) {
                 this.treelistWrapper.width(totalWidth - splitBarWidth);
@@ -976,7 +995,8 @@ var __meta__ = {
                         editable = {
                             mode: "incell",
                             move: {
-                                reorderable: true
+                                reorderable: true,
+                                clickMoveClick: options.editable.clickMoveClick === false ? false : true
                             }
                         };
                     }
@@ -993,6 +1013,7 @@ var __meta__ = {
                 ganttListOptions = {
                     columns: options.columns || [],
                     dataSource: this.dataSource,
+                    navigatable: options.navigatable,
                     selectable: options.selectable,
                     reorderable: options.reorderable,
                     editable: editable,
@@ -1021,21 +1042,7 @@ var __meta__ = {
         },
 
         _attachListEvents: function() {
-            var that = this,
-                navigatable = that.options.navigatable,
-                restoreFocus = function() {
-                    var element;
-
-                    if (navigatable && that._cachedCurrent) {
-                        element = that.list.content.find("tr").eq(that._cachedCurrent.rowIndex).find("td").eq(that._cachedCurrent.columnIndex);
-
-                        that._current(element);
-
-                        focusTable(that.list.content.find("table"), true);
-                    }
-
-                    delete that._cachedCurrent;
-                };
+            var that = this;
 
             that.list
                 .bind("columnShow", function(e) {
@@ -1054,10 +1061,6 @@ var __meta__ = {
                     that._navigatable();
                  }, true)
                 .bind("beforeEdit", function(e) {
-                    that._cachedCurrent = {
-                        rowIndex: e.container.closest("tr").index(),
-                        columnIndex: e.container.index()
-                    };
 
                     if (that.trigger("edit", { task: e.model, container: e.container })) {
                         e.preventDefault();
@@ -1071,7 +1074,6 @@ var __meta__ = {
 
                     that._preventItemChange = true;
                     that.list.closeCell(true);
-                    restoreFocus();
                 })
                 .bind("save", function(e) {
                     var updatedValues = e.values,
@@ -1109,6 +1111,11 @@ var __meta__ = {
                         task = e.data,
                         resourcesField = that.resources.field,
                         previousTask = that.previousTask,
+                        current,
+                        isCurrentInHeader,
+                        currentIndex,
+                        rowIndex,
+                        navigatable = that.options.navigatable,
                         key;
 
                     if (that._preventItemChange) {
@@ -1134,10 +1141,27 @@ var __meta__ = {
                             }
                         }
 
+                        if (navigatable) {
+                            current = $(that.list.current());
+                            isCurrentInHeader = current.is("th");
+                            rowIndex = current.closest("tr").index();
+                            currentIndex = isCurrentInHeader ? current.parent().children(":not(.k-group-cell)").index(current[0]) : Math.max(that.list.cellIndex(current), 0);
+                        }
+
                         that._preventRefresh = false;
                         that._requestStart();
                         that.dataSource.sync().then(function() {
-                            restoreFocus();
+                            if (that.options.navigatable && !that._tabPressed) {
+                                if (!isCurrentInHeader) {
+                                    var row = that.list.tbody.children().eq(rowIndex);
+
+                                    var td = row.find(">td:visible")
+                                        .eq(currentIndex);
+
+                                    that.list._setCurrent(td, false, true);
+                                }
+                            }
+                            that._tabPressed = false;
                         });
                     } else if (that.dataSource.hasChanges()) {
                         that.dataSource.cancelChanges(task);
@@ -1154,31 +1178,23 @@ var __meta__ = {
                     that._selectionUpdate();
 
                 })
-                .bind("collapse", function(e) {
-                    e.preventDefault();
+                .bind("navigate", function(e) {
+                    var treeList = e.sender;
+                    var current = treeList.current();
+                    var uid;
 
-                    var row = that.list.element.find("tr[data-uid='" + e.model.uid + "']");
-                    e.model.set("expanded", false);
-
-                    that._cachedCurrent = {
-                        rowIndex: row.index(),
-                        columnIndex: row.find(".k-focus").index()
-                    };
-
-                    restoreFocus();
+                    that._scrollTo(current);
+                    that.timeline.element.find("div.k-task").attr("tabindex", "-1");
+                    uid = current.closest("tr").attr("data-uid");
+                    that.timeline.element.find("div.k-task[data-uid='" + uid + "']").attr("tabindex", "0");
                 })
                 .bind("expand", function(e) {
                     e.preventDefault();
-
-                    var row = that.list.element.find("tr[data-uid='" + e.model.uid + "']");
                     e.model.set("expanded", true);
-
-                    that._cachedCurrent = {
-                        rowIndex: row.index(),
-                        columnIndex: row.find(".k-focus").index()
-                    };
-
-                    restoreFocus();
+                })
+                .bind("collapse", function(e) {
+                    e.preventDefault();
+                    e.model.set("expanded", false);
                 })
                 .bind("dragend", function(e) {
                     var dataSource = that.dataSource,
@@ -1207,7 +1223,6 @@ var __meta__ = {
                 })
                 .bind("reorder", function(e) {
                     that._updateTask(e.task, e.updateInfo);
-                    restoreFocus();
                 });
         },
 
@@ -1389,6 +1404,23 @@ var __meta__ = {
 
                     that.removeTask(that.dataSource.getByUid(e.uid));
                 })
+                .bind("expand", function(e) {
+                    var model = that.dataSource.getByUid(e.uid);
+                    if (model.summary && !model.get("expanded")) {
+                        model.set("expanded", true);
+                    } else {
+                        e.preventDefault();
+                    }
+                })
+                .bind("collapse", function(e) {
+                    var model = that.dataSource.getByUid(e.uid);
+
+                    if (model.summary && model.get("expanded")) {
+                        model.set("expanded", false);
+                    } else {
+                        e.preventDefault();
+                    }
+                })
                 .bind("removeDependency", function(e) {
                     var editable = that.list.editor;
 
@@ -1507,6 +1539,9 @@ var __meta__ = {
                     }
 
                     that.cancelTask();
+                    if (that.options.navigatable) {
+                        that.timeline.element.find('div[data-uid="' + e.model.uid + '"]').focus();
+                    }
                 })
                 .bind("edit", function(e) {
                     var task = that.dataSource.getByUid(e.model.uid);
@@ -1523,10 +1558,12 @@ var __meta__ = {
                 .bind("remove", function(e) {
                     that.removeTask(e.model.uid);
                 })
-                .bind("close", that._onDialogClose);
+                .bind("close", function(options) {
+                    if (that.options.navigatable) {
+                        that.element.find('div[data-uid="' + options.window.attr("data-uid") + '"]').focus();
+                    }
+                });
         },
-
-        _onDialogClose: function() {},
 
         _resourcePopupEditor: function(container, options) {
             var that = this,
@@ -1541,7 +1578,7 @@ var __meta__ = {
             buttonsEl = $('<div class="' + popupStyles.buttonsContainer + '">');
             dialogEl.append(buttonsEl);
 
-            buttonsEl.append($("<button class='" + ganttStyles.buttonSave + "'>" + messages.save + "</button>").kendoButton({
+            buttonsEl.append($("<button class='" + ganttStyles.buttonSave + "'>" + encode(messages.save) + "</button>").kendoButton({
                 name: "save",
                 themeColor: "primary",
                 icon: "save",
@@ -1557,7 +1594,7 @@ var __meta__ = {
                 }
             }));
 
-            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + messages.cancel + "</button>").kendoButton({
+            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + encode(messages.cancel) + "</button>").kendoButton({
                 name: "cancel",
                 icon: "cancel",
                 click: () => {
@@ -2257,54 +2294,6 @@ var __meta__ = {
             kendo.ui.progress(this.element, toggle);
         },
 
-        _resizable: function() {
-            var that = this;
-            var wrapper = this.wrapper;
-            var ganttStyles = Gantt.styles;
-            var contentSelector = DOT + ganttStyles.gridContent;
-            var treeListWrapper = wrapper.find(DOT + ganttStyles.list);
-            var timelineWrapper = wrapper.find(DOT + ganttStyles.timeline);
-            var treeListWidth;
-            var timelineWidth;
-            var timelineScroll;
-
-            this._resizeDraggable = wrapper
-                .find(DOT + ganttStyles.splitBar)
-                .height(treeListWrapper.height())
-                .hover(function() {
-                    $(this).addClass(ganttStyles.splitBarHover);
-                }, function() {
-                    $(this).removeClass(ganttStyles.splitBarHover);
-                })
-                .end()
-                .kendoResizable({
-                    orientation: "horizontal",
-                    handle: DOT + ganttStyles.splitBar,
-                    "start": function() {
-                        treeListWidth = treeListWrapper.width();
-                        timelineWidth = timelineWrapper.width();
-                        timelineScroll = kendo.scrollLeft(timelineWrapper.find(contentSelector));
-                    },
-                    "resize": function(e) {
-                        var delta = e.x.initialDelta;
-
-                        if (kendo.support.isRtl(wrapper)) {
-                            delta *= -1;
-                        }
-
-                        if (treeListWidth + delta < 0 || timelineWidth - delta < 0) {
-                            return;
-                        }
-
-                        treeListWrapper.width(treeListWidth + delta);
-                        timelineWrapper.width(timelineWidth - delta);
-                        kendo.scrollLeft(timelineWrapper.find(contentSelector), (timelineScroll + delta));
-
-                        that.timeline.view()._renderCurrentTime();
-                    }
-                }).data("kendoResizable");
-        },
-
         _scrollable: function() {
             var that = this;
             var ganttStyles = Gantt.styles;
@@ -2349,64 +2338,12 @@ var __meta__ = {
             var editable = this.options.editable;
             var ganttStyles = Gantt.styles;
             var contentSelector = DOT + ganttStyles.gridContent;
+            var listWrapper = DOT + ganttStyles.listWrapper;
             var headerSelector = DOT + ganttStyles.gridHeaderWrap;
             var headerTable = this.list.element.find(headerSelector).find("table");
             var contentTable = this.list.element.find(contentSelector).find("table");
-            var isRtl = kendo.support.isRtl(this.wrapper);
-            var timelineContent = this.timeline.element.find(DOT + ganttStyles.gridContent);
             var tables = headerTable.add(contentTable);
             var attr = selector();
-            var cellIndex;
-            var expandState = {
-                collapse: false,
-                expand: true
-            };
-
-            var scroll = function(reverse) {
-                var width = that.timeline.view()._timeSlots()[0].offsetWidth;
-                kendo.scrollLeft(timelineContent, kendo.scrollLeft(timelineContent) + (reverse ? -width : width));
-            };
-
-            var scrollVertical = function(reverse) {
-                var height = that.timeline.view()._rowHeight;
-                timelineContent.scrollTop(timelineContent.scrollTop() + (reverse ? -height : height));
-            };
-
-            var moveVertical = function(method) {
-                var parent = that.current.parent("tr" + selector());
-                var index = that.current.index();
-                var sibling = parent[method]('tr:visible').first();
-
-                if (sibling.length !== 0) {
-                    that._current(sibling.children("td").eq(index));
-                    that._scrollTo(that.current);
-                } else {
-                    if (that.current.is("td") && method == "prevAll") {
-                        focusTable(headerTable);
-                        that._current(headerTable.find("tr").last().children("th").eq(index));
-                        that._scrollTo(that.current);
-                    } else if (that.current.is("th") && method == "nextAll") {
-                        focusTable(contentTable);
-                        that._current(contentTable.find("tr").first().children("td").eq(index));
-                        that._scrollTo(that.current);
-                    }
-                }
-            };
-            var moveHorizontal = function(method) {
-                var subling = that.current[method]();
-
-                if (subling.length !== 0) {
-                    that._current(subling);
-                    cellIndex = that.current.index();
-                }
-            };
-            var toggleExpandedState = function(value) {
-                var model = that.dataItem(that.current);
-
-                if (model.summary && model.expanded !== value) {
-                    model.set("expanded", value);
-                }
-            };
             var deleteAction = function() {
                 var editable = that.options.editable;
 
@@ -2423,25 +2360,13 @@ var __meta__ = {
             };
 
             $(this.wrapper)
-                .on("mousedown" + NS, "tr" + attr + ", div" + attr + ":not(" + DOT + ganttStyles.line + ")", function(e) {
-                    var currentTarget = $(e.currentTarget);
+                .on("mousedown" + NS, listWrapper + " tr" + attr, function(e) {
                     var isInput = $(e.target).is(":button,a,:input,a>.k-icon,.k-svg-icon,k-svg-icon,svg,path,textarea,span.k-icon:not(.k-i-none),span.k-svg-icon:not(.k-svg-i-none),span.k-link,.k-input,.k-multiselect-wrap,.k-input-value-text,.k-input-inner");
-                    var current;
 
                     if (e.ctrlKey) {
                         return;
                     }
 
-                    if (navigatable) {
-                        if (currentTarget.is("tr")) {
-                            current = $(e.target).closest("td");
-                        } else {
-                            current = that.list
-                                .content.find("tr" + selector(currentTarget.attr(kendo.attr("uid"))) + " > td").first();
-                        }
-
-                        that._current(current);
-                    }
 
                     if ((navigatable || editable) && !isInput) {
                         that._focusTimeout = setTimeout(function() {
@@ -2452,26 +2377,73 @@ var __meta__ = {
                 .on("keydown" + NS, function(e) {
                     var key = e.keyCode;
                     var that = this;
+                    var uid;
+                    var cell;
+                    var target = $(e.target);
+                    var focusedIndex;
+                    var focusSequence = [
+                        that.toolbar,
+                        that.layout.find(".k-splitbar"),
+                        that.layout.find(".k-gantt-treelist"),
+                        that.layout.find(".k-gantt-timeline")
+                    ];
+
+                    that._tabPressed = false;
+
+                    if (that.footer) {
+                        focusSequence.push(that.footer);
+                    }
+
+                    for (var i = 0; i < focusSequence.length; i++) {
+                        if ($.contains(focusSequence[i][0], e.target) || focusSequence[i][0] === e.target) {
+                            focusedIndex = i;
+                            break;
+                        }
+                    }
 
                     if (key === keys.F10) {
                         that.toolbar.find("[tabindex=0]:visible").first().addClass(ganttStyles.focused).trigger("focus");
                         e.preventDefault();
-                    } else if (key == keys.TAB && $(e.target).closest(DOT + ganttStyles.toolbar.toolbar).length) {
-                        if (this.list.element.is(":visible")) {
-                            this.list.element.find("table[role=treegrid]").trigger("focus");
-                        } else {
-                            this.element.find(DOT + ganttStyles.tasks)[0].focus();
+                    } else if (key == keys.TAB) {
+                        if (focusedIndex == 2) {
+                            that._tabPressed = true;
                         }
-                        e.preventDefault();
+                        if (e.shiftKey) {
+                            for (i = focusedIndex - 1; i >= 0; i--) {
+                                if (!focusSequence[i].hasClass("k-hidden")) {
+                                    uid = target.attr("data-uid");
+                                    if (i === 2 && uid) {
+                                        cell = that.list.content.find("tr[data-uid='" + uid + "']").find("td").last();
+                                        that.list.current(cell);
+                                        focusTable(that.list.content.find("table"), true);
+                                    } else {
+                                        focusSequence[i].find("[tabindex=0]:visible").focus();
+                                    }
+                                    e.preventDefault();
+                                    break;
+                                }
+                            }
+                        } else {
+                            for (i = focusedIndex + 1; i < focusSequence.length; i++) {
+                                if (!focusSequence[i].hasClass("k-hidden")) {
+                                    focusSequence[i].find("[tabindex=0]:visible").focus();
+                                    e.preventDefault();
+                                  break;
+                                }
+                            }
+                        }
                     }
 
                 }.bind(this));
 
-            if (navigatable !== true) {
+            if (navigatable) {
                 contentTable
                     .on("keydown" + NS, function(e) {
+                        var key = e.keyCode;
                         if (e.keyCode == keys.DELETE) {
                             deleteAction();
+                        } else if (key >= 49 && key <= 57 && e.target.tagName.toLowerCase() !== "input") {
+                           that.view(that.timeline._viewByIndex(key - 49));
                         }
                     });
 
@@ -2480,134 +2452,16 @@ var __meta__ = {
 
             tables
                 .on("focus" + NS, function() {
-                    var selector = this === contentTable.get(0) ? "td" : "th";
-                    var selection = that.select();
-                    var current = that.current || $((selection.length ? selection : this))
-                        .find(selector).eq((cellIndex || 0));
-
-                    that._current(current);
                     $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
                 })
                 .on("blur" + NS, function() {
-                    that._current();
 
                     if (this == headerTable) {
                         $(this).attr(TABINDEX, -1);
                     }
-                })
-                .on("keydown" + NS, function(e) {
-                    var key = e.keyCode;
-                    var isCell;
-
-                    if (!that.current) {
-                        return;
-                    }
-
-                    isCell = that.current.is("td");
-
-                    switch (key) {
-                        case keys.RIGHT:
-                            e.preventDefault();
-                            if (e.altKey) {
-                                scroll();
-                            } else if (e.ctrlKey) {
-                                toggleExpandedState(isRtl ? expandState.collapse : expandState.expand);
-                            } else {
-                                moveHorizontal(isRtl ? "prev" : "next");
-                            }
-                            break;
-                        case keys.LEFT:
-                            e.preventDefault();
-                            if (e.altKey) {
-                                scroll(true);
-                            } else if (e.ctrlKey) {
-                                toggleExpandedState(isRtl ? expandState.expand : expandState.collapse);
-                            } else {
-                                moveHorizontal(isRtl ? "next" : "prev");
-                            }
-                            break;
-                        case keys.UP:
-                            e.preventDefault();
-                            if (e.altKey) {
-                                scrollVertical(true);
-                            } else {
-                                moveVertical("prevAll");
-                            }
-                            break;
-                        case keys.DOWN:
-                            e.preventDefault();
-                            if (e.altKey) {
-                                scrollVertical();
-                            } else {
-                                moveVertical("nextAll");
-                            }
-                            break;
-                        case keys.SPACEBAR:
-                            e.preventDefault();
-                            if (isCell) {
-                                if (!that.select() || that.current.closest("tr")[0] !== that.select()[0]) {
-                                    that.select(that.current.closest("tr"));
-                                    that.trigger("change");
-                                }
-                            }
-                            break;
-                        case keys.ENTER:
-                            e.preventDefault();
-                            if (isCell) {
-                                if (that.options.editable && that.options.editable.update !== false) {
-                                    that.list._startEditHandler(that.current);
-                                    $(this).one("keyup", function(e) {
-                                        /* Stop the event propagation so that the list widget won't close its editor immediately */
-                                        e.stopPropagation();
-                                    });
-                                }
-                            } else {
-                                /* Sort */
-                                that.current
-                                    .children("a.k-link")
-                                    .click();
-                            }
-                            break;
-                        case keys.DELETE:
-                            if (isCell) {
-                                deleteAction();
-                            }
-                            break;
-                        default:
-                            if (key >= 49 && key <= 57 && e.target.tagName.toLowerCase() !== "input") {
-                               that.view(that.timeline._viewByIndex(key - 49));
-                            }
-                            break;
-                    }
                 });
         },
 
-        _current: function(element) {
-            var ganttStyles = Gantt.styles;
-            var activeElement;
-
-            if (this.current && this.current.length) {
-                this.current
-                    .removeClass(ganttStyles.focusedCell)
-                    .removeAttr("id");
-            }
-
-            if (element && element.length) {
-                this.current = element
-                    .addClass(ganttStyles.focusedCell)
-                    .attr("id", ACTIVE_CELL);
-
-                activeElement = $(kendo._activeElement());
-
-                if (activeElement.is("table") && this.wrapper.find(activeElement).length > 0) {
-                    activeElement
-                        .removeAttr(ARIA_DESCENDANT)
-                        .attr(ARIA_DESCENDANT, ACTIVE_CELL);
-                }
-            } else {
-                this.current = null;
-            }
-        },
 
         _dataBind: function() {
             var that = this;
@@ -2679,4 +2533,5 @@ var __meta__ = {
     extend(true, Gantt, { styles: ganttStyles });
 
 })(window.kendo.jQuery);
+export default kendo;
 

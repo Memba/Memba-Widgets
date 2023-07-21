@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -622,6 +622,9 @@ var MOUSEWHEEL = "wheel";
 var MOUSEWHEEL_DELAY = 150;
 var MOUSEWHEEL_ZOOM_RATE = 0.3;
 
+var DRILLDOWN = "drilldown";
+var DRILLDOWN_FIELD = "drilldown";
+
 var constants = {
 	INITIAL_ANIMATION_DURATION: INITIAL_ANIMATION_DURATION,
 	FADEIN: FADEIN,
@@ -705,7 +708,9 @@ var constants = {
 	EQUALLY_SPACED_SERIES: EQUALLY_SPACED_SERIES,
 	ABOVE: ABOVE,
 	BELOW: BELOW,
-	HEATMAP: HEATMAP
+	HEATMAP: HEATMAP,
+	DRILLDOWN: DRILLDOWN,
+	DRILLDOWN_FIELD: DRILLDOWN_FIELD
 };
 
 var DEFAULT_ERROR_BAR_WIDTH = 4;
@@ -1196,8 +1201,19 @@ var CategoricalChart = ChartElement.extend({
         this.updateRange(data.valueFields, fields);
     },
 
-    evalPointOptions: function(options, value, category, categoryIx, series, seriesIx) {
-        var state = { defaults: series._defaults, excluded: [ "data", "aggregate", "_events", "tooltip", "content", "template", "visual", "toggle", "_outOfRangeMinPoint", "_outOfRangeMaxPoint" ] };
+    evalPointOptions: function(options, value, fields) {
+        var categoryIx = fields.categoryIx;
+        var category = fields.category;
+        var series = fields.series;
+        var seriesIx = fields.seriesIx;
+        var state = {
+            defaults: series._defaults,
+            excluded: [
+                "data", "aggregate", "_events", "tooltip", "content", "template",
+                "visual", "toggle", "_outOfRangeMinPoint", "_outOfRangeMaxPoint",
+                "drilldownSeriesFactory"
+            ]
+        };
 
         var doEval = this._evalSeries[seriesIx];
         if (!defined(doEval)) {
@@ -2164,8 +2180,6 @@ var LineChart = CategoricalChart.extend({
     },
 
     createPoint: function(data, fields) {
-        var categoryIx = fields.categoryIx;
-        var category = fields.category;
         var series = fields.series;
         var seriesIx = fields.seriesIx;
         var missingValues = this.seriesMissingValues(series);
@@ -2180,9 +2194,7 @@ var LineChart = CategoricalChart.extend({
         }
 
         var pointOptions = this.pointOptions(series, seriesIx);
-        pointOptions = this.evalPointOptions(
-            pointOptions, value, category, categoryIx, series, seriesIx
-        );
+        pointOptions = this.evalPointOptions(pointOptions, value, fields);
 
         var color = data.fields.color || series.color;
         if (isFunction(series.color)) {
@@ -3099,7 +3111,6 @@ var BarChart = CategoricalChart.extend({
 
     createPoint: function(data, fields) {
         var categoryIx = fields.categoryIx;
-        var category = fields.category;
         var series = fields.series;
         var seriesIx = fields.seriesIx;
         var ref = this;
@@ -3123,10 +3134,7 @@ var BarChart = CategoricalChart.extend({
             color = pointOptions.negativeColor;
         }
 
-        pointOptions = this.evalPointOptions(
-            pointOptions, value, category, categoryIx, series, seriesIx
-        );
-
+        pointOptions = this.evalPointOptions(pointOptions, value, fields);
         if (isFunction(series.color)) {
             color = pointOptions.color;
         }
@@ -3558,18 +3566,13 @@ var CandlestickChart = CategoricalChart.extend({
     },
 
     createPoint: function(data, fields) {
-        var categoryIx = fields.categoryIx;
-        var category = fields.category;
         var series = fields.series;
-        var seriesIx = fields.seriesIx;
         var pointType = this.pointType();
         var value = data.valueFields;
         var pointOptions = deepExtend({}, series);
         var color = data.fields.color || series.color;
 
-        pointOptions = this.evalPointOptions(
-            pointOptions, value, category, categoryIx, series, seriesIx
-        );
+        pointOptions = this.evalPointOptions(pointOptions, value, fields);
 
         if (series.type === CANDLESTICK) {
             if (value.open > value.close) {
@@ -4175,7 +4178,14 @@ var ScatterChart = ChartElement.extend({
     evalPointOptions: function(options, value, fields) {
         var series = fields.series;
         var seriesIx = fields.seriesIx;
-        var state = { defaults: series._defaults, excluded: [ "data", "tooltip", "content", "template", "visual", "toggle", "_outOfRangeMinPoint", "_outOfRangeMaxPoint" ] };
+        var state = {
+            defaults: series._defaults,
+            excluded: [
+                "data", "tooltip", "content", "template", "visual", "toggle",
+                "_outOfRangeMinPoint", "_outOfRangeMaxPoint",
+                "drilldownSeriesFactory"
+            ]
+        };
 
         var doEval = this._evalSeries[seriesIx];
         if (!defined(doEval)) {
@@ -4777,9 +4787,7 @@ var BulletChart = CategoricalChart.extend({
 
     createPoint: function(data, fields) {
         var categoryIx = fields.categoryIx;
-        var category = fields.category;
         var series = fields.series;
-        var seriesIx = fields.seriesIx;
         var ref = this;
         var options = ref.options;
         var children = ref.children;
@@ -4793,10 +4801,7 @@ var BulletChart = CategoricalChart.extend({
         }, series);
 
         var color = data.fields.color || series.color;
-        bulletOptions = this.evalPointOptions(
-            bulletOptions, value, category, categoryIx, series, seriesIx
-        );
-
+        bulletOptions = this.evalPointOptions(bulletOptions, value, fields);
         if (isFunction(series.color)) {
             color = bulletOptions.color;
         }
@@ -7322,8 +7327,6 @@ var RangeAreaChart = CategoricalChart.extend({
     },
 
     createPoint: function(data, fields) {
-        var categoryIx = fields.categoryIx;
-        var category = fields.category;
         var series = fields.series;
         var seriesIx = fields.seriesIx;
         var value = data.valueFields;
@@ -7340,9 +7343,7 @@ var RangeAreaChart = CategoricalChart.extend({
         }
 
         var pointOptions = this.pointOptions(series, seriesIx);
-        pointOptions = this.evalPointOptions(
-            pointOptions, value, category, categoryIx, series, seriesIx
-        );
+        pointOptions = this.evalPointOptions(pointOptions, value, fields);
 
         var color = data.fields.color || series.color;
         if (isFunction(series.color)) {
@@ -12960,7 +12961,13 @@ var HeatmapChart = ChartElement.extend({
     evalPointOptions: function(options, value, fields) {
         var series = fields.series;
         var seriesIx = fields.seriesIx;
-        var state = { defaults: series._defaults, excluded: [ "data", "tooltip", "content", "template", "visual", "toggle" ] };
+        var state = {
+            defaults: series._defaults,
+            excluded: [
+                "data", "tooltip", "content", "template",
+                "visual", "toggle", "drilldownSeriesFactory"
+            ]
+        };
 
         var doEval = this._evalSeries[seriesIx];
         if (!defined(doEval)) {
@@ -13463,25 +13470,25 @@ PlotAreaFactory.current.register(HeatmapPlotArea, [ HEATMAP ]);
 
 SeriesBinder.current.register(
     [ BAR, COLUMN, LINE, VERTICAL_LINE, AREA, VERTICAL_AREA ],
-    [ VALUE ], [ CATEGORY, COLOR, NOTE_TEXT, ERROR_LOW_FIELD, ERROR_HIGH_FIELD ]
+    [ VALUE ], [ CATEGORY, COLOR, NOTE_TEXT, ERROR_LOW_FIELD, ERROR_HIGH_FIELD, DRILLDOWN_FIELD ]
 );
 
 SeriesBinder.current.register(
     [ RANGE_COLUMN, RANGE_BAR, RANGE_AREA, VERTICAL_RANGE_AREA ],
-    [ FROM, TO ], [ CATEGORY, COLOR, NOTE_TEXT ]
+    [ FROM, TO ], [ CATEGORY, COLOR, NOTE_TEXT, DRILLDOWN_FIELD ]
 );
 
 SeriesBinder.current.register(
     [ WATERFALL, HORIZONTAL_WATERFALL ],
-    [ VALUE ], [ CATEGORY, COLOR, NOTE_TEXT, SUMMARY_FIELD ]
+    [ VALUE ], [ CATEGORY, COLOR, NOTE_TEXT, SUMMARY_FIELD, DRILLDOWN_FIELD ]
 );
 
-SeriesBinder.current.register([ POLAR_AREA, POLAR_LINE, POLAR_SCATTER ], [ X, Y ], [ COLOR ]);
-SeriesBinder.current.register([ RADAR_AREA, RADAR_COLUMN, RADAR_LINE ], [ VALUE ], [ COLOR ]);
+SeriesBinder.current.register([ POLAR_AREA, POLAR_LINE, POLAR_SCATTER ], [ X, Y ], [ COLOR, DRILLDOWN_FIELD ]);
+SeriesBinder.current.register([ RADAR_AREA, RADAR_COLUMN, RADAR_LINE ], [ VALUE ], [ COLOR, DRILLDOWN_FIELD ]);
 
 SeriesBinder.current.register(
     [ FUNNEL ],
-    [ VALUE ], [ CATEGORY, COLOR, "visibleInLegend", "visible" ]
+    [ VALUE ], [ CATEGORY, COLOR, "visibleInLegend", "visible", DRILLDOWN_FIELD ]
 );
 
 DefaultAggregates.current.register(
@@ -13526,7 +13533,7 @@ DefaultAggregates.current.register(
 
 SeriesBinder.current.register(
     [ BOX_PLOT, VERTICAL_BOX_PLOT ],
-    [ "lower", "q1", "median", "q3", "upper", "mean", "outliers" ], [ CATEGORY, COLOR, NOTE_TEXT ]
+    [ "lower", "q1", "median", "q3", "upper", "mean", "outliers" ], [ CATEGORY, COLOR, NOTE_TEXT, DRILLDOWN_FIELD ]
 );
 
 DefaultAggregates.current.register(
@@ -13537,7 +13544,7 @@ DefaultAggregates.current.register(
 
 SeriesBinder.current.register(
     [ BULLET, VERTICAL_BULLET ],
-    [ "current", "target" ], [ CATEGORY, COLOR, "visibleInLegend", NOTE_TEXT ]
+    [ "current", "target" ], [ CATEGORY, COLOR, "visibleInLegend", NOTE_TEXT, DRILLDOWN_FIELD ]
 );
 
 DefaultAggregates.current.register(
@@ -13547,7 +13554,7 @@ DefaultAggregates.current.register(
 
 SeriesBinder.current.register(
     [ PIE, DONUT ],
-    [ VALUE ], [ CATEGORY, COLOR, "explode", "visibleInLegend", "visible" ]
+    [ VALUE ], [ CATEGORY, COLOR, "explode", "visibleInLegend", "visible", DRILLDOWN_FIELD ]
 );
 
 var AXIS_NAMES = [ CATEGORY, VALUE, X, Y ];
@@ -14089,10 +14096,17 @@ var Chart = Class.extend({
     trigger: function(name, args) {
         if (args === void 0) { args = {}; }
 
+        args.sender = this;
+
         if (name === SHOW_TOOLTIP) {
             args.anchor.point = this._toDocumentCoordinates(args.anchor.point);
+        } else if (name === SERIES_OVER) {
+            this._updateDrilldownPoint(args.point);
+        } else if (name === SERIES_LEAVE) {
+            this._resetDrilldownPoint();
+        } else if (name === SERIES_CLICK) {
+            this._startDrilldown(args.point);
         }
-        args.sender = this;
 
         var observers = this.observers;
         var isDefaultPrevented = false;
@@ -14646,6 +14660,41 @@ var Chart = Class.extend({
         }
     },
 
+    _updateDrilldownPoint: function(point) {
+        if (!point || !point.series) {
+            return;
+        }
+
+        var ref = SeriesBinder.current.bindPoint(point.series, null, point.dataItem);
+        var fields = ref.fields;
+        if (fields.drilldown) {
+            this._drilldownState = { cursor: this.element.style.cursor };
+            this.element.style.cursor = 'pointer';
+        }
+    },
+
+    _resetDrilldownPoint: function() {
+        if (this._drilldownState) {
+            this.element.style.cursor = this._drilldownState.cursor;
+            this._drilldownState = null;
+        }
+    },
+
+    _startDrilldown: function(point) {
+        if (!point || !point.series) {
+            return;
+        }
+
+        var series = point.series;
+        var ref = SeriesBinder.current.bindPoint(series, null, point.dataItem);
+        var fields = ref.fields;
+        var value = fields.drilldown;
+        if (value) {
+            var args = { series: series, point: point, value: value, sender: this };
+            this.trigger(DRILLDOWN, args);
+        }
+    },
+
     _updateSeriesOpacity: function(point, resetOpacity) {
         var this$1 = this;
 
@@ -15158,7 +15207,7 @@ var Chart = Class.extend({
         }
 
         this._unsetActivePoint();
-
+        this._resetDrilldownPoint();
         this._destroySelections();
 
         if (this._tooltip) {

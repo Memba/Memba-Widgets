@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -83,6 +83,7 @@ var __meta__ = {
         getDate = date.getDate,
         getMilliseconds = kendo.date.getMilliseconds,
         recurrence = kendo.recurrence,
+        encode = kendo.htmlEncode,
         keys = kendo.keys,
         ui = kendo.ui,
         Widget = ui.Widget,
@@ -1546,7 +1547,7 @@ var __meta__ = {
                                     '<ul class="k-listgroup k-listgroup-flush">' +
                                         '<li class="k-item k-listgroup-item">' +
                                             '<label class="k-label k-listgroup-form-row">' +
-                                                '<span class="k-item-title k-listgroup-form-row">' + messages.editor.separateTimezones + '</span>' +
+                                                '<span class="k-item-title k-listgroup-form-row">' + encode(messages.editor.separateTimezones) + '</span>' +
                                                 '<span class="k-listgroup-form-field-wrapper">' +
                                                     '<input class="k-timezone-toggle" data-role="switch" type="checkbox" />' +
                                                 '</span>' +
@@ -1695,7 +1696,7 @@ var __meta__ = {
                 '<div data-role="header" class="k-header">' +
                     '<a href="\\#" class="k-header-cancel k-scheduler-cancel k-link" title="' + messages.cancel + '"' +
                     `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
-                    messages.editor.timezoneTitle +
+                    encode(messages.editor.timezoneTitle) +
                     '<a href="\\#" class="k-header-done k-scheduler-update k-link" title="' + messages.save + '" ' +
                     `aria-label="${messages.save}">${kendo.ui.icon("check")}</a>` +
                 '</div><div data-role="content"></div>';
@@ -1783,7 +1784,7 @@ var __meta__ = {
                 '<div data-role="header" class="k-header">' +
                     '<a href="#" class="k-header-cancel k-scheduler-cancel k-link" title="' + cancelText + '"' +
                     `aria-label="${cancelText}">${kendo.ui.icon("chevron-left")}</a>` +
-                    titleText +
+                    encode(titleText) +
                     '<a href="#" class="k-header-done k-scheduler-update k-link" title="' + updateText + '" ' +
                     `aria-label="${updateText}">${kendo.ui.icon("check")}</a>` +
                 '</div>';
@@ -1970,7 +1971,11 @@ var __meta__ = {
 
             if (!that.trigger(EDIT, { container: container, model: model })) {
 
-                container.data("kendoWindow").center().open();
+                if (editable.window && editable.window.position) {
+                    container.data("kendoWindow").open();
+                } else {
+                    container.data("kendoWindow").center().open();
+                }
 
                 container.on(CLICK + NS, "button.k-scheduler-cancel", function(e) {
                     e.preventDefault();
@@ -5693,4 +5698,5 @@ var __meta__ = {
     ui.plugin(MobileTimezoneEditor);
 
 })(window.kendo.jQuery);
+export default kendo;
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -9,12 +9,13 @@
 import "./kendo.core.js";
 import "./kendo.buttongroup.js";
 import "./kendo.icons.js";
+import "./kendo.toolbar.js";
 
 var __meta__ = {
     id: "filter",
     name: "Filter",
     category: "web",
-    depends: [ "core", "buttongroup", "icons" ]
+    depends: ["core", "buttongroup", "icons", "toolbar"]
 };
 
 var defaultValues = {
@@ -24,94 +25,39 @@ var defaultValues = {
     "date": ""
 };
 
-var operatorsTemplate = ({ ns, operatorsLabel, operators }) =>
-    `<select data-${ns}bind='value: operator' title='${operatorsLabel}' data-${ns}role='dropdownlist'>` +
-        `${Object.keys(operators || {}).map(op => "<option value='" + op + "'>" + (operators[op].text || operators[op]) + "</option>" ).join("")}` +
-    "</select>";
 
-var logicTemplate = ({ ns, operators }) =>
-    `<div data-${ns}bind='value: logic' data-${ns}role='filterbuttongroup'>` +
-        `${Object.keys(operators || {}).map(op => "<span value='" + op + "'>" + operators[op] + "</span>" ).join("")}` +
-    "</div>";
+var logicToolbarItemConfig = ({ ns, operators }) =>
+({
+    type: "component", element: `<div data-${ns}bind="value: logic"></div>`, component: "FilterButtonGroup",
+    componentOptions: {
+        items: Object.keys(operators || {}).map(op => ({ value: op, text: (operators[op].text || operators[op]), attributes: { value: op } }))
+    },
+    attributes: { "data-bind": "value: logic", title: "logic" }
+});
 
-var mainContainer =
-    "<ul class='k-filter-container'>" +
-        "<li class='k-filter-group-main'></li>" +
+var mainContainer = (ariaLabel) =>
+    `<ul class='k-filter-container' role='tree' aria-label='${ariaLabel}'>` +
+        "<li class='k-filter-group-main' role='treeitem'></li>" +
     "</ul>";
 
 var mainLogicTemplate = ({ mainFilterLogicLabel, uid, addExpression, addGroup, close, ns, operators }) =>
     "<div class='k-filter-toolbar'>" +
-        `<div role='toolbar' aria-label='${mainFilterLogicLabel}' class='k-toolbar k-toolbar-md' id='${uid}'>` +
-            "<div class='k-filter-toolbar-item'>" +
-                logicTemplate({ ns, operators }) +
-            "</div>" +
-            "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' data-command='expression' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addExpression}' aria-label='${addExpression}' tabindex='0'>` +
-                    kendo.ui.icon({ icon: "filter-add-expression", iconClass: "k-button-icon" }) +
-                    "</span>" +
-                "</button>" +
-            "</div>" +
-            "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' data-command='group' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' aria-disabled='false' title='${addGroup}' aria-label='${addGroup}' tabindex='0'>` +
-                    kendo.ui.icon({ icon: "filter-add-group", iconClass: "k-button-icon" }) +
-                    "</span>" +
-                "</button>" +
-            "</div>" +
-            "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' data-command='x' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
-                    kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" }) +
-                "</button>" +
-            "</div>" +
-        "</div>" +
+        `<div class='k-toolbar' aria-label='${mainFilterLogicLabel}' id='${uid}'></div>` +
     "</div>";
 
 var logicItemTemplate = ({ filterLogicLabel, addExpression, addGroup, close, ns, operators }) =>
-"<li class='k-filter-item'>" +
-    "<div class='k-filter-toolbar'>" +
-        `<div role='toolbar' aria-label='${filterLogicLabel}' class='k-toolbar k-toolbar-md'>` +
-            "<div class='k-filter-toolbar-item'>" +
-                logicTemplate({ ns, operators }) +
-            "</div>" +
-            "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' data-command='expression' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addExpression}' aria-label='${addExpression}' aria-disabled='false' tabindex='0'>` +
-                    kendo.ui.icon({ icon: "filter-add-expression", iconClass: "k-button-icon" }) +
-                "</button>" +
-            "</div>" +
-            "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' data-command='group' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button' role='button' title='${addGroup}' aria-label='${addGroup}' aria-disabled='false' tabindex='0'>` +
-                    kendo.ui.icon({ icon: "filter-add-group", iconClass: "k-button-icon" }) +
-                "</button>" +
-            "</div>" +
-            "<div class='k-filter-toolbar-item'>" +
-                `<button data-role='button' data-command='x' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
-                    kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" }) +
-                "</button>" +
-            "</div>" +
+    "<li class='k-filter-item' role='treeitem'>" +
+        "<div class='k-filter-toolbar'>" +
+            `<div role='toolbar' aria-label='${filterLogicLabel}' class='k-toolbar'></div>` +
         "</div>" +
-    "</div>" +
-"</li>";
+    "</li>";
 
-var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fields, close }) =>
-"<li class='k-filter-item'>" +
-    "<div class='k-filter-toolbar'>" +
-       `<div role='group' aria-label='${filterExpressionLabel}' class='k-toolbar k-toolbar-md' id='${uid}'>` +
-         "<div class='k-filter-toolbar-item k-filter-field'>" +
-            `<select data-${ns}bind='value: field' title='${fieldsLabel}' class='k-filter-dropdown' data-auto-width='true' data-${ns}role='dropdownlist'>` +
-                `${Object.keys(fields || {}).map(current => "<option value='" + fields[current].name + "'>" + fields[current].label + "</option>").join("")}` +
-            "</select>" +
-         "</div>" +
-         "<div class='k-filter-toolbar-item k-filter-operator'>" +
-         "</div>" +
-         "<div class='k-filter-toolbar-item k-filter-value'>" +
-         "</div>" +
-         "<div class='k-filter-toolbar-item'>" +
-            `<button data-role='button' data-command='x' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' role='button' title='${close}' aria-label='${close}' aria-disabled='false' tabindex='0'>` +
-                kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" }) +
-            "</button>" +
-         "</div>" +
-       "</div>" +
-    "</div>" +
-"</li>";
+var expressionItemTemplate = ({ filterExpressionLabel, uid }) =>
+    "<li class='k-filter-item' role='treeitem'>" +
+        "<div class='k-filter-toolbar'>" +
+            `<div role='group' aria-label='${filterExpressionLabel}' class='k-toolbar' id='${uid}'></div>` +
+        "</div>" +
+    "</li>";
 
 
 (function($) {
@@ -119,25 +65,28 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
         ui = kendo.ui,
         guid = kendo.guid,
         ns = kendo.ns,
+        keys = kendo.keys,
         Widget = ui.Widget,
         ButtonGroup = ui.ButtonGroup,
+        KENDO_FOCUSABLE = ":kendoFocusable",
         CHANGE = "change",
+        TABINDEX = "tabindex",
         NS = ".kendoFilter",
         EQ = "Is equal to",
         NEQ = "Is not equal to";
 
     var editors = {
         "number": function(container, { field }) {
-            $(`<input id='${guid()}' type='text' aria-label='${field}' title='${field}' data-${ns}role='numerictextbox' data-${ns}bind='value: value'/>`).appendTo(container);
+            $(`<input tabindex='-1' id='${guid()}' type='text' aria-label='${field}' title='${field}' data-${ns}role='numerictextbox' data-${ns}bind='value: value'/>`).appendTo(container);
         },
         "string": function(container, { field }) {
-            $(`<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input id='${guid()}' type='text' aria-label='${field}' title='${field}' class='k-input-inner' data-${kendo.ns}bind='value: value'/></span>`).appendTo(container);
+            $(`<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'><input tabindex='-1' id='${guid()}' type='text' aria-label='${field}' title='${field}' class='k-input-inner' data-${kendo.ns}bind='value: value'/></span>`).appendTo(container);
         },
         "boolean": function(container, { field }) {
-            $(`<input id='${guid()}' class='k-checkbox k-checkbox-md k-rounded-md' aria-label='${field}' data-${ns}role='checkbox' data-${ns}bind='checked: value' type='checkbox'>`).appendTo(container);
+            $(`<input tabindex='-1' id='${guid()}' class='k-checkbox k-checkbox-md k-rounded-md' aria-label='${field}' data-${ns}role='checkbox' data-${ns}bind='checked: value' type='checkbox'>`).appendTo(container);
         },
         "date": function(container, { field }) {
-            $(`<input id='${guid()}' type='text' aria-label='${field}' title='${field}' data-${ns}role='datepicker' data-${ns}bind='value: value'/>`).appendTo(container);
+            $(`<input tabindex='-1' id='${guid()}' type='text' aria-label='${field}' title='${field}' data-${ns}role='datepicker' data-${ns}bind='value: value'/>`).appendTo(container);
         }
     };
 
@@ -167,7 +116,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
         }
     });
 
-    var Filter = Widget.extend( {
+    var Filter = Widget.extend({
         init: function(element, options) {
             var that = this;
             var html;
@@ -194,6 +143,11 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             }
             that._attachEvents();
             that.hasCustomOperators();
+
+            var toolbars = $(that.element).find('.k-filter-toolbar > .k-toolbar');
+            toolbars.attr(TABINDEX, -1);
+            toolbars.find(KENDO_FOCUSABLE).attr(TABINDEX, -1);
+            toolbars.eq(0).attr(TABINDEX, 0);
         },
 
         events: [
@@ -216,6 +170,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                 fields: "Fields",
                 filterExpressionLabel: "filter expression",
                 filterLogicLabel: "filter logic",
+                filterAriaLabel: "filter component",
                 mainFilterLogicLabel: "main filter logic",
                 operators: "Operators",
                 addGroup: "Add Group"
@@ -316,25 +271,72 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             }
         },
 
-        _attachEvents: function() {
+         _click: function(e) {
             var that = this;
+            e.preventDefault();
 
-            that.element.on("click" + NS, "button.k-button" , function(e) {
-                e.preventDefault();
+            var button = $(e.currentTarget);
+            var command = button.data("command");
 
-                var button = $(e.currentTarget);
-                var command = button.data("command");
+            if (command == "x") {
+                that._removeExpression(button.closest(".k-toolbar"));
+            } else if (command == "expression") {
+                that._addExpression(button.closest(".k-toolbar"));
+            } else if (command == "group") {
+                that._addGroup(button.closest(".k-toolbar"));
+            } else if (command == "apply") {
+                that.applyFilter();
+            }
+        },
 
-                if (command == "x") {
-                    that._removeExpression(button.closest(".k-toolbar"));
-                } else if (command == "expression") {
-                    that._addExpression(button.closest(".k-toolbar"));
-                } else if (command == "group") {
-                    that._addGroup(button.closest(".k-toolbar"));
-                } else if (command == "apply") {
-                    that.applyFilter();
-                }
-            });
+        _keydown: function(ev) {
+            var that = this,
+                target = $(ev.target),
+                key = ev.keyCode;
+            var currentToolbar = target.closest(".k-toolbar");
+            var isToolbar = target.is(".k-toolbar");
+
+            if (key === keys.UP && isToolbar) {
+                ev.preventDefault();
+                that._focusToolbar(currentToolbar, "prev");
+            } else if (key == keys.DOWN && isToolbar) {
+                ev.preventDefault();
+                that._focusToolbar(currentToolbar, "next");
+            } else if (key == keys.ESC) {
+                ev.stopPropagation();
+                that._focusToolbar(currentToolbar);
+            } else if (key == keys.ENTER && isToolbar) {
+                let item = currentToolbar.find(".k-toolbar-item").eq(0);
+                item.attr(TABINDEX, 0).trigger("focus");
+            }
+        },
+
+        _attachEvents: function() {
+            var that = this,
+            clickProxy = that._click.bind(that),
+            keydownProxy = that._keydown.bind(that);
+
+            that.element
+                .on("click" + NS, "button.k-button", clickProxy)
+                .on("keydown" + NS, '.k-filter-toolbar > .k-toolbar, .k-filter-toolbar > .k-toolbar .k-toolbar-item', keydownProxy);
+        },
+
+        _focusToolbar: function(toolbarEl, direction, index) {
+            var that = this;
+            var toolbarToFocus = toolbarEl;
+            var toolbars = $(that.element).find('.k-filter-toolbar > .k-toolbar');
+            toolbars.attr(TABINDEX, -1);
+            toolbars.find(KENDO_FOCUSABLE).attr(TABINDEX, -1);
+
+            if (direction == "next") {
+                let next = Math.min(toolbars.length - 1, index || (toolbars.index(toolbarEl) + 1));
+                toolbarToFocus = toolbars.eq(next);
+            } else if (direction == "prev") {
+                let prev = Math.max(0, index || (toolbars.index(toolbarEl) - 1));
+                toolbarToFocus = toolbars.eq(prev);
+            }
+
+            toolbarToFocus.attr(TABINDEX, 0).trigger("focus");
         },
 
         _addExpression: function(parentContainer, model) {
@@ -358,10 +360,10 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             }
 
             if (!itemsContainer.length) {
-                itemsContainer = $("<ul class='k-filter-lines'></ul>").appendTo(parentContainer.closest("li"));
+                itemsContainer = $("<ul class='k-filter-lines' role='group'></ul>").appendTo(parentContainer.closest("li"));
             }
 
-            itemHTML = $(kendo.template(expressionItemTemplate)({
+            var templateOptions = {
                 fields: that._fields,
                 operators: that.operators[field.type],
                 close: that.options.messages.close,
@@ -369,7 +371,45 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                 uid: expressionModel.uid,
                 ns: kendo.ns,
                 filterExpressionLabel: that.options.messages.filterExpressionLabel
-            })).appendTo(itemsContainer);
+            };
+
+            itemHTML = $(kendo.template(expressionItemTemplate)(templateOptions)).appendTo(itemsContainer);
+            var toolbarEl = itemHTML.find(".k-toolbar").first();
+            var templateOperators = field.operators && field.operators[field.type] ? field.operators[field.type] : this.operators[field.type];
+
+            toolbarEl.kendoToolBar({
+                resizable: false,
+                items: [
+                    {
+                        type: "component",
+                        component: "DropDownList",
+                        element: `<select data-${ns}bind="value: field" class='k-filter-dropdown' title='${that.options.messages.fields}' aria-label='${that.options.messages.fields}' data-auto-width='true'></select>`,
+                        attributes: { 'class': "k-filter-field" },
+                        componentOptions: {
+                            title: that.options.messages.fields,
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            dataSource: Object.keys(that._fields || {}).map(current => ({ value: that._fields[current].name, text: that._fields[current].label }))
+                        }
+                    },{
+                        type: "component",
+                        component: "DropDownList",
+                        element: `<select data-${ns}bind="value: operator" aria-label='${that.options.messages.operators}' title='${that.options.messages.operators}'></select>`,
+                        attributes: { 'class': "k-filter-operator" },
+                        componentOptions: {
+                            title: that.options.messages.operators,
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            dataSource: Object.keys(templateOperators || {}).map(op => ({ value: op, text: (templateOperators.text || templateOperators[op]) }))
+                        }
+                    },
+                    {
+                        attributes: { class: "k-filter-value" },
+                        template: " "
+                    },
+                    { type: "button", icon: 'x', fillMode: "flat", attributes: { "data-command": "x", title: templateOptions.close, 'aria-label': templateOptions.close } }
+                ]
+            });
 
             that._addExpressionControls(itemHTML.find(".k-toolbar"), field, expressionModel);
 
@@ -379,27 +419,26 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
         },
 
         _addExpressionControls: function(container, field, filterModel) {
-            var items = container.find(".k-filter-toolbar-item");
-            var operatorsContainer = items.eq(1);
-            var editorContainer = items.eq(2);
-
-            kendo.destroy(operatorsContainer);
+            var operatorsContainer = container.find(".k-toolbar-item.k-filter-operator");
+            var editorContainer = container.find(".k-toolbar-item.k-filter-value");
+            editorContainer.addClass("k-toolbar-tool");
             kendo.destroy(editorContainer);
-            operatorsContainer.empty();
             editorContainer.empty();
 
-            this._appendOperators(operatorsContainer, field);
+            this._bindOperators(operatorsContainer, field);
             this._appendEditor(editorContainer, field);
             this._bindModel(container, filterModel);
             this._showHideEditor(container, filterModel);
+
+            container.find(KENDO_FOCUSABLE).attr(TABINDEX, -1);
         },
 
-        _appendOperators: function(container, field) {
-            $(kendo.template(operatorsTemplate)({
-                operators: field.operators && field.operators[field.type] ? field.operators[field.type] : this.operators[field.type],
-                operatorsLabel: this.options.messages.operators,
-                ns: kendo.ns
-            })).appendTo(container);
+        _bindOperators: function(container, field) {
+            var templateOperators = field.operators && field.operators[field.type] ? field.operators[field.type] : this.operators[field.type];
+            var dropDownList = container.find('select[data-role=dropdownlist]').getKendoDropDownList();
+            if (dropDownList) {
+                dropDownList.setDataSource(Object.keys(templateOperators || {}).map(op => ({ value: op, text: (templateOperators.text || templateOperators[op]) })));
+            }
         },
 
         _appendEditor: function(container, field) {
@@ -451,10 +490,10 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             }
 
             if (!itemsContainer.length) {
-                itemsContainer = $("<ul class='k-filter-lines'></ul>").appendTo(parent.closest("li"));
+                itemsContainer = $("<ul class='k-filter-lines' role='group'></ul>").appendTo(parent.closest("li"));
             }
 
-            logicHTML = $(kendo.template(logicItemTemplate)({
+            var templateOptions = {
                 operators: {
                     and: that.options.messages.and,
                     or: that.options.messages.or
@@ -464,9 +503,14 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                 close: that.options.messages.close,
                 ns: kendo.ns,
                 filterLogicLabel: that.options.messages.filterLogicLabel
-            })).appendTo(itemsContainer);
+            };
 
-            that._bindModel(logicHTML.find(".k-toolbar"), filterModel);
+            logicHTML = $(kendo.template(logicItemTemplate)(templateOptions)).appendTo(itemsContainer);
+
+            var toolbarEl = logicHTML.find(".k-toolbar");
+            that._initGroupToolBar(toolbarEl, templateOptions);
+
+            that._bindModel(toolbarEl, filterModel);
 
             if (!model) {
                 that._expressionChange();
@@ -608,7 +652,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                 return;
             }
             for (var i = filters.length - 1; i >= 0; i--) {
-                if ((filters[i].logic && !filters[i].filters) || (filters[i].filters && !this._hasFieldsFilter(filters[i].filters)) ) {
+                if ((filters[i].logic && !filters[i].filters) || (filters[i].filters && !this._hasFieldsFilter(filters[i].filters))) {
                     filters.splice(i, 1);
                     continue;
                 }
@@ -626,7 +670,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             that._showHideEditor(container, e.sender);
             if (e.field !== "field") {
                 if (e.field !== "filters") {
-                  that._expressionChange();
+                    that._expressionChange();
                 }
                 return;
             }
@@ -648,7 +692,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
         _renderMain: function() {
             var that = this;
 
-            $(mainContainer).appendTo(that.element);
+            $(mainContainer(that.options.messages.filterAriaLabel)).appendTo(that.element);
 
             if (that.options.expression) {
                 that.filterModel = kendo.observable(that.options.expression);
@@ -658,7 +702,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                 });
             }
 
-            $(kendo.template(mainLogicTemplate)({
+            var templateOptions = {
                 operators: {
                     and: that.options.messages.and,
                     or: that.options.messages.or
@@ -669,9 +713,27 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                 uid: that.filterModel.uid,
                 ns: kendo.ns,
                 mainFilterLogicLabel: that.options.messages.mainFilterLogicLabel
-            })).appendTo(that.element.find("li").first());
+            };
 
-            that._bindModel(that.element.find(".k-toolbar").first(), that.filterModel);
+            var logicEl = $(kendo.template(mainLogicTemplate)(templateOptions));
+            logicEl.appendTo(that.element.find("li").first());
+
+            var toolbarEl = logicEl.find(".k-toolbar").first();
+            that._initGroupToolBar(toolbarEl, templateOptions);
+
+            that._bindModel(toolbarEl, that.filterModel);
+        },
+
+        _initGroupToolBar: function(element, templateOptions) {
+            element.kendoToolBar({
+                resizable: false,
+                items: [
+                    logicToolbarItemConfig(templateOptions),
+                    { type: "button", icon: 'filter-add-expression', attributes: { "data-command": "expression", title: templateOptions.addExpression, 'aria-label': templateOptions.addExpression } },
+                    { type: "button", icon: 'filter-add-group', attributes: { "data-command": "group", title: templateOptions.addGroup, 'aria-label': templateOptions.addGroup } },
+                    { type: "button", icon: 'x', fillMode: "flat", attributes: { "data-command": "x", title: templateOptions.close, 'aria-label': templateOptions.close } }
+                ]
+            });
         },
 
         _removeExpression: function(parent) {
@@ -681,6 +743,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             var isMain = itemContainer.hasClass("k-filter-group-main");
             var parentModel;
             var model;
+            var index = -1;
 
             if (isMain) {
                 itemContainer = itemContainer.find(".k-filter-lines");
@@ -689,6 +752,8 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
                     delete that.filterModel.filters;
                 }
             } else {
+                let toolbars = $(that.element).find('.k-filter-toolbar > .k-toolbar');
+                index = toolbars.index(parent);
                 model = findModel(that.filterModel, parentUID);
                 parentModel = model.parent();
                 model.unbind("change", that._modelChangeHandler);
@@ -704,6 +769,10 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             kendo.destroy(itemContainer);
             itemContainer.remove();
             that._expressionChange();
+
+            if (index > -1) {
+                that._focusToolbar(parent, "next", index);
+            }
         },
 
         _renderApplyButton: function() {
@@ -724,7 +793,7 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
             }
 
             var operator = model.operator;
-            var editorContainer = container.find(".k-filter-toolbar-item").eq(2);
+            var editorContainer = container.find(".k-toolbar-item.k-filter-value");
             if (operator == "isnull" || operator == "isnotnull" || operator == "isempty" ||
                 operator == "isnotempty" || operator == "isnullorempty" || operator == "isnotnullorempty") {
                 editorContainer.hide();
@@ -798,4 +867,5 @@ var expressionItemTemplate = ({ filterExpressionLabel, ns, uid, fieldsLabel, fie
     ui.plugin(Filter);
     ui.plugin(FilterButtonGroup);
 })(window.kendo.jQuery);
+export default kendo;
 

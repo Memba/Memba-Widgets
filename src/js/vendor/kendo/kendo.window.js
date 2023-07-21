@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -528,7 +528,7 @@ import "./kendo.html.button.js";
                     this.dragging = null;
                 }
                 if (draggable) {
-                    this.dragging = new WindowDragging(this, draggable.dragHandle || KWINDOWTITLEBAR);
+                    this.dragging = new WindowDragging(this, draggable.dragHandle || KWINDOWTITLEBAR, draggable.clickMoveClick);
                 }
             },
 
@@ -2054,13 +2054,20 @@ import "./kendo.html.button.js";
             }
         };
 
-        function WindowDragging(wnd, dragHandle) {
-            var that = this;
+        function WindowDragging(wnd, dragHandle, clickMoveClick) {
+            var that = this,
+                filter = dragHandle;
+
+            if (clickMoveClick) {
+                filter += ",.k-overlay";
+            }
+
             that.owner = wnd;
             that._preventDragging = false;
             that._draggable = new Draggable(wnd.wrapper, {
                 filter: dragHandle,
                 group: wnd.wrapper.id + "-moving",
+                clickMoveClick: clickMoveClick,
                 dragstart: that.dragstart.bind(that),
                 drag: that.drag.bind(that),
                 dragend: that.dragend.bind(that),
@@ -2205,4 +2212,5 @@ import "./kendo.html.button.js";
         kendo.ui.plugin(Window);
 
     })(window.kendo.jQuery);
+export default kendo;
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -160,6 +160,7 @@ var __meta__ = {
             delete options.text;
             delete options.imageUrl;
             delete options.click;
+            delete options.iconClass;
 
             html.renderButton(that.arrowButton, options);
         },
@@ -372,4 +373,5 @@ var __meta__ = {
     ui.plugin(SplitButton);
 
 })(window.kendo.jQuery);
+export default kendo;
 

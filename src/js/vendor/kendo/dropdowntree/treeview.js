@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -146,8 +146,7 @@ import "../kendo.treeview.js";
                 }
             }
 
-            that.wrapper.attr("role", "tree");
-            that.wrapper.find(">ul").attr("role", "none");
+            that.wrapper.find(">ul").attr("role", "tree");
 
             this.trigger(DATABOUND, { node: node ? parentNode : undefined });
             this.dropdowntree._treeViewDataBound({ node: node ? parentNode : undefined, sender: this });

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -446,6 +446,14 @@ var __meta__ = {
                 widgetInstance = kendo.widgetInstance(input.closest(".k-signature"));
             }
 
+            if (input.is("[type=radio]")) {
+                widgetInstance = kendo.widgetInstance(input.closest(".k-radio-list"));
+            }
+
+            if (input.is("[type=checkbox]")) {
+                widgetInstance = kendo.widgetInstance(input.closest(".k-checkbox-list"));
+            }
+
             if (!valid && !input.data("captcha_validating")) {
                 that._errors[fieldName] = messageText;
                 var lblId = lbl.attr('id');
@@ -475,7 +483,7 @@ var __meta__ = {
                         widgetInstance = kendo.widgetInstance(input.closest(".k-checkbox-list"));
                     }
 
-                    if (widgetInstance && widgetInstance.wrapper && (widgetInstance.element !== widgetInstance.wrapper || widgetInstance.options.name == "Signature")) {
+                    if (widgetInstance && widgetInstance.wrapper && (widgetInstance.element !== widgetInstance.wrapper || ["Signature", "RadioGroup", "CheckBoxGroup"].indexOf(widgetInstance.options.name) > -1)) {
                         messageLabel.insertAfter(widgetInstance.wrapper);
                     } else if (parentElement && parentElement.nodeName === "LABEL") {
                         // Input inside label
@@ -799,4 +807,5 @@ var __meta__ = {
 
     kendo.ui.plugin(Validator);
 })(window.kendo.jQuery);
+export default kendo;
 

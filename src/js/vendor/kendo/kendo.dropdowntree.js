@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -312,7 +312,7 @@ var __meta__ = {
                 "singleTag": "item(s) selected",
                 "clear": "clear",
                 "deleteTag": "delete",
-                "noData": () => "No data found."
+                "noData": "No data found."
             },
             minLength: 1,
             checkboxes: false,
@@ -606,7 +606,7 @@ var __meta__ = {
                 "aria-haspopup": "tree",
                 "aria-expanded": false,
                 "aria-controls": this.treeview.element.attr("id"),
-                "role": "listbox"
+                "role": "combobox"
             });
 
             this._activeId = kendo.guid();
@@ -616,19 +616,16 @@ var __meta__ = {
                 this.filterInput.attr("aria-label", this.options.filterLabel);
             }
 
-            if (!this.options.checkboxes && input.text().length) {
-                input.attr("role", "option");
-                input.attr("aria-selected", "true");
-                input.attr("id", this._activeId);
-
-                this.wrapper.attr("aria-activedescendant", this._activeId);
-            } else if (this.options.checkboxes) {
+            if (this.options.checkboxes) {
                 this.wrapper.attr({
-                    "aria-multiselectable": true,
                     "aria-describedby": this.tagList[0].id
                 });
-
-                this.tagList.attr("role", "none");
+                this.tagList.attr({
+                    "role": "listbox",
+                    "aria-orientation": "horizontal",
+                    "aria-multiselectable": true
+                });
+                this._ariaLabel(this.tagList);
             }
         },
 
@@ -658,7 +655,7 @@ var __meta__ = {
         _noData: function() {
             var list = this;
             var noData = $(list.noData);
-            var template = list.options.noDataTemplate === true ? list.options.messages.noData : list.options.noDataTemplate;
+            var template = list.options.noDataTemplate === true ? encode(list.options.messages.noData) : list.options.noDataTemplate;
 
             list.angular("cleanup", function() { return { elements: noData }; });
             kendo.destroy(noData);
@@ -670,7 +667,7 @@ var __meta__ = {
             }
 
             list.noData = $('<div class="k-no-data" style="display: none;"></div>').appendTo(list.list);
-            list.noDataTemplate = typeof template !== "function" ? kendo.template(template) : template;
+            list.noDataTemplate = typeof template !== "function" ? kendo.template(() => template) : template;
         },
 
         _renderNoData: function() {
@@ -878,16 +875,6 @@ var __meta__ = {
         _placeholder: function(show) {
             if (this.span) {
                 this.span.toggleClass("k-readonly", show).text(show ? this.options.placeholder : "");
-            }
-
-            if (this.span.text().trim().length > 0) {
-                this.span.parent().attr({
-                    role: "option",
-                    "aria-selected": true
-                });
-            } else {
-                this.span.removeAttr("role");
-                this.span.removeAttr("aria-selected");
             }
         },
 
@@ -1226,11 +1213,10 @@ var __meta__ = {
         },
 
         _clearButton: function() {
-            var clearTitle = this.options.messages.clear;
+            var clearTitle = encode(this.options.messages.clear);
 
             if (!this._clear) {
                 this._clear = $('<span unselectable="on" class="k-clear-value" title="' + clearTitle + '">' + kendo.ui.icon("x") + '</span>').attr({
-                    "role": "button",
                     "tabIndex": -1
                 });
             }
@@ -1275,7 +1261,7 @@ var __meta__ = {
                 e.preventDefault();
             } else {
                  this.wrapper.attr("aria-expanded", true);
-                 this.tree.attr("aria-hidden", false).attr("role", "tree");
+                 this.tree.attr("aria-hidden", false);
             }
         },
 
@@ -1429,7 +1415,7 @@ var __meta__ = {
                         placeholder: this.element.attr("placeholder"),
                         title: this.element.attr("title"),
                         role: "searchbox",
-                        "aria-haspopup": "listbox",
+                        "aria-haspopup": "tree",
                         "aria-autocomplete": "list"
                     });
 
@@ -2282,12 +2268,12 @@ var __meta__ = {
             var options = dropdowntree.options;
             var tagTemplate = options.valueTemplate;
             var isMultiple = options.tagMode === "multiple";
-            var singleTag = options.messages.singleTag;
+            var singleTag = encode(options.messages.singleTag);
 
             tagTemplate = tagTemplate ? kendo.template(tagTemplate) : dropdowntree.valueTemplate;
 
             dropdowntree.valueTemplate = function(data) {
-                return html.renderChip('<span unselectable="on" role="option"' +
+                return html.renderChip('<span ' +
                     'class="' + ((data.enabled === false) ? "k-disabled" : "") + '"' +
                     ((data.enabled === false) ? 'aria-disabled="true"' : '') +
                     '>' +
@@ -2297,8 +2283,8 @@ var __meta__ = {
                             rounded: "medium",
                             attr: {
                                 unselectable: "on",
-                                "aria-keyshortcuts": "Enter Delete"
-
+                                "aria-keyshortcuts": "Enter Delete",
+                                role: "option"
                             },
                             text: (isMultiple ? tagTemplate(data) : ('<span unselectable="on" data-bind="text: tags.length"></span>' +
                             '<span unselectable="on">&nbsp;' + singleTag + '</span>' )),
@@ -2461,4 +2447,5 @@ var __meta__ = {
     kendo.ui.DropDownTree.MultipleSelection = MultipleSelection;
 
 })(window.kendo.jQuery);
+export default kendo;
 

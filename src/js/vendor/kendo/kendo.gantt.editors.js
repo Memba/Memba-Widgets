@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -31,6 +31,7 @@ var __meta__ = {
         ui = kendo.ui,
         Observable = kendo.Observable,
         Widget = ui.Widget,
+        encode = kendo.htmlEncode,
         extend = $.extend,
         PERCENTAGE_FORMAT = "p0",
         GRID_HEIGHT = "23em",
@@ -147,7 +148,9 @@ var __meta__ = {
         showDialog: function(options) {
             var popupStyles = ganttStyles.popup,
                 wrapper = this.element,
-                dialogEl = $(kendo.format('<div class="' + popupStyles.formContainer + '">')).appendTo(wrapper),
+                task = options.model,
+                that = this,
+                dialogEl = $(kendo.format('<div class="' + popupStyles.formContainer + '" data-uid="' + task.uid + '">')).appendTo(wrapper),
                 messages = this.options.messages,
                 buttonsEl;
 
@@ -155,7 +158,7 @@ var __meta__ = {
             buttonsEl = $('<div class="' + popupStyles.buttonsContainer + '">');
             dialogEl.append(buttonsEl);
 
-            buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + messages.destroy + "</button>").kendoButton({
+            buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + encode(messages.destroy) + "</button>").kendoButton({
                 name: "delete",
                 themeColor: "primary",
                 icon: "trash",
@@ -166,7 +169,7 @@ var __meta__ = {
                 }
             }));
 
-            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + messages.cancel + "</button>").kendoButton({
+            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + encode(messages.cancel) + "</button>").kendoButton({
                 name: "cancel",
                 icon: "cancel",
                 click: (e) => {
@@ -189,7 +192,7 @@ var __meta__ = {
                 visible: false,
                 deactivate: function() {
                     this.destroy();
-                    wrapper.trigger("focus");
+                    that.trigger("close", { window: dialogEl });
                 }
             })
             .getKendoWindow();
@@ -205,13 +208,13 @@ var __meta__ = {
 
             buttonsEl.appendTo(dialogEl);
 
-            buttonsEl.append($("<button class='" + ganttStyles.buttonSave + "'>" + messages.save + "</button>").kendoButton({
+            buttonsEl.append($("<button class='" + ganttStyles.buttonSave + "'>" + encode(messages.save) + "</button>").kendoButton({
                 name: "update",
                 themeColor: "primary",
                 icon: "save",
                 click: this._onSave.bind(this)
             }));
-            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + messages.cancel + "</button>").kendoButton({
+            buttonsEl.append($("<button class='" + ganttStyles.buttonCancel + "'>" + encode(messages.cancel) + "</button>").kendoButton({
                 name: "cancel",
                 icon: "cancel",
                 click: this._onCancel.bind(this)
@@ -219,7 +222,7 @@ var __meta__ = {
             buttonsEl.append($("<span class='k-spacer'>"));
 
             if (this.options.editable.destroy !== false) {
-                buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + messages.destroy + "</button>").kendoButton({
+                buttonsEl.append($("<button class='" + ganttStyles.buttonDelete + "'>" + encode(messages.destroy) + "</button>").kendoButton({
                     name: "delete",
                     themeColor: "primary",
                     icon: "trash",
@@ -885,4 +888,5 @@ var __meta__ = {
         ResourceEditor: ResourceEditor
     };
 })(window.kendo.jQuery);
+export default kendo;
 

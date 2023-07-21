@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -730,10 +730,11 @@ import "./kendo.resizable.js";
                 var group = kendo.guid();
 
                 this._draggableInstance = new Draggable(this.element, {
-                    filter: headerSelector,
+                    filter: headerSelector + ",.k-layout-item-hint-reorder",
                     autoScroll: true,
                     ignore: ":input",
                     group: group,
+                    clickMoveClick: this.options.reorderable.clickMoveClick === false ? false : true,
                     hint: function(target) {
                         var item = target.closest(itemSelector);
                         var width = item.width();
@@ -746,6 +747,7 @@ import "./kendo.resizable.js";
                     },
                     dragstart: function(e) {
                         originalElement = $(e.currentTarget).closest(itemSelector);
+                        document.body.style.cursor = "move";
                     },
                     drag: function(e) {
                         var elementUnderCursor = kendo.elementUnderCursor(e);
@@ -808,11 +810,14 @@ import "./kendo.resizable.js";
                         }
                     },
                     dragend: function(e) {
+                        document.body.style.cursor = "auto";
+
                         if (!that.dropHint) {
                             e.sender.hint.remove();
                             that._removeDropHint();
                             return;
                         }
+
                         var newOrder = parseInt(that.dropHint.css("order"), 10);
                         var container = e.currentTarget.closest(itemSelector);
                         var items = that.element.find(itemSelector);
@@ -861,6 +866,15 @@ import "./kendo.resizable.js";
                             oldIndex: oldOrder,
                             container: container
                         });
+                    },
+                    dragcancel: function() {
+                        document.body.style.cursor = "auto";
+
+                        that._removeDropHint();
+
+                        if (originalElement) {
+                            originalElement.show();
+                        }
                     }
                 });
 
@@ -918,4 +932,5 @@ import "./kendo.resizable.js";
 
         $.extend(true, TileLayout, { styles: tileLayoutStyles });
     })(window.kendo.jQuery);
+export default kendo;
 

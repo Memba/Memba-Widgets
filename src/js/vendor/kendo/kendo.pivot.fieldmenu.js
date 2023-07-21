@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -28,9 +28,11 @@ var __meta__ = {
 (function($, undefined) {
     var kendo = window.kendo;
     var ui = kendo.ui;
+    var keys = kendo.keys;
     var encode = kendo.htmlEncode;
     var MENU = "kendoContextMenu";
     var NS = ".kendoPivotFieldMenu";
+    var KEYBOARD_NS = ".kendoPivotFieldMenuKeyboard";
     var Widget = ui.Widget;
     var FILTER_ITEM = "k-filter-item";
     var ARIA_LABEL = "aria-label",
@@ -75,6 +77,8 @@ var __meta__ = {
                 include: "Include Fields...",
                 clear: "Clear",
                 reset: "Reset",
+                filterOperatorsDropDownLabel: "Region Filter Operators",
+                filterValueTextBoxLabel: "Region Filter Value",
                 operators: {
                     contains: "Contains",
                     doesnotcontain: "Does not contain",
@@ -91,9 +95,14 @@ var __meta__ = {
 
             if (this.menu) {
                 this.menu.element.off(NS);
+                this.menu.element.off(KEYBOARD_NS);
                 this.menu.destroy();
                 this.menu = null;
                 this._applyProxy = this._resetIncludes = null;
+            }
+
+            if (this.wrapper) {
+                this.wrapper.off(KEYBOARD_NS);
             }
 
             if (this.treeView) {
@@ -122,10 +131,10 @@ var __meta__ = {
             };
 
             that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title: kendo.ui.icon("grid-layout") + '<span>' + options.messages.include + '</span>'
+                title: kendo.ui.icon("grid-layout") + '<span>' + encode(options.messages.include) + '</span>'
             }));
             that.wrapper.find(".k-column-menu-filter")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title: kendo.ui.icon("filter") + '<span>' + options.messages.filterFields + '</span>'
+                title: kendo.ui.icon("filter") + '<span>' + encode(options.messages.filterFields) + '</span>'
             }));
         },
 
@@ -171,6 +180,45 @@ var __meta__ = {
 
             that._createExpanders();
 
+            that.wrapper.on("keydown" + KEYBOARD_NS, function(ev) {
+                var key = ev.keyCode;
+                var menu = that.menu;
+                var focusableElementsSelector = ".k-columnmenu-item:visible,.k-treeview:visible,button.k-button:visible,.k-picker:visible,.k-input input.k-input-inner:visible";
+                var allFocusable = that.menu.element.find(focusableElementsSelector);
+                var isMenuCurrentlyFocused = kendo._activeElement() == that.menu.element[0];
+                var currentlyFocused = $(kendo._activeElement()).parents(".k-pivotgrid-column-menu")[0] == that.menu.element[0] ? $(kendo._activeElement()).closest(focusableElementsSelector) : that.menu.element.find(".k-focus:not(.k-expander):not(.k-treeview-item)").last();
+                var nextFocusable;
+
+                if (key == keys.TAB) {
+                    if (ev.shiftKey) {
+                        nextFocusable = allFocusable.eq(currentlyFocused[0] ? (allFocusable.index(currentlyFocused) + allFocusable.length - 1) % allFocusable.length : 0);
+                    } else {
+                        nextFocusable = allFocusable.eq(currentlyFocused[0] ? (allFocusable.index(currentlyFocused) + 1) % allFocusable.length : 0);
+                    }
+
+                    menu.element.find(".k-focus").removeClass("k-focus");
+                    if (nextFocusable.is(".k-item")) {
+                        if (!isMenuCurrentlyFocused) {
+                            menu.element.trigger("focus");
+                        }
+
+                        // fix for the incorrectly focused popup element instead of first item
+                        // due to custom templates used
+                        menu.element.find(".k-focus").removeClass("k-focus");
+                        menu._moveHover(currentlyFocused, nextFocusable);
+                    } else {
+                        nextFocusable.trigger("focus");
+                    }
+
+                    ev.preventDefault();
+                    ev.stopImmediatePropagation();
+                } else if (key == keys.ENTER) {
+                    currentlyFocused.trigger("click");
+                    ev.preventDefault();
+                    ev.stopImmediatePropagation();
+                }
+            });
+
             that.menu = that.wrapper[MENU]({
                 filter: options.filter,
                 target: that.element,
@@ -179,10 +227,22 @@ var __meta__ = {
                 closeOnClick: false,
                 open: this._menuOpen.bind(this),
                 close: this._closeMenu.bind(this),
+                activate: this._activateMenu.bind(this),
+                deactivate: this._deactivateMenu.bind(this),
                 copyAnchorStyles: false
             }).data(MENU);
 
             that.menu.element.off("blur.kendoMenu", "[tabindex]", that.menu._checkActiveProxy);
+            // fix to focus the first item instead of the popup element
+            that.menu.element.on("focus" + KEYBOARD_NS, function(ev) {
+                var focusedElement = $(`#${that.menu._ariaId}`);
+                if (focusedElement.is(".k-pivotgrid-column-menu-popup")) {
+                    if (that.menu.element.find(".k-columnmenu-item:visible").length) {
+                        var firstItem = that.menu.element.find(".k-columnmenu-item:visible").first();
+                        that.menu._moveHover(focusedElement, firstItem);
+                    }
+                }
+            });
 
             if (options.filterable) {
                 that._initFilterForm();
@@ -192,6 +252,20 @@ var __meta__ = {
 
             that._clickHandler = that._click.bind(that);
             that.wrapper.on("click", ".k-item:not([role='treeitem'])", that._clickHandler);
+        },
+
+        _activateMenu: function(e) {
+            var that = this;
+            if (that.menu.element.find(".k-columnmenu-item:visible").length) {
+                var firstItem = that.menu.element.find(".k-columnmenu-item:visible").first();
+                that.menu._moveHover([], firstItem);
+            }
+        },
+
+        _deactivateMenu: function(e) {
+            var that = this;
+            // focus the chip instead of the chiplist
+            that.menu.target.find("[tabindex=0]").trigger("focus");
         },
 
         _closeMenu: function(e) {
@@ -484,7 +558,7 @@ var __meta__ = {
             var that = this;
             var schemaCube = that.dataSource.cubeSchema;
             var filterBox;
-            that.currentMember = $(e.event.target).closest(":not(path,svg)").prev().text();
+            that.currentMember = $(e.event.target).closest(".k-chip-actions").prev().text();
             that.menu.popup._hovered = true;
 
             if (that.options.filterable) {
@@ -1082,14 +1156,14 @@ var __meta__ = {
         '<div class="k-filterable k-content" tabindex="-1" data-role="fieldmenu">' +
             '<form class="k-filter-menu">' +
                 '<div class="k-filter-menu-container">' +
-                    `<div class="k-filter-help-text">${messages.info}</div>` +
+                    `<div class="k-filter-help-text">${encode(messages.info)}</div>` +
                     '<select>' +
-                        `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
+                        `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + encode(messages.operators[op]) + '</option>').join("")}` +
                     '</select>' +
                     `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" type="text" ${ARIA_LABEL}="${messages.filter}" title="${messages.filter}" /></span>` +
                     '<div class="k-actions">' +
-                        `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter" href="#"><span class="k-button-text">${messages.filter}</span></a>` +
-                        `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-clear" href="#"><span class="k-button-text">${messages.clear}</span></a>` +
+                        `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-filter" href="#"><span class="k-button-text">${encode(messages.filter)}</span></a>` +
+                        `<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-clear" href="#"><span class="k-button-text">${encode(messages.clear)}</span></a>` +
                     '</div>' +
                 '</div>' +
             '</form>' +
@@ -1126,10 +1200,10 @@ var __meta__ = {
                             '<div class="kendo-grid-filter-menu-container">' +
                                 '<form class="k-filter-menu k-group k-reset">' +
                                     '<div class="k-filter-menu-container">' +
-                                            '<select class="k-dropdown k-picker k-dropdown-list" style="overflow:visible">' +
-                                                `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + messages.operators[op] + '</option>').join("")}` +
+                                            `<select class="k-dropdown k-picker k-dropdown-list" ${ARIA_LABEL}="${messages.filterOperatorsDropDownLabel}" style="overflow:visible">` +
+                                                `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + encode(messages.operators[op]) + '</option>').join("")}` +
                                             '</select>' +
-                                            '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" value=""></span>' +
+                                            `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" ${ARIA_LABEL}="${messages.filterValueTextBoxLabel}" value=""></span>` +
                                         '<div class="k-actions k-hstack k-justify-content-stretch">' +
                                             kendo.html.renderButton(`<button class="k-button-filter-clear">${encode(messages.clear)}</button>`) +
                                             kendo.html.renderButton(`<button class="k-button-filter">${encode(messages.filter)}</button>`, { themeColor: "primary" }) +
@@ -1150,13 +1224,13 @@ var __meta__ = {
             result += '<li class="k-item k-menu-item k-sort-asc">' +
             '<span class="k-link k-menu-link">' +
             kendo.ui.icon("sort-asc-small") +
-            `<span class="k-menu-link-text">${messages.sortAscending}</span>` +
+            `<span class="k-menu-link-text">${encode(messages.sortAscending)}</span>` +
             '</span>' +
             '</li>' +
             '<li class="k-item k-menu-item k-sort-desc">' +
             '<span class="k-link k-menu-link">' +
             kendo.ui.icon("sort-desc-small") +
-            `<span class="k-menu-link-text">${messages.sortDescending}</span>` +
+            `<span class="k-menu-link-text">${encode(messages.sortDescending)}</span>` +
             '</span>' +
             '</li>';
 
@@ -1175,14 +1249,14 @@ var __meta__ = {
             result += '<li class="k-item k-menu-item k-include-item">' +
                 '<span class="k-link k-menu-link">' +
                 kendo.ui.icon("filter") +
-                `<span class="k-menu-link-text">${messages.include}</span>` +
+                `<span class="k-menu-link-text">${encode(messages.include)}</span>` +
                 '</span>' +
                 '</li>' +
                 '<li class="k-separator"></li>' +
                 '<li class="k-item k-menu-item ' + FILTER_ITEM + '">' +
                 '<span class="k-link k-menu-link">' +
                 kendo.ui.icon("filter") +
-                `<span class="k-menu-link-text">${messages.filterFields}</span>` +
+                `<span class="k-menu-link-text">${encode(messages.filterFields)}</span>` +
                 '</span>' +
                 '<ul>' +
                 '<li>' + LABELMENUTEMPLATE(messages) + '</li>' +
@@ -1203,12 +1277,12 @@ var __meta__ = {
                             '<div class="k-edit-buttons">' +
                                 '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-button-ok" href="#">' +
                                     '<span class="k-button-text">' +
-                                        `${messages.ok}` +
+                                        `${encode(messages.ok)}` +
                                     '</span>' +
                                 '</a>' +
                                 '<a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-button-cancel" href="#">' +
                                     '<span class="k-button-text">' +
-                                        `${messages.cancel}` +
+                                        `${encode(messages.cancel)}` +
                                     '</span>' +
                                 '</a>' +
                         '</div></div>';
@@ -1217,4 +1291,5 @@ var __meta__ = {
     ui.plugin(PivotFieldMenuV2);
 
 })(window.kendo.jQuery);
+export default kendo;
 

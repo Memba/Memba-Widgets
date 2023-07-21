@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -34,3 +34,4 @@ import "./kendo.dataviz.diagram.js";
 import "./kendo.dataviz.treemap.js";
 import "./kendo.angular.js";
     "bundle all";
+export default kendo;

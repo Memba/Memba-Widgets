@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11,6 +11,7 @@ import "./kendo.html.chip.js";
 import "./kendo.html.chiplist.js";
 import "./kendo.pivot.common.js";
 import "./kendo.icons.js";
+import { ConfiguratorNavigation } from './pivotgrid/navigation/index.js';
 
 var __meta__ = {
     id: "pivot.configurator",
@@ -32,49 +33,48 @@ var __meta__ = {
         PIVOT_CONFIGURATOR_ACTION = common.PIVOT_CONFIGURATOR_ACTION,
         ns = ".kendoPivotConfigurator",
         HOVER_EVENTS = "mouseenter" + ns + " mouseleave" + ns,
-        SETTINGS_TEMPLATE = ({ title }) => '<div class="k-pivotgrid-configurator-header">' +
-                                            `<div class="k-pivotgrid-configurator-header-text">${encode(title)}</div>` +
+        SETTINGS_TEMPLATE = ({ title, headerTextId }) => '<div class="k-pivotgrid-configurator-header">' +
+                                            `<div class="k-pivotgrid-configurator-header-text" id="${headerTextId}">${encode(title)}</div>` +
                                           '</div>',
-        CONTENT_TEMPLATE = ({ formClass, horizontal }) => '<div class="k-pivotgrid-configurator-content">' +
+        CONTENT_TEMPLATE = ({ formClass, horizontal, ariaId }) => '<div class="k-pivotgrid-configurator-content">' +
             `<form class="${encode(formClass)}">` +
                 `${horizontal ? '<div class="k-form-field-wrapper">' : ''}` +
                 '<div class="k-form-field">' +
-                    '<label class="k-label">Fields</label>' +
+                    `<label class="k-label" id="${ariaId}-configurator-fields">Fields</label>` +
                 '</div>' +
                 '<div class="k-form-field">' +
                   '<div class="k-fields-list-wrapper"></div>' +
                 '</div>' +
                 `${horizontal ? '</div><div class="k-form-field-wrapper">' : ''}` +
                 '<div class="k-form-field">' +
-                    '<label class="k-label">Columns</label>' +
+                    `<label class="k-label" id="${ariaId}-configurator-columns">Columns</label>` +
                 '</div>' +
                 '<div class="k-chip-list k-column-fields"></div>' +
                 '<div class="k-form-field">' +
-                    '<label class="k-label">Rows</label>' +
+                    `<label class="k-label" id="${ariaId}-configurator-rows">Rows</label>` +
                 '</div>' +
                 '<div class="k-chip-list k-row-fields"></div>' +
                 `${horizontal ? '</div><div class="k-form-field-wrapper">' : ''}` +
                 '<div class="k-form-field">' +
-                    '<label class="k-label">Values</label>' +
+                    `<label class="k-label" id="${ariaId}-configurator-values">Values</label>` +
                 '</div>' +
                 '<div class="k-chip-list k-column-fields"></div>' +
                 `${horizontal ? '</div>' : ''}` +
             '</form>' +
         '</div>',
-        TARGET_ITEM_TEMPLATE = ({ name, menuenabled }) => '<span>' +
+        TARGET_ITEM_TEMPLATE = ({ name }) => '<span>' +
                 `<span class="k-chip-label">${encode(name)}</span>` +
-                `${menuenabled ? kendo.ui.icon("more-vertical") : ''}` +
             '</span>',
         ACTIONS_TEMPLATE = ({ cancelText, applyText }) =>
                 '<div class="k-pivotgrid-configurator-actions k-actions k-hstack k-justify-content-end">' +
-                  '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">' +
+                  '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" aria-disabled="false">' +
                     `<span class="k-button-text">${encode(cancelText)}</span>` +
                   '</button>' +
-                  '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary">' +
+                  '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" aria-disabled="false">' +
                     `<span class="k-button-text">${encode(applyText)}</span>` +
                   '</button>' +
                 '</div>',
-        SETTING_CONTAINER_TEMPLATE = ({ name }) => `<div class="k-pivotgrid-target k-pivotgrid-configurator-section"><strong>${name}</strong><div class="k-pivotgrid-target-wrap"></div>`;
+        SETTING_CONTAINER_TEMPLATE = ({ name }) => `<div class="k-pivotgrid-target k-pivotgrid-configurator-section"><strong>${encode(name)}</strong><div class="k-pivotgrid-target-wrap"></div>`;
 
     function addKPI(data) {
         var found;
@@ -144,9 +144,19 @@ var __meta__ = {
         init: function(element, options) {
             Widget.fn.init.call(this, element, options);
 
+            this._ariaId = this.element.attr("id") || kendo.guid();
             this.element.addClass("k-widget k-pivotgrid-configurator k-pos-relative");
+            this.element.attr({
+                "role": "dialog",
+                "aria-hidden": true,
+                "aria-labelledby": `${this._ariaId}-configurator-header`
+            });
 
             this._dataSource();
+
+            if (this.options.navigatable) {
+                this._initPivotGridConfiguratorNavigation();
+            }
 
             this._layout();
 
@@ -196,6 +206,18 @@ var __meta__ = {
             this.refresh();
         },
 
+        _initPivotGridConfiguratorNavigation: function() {
+            var that = this;
+            that.configuratorNavigation = new ConfiguratorNavigation({ tabIndex: 0 });
+            that.configuratorNavigation.start(that.element[0]);
+
+            const firstCell = that.configuratorNavigation.first;
+
+            if (firstCell) {
+                firstCell.setAttribute('tabindex', '0');
+            }
+        },
+
         _dataSource: function() {
             var that = this;
 
@@ -230,12 +252,16 @@ var __meta__ = {
 
             that.panel = panel;
 
-            $(SETTINGS_TEMPLATE({ title: this.options.messages.title })).appendTo(that.panel);
+            $(SETTINGS_TEMPLATE({ title: this.options.messages.title, headerTextId: `${that._ariaId}-configurator-header` })).appendTo(that.panel);
 
-            $(CONTENT_TEMPLATE({ formClass: horizontal ? "k-form k-form-horizontal" : "k-form", filterable: options.filterable, horizontal: horizontal }))
+            $(CONTENT_TEMPLATE({ formClass: horizontal ? "k-form k-form-horizontal" : "k-form", filterable: options.filterable, horizontal: horizontal, ariaId: that._ariaId }))
                 .appendTo(that.panel).find(".k-chip-list")
                 .each(function(index, elm) {
                     kendo.html.renderChipList(elm, $.extend({}, options));
+                    $(elm).attr({
+                        "role": "listbox",
+                        "aria-orientation": "horizontal",
+                    });
                 });
 
             that._fields();
@@ -269,25 +295,36 @@ var __meta__ = {
             var measures = that.panel.find(".k-chip-list").last();
             var options = this.options;
 
-            var targetItemTemplate = ({ name, menuenabled }) => kendo.html.renderChip(TARGET_ITEM_TEMPLATE({ name, menuenabled }), $.extend({}, options, {
-                fillMode: "solid",
-                themeColor: "base",
-                rounded: "full",
-                removable: true,
-                removeIcon: "x-circle"
-            }));
+            var targetItemTemplate = ({ name, menuenabled }) => {
+                    var chip = kendo.html.renderChip(TARGET_ITEM_TEMPLATE({ name, menuenabled }), $.extend({}, options, {
+                        fillMode: "solid",
+                        themeColor: "base",
+                        rounded: "full",
+                        removable: true,
+                        removeIcon: "x-circle",
+                        actions: menuenabled ? [
+                            { icon: "more-vertical" }
+                        ] : null
+                    }));
+
+                    return chip;
+                };
 
             this.columns = this._createTarget(columns, {
+                navigatable: options.navigatable,
                 filterable: options.filterable,
                 sortable: options.sortable,
                 template: targetItemTemplate,
                 connectWith: rows,
                 messages: {
                     empty: options.messages.columns
-                }
+                },
+                configuratorNavigation: that.configuratorNavigation
             });
+            this.columns.element.attr("aria-labelledby", `${this._ariaId}-configurator-header ${this._ariaId}-configurator-columns`);
 
             this.rows = this._createTarget(rows, {
+                navigatable: options.navigatable,
                 filterable: options.filterable,
                 sortable: options.sortable,
                 template: targetItemTemplate,
@@ -295,16 +332,24 @@ var __meta__ = {
                 connectWith: columns,
                 messages: {
                     empty: this.options.messages.rows
-                }
+                },
+                configuratorNavigation: that.configuratorNavigation
             });
+            this.rows.element.attr("aria-labelledby", `${this._ariaId}-configurator-header ${this._ariaId}-configurator-rows`);
 
             this.measures = this._createTarget(measures, {
+                navigatable: options.navigatable,
                 setting: "measures",
                 template: targetItemTemplate,
                 messages: {
                     empty: options.messages.measures
-                }
+                },
+                configuratorNavigation: that.configuratorNavigation
             });
+
+            this.measures.element.attr("aria-labelledby", `${this._ariaId}-configurator-header ${this._ariaId}-configurator-values`);
+
+            [this.columns, this.rows, this.measures].forEach(x=> x.element.find(".k-chip").attr("role", "option"));
         },
 
         _createTarget: function(element, options) {
@@ -334,7 +379,7 @@ var __meta__ = {
             var that = this;
             var container = that.element.find(".k-fields-list-wrapper");
 
-            this.treeView = $("<div/>").appendTo(container)
+            this.treeView = $(`<div aria-labelledby="${this._ariaId}-configurator-header ${this._ariaId}-configurator-fields" />`).appendTo(container)
                 .kendoTreeView({
                     checkboxes: {
                         checkChildren: true,
@@ -740,7 +785,7 @@ var __meta__ = {
         },
 
         _fields: function() {
-            var container = $('<div class="k-pivotgrid-fields k-pivotgrid-configurator-section"><strong>' + this.options.messages.fieldsLabel + '</strong><div class="k-fields-list-wrapper"></div></div>').appendTo(this.form);
+            var container = $('<div class="k-pivotgrid-fields k-pivotgrid-configurator-section"><strong>' + encode(this.options.messages.fieldsLabel) + '</strong><div class="k-fields-list-wrapper"></div></div>').appendTo(this.form);
 
             var template = ({ item }) => {
                 var result = '';
@@ -957,4 +1002,5 @@ var __meta__ = {
     ui.plugin(PivotConfigurator);
 
 })(window.kendo.jQuery);
+export default kendo;
 

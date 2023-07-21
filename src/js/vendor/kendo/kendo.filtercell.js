@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -253,12 +253,12 @@ var __meta__ = {
                 var wrapper = that.wrapper;
                 var inputName = kendo.guid();
 
-                var labelTrue = $("<label/>").text(options.messages.isTrue).append(radioInput);
+                var labelTrue = $("<label/>").text(kendo.htmlEncode(options.messages.isTrue)).append(radioInput);
                 radioInput.attr(kendo.attr("bind"), "checked:value")
                     .attr("name", inputName)
                     .val("true");
 
-                var labelFalse = labelTrue.clone().text(options.messages.isFalse);
+                var labelFalse = labelTrue.clone().text(kendo.htmlEncode(options.messages.isFalse));
                 radioInput.clone().val("false").appendTo(labelFalse);
                 wrapper.append([labelTrue, labelFalse]);
 
@@ -482,9 +482,10 @@ var __meta__ = {
         _createClearIcon: function() {
             var that = this;
             var sizeClass = kendo.getValidCssClass("k-button-", "size", this.options.size || "medium");
+            var clear = kendo.htmlEncode(that.options.messages.clear);
 
-            $(`<button type='button' class='k-button ${sizeClass} k-rounded-md k-button-solid k-button-solid-base k-icon-button' title = '` + that.options.messages.clear + "'/>")
-                .attr("aria-label", that.options.messages.clear)
+            $(`<button type='button' class='k-button ${sizeClass} k-rounded-md k-button-solid k-button-solid-base k-icon-button' title = '` + clear + "'/>")
+                .attr("aria-label", clear)
                 .attr(kendo.attr("bind"), "visible:operatorVisible")
                 .html(kendo.ui.icon({ icon: "filter-clear", iconClass: "k-button-icon" }))
                 .on("click", that.clearFilter.bind(that))
@@ -607,4 +608,5 @@ var __meta__ = {
 
     ui.plugin(FilterCell);
 })(window.kendo.jQuery);
+export default kendo;
 

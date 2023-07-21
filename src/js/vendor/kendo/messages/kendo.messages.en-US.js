@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -71,7 +71,11 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "setColumnPosition": "Set Column Position",
   "apply": "Apply",
   "reset": "Reset",
-  "buttonTitle": "{0} edit column settings"
+  "buttonTitle": "{0} edit column settings",
+  "movePrev": "Move previous",
+  "moveNext": "Move next",
+  "groupColumn": "Group column",
+  "ungroupColumn": "Ungroup column"
 });
 }
 
@@ -1361,10 +1365,45 @@ $.extend(true, kendo.ui.Dialog.prototype.options.localization, {
 });
 }
 
+/* TimePicker */
+
+if (kendo.ui.TimePicker) {
+kendo.ui.TimePicker.prototype.options.messages =
+$.extend(true, kendo.ui.TimePicker.prototype.options.messages, {
+    set: "Set",
+    cancel: "Cancel",
+    hour: "hour",
+    minute: "minute",
+    second: "second",
+    millisecond: "millisecond",
+    now: "Now"
+});
+}
+
+/* DateTimePicker */
+
+if (kendo.ui.DateTimePicker) {
+kendo.ui.DateTimePicker.prototype.options.messages =
+$.extend(true, kendo.ui.DateTimePicker.prototype.options.messages, {
+    set: "Set",
+    cancel: "Cancel",
+    hour: "hour",
+    minute: "minute",
+    second: "second",
+    millisecond: "millisecond",
+    now: "Now",
+    date: "Date",
+    time: "Time",
+    today: "Today",
+    weekColumnHeader: ""
+});
+}
+
 /* Calendar */
 if (kendo.ui.Calendar) {
 kendo.ui.Calendar.prototype.options.messages =
 $.extend(true, kendo.ui.Calendar.prototype.options.messages, {
+    "today": "Today",
     "weekColumnHeader": "",
     "navigateTo": "Navigate to ",
     "parentViews": {

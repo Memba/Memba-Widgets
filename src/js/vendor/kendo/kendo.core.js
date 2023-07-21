@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -20,7 +20,7 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
-    version: '2023.2.606'.replace(/^\s+|\s+$/g, ''),
+    version: '2023.2.718'.replace(/^\s+|\s+$/g, ''),
     licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
@@ -191,7 +191,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2023.2.606".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2023.2.718".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -630,6 +630,7 @@ function pad(number, digits, end) {
         objectToString = {}.toString;
 
     //cultures
+    kendo.cultures = kendo.cultures || {}; // Ensure cultures object exists
     kendo.cultures["en-US"] = {
         name: EN,
         numberFormat: {
@@ -3670,10 +3671,6 @@ function pad(number, digits, end) {
             kendo.init(element, kendo.mobile.ui, kendo.ui, kendo.dataviz.ui);
         },
 
-        appLevelNativeScrolling: function() {
-            return kendo.mobile.application && kendo.mobile.application.options && kendo.mobile.application.options.useNativeScrolling;
-        },
-
         roles: {},
 
         ui: {
@@ -4884,22 +4881,6 @@ function pad(number, digits, end) {
         return start;
     };
 
-    kendo.compileMobileDirective = function(element, scope) {
-        var angular = window.angular;
-
-        element.attr("data-" + kendo.ns + "role", element[0].tagName.toLowerCase().replace('kendo-mobile-', '').replace('-', ''));
-
-        angular.element(element).injector().invoke(["$compile", function($compile) {
-            $compile(element)(scope);
-
-            if (!/^\$(digest|apply)$/.test(scope.$$phase)) {
-                scope.$digest();
-            }
-        }]);
-
-        return kendo.widgetInstance(element, kendo.mobile.ui);
-    };
-
     kendo.antiForgeryTokens = function() {
         var tokens = { },
             csrf_token = $("meta[name=csrf-token],meta[name=_csrf]").attr("content"),
@@ -5110,7 +5091,7 @@ function pad(number, digits, end) {
     var roundedValues = [ ['small', 'sm'], ['medium', 'md'], ['large', 'lg'] ];
     //var alignValues = [ ['top start', 'top-start'], ['top end', 'top-end'], ['bottom start', 'bottom-start'], ['bottom end', 'bottom-end'] ];
     var positionModeValues = [ 'fixed', 'static', 'sticky', 'absolute' ];
-    var resizeValues = [ 'both', 'horizontal', 'vertical' ];
+    var resizeValues = [ ['both', 'resize'], ['horizontal', 'resize-x'], ['vertical', 'resize-y'] ];
     var overflowValues = [ 'auto', 'hidden', 'visible', 'scroll', 'clip' ];
 
     kendo.cssProperties = (function() {
@@ -5197,7 +5178,7 @@ function pad(number, digits, end) {
                 } else if (propName === "rounded") {
                     prefix = "k-rounded-";
                 } else if (propName === "resize") {
-                    prefix = "k-resize-";
+                    prefix = "k-";
                 } else if (propName === "overflow") {
                     prefix = "k-overflow-";
                 } else {
@@ -5518,4 +5499,4 @@ function pad(number, digits, end) {
     }
 
 })(jQuery, window);
-
+export default kendo;

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -52,8 +52,8 @@ var __meta__ = {
                        '</div>';
     var RESIZE_TOOLTIP_TEMPLATE = ({ styles, messages, start, end, format }) => `<div style="z-index: 100002;" class="${styles.tooltipWrapper} k-gantt-resize-hint">` +
                                    `<div class="${styles.tooltipContent}">` +
-                                        `<div>${messages.start}: ${kendo.toString(start, format)}</div>` +
-                                        `<div>${messages.end}: ${kendo.toString(end, format)}</div>` +
+                                        `<div>${kendo.htmlEncode(messages.start)}: ${kendo.toString(start, format)}</div>` +
+                                        `<div>${kendo.htmlEncode(messages.end)}: ${kendo.toString(end, format)}</div>` +
                                    '</div>' +
                               '</div>';
     var PERCENT_RESIZE_TOOLTIP_TEMPLATE = ({ styles, text }) => `<div style="z-index: 100002;" class="${styles.tooltipWrapper}" >` +
@@ -64,8 +64,8 @@ var __meta__ = {
                                     `<strong>${kendo.htmlEncode(task.title)}</strong>` +
                                     `<div class="${styles.taskDetailsPercent}">${kendo.toString(task.percentComplete, "p0")}</div>` +
                                     `<ul class="${styles.reset}">` +
-                                        `<li>${messages.start}: ${kendo.toString(task.start, "h:mm tt ddd, MMM d")}</li>` +
-                                        `<li>${messages.end}: ${kendo.toString(task.end, "h:mm tt ddd, MMM d")}</li>` +
+                                        `<li>${kendo.htmlEncode(messages.start)}: ${kendo.toString(task.start, "h:mm tt ddd, MMM d")}</li>` +
+                                        `<li>${kendo.htmlEncode(messages.end)}: ${kendo.toString(task.end, "h:mm tt ddd, MMM d")}</li>` +
                                     '</ul>' +
                                 '</div>';
     var OFFSET_TOOLTIP_TEMPLATE = ({ offsetPrefix, offsetText }) => `<span>${offsetPrefix}: ${offsetText}</span>`;
@@ -420,6 +420,7 @@ var __meta__ = {
             var resourceStyle;
             var showPlannedTasks = this.options.showPlannedTasks;
             var attributes = [{ className: styles.tableRow }, { className: styles.alt }];
+            var taskElement;
 
             var addCoordinates = function(rowIndex) {
                 var taskLeft;
@@ -455,7 +456,11 @@ var __meta__ = {
                 cell = kendoDomElement("td", { className: styles.tableCell });
 
                 if (task.start <= this.end && task.end >= this.start) {
-                    cell.children.push(this._renderTask(tasks[i], position, plannedPosition));
+                    taskElement = this._renderTask(tasks[i], position, plannedPosition);
+                    if (this.options.navigatable) {
+                        taskElement.children[0].attr["tabIndex"] = i ? -1 : 0;
+                    }
+                    cell.children.push(taskElement);
 
                     if (task[resourcesField] && task[resourcesField].length) {
                         if (isRtl) {
@@ -2255,6 +2260,8 @@ var __meta__ = {
 
             this._attachEvents();
 
+            this._navigatable();
+
             this._tooltip();
         },
 
@@ -2314,6 +2321,126 @@ var __meta__ = {
 
             kendo.destroy(this.wrapper);
         },
+
+        _findNext: function(row) {
+            return row.next().find(".k-task");
+        },
+
+        _findFirst: function(row) {
+            return row.closest(".k-table-tbody").find(".k-task").first();
+        },
+
+        _findLast: function(row) {
+            return row.closest(".k-table-tbody").find(".k-task").last();
+        },
+
+        _findPrev: function(row) {
+            return row.prev().find(".k-task");
+        },
+
+        _scrollTasks: function(dir) {
+            var that = this;
+            var timelineWrapper = that.wrapper;
+            var timelineScroll = kendo.scrollLeft(timelineWrapper.find(".k-grid-content"));
+
+            kendo.scrollLeft(timelineWrapper.find(".k-grid-content"), (timelineScroll + (20 * dir)));
+        },
+
+        _navigatable: function() {
+            var that = this;
+            if (!that.options.navigatable) {
+                return;
+            }
+
+            that.wrapper.on("keydown" + NS, ".k-gantt-tables .k-gantt-tasks .k-task", function(e) {
+                var target = $(e.target);
+                var row = target.closest(".k-table-row");
+                var handled = false;
+                var newTask;
+
+                if (e.keyCode == keys.HOME) {
+                    newTask = that._findFirst(row);
+                }
+
+                if (e.keyCode == keys.END) {
+                    newTask = that._findLast(row);
+                }
+
+                if (e.keyCode == keys.DOWN) {
+                    newTask = that._findNext(row);
+                }
+
+                if (e.keyCode == keys.UP) {
+                    newTask = that._findPrev(row);
+                }
+
+                if (newTask) {
+                    handled = true;
+                    if (newTask[0] !== target[0]) {
+                        target.closest(".k-gantt-tasks").find(".k-task").attr("tabindex", -1);
+                        newTask.attr("tabindex", 0);
+                        newTask.focus();
+                    }
+                }
+
+                if (e.keyCode == keys.LEFT) {
+                    if (e.altKey) {
+                        if (target.hasClass("k-task-summary")) {
+                            that.trigger("collapse", { uid: target.attr("data-uid") });
+                            setTimeout(function() {
+                                that.select().focus();
+                            }, 1);
+                        }
+                    } else {
+                        that._scrollTasks(-1);
+                    }
+                    handled = true;
+                }
+
+                if (e.keyCode == keys.RIGHT) {
+                    if (e.altKey) {
+                        if (target.hasClass("k-task-summary")) {
+                            that.trigger("expand", { uid: target.attr("data-uid") });
+                            setTimeout(function() {
+                                that.select().focus();
+                            }, 1);
+                        }
+                    } else {
+                        that._scrollTasks(1);
+                    }
+                    handled = true;
+                }
+
+                if (e.keyCode == keys.ENTER) {
+                    handled = true;
+                    if (that.options.editable.update !== false) {
+                        that.trigger("editTask", { uid: target.attr("data-uid") });
+                        e.stopPropagation();
+                    }
+                }
+
+                if (e.keyCode == keys.DELETE) {
+                    handled = true;
+                    if (that.options.editable.update !== false) {
+                        that.trigger("removeTask", { uid: target.attr("data-uid") });
+                        e.stopPropagation();
+                    }
+                }
+
+                if (handled) {
+                    e.preventDefault();
+                }
+            })
+            .on(CLICK + NS, DOT + GanttTimeline.styles.task , function(e) {
+                e.preventDefault();
+                var task = $(this);
+
+                that.wrapper.find(DOT + GanttTimeline.styles.task).attr("tabindex", "-1");
+
+                task.attr("tabindex", "0").focus();
+            });
+        },
+
 
         _wrapper: function() {
             var styles = GanttTimeline.styles;
@@ -3059,7 +3186,6 @@ var __meta__ = {
             var editable = this.options.editable;
 
             if (editable) {
-                this._tabindex();
 
                 this.wrapper
                     .on(CLICK + NS, DOT + styles.taskDelete, function(e) {
@@ -3246,4 +3372,5 @@ var __meta__ = {
     extend(true, GanttTimeline, { styles: timelineStyles });
 
 })(window.kendo.jQuery);
+export default kendo;
 

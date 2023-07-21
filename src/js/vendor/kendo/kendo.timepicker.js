@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -26,6 +26,7 @@ var __meta__ = {
         keys = kendo.keys,
         html = kendo.html,
         parse = kendo.parseDate,
+        encode = kendo.htmlEncode,
         activeElement = kendo._activeElement,
         extractFormat = kendo._extractFormat,
         support = kendo.support,
@@ -66,7 +67,7 @@ var __meta__ = {
             `<div tabindex="0" class="k-timeselector ${mainSize}">` +
                 '<div class="k-time-header">' +
                     '<span class="k-title"></span>' +
-                    kendo.html.renderButton(`<button class="k-time-now" title="Select now" aria-label="Select now">${messages.now}</button>`, {
+                    kendo.html.renderButton(`<button class="k-time-now" title="Select now" aria-label="Select now">${encode(messages.now)}</button>`, {
                         fillMode: "flat",
                         size: buttonSize
                     }) +
@@ -78,11 +79,11 @@ var __meta__ = {
             NEW_RENDERING_FOOTER(buttonSize, messages) +
         '</div>',
         NEW_RENDERING_FOOTER = (buttonSize, messages) => '<div class="k-time-footer k-actions k-actions-stretched k-actions-horizontal">' +
-            kendo.html.renderButton(`<button class="k-time-accept" title="Set time" aria-label="Set time">${messages.set}</button>`, {
+            kendo.html.renderButton(`<button class="k-time-accept" title="Set time" aria-label="Set time">${encode(messages.set)}</button>`, {
                 size: buttonSize,
                 themeColor: "primary"
             }) +
-            kendo.html.renderButton(`<button class="k-time-cancel" title="Cancel changes" aria-label="Cancel changes">${messages.cancel}</button>`, {
+            kendo.html.renderButton(`<button class="k-time-cancel" title="Cancel changes" aria-label="Cancel changes">${encode(messages.cancel)}</button>`, {
                 size: buttonSize
             }) +
         '</div>',
@@ -143,7 +144,7 @@ var __meta__ = {
             this.list = this.popupContent.find(".k-timeselector");
 
             this.ul = this.list.find(".k-time-list-container");
-            this.popupContent.on("click" + ns, ".k-time-header button.k-time-now", this._nowClickHandler.bind(this));
+            this.list.on("click" + ns, ".k-time-header button.k-time-now", this._nowClickHandler.bind(this));
             this.popupContent.on("click" + ns, ".k-time-footer button.k-time-cancel", this._cancelClickHandler.bind(this));
             this.popupContent.on("click" + ns, ".k-time-footer button.k-time-accept", this._setClickHandler.bind(this));
             this.list.on("mouseover" + ns, ".k-time-list-wrapper", this._mouseOverHandler.bind(this));
@@ -931,6 +932,10 @@ var __meta__ = {
                 that.dataBind(dates);
             } else {
                 that.refresh();
+                that.addTranslate();
+                if (that._value) {
+                    that.applyValue(that._value);
+                }
             }
         },
 
@@ -1989,4 +1994,5 @@ var __meta__ = {
     ui.plugin(TimePicker);
 
 })(window.kendo.jQuery);
+export default kendo;
 

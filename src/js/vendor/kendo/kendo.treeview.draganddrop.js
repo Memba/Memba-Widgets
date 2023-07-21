@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -50,10 +50,12 @@ var __meta__ = {
                 hint: this._hint.bind(this),
                 dragstart: this.dragstart.bind(this),
                 dragcancel: this.dragcancel.bind(this),
+                hintDestroyed: this.dragcancel.bind(this),
                 drag: this.drag.bind(this),
                 dragend: this.dragend.bind(this),
                 $angular: options.$angular,
-                holdToDrag: options.holdToDrag
+                holdToDrag: options.holdToDrag,
+                clickMoveClick: options.clickMoveClick
             });
         },
 
@@ -85,6 +87,10 @@ var __meta__ = {
         },
 
         dragstart: function(e) {
+            if (this.dropHint) {
+                this.dropHint.remove();
+            }
+
             this.source = e.currentTarget.closest(this.options.itemSelector);
 
             if (this.options.dragstart(this.source)) {
@@ -115,6 +121,12 @@ var __meta__ = {
                 this._removeTouchHover();
             } else if (source[0] == target[0] || options.contains(source[0], target[0])) {
                 // dragging item within itself
+                status = "cancel";
+            } else if (e.clickMoveClick && e.currentTarget.hasClass("k-drag-cell") && target.closest(".k-drag-cell").length === 0) {
+                // click-move-click interaction with drag cell
+                status = "cancel";
+            } else if (e.clickMoveClick && e.currentTarget.hasClass("k-treeview-leaf") && target.closest(".k-treeview-leaf").length === 0) {
+                // click-move-click interaction with TreeView
                 status = "cancel";
             } else {
                 // moving or reordering item
@@ -203,7 +215,9 @@ var __meta__ = {
         },
 
         dragcancel: function() {
-            this.dropHint.remove();
+            if (this.dropHint) {
+                this.dropHint.remove();
+            }
         },
 
         dragend: function(e) {
@@ -211,12 +225,13 @@ var __meta__ = {
                 source = this.source,
                 destination,
                 dropHint = this.dropHint,
-                dropTarget = this.dropTarget,
-                eventArgs, dropPrevented;
+                dropTarget = this.dropTarget || $(kendo.eventTarget(e)),
+                eventArgs, dropPrevented, requireTarget;
 
-            if (dropHint.css(VISIBILITY) == "visible") {
+            if (dropHint && dropHint.css(VISIBILITY) == "visible") {
                 position = this.options.dropPositionFrom(dropHint);
                 destination = dropHint.closest(this.options.itemSelector);
+                requireTarget = true;
             } else if (dropTarget) {
                 destination = dropTarget.closest(this.options.itemSelector);
 
@@ -224,6 +239,11 @@ var __meta__ = {
                 if (!destination.length) {
                     destination = dropTarget.closest(this.options.allowedContainers);
                 }
+            }
+
+            if (requireTarget && !destination.length) {
+                this.dragcancel();
+                return;
             }
 
             eventArgs = {
@@ -268,4 +288,5 @@ var __meta__ = {
     });
 
 })(window.kendo.jQuery);
+export default kendo;
 

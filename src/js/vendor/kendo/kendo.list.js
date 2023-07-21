@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -368,7 +368,7 @@ var __meta__ = {
         _noData: function() {
             var list = this;
             var noData = $(list.noData);
-            var template = list.options.noDataTemplate === true ? () => list.options.messages.noData : list.options.noDataTemplate;
+            var template = list.options.noDataTemplate === true ? () => htmlEncode(list.options.messages.noData) : list.options.noDataTemplate;
 
             list.angular("cleanup", function() { return { elements: noData }; });
             kendo.destroy(noData);
@@ -1232,7 +1232,7 @@ var __meta__ = {
                 list._removeStaticHeader();
             }
 
-            list.popup = new ui.Popup(list.list.parent(), extend({}, list.options.popup, {
+            list.popup = new ui.Popup(list.list.parent().addClass("k-list-container"), extend({}, list.options.popup, {
                 anchor: list.wrapper,
                 open: list._openHandler.bind(list),
                 close: list._closeHandler.bind(list),
@@ -3175,4 +3175,5 @@ var __meta__ = {
     kendo.cssProperties.registerPrefix("List", "k-list-");
 
 })(window.kendo.jQuery);
+export default kendo;
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -252,17 +252,19 @@ var __meta__ = {
             this._module.onPause({ target: $(fileEntry, this.wrapper) });
 
             var pauseIcon = fileEntry.find(".k-i-pause-sm,.k-svg-i-pause-sm");
+            var resume = kendo.htmlEncode(this.localization.resume);
             kendo.ui.icon(pauseIcon, { icon: "play-sm" });
-            pauseIcon.attr("title", this.localization.resume);
-            $(pauseIcon).parent().attr("aria-label", this.localization.resume);
+            pauseIcon.attr("title", resume);
+            $(pauseIcon).parent().attr("aria-label", resume);
         },
         resume: function(fileEntry) {
             this._module.onResume({ target: $(fileEntry, this.wrapper) });
 
             var playIcon = fileEntry.find(".k-i-play-sm,.k-svg-i-play-sm");
+            var pause = kendo.htmlEncode(this.localization.pause);
             kendo.ui.icon(playIcon, { icon: "pause-sm" });
-            playIcon.attr("title", this.localization.pause);
-            $(playIcon).parent().attr("aria-label", this.localization.pause);
+            playIcon.attr("title", pause);
+            $(playIcon).parent().attr("aria-label", pause);
         },
         upload: function() {
             var that = this;
@@ -827,7 +829,7 @@ var __meta__ = {
             var isError = errors && errors.length > 0;
             var invalidClass = isError ? " k-file-invalid k-file-error" : "";
             var fileDetails = isError ?
-                    "<span class='k-file-validation-message' aria-live='polite'>" + that.localization[errors[0]] + "</span>" :
+                    "<span class='k-file-validation-message' aria-live='polite'>" + kendo.htmlEncode(that.localization[errors[0]]) + "</span>" :
                     "<span class='k-file-size'>" + fileSize + "</span>";
             var template = "";
 
@@ -880,7 +882,7 @@ var __meta__ = {
             }
 
             if (filesHaveValidationErrors) {
-                template += "<span class='k-file-validation-message' aria-live='polite'>" + that.localization.invalidFiles + "</span>";
+                template += "<span class='k-file-validation-message' aria-live='polite'>" + kendo.htmlEncode(that.localization.invalidFiles) + "</span>";
             } else {
                 template += "<span class='k-file-summary'>Total: " + files.length + " files, " + totalFileSize + "</span>";
             }
@@ -990,6 +992,7 @@ var __meta__ = {
         _fileAction: function(fileElement, actionKey, skipClear) {
             var iconsNameDictionary = { remove: "x", cancel: "cancel", retry: "arrow-rotate-cw-small", pause: "pause-sm" };
             var firstActionButton;
+            let actionKeyText = kendo.htmlEncode(this.localization[actionKey]);
 
             if (!iconsNameDictionary.hasOwnProperty(actionKey)) {
                 return;
@@ -1002,12 +1005,12 @@ var __meta__ = {
                     fileElement.find(".k-upload-action").remove();
                 }
                 fileElement.find(".k-upload-actions").append(
-                    this._renderAction(iconsNameDictionary[actionKey], this.localization[actionKey], actionKey == "retry" ? "k-i-retry" : "")
+                    this._renderAction(iconsNameDictionary[actionKey], actionKeyText, actionKey == "retry" ? "k-i-retry" : "")
                 );
             } else {
                 firstActionButton = fileElement.find(".k-upload-action").first();
                 if (!firstActionButton.find(".k-icon,.k-svg-icon").length) {
-                    let firstActionIcon = kendo.ui.icon($(`<span title="${this.localization[actionKey]}" aria-label="${this.localization[actionKey]}"></span>`), {
+                    let firstActionIcon = kendo.ui.icon($(`<span title="${actionKeyText}" aria-label="${actionKeyText}"></span>`), {
                         icon: iconsNameDictionary[actionKey],
                         iconClass: "k-button-icon" + (actionKey == "retry" ? " k-i-retry" : "")
                     });
@@ -1016,7 +1019,7 @@ var __meta__ = {
                         .append(firstActionIcon)
                         .show();
                 } else if (firstActionButton.next(".k-upload-action").length) {
-                    let firstActionIcon = kendo.ui.icon($(`<span title="${this.localization[actionKey]}" aria-label="${this.localization[actionKey]}"></span>`), {
+                    let firstActionIcon = kendo.ui.icon($(`<span title="${actionKeyText}" aria-label="${actionKeyText}"></span>`), {
                         icon: iconsNameDictionary[actionKey],
                         iconClass: "k-button-icon" + (actionKey == "retry" ? " k-i-retry" : "")
                     });
@@ -1044,7 +1047,7 @@ var __meta__ = {
                 currentState = states[stateKey];
 
             if (currentState) {
-                $("span.k-file-state", fileEntry).text(currentState.text);
+                $("span.k-file-state", fileEntry).text(kendo.htmlEncode(currentState.text));
             }
         },
 
@@ -1197,10 +1200,10 @@ var __meta__ = {
 
                 if (fileInfo.length > 0) {
                     fileInfo.addClass('k-hidden')
-                        .after('<span class="k-file-validation-message" aria-live="polite">' + files.length + ' ' + that.localization.uploadSuccess + '</span>');
+                        .after('<span class="k-file-validation-message" aria-live="polite">' + files.length + ' ' + kendo.htmlEncode(that.localization.uploadSuccess) + '</span>');
                 } else if (fileSize.length > 0) {
                     fileSize.addClass('k-hidden')
-                        .after('<span class="k-file-validation-message" aria-live="polite">' + that.localization.uploadSuccess + '</span>');
+                        .after('<span class="k-file-validation-message" aria-live="polite">' + kendo.htmlEncode(that.localization.uploadSuccess) + '</span>');
                 }
 
                 that._updateHeaderUploadStatus();
@@ -1278,10 +1281,10 @@ var __meta__ = {
 
             if (fileInfo.length > 0) {
                 fileInfo.addClass('k-hidden')
-                    .after('<span class="k-file-validation-message" aria-live="polite">' + files.length + ' ' + that.localization.uploadFail + '</span>');
+                    .after('<span class="k-file-validation-message" aria-live="polite">' + files.length + ' ' + kendo.htmlEncode(that.localization.uploadFail) + '</span>');
             } else if (fileSize.length > 0) {
                 fileSize.addClass('k-hidden')
-                    .after('<span class="k-file-validation-message" aria-live="polite">' + that.localization.uploadFail + '</span>');
+                    .after('<span class="k-file-validation-message" aria-live="polite">' + kendo.htmlEncode(that.localization.uploadFail) + '</span>');
             }
 
             that._updateUploadProgress(fileEntry);
@@ -1337,12 +1340,12 @@ var __meta__ = {
             var clearButton = $(".k-clear-selected", that.wrapper);
 
             if (uploadButton.length === 0) {
-                uploadButton = $(kendo.html.renderButton(`<button class='k-upload-selected'>${this.localization.uploadSelectedFiles}</button>`, {
+                uploadButton = $(kendo.html.renderButton(`<button class='k-upload-selected'>${kendo.htmlEncode(this.localization.uploadSelectedFiles)}</button>`, {
                         icon: 'upload',
                         themeColor: 'primary'
                     }));
 
-                clearButton = $(kendo.html.renderButton(`<button class='k-clear-selected'>${this.localization.clearSelectedFiles}</button>`, {
+                clearButton = $(kendo.html.renderButton(`<button class='k-clear-selected'>${kendo.htmlEncode(this.localization.clearSelectedFiles)}</button>`, {
                     icon: 'x'
                 }));
 
@@ -1377,10 +1380,10 @@ var __meta__ = {
             headerUploadStatus = '<span class="k-upload-status k-upload-status-total"><span class="k-icon"></span></span>';
 
             if (isUploading) {
-                headerUploadStatus = $(headerUploadStatus).append(localization.headerStatusUploading);
+                headerUploadStatus = $(headerUploadStatus).append(kendo.htmlEncode(localization.headerStatusUploading));
                 kendo.ui.icon(headerUploadStatus.find(".k-icon,.k-svg-icon"), { icon: headerStatusIconName.loading });
             } else {
-                headerUploadStatus = $(headerUploadStatus).append(localization.headerStatusUploaded);
+                headerUploadStatus = $(headerUploadStatus).append(kendo.htmlEncode(localization.headerStatusUploaded));
                 kendo.ui.icon(headerUploadStatus.find(".k-icon,.k-svg-icon"), { icon: headerStatusIconName.warning });
             }
 
@@ -1407,7 +1410,7 @@ var __meta__ = {
                     kendo.ui.icon(headerUploadStatusIcon, { icon: "pause-sm" });
 
                     headerUploadStatus.html(headerUploadStatusIcon)
-                        .append(that.localization.headerStatusPaused);
+                        .append(kendo.htmlEncode(that.localization.headerStatusPaused));
                 }
             } else if (currentlyUploading.length === 0 || currentlyFailed.length > 0) {
                 headerUploadStatus = $('.k-upload-status-total', that.wrapper);
@@ -1418,7 +1421,7 @@ var __meta__ = {
                     kendo.ui.icon(headerUploadStatusIcon, { icon: currentlyFailed.length !== 0 ? headerStatusIconName.warning : headerStatusIconName.success });
 
                     headerUploadStatus.html(headerUploadStatusIcon)
-                        .append(that.localization.headerStatusUploaded);
+                        .append(kendo.htmlEncode(that.localization.headerStatusUploaded));
                 }
             }
         },
@@ -1500,7 +1503,7 @@ var __meta__ = {
                 .on("drop" + ns, that._onDrop.bind(that));
 
             if (!dropZone.find(".k-dropzone-hint").length) {
-                dropZone.append($("<span class='k-dropzone-hint'>" + that.localization.dropFilesHere + "</span>"));
+                dropZone.append($("<span class='k-dropzone-hint'>" + kendo.htmlEncode(that.localization.dropFilesHere) + "</span>"));
             }
 
             bindDragEventWrappers(dropZone, ns,
@@ -1520,7 +1523,7 @@ var __meta__ = {
 
             if (!that.wrapper.find(".k-dropzone-hint").length) {
                 $(".k-dropzone", that.wrapper)
-                    .append($("<span class='k-dropzone-hint k-hidden'>" + that.localization.dropFilesHere + "</span>"));
+                    .append($("<span class='k-dropzone-hint k-hidden'>" + kendo.htmlEncode(that.localization.dropFilesHere) + "</span>"));
             } else {
                 // Dropzone hint in upload should be hidden if customDropZone is used
                 $('.k-dropzone-hint', that.wrapper).addClass('k-hidden');
@@ -1623,9 +1626,10 @@ var __meta__ = {
             var that = this;
             var options = that.options;
             var hasLabel = !!input.attr("id") && $("[for='" + input.attr("id") + "']").length > 0;
+            var selectText = kendo.htmlEncode(that.localization.select);
             var uploadButton = $("<div class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button' tabindex='0' role='button'><span class='k-button-text'></span></div>");
 
-            uploadButton.find('.k-button-text').text(that.localization.select);
+            uploadButton.find('.k-button-text').text(selectText);
 
             input.wrap("<div class='k-upload' role='application'><div class='k-dropzone k-upload-dropzone'><div class='k-upload-button-wrap'></div></div></div>");
             uploadButton.prependTo(input.parent());
@@ -1639,7 +1643,7 @@ var __meta__ = {
             input.closest(".k-upload").addClass("k-upload-empty");
 
             if (!hasLabel && !input.attr("aria-label")) {
-                input.attr("aria-label", that.localization.select);
+                input.attr("aria-label", selectText);
             }
 
             input.attr({
@@ -2768,4 +2772,5 @@ var __meta__ = {
 
     kendo.ui.plugin(Upload);
 })(window.kendo.jQuery);
+export default kendo;
 

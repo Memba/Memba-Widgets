@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -52,19 +52,19 @@ var __meta__ = {
 
     var actionsFilterButtonsContainer = ({ actionsCssClass, messages }) =>
     `<div class="k-actions-stretched ${actionsCssClass ? actionsCssClass : "k-actions"}">` +
-        kendo.html.renderButton(`<button title="${messages.filter}">${messages.filter}</button>`, { type: "submit", themeColor: "primary", icon: "filter" }) +
-        kendo.html.renderButton(`<button title="${messages.clear}">${messages.clear}</button>`, { type: "reset", icon: "filter-clear" }) +
+        kendo.html.renderButton(`<button title="${messages.filter}">${encode(messages.filter)}</button>`, { type: "submit", themeColor: "primary", icon: "filter" }) +
+        kendo.html.renderButton(`<button title="${messages.clear}">${encode(messages.clear)}</button>`, { type: "reset", icon: "filter-clear" }) +
     '</div>';
     var booleanTemplate = ({ field, format, ns, messages, extra, operators, type, role, values, componentType }) =>
         '<div class="k-filter-menu-container">' +
-            `<div class="k-filter-help-text">${messages.info}</div>` +
+            `<div class="k-filter-help-text">${encode(messages.info)}</div>` +
             '<label>' +
                 `<input type="radio" data-${ns}bind="checked: filters[0].value" value="true" name="filters[0].value"/>` +
-                `${messages.isTrue}` +
+                `${encode(messages.isTrue)}` +
             '</label>' +
             '<label>' +
                 `<input type="radio" data-${ns}bind="checked: filters[0].value" value="false" name="filters[0].value"/>` +
-                `${messages.isFalse}` +
+                `${encode(messages.isFalse)}` +
             '</label>' +
             actionsFilterButtonsContainer({ messages }) +
         '</div>';
@@ -76,11 +76,11 @@ var __meta__ = {
                 '<ul class="k-radio-list k-reset">' +
                     '<li>' +
                         `<input type="radio" class="k-radio k-radio-md" id="${inputIdForTrue}" data-${ns}bind="checked: filters[0].value" value="true" name="filters[0].value" />` +
-                        `<label class="k-radio-label" for="${inputIdForTrue}">${messages.isTrue}</label>` +
+                        `<label class="k-radio-label" for="${inputIdForTrue}">${encode(messages.isTrue)}</label>` +
                     '</li>' +
                     '<li>' +
                         `<input type="radio" class="k-radio k-radio-md" id="${inputIdForFalse}" data-${ns}bind="checked: filters[0].value" value="false" name="filters[0].value" />` +
-                        `<label class="k-radio-label" for="${inputIdForFalse}">${messages.isFalse}</label>` +
+                        `<label class="k-radio-label" for="${inputIdForFalse}">${encode(messages.isFalse)}</label>` +
                     '</li>' +
                 '</ul>' +
                 actionsFilterButtonsContainer({ actionsCssClass: "k-columnmenu-actions", messages }) +
@@ -90,7 +90,7 @@ var __meta__ = {
 
     var customBooleanTemplate = ({ field, format, ns, messages, extra, operators, type, role, values, componentType }) =>
         '<div class="k-filter-menu-container">' +
-            `<div class="k-filter-help-text">${messages.info}</div>` +
+            `<div class="k-filter-help-text">${encode(messages.info)}</div>` +
             '<label>' +
                 `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" data-${ns}bind="value: filters[0].value" name="filters[0].value"/></span>` +
             '</label>' +
@@ -100,7 +100,7 @@ var __meta__ = {
     var defaultTemplate = ({ field, format, ns, messages, extra, operators, type, role, values, componentType }) =>
         '<div class="k-filter-menu-container">' +
             (componentType === "classic" ?
-                `<div class="k-filter-help-text">${messages.info}</div>`
+                `<div class="k-filter-help-text">${encode(messages.info)}</div>`
             : '') +
             `<select title="${messages.operator}" data-${ns}bind="value: filters[0].operator" data-${ns}role="dropdownlist">` +
                 `${Object.keys(operators || {}).map((op) =>
@@ -121,13 +121,13 @@ var __meta__ = {
                 '</ul>'
                 :
                 `<select title="${messages.logic}" class="k-filter-and" data-${ns}bind="value: logic" data-${ns}role="dropdownlist">` +
-                    `<option value="and">${messages.and}</option>` +
-                    `<option value="or">${messages.or}</option>` +
+                    `<option value="and">${encode(messages.and)}</option>` +
+                    `<option value="or">${encode(messages.or)}</option>` +
                 '</select>'
                 ) +
                 `<select title="${messages.additionalOperator}" data-${ns}bind="value: filters[1].operator" data-${ns}role="dropdownlist">` +
                     `${Object.keys(operators || {}).map((op) =>
-                        `<option value="${op}">${operators[op]}</option>`
+                        `<option value="${op}">${encode(operators[op])}</option>`
                     )}` +
                 '</select>' +
                 (values ?
@@ -145,14 +145,14 @@ var __meta__ = {
             `<div data-${ns}role="header" class="k-header">` +
                 `<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" ` +
                 `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
-                `${messages.filter} ${messages.into} ${title}` +
+                `${encode(messages.filter)} ${encode(messages.into)} ${encode(title)}` +
                 `<a href="#" class="k-header-done k-link" title="${messages.done}" ` +
                 `aria-label="${messages.done}">${kendo.ui.icon("check")}</a>` +
             '</div>' +
             `<form title="${messages.title}" class="k-filter-menu">` +
                 '<ul class="k-reset">' +
                     '<li>' +
-                        `<span class="k-list-title k-filter-help-text">${messages.info}</span>` +
+                        `<span class="k-list-title k-filter-help-text">${encode(messages.info)}</span>` +
                         '<ul class="k-listgroup k-listgroup-flush">' +
                             '<li class="k-item k-listgroup-item">' +
                                 '<label class="k-listgroup-form-row k-label">' +
@@ -160,7 +160,7 @@ var __meta__ = {
                                     '<span class="k-listgroup-form-field-wrapper">' +
                                         `<select id="operator_${filterMenuGuid}" title="${messages.operator}" class="k-filter-operator" data-${ns}bind="value: filters[0].operator" autocomplete="${AUTOCOMPLETEVALUE}" >` +
                                             `${Object.keys(operators || {}).map((op) =>
-                                                `<option value="${op}">${operators[op]}</option>`
+                                                `<option value="${op}">${encode(operators[op])}</option>`
                                             )}` +
                                         '</select>' +
                                     '</span>' +
@@ -174,7 +174,7 @@ var __meta__ = {
                                         `<select id="value_${filterMenuGuid}" title="${messages.value}" data-${ns}bind="value:filters[0].value" autocomplete="${AUTOCOMPLETEVALUE}" >` +
                                             `<option value="">${messages.selectValue}</option>` +
                                             `${Object.keys(values || {}).map((val) =>
-                                                `<option value="${values[val].value}">${values[val].text}</option>`
+                                                `<option value="${values[val].value}">${encode(values[val].text)}</option>`
                                             )}` +
                                         '</select>'
                                         :
@@ -224,7 +224,7 @@ var __meta__ = {
                                         `<select id="additionalValue_${filterMenuGuid}" title="${messages.additionalValue}" data-${ns}bind="value:filters[1].value" autocomplete="${AUTOCOMPLETEVALUE}" >` +
                                             `<option value="">${messages.selectValue}</option>` +
                                             `${Object.keys(values || {}).map((val) =>
-                                                `<option value="${values[val].value}">${values[val].text}</option>`
+                                                `<option value="${values[val].value}">${encode(values[val].text)}</option>`
                                             )}` +
                                         '</select>'
                                         :
@@ -241,7 +241,7 @@ var __meta__ = {
                         '<ul class="k-listgroup k-listgroup-flush">' +
                             '<li class="k-listgroup-item">' +
                                 `<span class="k-link k-label k-clear" title="${messages.clear}" aria-label="${messages.clear}">` +
-                                    `${messages.clear}` +
+                                    `${encode(messages.clear)}` +
                                 '</span>' +
                             '</li>' +
                         '</ul>' +
@@ -255,18 +255,18 @@ var __meta__ = {
             `<div data-${ns}role="header" class="k-header">` +
                 `<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" ` +
                 `aria-label="${messages.cancel}">${kendo.ui.icon("chevron-left")}</a>` +
-                `${messages.filter} ${messages.into} ${title}` +
+                `${encode(messages.filter)} ${encode(messages.into)} ${encode(title)}` +
                 `<a href="#" class="k-header-done k-link" title="${messages.done}" ` +
                 `aria-label="${messages.done}">${kendo.ui.icon("check")}</a>` +
             '</div>' +
             `<form title="${messages.title}" class="k-filter-menu">` +
                 '<ul class="k-reset">' +
                     '<li>' +
-                        `<span class="k-list-title k-filter-help-text">${messages.info}</span>` +
+                        `<span class="k-list-title k-filter-help-text">${encode(messages.info)}</span>` +
                         '<ul class="k-listgroup k-listgroup-flush k-multicheck-bool-wrap">' +
                             '<li class="k-item k-listgroup-item">' +
                                 '<label class="k-listgroup-form-row k-label">' +
-                                    `<span class="k-listgroup-form-field-label k-item-title">${messages.isTrue}</span>` +
+                                    `<span class="k-listgroup-form-field-label k-item-title">${encode(messages.isTrue)}</span>` +
                                     '<span class="k-listgroup-form-field-wrapper"></span>' +
                                         `<input id="true_${filterMenuGuid}" title="${messages.isTrue}" type="radio" data-${ns}bind="checked: filters[0].value" value="true" name="filters[0].value" autocomplete="${AUTOCOMPLETEVALUE}" />` +
                                     '</span>' +
@@ -274,7 +274,7 @@ var __meta__ = {
                             '</li>' +
                             '<li class="k-item k-listgroup-item">' +
                                 '<label class="k-listgroup-form-row k-label">' +
-                                    `<span for="false_${filterMenuGuid}" class="k-listgroup-form-field-label k-item-title">${messages.isFalse}</span>` +
+                                    `<span for="false_${filterMenuGuid}" class="k-listgroup-form-field-label k-item-title">${encode(messages.isFalse)}</span>` +
                                     '<span class="k-listgroup-form-field-wrapper">' +
                                         `<input id="false_${filterMenuGuid}" title="${messages.isFalse}" type="radio" data-${ns}bind="checked: filters[0].value" value="false" name="filters[0].value" autocomplete="${AUTOCOMPLETEVALUE}" />` +
                                     '</span>' +
@@ -287,7 +287,7 @@ var __meta__ = {
                         '<ul class="k-listgroup k-listgroup-flush">' +
                             '<li class="k-listgroup-item">' +
                                 `<span class="k-link k-label k-clear" title="${messages.clear}" aria-label="${messages.clear}">` +
-                                    `${messages.clear}` +
+                                    `${encode(messages.clear)}` +
                                 '</span>' +
                             '</li>' +
                         '</ul>' +
@@ -478,7 +478,7 @@ var __meta__ = {
 
             operators = operators[type] || options.operators[type];
 
-            that.form = $('<form title="' + that.options.messages.title + '" class="k-filter-menu"/>')
+            that.form = $('<form title="' + encode(that.options.messages.title) + '" class="k-filter-menu"/>')
                 .html(kendo.template(that._getTemplate())({
                     field: that.field,
                     format: options.format,
@@ -506,7 +506,7 @@ var __meta__ = {
                 }).data(POPUP);
             } else {
                 that.element.append(that.form);
-                that.popup = that.element.closest(".k-popup").data(POPUP);
+                that.popup = that.element.closest(".k-column-menu.k-popup").data(POPUP);
             }
 
             that.form
@@ -1207,7 +1207,7 @@ var __meta__ = {
             var element = this.element;
             var appendTarget = this.appendTo.length ? element.find(this.appendTo) : element;
             var link = element.addClass("k-filterable").find(".k-grid-filter-menu");
-            var title = kendo.format(this.options.messages.buttonTitle, this.options.title || this.field);
+            var title = encode(kendo.format(this.options.messages.buttonTitle, this.options.title || this.field));
 
             if (!link[0]) {
                 link = appendTarget
@@ -1340,7 +1340,7 @@ var __meta__ = {
                 if (options.search) {
                     html += "<span class='k-searchbox k-textbox k-input k-input-md k-rounded-md k-input-solid'>" +
                                 kendo.ui.icon("search") +
-                                "<input class='k-input-inner' type='text' placeholder='" + options.messages.search + "' />" +
+                                "<input class='k-input-inner' type='text' placeholder='" + encode(options.messages.search) + "' />" +
                                 "<span class='k-input-suffix'>" +
                                     "<span class='k-clear-value'>" + kendo.ui.icon("x") + "</span>" +
                                 "</span>" +
@@ -1351,8 +1351,8 @@ var __meta__ = {
                     html += "<div class='k-filter-selected-items'>" + kendo.format(options.messages.selectedItemsFormat, 0) + "</div>";
                 }
                 html += "<div class='k-actions'>";
-                html += "<button type='submit' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary'><span class='k-button-text'>" + options.messages.filter + "</span></button>";
-                html += "<button type='reset' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base'><span class='k-button-text'>" + options.messages.clear + "</span></button>";
+                html += "<button type='submit' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary'><span class='k-button-text'>" + encode(options.messages.filter) + "</span></button>";
+                html += "<button type='reset' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base'><span class='k-button-text'>" + encode(options.messages.clear) + "</span></button>";
                 html += "</div>";
                 html += "</div>";
 
@@ -1410,7 +1410,7 @@ var __meta__ = {
                         }
                     }).data(POPUP);
                 } else {
-                    this.popup = this.element.closest(".k-popup").data(POPUP);
+                    this.popup = this.element.closest(".k-column-menu.k-popup").data(POPUP);
                     this.element.append(this.form);
                 }
             }
@@ -1749,4 +1749,5 @@ var __meta__ = {
     ui.plugin(FilterMenu);
     ui.plugin(FilterMultiCheck);
 })(window.kendo.jQuery);
+export default kendo;
 

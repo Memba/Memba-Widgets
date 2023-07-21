@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -62,7 +62,11 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "done": "Done",
   "settings": "Column Settings",
   "lock": "Lock",
-  "unlock": "Unlock"
+  "unlock": "Unlock",
+  "movePrev": "Move previous",
+  "moveNext": "Move next",
+  "groupColumn": "Group column",
+  "ungroupColumn": "Ungroup column"
 });
 }
 

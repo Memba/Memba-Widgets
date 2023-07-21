@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -582,12 +582,12 @@ import "./kendo.button.js";
                         messages: messages
                     });
                 } else {
-                    submit = $("<button class='" + formStyles.submit + "'>" + messages.submit + "</button>").kendoButton({
+                    submit = $("<button class='" + formStyles.submit + "'>" + encode(messages.submit) + "</button>").kendoButton({
                         type: "submit",
                         themeColor: "primary",
                         size: options.size
                     });
-                    clear = $("<button class='" + formStyles.clear + "'>" + messages.clear + "</button>").kendoButton({
+                    clear = $("<button class='" + formStyles.clear + "'>" + encode(messages.clear) + "</button>").kendoButton({
                         size: options.size
                     });
 
@@ -853,4 +853,5 @@ import "./kendo.button.js";
         extend(true, Form, { styles: formStyles });
 
   })(window.kendo.jQuery);
+export default kendo;
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -366,12 +366,12 @@ var __meta__ = {
 
             $("<div class='k-actions k-actions-stretched k-actions-horizontal k-timeduration-footer'>"
                 +
-                html.renderButton('<button class="k-time-cancel k-button">' + options.messages.cancel + '</button>', {
+                html.renderButton('<button class="k-time-cancel k-button">' + encode(options.messages.cancel) + '</button>', {
                  rounded: options.rounded,
                  size: options.size
                 })
                 +
-                html.renderButton('<button class="k-time-accept k-button k-button-solid k-button-solid-primary">' + options.messages.set + '</button>', {
+                html.renderButton('<button class="k-time-accept k-button k-button-solid k-button-solid-primary">' + encode(options.messages.set) + '</button>', {
                  rounded: options.rounded,
                  size: options.size
                 })
@@ -483,4 +483,5 @@ var __meta__ = {
     ui.plugin(TimeSelector);
 
 })(window.kendo.jQuery);
+export default kendo;
 

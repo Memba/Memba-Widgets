@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo-chart.js";
+import "./breadcrumb.js";
 import "../../kendo.data.js";
 import "../../kendo.dataviz.core.js";
 import "../../kendo.dataviz.themes.js";
@@ -54,6 +55,8 @@ import "../../kendo.icons.js";
     var DRAG = constants.DRAG;
     var DRAG_END = constants.DRAG_END;
     var DRAG_START = constants.DRAG_START;
+    var DRILLDOWN = constants.DRILLDOWN;
+    var DRILLDOWN_LEVEL_CHANGE = "drilldownLevelChange";
     var ZOOM_START = constants.ZOOM_START;
     var ZOOM = constants.ZOOM;
     var ZOOM_END = constants.ZOOM_END;
@@ -99,7 +102,8 @@ import "../../kendo.icons.js";
             hideTooltip: '_hideTooltip',
             legendItemClick: '_onLegendItemClick',
             render: '_onRender',
-            init: '_onInit'
+            init: '_onInit',
+            drilldown: '_onDrilldown'
         }
     });
 
@@ -130,11 +134,15 @@ import "../../kendo.icons.js";
             this.bind(this.events, this.options);
             this._initDataSource(userOptions);
 
+            this._drilldownState = [];
+
             kendo.notify(this, dataviz.ui);
         },
 
         events: [
             DATABOUND,
+            DRILLDOWN,
+            DRILLDOWN_LEVEL_CHANGE,
             SERIES_CLICK,
             SERIES_HOVER,
             SERIES_OVER,
@@ -346,6 +354,26 @@ import "../../kendo.icons.js";
             }
 
             return visual;
+        },
+
+        resetDrilldownLevel(level) {
+            level = level || 0;
+            const state = this._drilldownState;
+            if (!state || level < 0 || level > state.length - 1) {
+                return;
+            }
+
+            const args = {
+                level,
+                sender: this
+            };
+            this.trigger(DRILLDOWN_LEVEL_CHANGE, args);
+
+            this.options.series = this._drilldownState[level];
+            this._drilldownState = this._drilldownState.slice(0, level);
+
+            this._bindCategories();
+            this._redraw();
         },
 
         _createSeries: function(options) {
@@ -565,6 +593,43 @@ import "../../kendo.icons.js";
         _tooltipleave: function() {
             if (this._instance) {
                 this._instance.hideElements();
+            }
+        },
+
+        _onDrilldown: function(e) {
+            const { series, value } = e;
+
+            if (series.drilldownSeriesFactory) {
+                const result = series.drilldownSeriesFactory(value);
+
+                if (!result) {
+                    return;
+                } else if (result instanceof Promise) {
+                    result.then((resolved) => this._onDrilldownData(e, resolved));
+                } else {
+                    this._onDrilldownData(e, result);
+                }
+            } else if (typeof value === 'object') {
+                this._onDrilldownData(e, value);
+            }
+        },
+
+        _onDrilldownData: function(e, data) {
+            const drilldownSeries = Object.assign({}, e.series, data);
+            const args = {
+                point: e.point,
+                series: e.series,
+                drilldownSeries,
+                sender: this
+            };
+
+            const prevented = this.trigger(DRILLDOWN, args);
+            if (!prevented) {
+                this._drilldownState.push(this.options.series);
+
+                this.options.series = [drilldownSeries];
+                this._bindCategories();
+                this._redraw();
             }
         },
 

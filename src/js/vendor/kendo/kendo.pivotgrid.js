@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,6 +10,7 @@ import "./kendo.pivot.common.js";
 import "./kendo.dom.js";
 import "./kendo.data.js";
 import "./kendo.icons.js";
+import { PivotGridNavigation } from './pivotgrid/navigation/index.js';
 
 var __meta__ = {
     id: "pivotgrid",
@@ -64,6 +65,7 @@ var __meta__ = {
         identity = function(o) { return o; },
         map = $.map,
         extend = $.extend,
+        keys = kendo.keys,
         isFunction = kendo.isFunction,
         fetchData = common.fetchData,
         createLocalDataState = common.createLocalDataState,
@@ -94,8 +96,8 @@ var __meta__ = {
         DATABINDING = "dataBinding",
         DATABOUND = "dataBound",
         EXPANDMEMBER = "expandMember",
-        HEADERTEMPLATE = ({ key, headerClass, colspan, rowspan, expandable, iconClass }) => `<th data-key="${encode(key)}" class="k-table-th ${encode(headerClass)}" ${colspan ? 'colspan="' + encode(colspan) + '"' : ''} ${rowspan ? 'rowspan="' + encode(rowspan) + '"' : ''}>` +
-                                    `${expandable ? kendo.ui.icon($('<span role="presentation"></span>'), { icon: `chevron-${encode(iconClass)}` }) : ''}` +
+        HEADERTEMPLATE = ({ id, key, headerClass, colspan, rowspan, expandable, iconClass, role, expanded }) => `<th id="${id}" role="${role}" ${expandable ? `aria-expanded="${expanded}"` : ''}  data-key="${encode(key)}" class="k-table-th ${encode(headerClass)}" ${colspan ? 'colspan="' + encode(colspan) + '"' : ''} ${rowspan ? 'rowspan="' + encode(rowspan) + '"' : ''}>` +
+                                    `${expandable ? kendo.ui.icon($('<span role="presentation" class="k-pivotgrid-toggle"></span>'), { icon: `chevron-${encode(iconClass)}` }) : ''}` +
                                 '</th>',
         COLLAPSEMEMBER = "collapseMember",
         STATE_EXPANDED_ICONNAME = "caret-alt-down",
@@ -4331,6 +4333,71 @@ var __meta__ = {
                 that.trigger("remove", { name: name });
             });
 
+            if (that.options.navigatable) {
+                that.element.on("keydown" + NS, ".k-chip", function(ev) {
+                    var chip = $(ev.target),
+                        key = ev.keyCode,
+                        name = chip.find(".k-chip-label").text();
+
+                    if (key === keys.DELETE || key === keys.BACKSPACE) {
+                        const targetIndex = that.options.configuratorNavigation ? that.options.configuratorNavigation.elements.indexOf(chip[0]) : -1;
+                        chip.find(".k-i-x-circle,.k-svg-i-x-circle").trigger("click");
+                        if (!that.options.configuratorNavigation) {
+                            return;
+                        }
+
+                        that.options.configuratorNavigation.focusElement(
+                            that.options.configuratorNavigation.elements[targetIndex - 1],
+                        );
+                    } else if (key === keys.DOWN && ev.altKey) {
+                        chip.find(".k-i-more-vertical,.k-svg-i-more-vertical").trigger("click");
+                    } else if (ev.ctrlKey && ev.shiftKey) {
+                        if (key == keys.LEFT) {
+                            that.move(name, Math.max(0, chip.index() - 1));
+
+                            if (!that.options.configuratorNavigation) {
+                                return;
+                            }
+
+                            that.options.configuratorNavigation.focusElement(
+                                that.element.find(".k-chip .k-chip-label")
+                                    .filter((ind, el) => $(el).text() == name)
+                                    .closest(".k-chip")[0]
+                            );
+                        } else if (key == keys.RIGHT) {
+                            that.move(name, Math.min(chip.index() + 1, chip.parent().find("> .k-chip").length - 1));
+
+                            if (!that.options.configuratorNavigation) {
+                                return;
+                            }
+
+                            that.options.configuratorNavigation.focusElement(
+                                that.element.find(".k-chip .k-chip-label")
+                                    .filter((ind, el) => $(el).text() == name)
+                                    .closest(".k-chip")[0]
+                            );
+                        } else if ((key == keys.UP && that.options.setting == "rows") ||
+                            (key == keys.DOWN && that.options.setting == "columns")) {
+
+                            let otherTarget = that.sortable.options.connectWith.data("kendoPivotSettingTargetV2");
+                            if (!otherTarget) {
+                                return;
+                            }
+
+                            that.remove(name);
+                            otherTarget.add(name);
+                            if (!that.options.configuratorNavigation) {
+                                return;
+                            }
+
+                            that.options.configuratorNavigation.focusElement(
+                                otherTarget.element.find(".k-chip").last()[0]
+                            );
+                        }
+                    }
+                });
+            }
+
             if (options.filterable || options.sortable) {
                 that.fieldMenu = new ui.PivotFieldMenuV2(that.element, {
                     messages: that.options.messages.fieldMenu,
@@ -4675,6 +4742,7 @@ var __meta__ = {
 
             that._bindConfigurator();
 
+            that._ariaId = that.element.attr("id") || kendo.guid();
             that._wrapper();
 
             that._columnHeadersWrapper = $('<div class="k-pivotgrid-column-headers"></div>');
@@ -4685,9 +4753,9 @@ var __meta__ = {
             that.wrapper.append(that._rowHeadersWrapper);
             that.wrapper.append(that._contentWrapper);
 
-            that._columnBuilder = new ColumnRowBuilder( { template: this.options.columnHeaderTemplate, axes: "columns" });
-            that._rowBuilder = new ColumnRowBuilder( { template: this.options.rowHeaderTemplate, axes: "rows" });
-            that._contentBuilder = new ContentBuilderV2( { template: this.options.dataCellTemplate || DATACELL_TEMPLATE });
+            that._columnBuilder = new ColumnRowBuilder( { template: this.options.columnHeaderTemplate, axes: "columns", ariaId: that._ariaId });
+            that._rowBuilder = new ColumnRowBuilder( { template: this.options.rowHeaderTemplate, axes: "rows", ariaId: that._ariaId });
+            that._contentBuilder = new ContentBuilderV2( { template: this.options.dataCellTemplate || DATACELL_TEMPLATE, ariaId: that._ariaId });
 
             that._scrollable();
             that._rowHeadersWrapper
@@ -4725,6 +4793,12 @@ var __meta__ = {
                 that.dataSource.fetch();
             }
 
+            that._aria();
+
+            if (that.options.navigatable) {
+                that._initPivotGridNavigation();
+            }
+
             kendo.notify(that);
         },
 
@@ -4743,7 +4817,10 @@ var __meta__ = {
             configurator: "",
             columnHeaderTemplate: null,
             rowHeaderTemplate: null,
-            dataCellTemplate: null
+            dataCellTemplate: null,
+            messages: {
+                emptyCellLabel: "PivotGrid Empty Cell"
+            }
         },
 
         destroy: function() {
@@ -4754,6 +4831,98 @@ var __meta__ = {
                 $(window).off(RESIZE + NS, that._windowResizeHandler);
                 that._windowResizeHandler = null;
             }
+        },
+
+        _aria: function() {
+            var that = this;
+            that.element.attr("role", "grid");
+        },
+
+        _initPivotGridNavigation: function() {
+            var that = this;
+
+            that.navigation = new PivotGridNavigation({ tabIndex: 0 });
+            that.navigation.start(that.element[0]);
+
+            const firstCell = that.navigation.first;
+
+            if (firstCell) {
+                firstCell.setAttribute('tabindex', '0');
+            }
+        },
+
+        _matchAriaAttributes: function(wrapper) {
+            var that = this;
+            const rowHeaderRows = wrapper.querySelectorAll(
+                ".k-pivotgrid-row-headers .k-pivotgrid-row"
+            );
+            const rowHeaderCols = !rowHeaderRows[0] ? [] : Array.from(rowHeaderRows[0].children).reduce(
+                (acc, curr) => (acc += curr.getAttribute("colspan") !== null ? +curr.getAttribute("colspan") : 1),
+                0
+            );
+            const colHeaderRows = wrapper.querySelectorAll(
+                ".k-pivotgrid-column-headers tr"
+            );
+            const colHeaderCells = wrapper.querySelectorAll(
+                ".k-pivotgrid-column-headers th"
+            );
+            const valueTableCells = wrapper.querySelectorAll(".k-pivotgrid-values td");
+            const emptyCell = wrapper.querySelector(".k-pivotgrid-empty-cell");
+
+            emptyCell.setAttribute("aria-rowspan", colHeaderRows.length.toString());
+            emptyCell.setAttribute("aria-colspan", rowHeaderCols.toString());
+
+            const firstColHeadersRow = colHeaderRows[0];
+            const firstColHeaderRowCellsIds = !firstColHeadersRow ? [] : Array.from(firstColHeadersRow.children)
+                .map(el => el.getAttribute("id"))
+                .join(" ");
+            firstColHeadersRow.setAttribute(
+                "aria-owns",
+                `${emptyCell.getAttribute("id")} ${firstColHeaderRowCellsIds}`
+            );
+
+            rowHeaderRows.forEach((row, index) => {
+                const valueCellsIds = that.filterAndMap(
+                    Array.from(valueTableCells),
+                    c => {
+                        const idParts = c.getAttribute("id").split("-");
+                        return idParts[idParts.length - 2] === (index + 1).toString();
+                    },
+                    c => c.getAttribute("id")
+                );
+
+                row.setAttribute("aria-owns", valueCellsIds.join(" "));
+            });
+
+            valueTableCells.forEach(cell => {
+                const idParts = cell.getAttribute("id").split("-");
+                const cellColIndex = +idParts[idParts.length - 1];
+                const colHeaderCellsIds = that.filterAndMap(
+                    Array.from(colHeaderCells),
+                    c => {
+                        const idParts = c.getAttribute("id").split("-");
+                        const headerCellColIndex = +idParts[idParts.length - 1];
+                        const headerCellColspan = +c.getAttribute("colspan");
+                        const colIndexIsEqual = cellColIndex === headerCellColIndex;
+                        const cellColIndexIsWithinHeaderCellRange =
+                            headerCellColspan > 1 &&
+                            headerCellColIndex < cellColIndex &&
+                            headerCellColIndex + headerCellColspan - 1 >= cellColIndex;
+
+                        return colIndexIsEqual || cellColIndexIsWithinHeaderCellRange;
+                    },
+                    c => c.getAttribute("id")
+                );
+
+                cell.setAttribute("aria-describedby", colHeaderCellsIds.join(" "));
+            });
+        },
+
+        filterAndMap: function(arr, predicate, mapper) {
+            return arr.reduce(
+                (acc, curr) => (predicate(curr) ? [...acc, mapper(curr)] : acc),
+                []
+            );
         },
 
         _dataSource: function() {
@@ -4821,8 +4990,8 @@ var __meta__ = {
             var height = this.options.height;
 
             this.wrapper = this.element.addClass("k-pivotgrid");
-
-            this.wrapper.append('<span class="k-pivotgrid-empty-cell" />');
+            var emptyCell = $(`<span class="k-pivotgrid-empty-cell" id="${this._ariaId}-empty-cell" role="columnheader"><span class="k-sr-only">${this.options.messages.emptyCellLabel}</span></span>`);
+            this.wrapper.append(emptyCell);
 
             if (height) {
                 this.wrapper.css("height", height);
@@ -4897,11 +5066,12 @@ var __meta__ = {
             var that = this;
 
             var dataSource = that.dataSource;
-
             if (that.trigger(DATABINDING, { action: "rebind" } )) {
                 return;
             }
 
+            var lastFocusedCellID = kendo._activeElement() ? kendo._activeElement().id : null;
+            var lastCellIdWithTabIndex = that.wrapper.find("[tabindex=0]").attr("id");
             that._columnBuilder.setTuples(dataSource._columnTuples);
             that._columnHeadersWrapper.html(that._columnBuilder.build());
 
@@ -4918,12 +5088,32 @@ var __meta__ = {
 
             that._contentWrapper.html(that._contentBuilder.build());
 
+
             that._setContentWidth();
             that._updateDimensions();
 
             that._progress(false);
 
             that.trigger(DATABOUND);
+            that._matchAriaAttributes(that.wrapper[0]);
+
+            if (!that.navigation) {
+                return;
+            }
+
+            if (lastCellIdWithTabIndex && that.element.find(`#${lastCellIdWithTabIndex}`).length > 0) {
+                that.element.find(`#${lastCellIdWithTabIndex}`).attr('tabindex', '0');
+            } else {
+                const firstCell = that.navigation.first;
+
+                if (firstCell) {
+                    firstCell.setAttribute('tabindex', '0');
+                }
+            }
+
+            if (lastFocusedCellID && lastFocusedCellID.indexOf(that._ariaId) == 0) {
+                that.navigation.focusElement(that.element.find(`#${lastFocusedCellID}`)[0]);
+            }
         }
     });
 
@@ -5016,6 +5206,7 @@ var __meta__ = {
             reorderable: true,
             filterable: false,
             sortable: false,
+            navigatable: false,
             height: null,
             columnWidth: 100,
             configurator: "",
@@ -5542,6 +5733,7 @@ var __meta__ = {
     var ContentBuilderV2 = Class.extend({
         init: function(options) {
             this.template = kendo.template(options.template);
+            this.ariaId = options.ariaId;
             this.hash = [];
         },
 
@@ -5570,7 +5762,7 @@ var __meta__ = {
             var row;
 
             for (var index = 0; index < data.length; index++) {
-                row = $(`<tr class="${tableStyles.tableRow} k-pivotgrid-row"></tr>`);
+                row = $(`<tr class="${tableStyles.tableRow} k-pivotgrid-row" role='presentation'></tr>`);
                 body.append(row);
                 that.addColumCell(row, data[index], index);
             }
@@ -5583,7 +5775,7 @@ var __meta__ = {
             for (var index = 0; index < rowItem.cells.length; index++) {
                 var cell = rowItem.cells[index];
                 if (cell) {
-                    var cellEl = $(`<td class="${tableStyles.tableCell} k-pivotgrid-cell"></td>`);
+                    var cellEl = $(`<td id="${that.ariaId}-cell-${rowIndex + 1}-${index + 1}" class="${tableStyles.tableCell} k-pivotgrid-cell" role="gridcell"></td>`);
                     if (this.rowHeaderLeafs[rowIndex].total || this.columnHeaderLeafs[index].total) {
                         cellEl.addClass("k-pivotgrid-header-total");
                     }
@@ -5602,7 +5794,7 @@ var __meta__ = {
             var data = toData((this.data || []).slice(), this.columnHeaderLeafs, this.rowHeaderLeafs, this.columnHeaderBreadth, this.rowHeaderDepth);
             var that = this;
 
-            var table = $(`<table class='${tableStyles.contentTable} k-pivotgrid-table'><colgroup></colgroup><tbody class='${tableStyles.tbody} k-pivotgrid-tbody'></tbody></table>`);
+            var table = $(`<table class='${tableStyles.contentTable} k-pivotgrid-table' role='presentation'><colgroup></colgroup><tbody class='${tableStyles.tbody} k-pivotgrid-tbody' role='presentation'></tbody></table>`);
 
             that.table = table;
             that.addColElements(this.columnHeaderLeafs.length);
@@ -5618,6 +5810,7 @@ var __meta__ = {
         init: function(options) {
             this.tuples = options.tuples;
             this.axes = options.axes;
+            this.ariaId = options.ariaId;
             this.headerTemplate = kendo.template(HEADERTEMPLATE);
             if (options.template) {
                 this.template = kendo.template(options.template);
@@ -5644,13 +5837,13 @@ var __meta__ = {
             var row;
 
             for (var index = 0; index < columnHeaderRows.length; index++) {
-                row = $('<tr class="k-table-row k-pivotgrid-row"></tr>');
+                row = $('<tr class="k-table-row k-pivotgrid-row" role="row"></tr>');
                 body.append(row);
-                that.addColumCell(row, columnHeaderRows[index]);
+                that.addColumCell(row, columnHeaderRows[index], index);
             }
         },
 
-        addColumCell: function(rowEl, rowItem) {
+        addColumCell: function(rowEl, rowItem, rowIndex) {
             var that = this;
             var cellEl;
             var cell;
@@ -5659,12 +5852,15 @@ var __meta__ = {
                 cell = rowItem.cells[index];
                 if (cell) {
                     cellEl = $(that.headerTemplate({
+                        id: `${that.ariaId}-${that.axes == "columns" ? "ch" : "rh"}-${rowIndex + 1}-${index + 1}`,
                         rowspan: cell.rowSpan,
                         colspan: cell.colSpan,
                         key: cell.path.join(",") + (cell.total ? '|[TOTAL]' : ''),
                         iconClass: (cell.children && cell.children.length) ? "up" : "down",
                         expandable: cell.hasChildren && !cell.total,
-                        headerClass: kendo.format("k-pivotgrid-cell{0}{1}", cell.total ? " k-pivotgrid-header-total" : "",cell.levelNum === 0 ? " k-pivotgrid-header-root" : "")
+                        expanded: (cell.children && cell.children.length) ? "true" : "false",
+                        headerClass: kendo.format("k-pivotgrid-cell{0}{1}", cell.total ? " k-pivotgrid-header-total" : "", cell.levelNum === 0 ? " k-pivotgrid-header-root" : ""),
+                        role: that.axes == "columns" ? "columnheader" : "rowheader"
                     }));
                     cellEl.append(that.template ? that.template({ member: cell }) : cell.caption);
                     rowEl.append(cellEl);
@@ -5684,7 +5880,7 @@ var __meta__ = {
             that._breadth = breadth;
             that._headerLeafs = headerLeafs;
 
-            var table = $(`<table class='${tableStyles.headerTable} k-pivotgrid-table'><colgroup></colgroup><tbody class='${tableStyles.tbody} k-pivotgrid-tbody'></tbody></table>`);
+            var table = $(`<table class='${tableStyles.headerTable} k-pivotgrid-table' role='presentation'><colgroup></colgroup><tbody class='${tableStyles.tbody} k-pivotgrid-tbody' role='rowgroup'></tbody></table>`);
 
             that.table = table;
             that.addColElements(this.axes == "columns" ? headerLeafs.length : rowHeaderBreadth);
@@ -6752,4 +6948,5 @@ var __meta__ = {
     }
 
 })(window.kendo.jQuery);
+export default kendo;
 

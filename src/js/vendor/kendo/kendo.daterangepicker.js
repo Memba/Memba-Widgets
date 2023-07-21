@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -279,7 +279,7 @@ var __meta__ = {
             this._inputs
                 .attr({
                     role: "combobox",
-                    "aria-haspopup": "dialog",
+                    "aria-haspopup": "grid",
                     "aria-expanded": false,
                     "aria-controls": this.dateView._dateViewID,
                     "autocomplete": "off"
@@ -473,9 +473,9 @@ var __meta__ = {
 
             if (that.options.labels) {
                 id = kendo.guid();
-                $('<span class="k-floating-label-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + that.options.messages.startLabel + '</label></span>').appendTo(that.wrapper);
+                $('<span class="k-floating-label-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + kendo.htmlEncode(that.options.messages.startLabel) + '</label></span>').appendTo(that.wrapper);
                 id = kendo.guid();
-                $('<span>&nbsp;</span><span class="k-floating-label-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + that.options.messages.endLabel + '</label></span>').appendTo(that.wrapper);
+                $('<span>&nbsp;</span><span class="k-floating-label-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + kendo.htmlEncode(that.options.messages.endLabel) + '</label></span>').appendTo(that.wrapper);
             } else {
                 $('<input/><span>&nbsp;</span><input/>').appendTo(that.wrapper);
             }
@@ -663,4 +663,5 @@ var __meta__ = {
     kendo.ui.plugin(DateRangePicker);
 
 })(window.kendo.jQuery);
+export default kendo;
 

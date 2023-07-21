@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -305,7 +305,9 @@ var __meta__ = {
 
             if (that._isPartOfSortable(target)) {
 
-                denied = sourceIndex === dropIndex || (that.options.dragOverContainers && !that.options.dragOverContainers(sourceIndex, dropIndex));
+                denied = sourceIndex === dropIndex ||
+                    (that.options.dragOverContainers && !that.options.dragOverContainers(sourceIndex, dropIndex)) ||
+                    e.clickMoveClick && e.currentTarget.hasClass("k-drag-cell") && $(e.elementUnderCursor).closest(".k-drag-cell").length === 0;
 
                 that.toggleHintClass(e.sender.hint, denied);
             }
@@ -407,4 +409,5 @@ var __meta__ = {
     kendo.ui.plugin(Reorderable);
 
 })(window.kendo.jQuery);
+export default kendo;
 

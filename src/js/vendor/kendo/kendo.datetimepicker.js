@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -66,10 +66,10 @@ var __meta__ = {
         SINGLE_POPUP_TEMPLATE = ({ buttonSize, messages }) => '<div class="k-date-tab k-datetime-wrap">' +
                                     '<div class="k-datetime-buttongroup">' +
                                         '<div class="k-button-group k-button-group-stretched">' +
-                                            kendo.html.renderButton(`<button class="k-selected k-group-start">${messages.date}</button>`, {
+                                            kendo.html.renderButton(`<button class="k-selected k-group-start">${kendo.htmlEncode(messages.date)}</button>`, {
                                                 size: buttonSize
                                             }) +
-                                            kendo.html.renderButton(`<button class="k-group-end">${messages.time}</button>`, {
+                                            kendo.html.renderButton(`<button class="k-group-end">${kendo.htmlEncode(messages.time)}</button>`, {
                                                 size: buttonSize
                                             }) +
                                         '</div>' +
@@ -81,11 +81,11 @@ var __meta__ = {
                                         '</div>' +
                                     '</div>' +
                                     '<div class="k-datetime-footer k-actions-stretched k-actions">' +
-                                        kendo.html.renderButton(`<button class="k-time-accept" title="Set" aria-label="Set">${messages.set}</button>`, {
+                                        kendo.html.renderButton(`<button class="k-time-accept" title="Set" aria-label="Set">${kendo.htmlEncode(messages.set)}</button>`, {
                                             size: buttonSize,
                                             themeColor: "primary"
                                         }) +
-                                        kendo.html.renderButton(`<button class="k-time-cancel" title="Cancel" aria-label="Cancel">${messages.cancel}</button>`, {
+                                        kendo.html.renderButton(`<button class="k-time-cancel" title="Cancel" aria-label="Cancel">${kendo.htmlEncode(messages.cancel)}</button>`, {
                                             size: buttonSize
                                         }) +
                                     '</div>' +
@@ -170,7 +170,7 @@ var __meta__ = {
                    .attr({
                        "role": "combobox",
                        "aria-expanded": false,
-                       "aria-haspopup": "grid",
+                       "aria-haspopup": "dialog",
                        "aria-controls": that.dateView._dateViewID + " " + that.timeView._timeViewID,
                        "autocomplete": "off"
                    });
@@ -876,7 +876,7 @@ var __meta__ = {
                         that.timeView._currentlySelected.setMonth(value.getMonth());
                         that.timeView._currentlySelected.setDate(value.getDate());
                         that._switchToTimeView();
-                        that._toggleIcons();
+                        that._toggleIcons("time");
                     } else {
                         that._change(value);
                         that.close("date");
@@ -1061,7 +1061,7 @@ var __meta__ = {
                     fillMode: options.fillMode,
                     shape: "none",
                     rounded: "none"
-                })).insertAfter(element);
+                })).insertAfter(that._dateIcon);
             }
 
             if (options.singlePopup) {
@@ -1261,10 +1261,11 @@ var __meta__ = {
 
             if (index) {
                 this._switchToTimeView();
+                this._toggleIcons("time");
             } else {
                 this._switchToDateView();
+                this._toggleIcons("date");
             }
-            this._toggleIcons();
         },
 
         _switchToDateView: function() {
@@ -1280,9 +1281,15 @@ var __meta__ = {
             this.popup.element.find(".k-datetime-wrap").removeClass("k-date-tab").addClass("k-time-tab");
         },
 
-        _toggleIcons: function() {
-            this._dateIcon.toggle();
-            this._timeIcon.toggle();
+        _toggleIcons: function(view) {
+            if (!view) {
+                this._dateIcon.toggle();
+                this._timeIcon.toggle();
+                return;
+            }
+
+            this._dateIcon.toggle(view !== "time");
+            this._timeIcon.toggle(view === "time");
         },
 
         _cancelClickHandler: function(e) {
@@ -1350,4 +1357,5 @@ var __meta__ = {
     ui.plugin(DateTimePicker);
 
 })(window.kendo.jQuery);
+export default kendo;
 

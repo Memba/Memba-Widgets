@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -908,6 +908,10 @@ var __meta__ = {
             element.addClass(TOOLBAR_TOOLS_CLASSES[component]);
             this._addAttributes(options, element);
 
+            if (options.url) {
+                widgetElement.removeAttr(ROLE);
+            }
+
             if (hasButtons) {
                 element.find(DOT + KBUTTON).addClass(TOOLBAR_TOOL);
                 this._groupVisibleButtons(element);
@@ -1128,7 +1132,7 @@ var __meta__ = {
                 templateItem = target.closest(DOT + TEMPLATE_ITEM),
                 isOverflowAnchor = target.is(DOT + OVERFLOW_ANCHOR);
 
-            if (!this.options.navigateOnTab && keyCode === keys.ESC && templateItem.length > 0) {
+            if (!this.options.navigateOnTab && !target.is(".k-toolbar-tool") && keyCode === keys.ESC && templateItem.length > 0) {
                 e.stopPropagation();
                 this._keyDeactivateTemplate(templateItem);
                 return;
@@ -1849,4 +1853,5 @@ var __meta__ = {
 
     kendo.ui.plugin(ToolBar);
 })(window.kendo.jQuery);
+export default kendo;
 

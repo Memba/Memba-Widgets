@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -27,7 +27,6 @@ var __meta__ = {
         TreeList = ui.TreeList,
         outerHeight = kendo._outerHeight,
         activeElement = kendo._activeElement,
-        keys = kendo.keys,
         mobileOS = kendo.support.mobileOS,
 
         DATATYPE = kendo.attr("type"),
@@ -35,17 +34,9 @@ var __meta__ = {
         FORMAT = kendo.attr("format"),
 
         STRING = "string",
-        NS = ".kendoGanttList",
-        DOUBLE_CLICK = "dblclick",
-        FOCUSIN = "focusin",
-        FOCUSOUT = "focusout",
-        KEYDOWN = "keydown",
-        KEYUP = "keyup",
-        MOUSE_DOWN = "mousedown",
         BEFORE_EDIT = "beforeEdit",
         EDIT = "edit",
         SAVE = "save",
-        CANCEL = "cancel",
         RENDER = "render",
         DOT = ".",
 
@@ -94,6 +85,8 @@ var __meta__ = {
             autoBind: false,
             sortable: true,
             selectable: true,
+            _editCellEvent: "dblclick",
+            _tabCycleStop: true,
             navigatable: false,
             editable: {
                 move: true,
@@ -238,31 +231,11 @@ var __meta__ = {
             var that = this,
                 editable = that.options.editable;
 
+            TreeList.fn._attachCellEditingEventHandlers.call(that);
+
             if (that._isIncellEditable() && editable.update !== false) {
-                that._startEditHandler = function(e) {
-                    var td = e.currentTarget ? $(e.currentTarget) : e;
-                    var column = that._columnFromElement(td);
 
-                    if (that.editable) {
-                        return;
-                    }
-
-                    if (column && column.editable()) {
-                        that._editCell(td, column, that._modelFromElement(td));
-                    }
-                };
-
-                that.content
-                    .on(FOCUSIN + NS, that._focusInEditableHandler.bind(that))
-                    .on(FOCUSOUT + NS, that._focusoutCellHandler.bind(that))
-                    .on(KEYDOWN + NS, "tr:not(.k-grouping-row) > td", that._keydownHandler.bind(that))
-                    .on(KEYUP + NS, "tr:not(.k-grouping-row) > td", that._keyupHandler.bind(that));
-
-                if (!mobileOS) {
-                    that.content
-                        .on(MOUSE_DOWN + NS, "tr:not(.k-grouping-row) > td", that._mouseDownHandler.bind(that))
-                        .on(DOUBLE_CLICK + NS, "tr:not(.k-grouping-row) > td", that._openEditorHandler.bind(that));
-                } else {
+                if (mobileOS) {
                     that.touch = that.content
                         .kendoTouch({
                             filter: "td",
@@ -285,19 +258,6 @@ var __meta__ = {
 
             if (activeElement && activeElement.nodeName.toLowerCase() !== "body") {
                 $(activeElement).trigger("blur");
-            }
-        },
-
-        _closeCellTimeouted: function() {
-            var that = this,
-                target = activeElement(),
-                editor = that.editor || {},
-                cell = editor.element;
-
-            if (cell && cell[0] && target && !$.contains(cell[0], target) && cell[0] !== target && !$(target).closest(".k-animation-container").length) {
-                if (editor.end()) {
-                    that.closeCell();
-                }
             }
         },
 
@@ -431,6 +391,7 @@ var __meta__ = {
                 modelCopy = that.dataSource._createNewModel(model.toJSON()),
                 editedCell;
 
+            clearTimeout(that._closeCellTimeout);
             if (column.field === resourcesField) {
                 column.editor(cell, modelCopy);
                 return;
@@ -467,51 +428,6 @@ var __meta__ = {
                 that._current = editedCell;
 
                 that.trigger(EDIT, { container: cell, model: model });
-            }
-        },
-
-        _focusInEditableHandler: function(e) {
-            var that = this,
-                target = e.target;
-
-            if (!$.contains(target, activeElement())) {
-                clearTimeout(that._closeCellTimeout);
-                that._closeCellTimeout = null;
-            }
-        },
-
-        _focusoutCellHandler: function(e) {
-            var that = this;
-
-            that._closeCellTimeout = setTimeout(function() {
-                that._closeCellTimeouted(e);
-            }, 1);
-        },
-
-        _keydownHandler: function(e) {
-            if (e.keyCode === keys.ENTER) {
-                e.preventDefault();
-            }
-        },
-
-        _keyupHandler: function(e) {
-            var that = this,
-                key = e.keyCode,
-                cell, model;
-
-            switch (key) {
-                case keys.ENTER:
-                    that._blurActiveElement();
-                    that._closeCellTimeouted(e);
-                    break;
-                case keys.ESC:
-                    if (that.editor) {
-                        cell = $(e.target);
-                        model = that._modelFromElement(cell);
-
-                        that.trigger(CANCEL, { model: model, cell: cell });
-                    }
-                    break;
             }
         },
 
@@ -605,4 +521,5 @@ var __meta__ = {
     ui.plugin(GanttList);
 
 })(window.kendo.jQuery);
+export default kendo;
 

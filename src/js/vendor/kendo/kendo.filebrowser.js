@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -26,6 +26,7 @@ var __meta__ = {
         Widget = kendo.ui.Widget,
         isPlainObject = $.isPlainObject,
         extend = $.extend,
+        encode = kendo.htmlEncode,
         placeholderSupported = kendo.support.placeholder,
         isFunction = kendo.isFunction,
         trimSlashesRegExp = /(^\/|\/$)/g,
@@ -39,12 +40,12 @@ var __meta__ = {
         SIZEFIELD = "size",
         TYPEFIELD = "type",
         DEFAULTSORTORDER = { field: TYPEFIELD, dir: "asc" },
-        EMPTYTILE = kendo.template(({ text }) => `<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${text}</span></div>`),
+        EMPTYTILE = kendo.template(({ text }) => `<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${kendo.htmlEncode(text)}</span></div>`),
         UPLOADTEMPLATE = ({ messages }) =>
             '<div class="k-upload k-upload-button-wrap">' +
                 '<div class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button">' +
                     kendo.ui.icon({ icon: "plus", iconClass: "k-button-icon" }) +
-                    `<span class="k-button-text">${messages.uploadFile}</span>` +
+                    `<span class="k-button-text">${kendo.htmlEncode(messages.uploadFile)}</span>` +
                 '</div>' +
                 '<input type="file" name="file" />' +
             '</div>',
@@ -54,7 +55,7 @@ var __meta__ = {
                 `${showUpload ? UPLOADTEMPLATE({ messages }) : ''}` +
                 `${showDelete ? '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-disabled">' + kendo.ui.icon({ icon: "x", iconClass: "k-button-icon" }) + '</button>' : ''}` +
                 '<div class="k-tiles-arrange">' +
-                    `<label>${messages.orderBy}: <select></select></label>` +
+                    `<label>${kendo.htmlEncode(messages.orderBy)}: <select></select></label>` +
                 '</div>' +
                 '<span class="k-toolbar-spacer"></span>' +
                 '<input data-role="searchbox" />' +
@@ -374,7 +375,7 @@ var __meta__ = {
         _deleteClick: function() {
             var that = this,
                 item = that.listView.select(),
-                message = kendo.format(that.options.messages.deleteFile, item.find(".k-file-name").text());
+                message = encode(kendo.format(that.options.messages.deleteFile, item.find(".k-file-name").text()));
 
             if (item.length && that._showMessage(message, "confirm")) {
                 that.listView.remove(item);
@@ -423,7 +424,7 @@ var __meta__ = {
                 }
             } else {
                 e.preventDefault();
-                that._showMessage(kendo.format(options.messages.invalidFileType, fileName, fileTypes));
+                that._showMessage(encode(kendo.format(options.messages.invalidFileType, fileName, fileTypes)));
             }
         },
 
@@ -455,7 +456,7 @@ var __meta__ = {
                 file = that._findFile(fileName);
 
             if (file) {
-                if (!that._showMessage(kendo.format(that.options.messages.overwriteFile, fileName), "confirm")) {
+                if (!that._showMessage(encode(kendo.format(that.options.messages.overwriteFile, fileName), "confirm"))) {
                     return null;
                 } else {
                     file._override = true;
@@ -731,7 +732,7 @@ var __meta__ = {
 
                 if (e.status == 'error') {
                     if (status == '404') {
-                        that._showMessage(that.options.messages.directoryNotFound);
+                        that._showMessage(kendo.htmlEncode(that.options.messages.directoryNotFound));
                     } else if (status != '0') {
                         that._showMessage('Error! The requested URL returned ' + status + ' - ' + e.xhr.statusText);
                     }
@@ -923,4 +924,5 @@ var __meta__ = {
     kendo.ui.plugin(SearchBox);
 
 })(window.kendo.jQuery);
+export default kendo;
 

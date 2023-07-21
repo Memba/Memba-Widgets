@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -53,6 +53,7 @@ var __meta__ = {
             removeIconClass: "",
             content: "",
             text: "",
+            actions: [],
             stylingOptions: [ "size", "rounded", "fillMode", "themeColor" ]
         },
         _wrapper: function() {
@@ -88,8 +89,28 @@ var __meta__ = {
                 that.wrapper.addClass("k-disabled");
             }
 
+            if ((options.actions && options.actions.length > 0) || options.removable) {
+                that._actions();
+            }
+
+
+        },
+        _actions: function() {
+            var that = this,
+                options = that.options;
+
+            that.actionsWrapper = $("<span class='k-chip-actions'></span>");
+            that.actionsWrapper.appendTo(that.wrapper);
+
+            if (options.actions && options.actions.length > 0) {
+                for (var i = 0; i < options.actions.length; i++) {
+                    var action = options.actions[i];
+                    that.actionsWrapper.append($(`<span class='k-chip-action ${action.iconClass ? action.iconClass : ''}'>${kendo.ui.icon({ icon: action.icon, iconClass: "k-chip-icon" })}</span>`).attr(action.attr ? action.attr : {}));
+                }
+            }
+
             if (options.removable) {
-                that.wrapper.append($(`<span class='k-chip-action k-chip-remove-action'>${kendo.ui.icon({ icon: options.removeIcon, iconClass: "k-chip-icon" })}</span>`).attr(options.removableAttr));
+                that.actionsWrapper.append($(`<span class='k-chip-action k-chip-remove-action'>${kendo.ui.icon({ icon: options.removeIcon, iconClass: "k-chip-icon" })}</span>`).attr(options.removableAttr));
             }
         }
     });
@@ -107,4 +128,5 @@ var __meta__ = {
     }]);
 
 })(window.kendo.jQuery);
+export default kendo;
 

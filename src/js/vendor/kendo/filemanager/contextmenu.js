@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -31,7 +31,18 @@ import "../kendo.menu.js";
         },
 
         _overrideTemplates: function() {
-            this.templates.sprite = template((spriteCssClass) => `${spriteCssClass ? `<span class="${spriteCssClass}"></span>` : ''}`);
+            this.templates.sprite = template(({ spriteCssClass, icon }) => {
+                // Needed for backwards compatibility in order to not introduce a breaking change.
+                if (spriteCssClass) {
+                    return `<span class="${spriteCssClass}"></span>`;
+                }
+
+                if (icon) {
+                    return kendo.ui.icon(icon);
+                }
+
+                return "";
+            });
         },
 
         _restrictDefaultItems: function() {
@@ -43,8 +54,8 @@ import "../kendo.menu.js";
         },
 
         defaultItems: {
-            "rename": { text: "Rename", spriteCssClass: "k-icon k-i-pencil", command: "RenameCommand" },
-            "delete": { text: "Delete", spriteCssClass: "k-icon k-i-trash", command: "DeleteCommand" }
+            "rename": { text: "Rename", icon: "pencil", command: "RenameCommand" },
+            "delete": { text: "Delete", icon: "trash", command: "DeleteCommand" }
         },
 
         events: ContextMenu.fn.events.concat([

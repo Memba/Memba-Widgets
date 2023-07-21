@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -39,6 +39,7 @@ var __meta__ = {
         FLAGWRAPCLASS = "k-timeline-flag-wrap",
         TRACKITEMCLASS = "k-timeline-track-item",
         SCROLLABLEWRAPCLASS = "k-timeline-scrollable-wrap",
+        TRACKITEM_NOTFLAG_SELECTOR = ".k-timeline-track-item:not(.k-timeline-flag-wrap)",
         NS = ".kendoTimeline",
         CHANGE = "change",
         DEFAULTHORIZONTALCARDTEMPLATE = (args) => {
@@ -148,9 +149,7 @@ var __meta__ = {
                 `<li class="${reverse ? 'k-timeline-event k-reverse' : 'k-timeline-event'}" data-uid="${encode(data[i].uid)}">` +
                     '<div class="k-timeline-date-wrap">' +
                         (showDateLabels ?
-                        '<div class="k-timeline-date-wrap">' +
-                            `<span id="${encode(data[i].uid)}-date" class="k-timeline-date">${kendo.toString(data[i][dateField], dateFormat)}</span>` +
-                        '</div>'
+                            `<span id="${encode(data[i].uid)}-date" class="k-timeline-date">${kendo.toString(data[i][dateField], dateFormat)}</span>`
                         : '') +
                     '</div>' +
                     '<span class="k-timeline-circle"></span>' +
@@ -752,12 +751,12 @@ var __meta__ = {
                     }
                 }
 
-                dataItem = that.dataSource.view()[firstEventInView.index("li[class='k-timeline-track-item']")];
+                dataItem = that.dataSource.view()[this._trackWrap.find(TRACKITEM_NOTFLAG_SELECTOR).index(firstEventInView)];
 
                 this._trackWrap.find("." + SCROLLABLEWRAPCLASS).css("transform", "translateX(" + end + "%)");
 
                 if (that._currentIndex != firstEventInView.index()) {
-                    that.currentEventIndex = firstEventInView.index("li[class='k-timeline-track-item']");
+                    that.currentEventIndex = this._trackWrap.find(TRACKITEM_NOTFLAG_SELECTOR).index(firstEventInView);
 
                     that._currentIndex = firstEventInView.index();
 
@@ -964,7 +963,7 @@ var __meta__ = {
                 that._resizeHandlerBound = that._resizeHandler.bind(that);
 
                 kendo.jQuery(window).on("resize" + NS, that._resizeHandlerBound);
-                that._trackWrap.on("click", ".k-timeline-track-item:not(.k-timeline-flag-wrap)", that._setCurrentEvent.bind(that));
+                that._trackWrap.on("click", TRACKITEM_NOTFLAG_SELECTOR, that._setCurrentEvent.bind(that));
                 that._trackWrap.on("click", ".k-timeline-arrow:not(.k-disabled)", that._navigateToView.bind(that));
 
                 if (navigatable) {
@@ -973,7 +972,7 @@ var __meta__ = {
                         .attr("role", "none")
                         .attr("aria-hidden", true);
 
-                    that._trackWrap.find(".k-timeline-track-item:not(.k-timeline-flag-wrap)")
+                    that._trackWrap.find(TRACKITEM_NOTFLAG_SELECTOR)
                         .attr("aria-selected", false)
                         .first()
                         .attr("aria-selected", true);
@@ -1004,7 +1003,7 @@ var __meta__ = {
 
                             if (e.keyCode == keys.LEFT) {
                                 handled = true;
-                                next = current.prevAll(".k-timeline-track-item:not(.k-timeline-flag-wrap)").first();
+                                next = current.prevAll(TRACKITEM_NOTFLAG_SELECTOR).first();
 
                                 if (next.length) {
                                     itemOffset = calculateOffset(next, that._trackWrap);
@@ -1023,7 +1022,7 @@ var __meta__ = {
 
                             if (e.keyCode == keys.RIGHT) {
                                 handled = true;
-                                next = current.nextAll(".k-timeline-track-item:not(.k-timeline-flag-wrap)").first();
+                                next = current.nextAll(TRACKITEM_NOTFLAG_SELECTOR).first();
 
                                 if (next.length) {
                                     itemOffset = calculateOffset(next, that._trackWrap);
@@ -1218,4 +1217,5 @@ var __meta__ = {
         });
     kendo.ui.plugin(Timeline);
 })(window.kendo.jQuery);
+export default kendo;
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -233,11 +233,10 @@ var __meta__ = {
             var widthStyle = '';
 
             if (currentWidth) {
-                widthStyle += "style='width:";
-                widthStyle += currentWidthInt;
-                widthStyle += percentageUnitsRegex.test(currentWidth) ? "%" : "px";
-                widthStyle += ";'";
+                let widthValue = `${currentWidthInt}${percentageUnitsRegex.test(currentWidth) ? "%" : "px"}`;
+                widthStyle = `style="width: ${widthValue}; max-width: ${widthValue};"`;
             }
+
             item += "<span class='k-table-td' " + widthStyle + ">";
             item += templates["column" + i](dataItem);
             item += "</span>";
@@ -736,7 +735,7 @@ var __meta__ = {
                 defs.push(deferred);
             });
 
-            $.when.apply($, defs).then(function() {
+            $.when.apply($, defs).done(function() {
                 result.resolve();
             });
 
@@ -1850,4 +1849,5 @@ var __meta__ = {
     kendo.ui.plugin(VirtualList);
 
 })(window.kendo.jQuery);
+export default kendo;
 

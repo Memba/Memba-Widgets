@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -20,15 +20,21 @@ import "../kendo.icons.js";
     var SPACE = " ";
     var NS = ".kendoChat";
 
-    var IMG_TEMPLATE = ({ url, text, styles }) => `<img src="${url}" alt="${encode(text)}" class="${styles.avatar}">`;
+    var IMG_TEMPLATE = ({ url, text, styles }) => `<img src="${url}" alt="${encode(text)}">`;
+
+    var AVATAR_TEMPLATE = ({ url, text, styles }) => `<div class="k-avatar k-avatar-md k-avatar-solid k-avatar-solid-primary k-rounded-full">` +
+                                `<span class="k-avatar-image">` +
+                                    IMG_TEMPLATE({ url, text, styles }) +
+                                `</span>` +
+                            `</div>`;
 
     var MESSAGE_GROUP_TEMPLATE = ({ text, url, styles }) => `<div ${encode(text)} class="${styles.messageGroup} ${ url ? "" : styles.noAvatar }">
             <p class="${styles.author}">${encode(text)}</p>
-            ${ url ? IMG_TEMPLATE({ url, text, styles }) : '' }
+            ${ url ? AVATAR_TEMPLATE({ url, text, styles }) : '' }
         </div>`;
 
     var SELF_MESSAGE_GROUP_TEMPLATE = ({ url, text, styles }) => `<div me class="${styles.messageGroup} ${styles.self} ${ url ? "" : styles.noAvatar }">
-        ${ url ? IMG_TEMPLATE({ url, text, styles }) : '' }
+        ${ url ? AVATAR_TEMPLATE({ url, text, styles }) : '' }
     </div>`;
 
     var TEXT_MESSAGE_TEMPLATE = ({ styles, text, timestamp }) => `<div class="${styles.message}">
@@ -128,7 +134,7 @@ import "../kendo.icons.js";
     kendo.chat.registerComponent("calendar", Calendar);
 
     var viewStyles = {
-        wrapper: "k-widget k-chat",
+        wrapper: "k-chat",
         messageList: "k-avatars",
         messageListContent: "k-message-list-content",
         messageTime: "k-message-time",
@@ -151,7 +157,7 @@ import "../kendo.icons.js";
         scrollButtonIconRight: "chevron-right",
         typingIndicator: "k-typing-indicator",
         typingIndicatorBubble: "k-typing-indicator-bubble",
-        bubble: "k-bubble",
+        bubble: "k-chat-bubble",
         suggestedActions: "k-quick-replies",
         suggestedAction: "k-quick-reply",
         cardWrapper: "k-card-container",

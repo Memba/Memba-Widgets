@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -178,6 +178,7 @@ var __meta__ = {
                 messages: options.messages
             }));
 
+            kendo.applyStylesFromKendoAttributes(that.wrapper, ["overflow"]);
             that._createExpanders();
 
             that.wrapper.on("keydown" + KEYBOARD_NS, function(ev) {
@@ -1200,7 +1201,7 @@ var __meta__ = {
                             '<div class="kendo-grid-filter-menu-container">' +
                                 '<form class="k-filter-menu k-group k-reset">' +
                                     '<div class="k-filter-menu-container">' +
-                                            `<select class="k-dropdown k-picker k-dropdown-list" ${ARIA_LABEL}="${messages.filterOperatorsDropDownLabel}" style="overflow:visible">` +
+                                            `<select class="k-dropdown k-picker k-dropdown-list" ${ARIA_LABEL}="${messages.filterOperatorsDropDownLabel}" ${kendo.attr("style-overflow")}="visible">` +
                                                 `${Object.keys(messages.operators || {}).map(op => '<option value="' + op + '">' + encode(messages.operators[op]) + '</option>').join("")}` +
                                             '</select>' +
                                             `<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" ${ARIA_LABEL}="${messages.filterValueTextBoxLabel}" value=""></span>` +

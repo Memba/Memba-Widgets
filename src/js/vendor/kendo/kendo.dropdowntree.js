@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -666,7 +666,7 @@ var __meta__ = {
                 return;
             }
 
-            list.noData = $('<div class="k-no-data" style="display: none;"></div>').appendTo(list.list);
+            list.noData = $('<div class="k-no-data"></div>').hide().appendTo(list.list);
             list.noDataTemplate = typeof template !== "function" ? kendo.template(() => template) : template;
         },
 

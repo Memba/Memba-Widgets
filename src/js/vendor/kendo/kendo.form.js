@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -66,7 +66,7 @@ import "./kendo.button.js";
             DATA_ROLE_CHECKBOX_GROUP = "[data-role='checkboxgroup']";
 
         var formStyles = {
-            form: "k-widget k-form",
+            form: "k-form",
             horizontal: "k-form-horizontal",
             vertical: "",
             field: "k-form-field",
@@ -78,7 +78,7 @@ import "./kendo.button.js";
             layout: "k-form-layout",
             legend: "k-form-legend",
             label: "k-label k-form-label",
-            emptyLabel: "k-form-label k-label-empty",
+            emptyLabel: "k-label-empty",
             optional: "k-label-optional",
             buttonsContainer: "k-form-buttons",
             buttonsEnd: "k-buttons-end",
@@ -162,7 +162,7 @@ import "./kendo.button.js";
 
             _noLabelfieldTemplate: ({ styles, colSpan, hidden, field })=>
                                     `<div class='${encode(styles.field)} ${colSpan ? `k-colspan-${encode(colSpan)} k-col-span-${encode(colSpan)}` : '' } ${hidden ? encode(styles.hidden) : '' }'>` +
-                                        `<span class='${encode(styles.emptyLabel)}'></span>` +
+                                        `<span class='${encode(styles.label)} ${encode(styles.emptyLabel)}'></span>` +
                                         `<div class='k-form-field-wrap' data-container-for='${encode(field)}'></div>` +
                                     "</div>",
 

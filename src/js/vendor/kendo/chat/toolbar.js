@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -39,7 +39,7 @@ import "../kendo.icons.js";
     var toolbarStyles = {
         button: "k-button",
         buttonDefaults: "k-button-md k-rounded-md k-button-solid k-button-solid-base",
-        buttonList: "k-button-list",
+        buttonList: "k-button-list k-toolbar-group",
         scrollButton: "k-scroll-button",
         scrollButtonLeft: "k-scroll-button-left",
         scrollButtonRight: "k-scroll-button-right",

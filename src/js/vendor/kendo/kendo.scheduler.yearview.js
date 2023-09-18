@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -60,7 +60,7 @@ var __meta__ = {
             "<div class='k-tooltip-events-container'>" +
                 "<div class='k-tooltip-events'>" +
                     events.map((event) =>
-                        `<div class="k-tooltip-event k-event" title="${encode(event.title)}" ${event.resources[0] ? `style="background-color: ${encode(event.resources[0].color)}; border-color: ${encode(event.resources[0].color)};"` : ''}` +
+                        `<div class="k-tooltip-event k-event" title="${encode(event.title)}" ${event.resources[0] ? `${kendo.attr("style-background-color")}="${encode(event.resources[0].color)}" ${kendo.attr("style-border-color")}="${encode(event.resources[0].color)}"` : ''}>` +
                             `<div class='k-event-title k-text-ellipsis'>${encode(event.title)}</div>` +
                             "<span class='k-spacer'></span>" +
                             `<span class='k-event-time'>${encode(kendo.format('{0:t}', event.start))}</span>` +
@@ -236,7 +236,8 @@ var __meta__ = {
                 showOn: CLICK,
                 position: "right",
                 content: tooltipTemplate,
-                width: 220
+                width: 220,
+                show: () => setTimeout(() => kendo.applyStylesFromKendoAttributes(that.tooltip.popup.element, ["background-color", "border-color"]))
             });
 
             that._initTooltipPopup();

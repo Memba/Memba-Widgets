@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -35,7 +35,7 @@ import "../../kendo.dataviz.core.js";
 
         var theme = { chart: kendo.dataviz.chartBaseTheme() };
         var hook = $(
-            '<div style="display: none">' +
+            '<div>' +
             '  <div class="k-var--primary"></div>' +
             '  <div class="k-var--primary-contrast"></div>' +
             '  <div class="k-var--base"></div>' +
@@ -69,7 +69,7 @@ import "../../kendo.dataviz.core.js";
             '  </div>' +
             '  <div class="k-var--gauge-pointer"></div>' +
             '  <div class="k-var--gauge-track"></div>' +
-            '</div>').appendTo(document.body);
+            '</div>').hide().appendTo(document.body);
 
         function mapColor(key, varName) {
             set(key, queryStyle(varName, "backgroundColor"));

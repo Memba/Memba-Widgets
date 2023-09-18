@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -633,6 +633,8 @@ var __meta__ = {
                     if (e.action === "remove" || e.action === "sync") {
                         e.preventDefault();
                         kendo.ui.progress(that.listView.content, false);
+                        /* If there are no files left the loader is displayed over the wrapper instead of the content. */
+                        kendo.ui.progress(that.listView.wrapper, false);
                     }
                 },
                 dataBound: function() {
@@ -898,7 +900,7 @@ var __meta__ = {
             if (!wrapper.length) {
                 wrapper = element.wrap($('<div class="k-widget k-search-wrap"><span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"></span></div>')).parents(".k-search-wrap");
                 if (!placeholderSupported) {
-                    $('<label style="display:block">' + this.options.label + '</label>').insertBefore(element);
+                    $('<label>' + this.options.label + '</label>').css("display", "block").insertBefore(element);
                 }
                 $('<span class="k-input-suffix">' + kendo.ui.icon($('<a href="#" />'), { icon: "search", iconClass: "k-search" }) + '</span>').appendTo(wrapper.find(".k-textbox"));
             }

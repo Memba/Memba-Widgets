@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -560,6 +560,7 @@ var CANDLESTICK = "candlestick";
 var COLUMN = "column";
 var DONUT = "donut";
 var FUNNEL = "funnel";
+var PYRAMID = "pyramid";
 var HEATMAP = "heatmap";
 var HORIZONTAL_WATERFALL = "horizontalWaterfall";
 var LINE = "line";
@@ -652,6 +653,7 @@ var constants = {
 	STEP: STEP,
 	CATEGORY: CATEGORY,
 	FUNNEL: FUNNEL,
+	PYRAMID: PYRAMID,
 	BAR: BAR,
 	CANDLESTICK: CANDLESTICK,
 	PIE: PIE,
@@ -1602,7 +1604,7 @@ var LinePoint = ChartElement.extend({
             rotation: options.rotation,
             background: options.background,
             border: this.markerBorder(),
-            opacity: this.series.opacity || options.opacity,
+            opacity: options.opacity,
             zIndex: valueOrDefault(options.zIndex, this.series.zIndex),
             animation: options.animation,
             visual: options.visual
@@ -12622,14 +12624,30 @@ setDefaultOptions(FunnelChart, {
 
 deepExtend(FunnelChart.prototype, PieChartMixin);
 
+var MAX_NECK_RATIO = 1e6;
+
+var PyramidChart = FunnelChart.extend({
+    init: function(plotArea, options) {
+        options.dynamicSlope = false;
+        options.neckRatio = MAX_NECK_RATIO;
+
+        FunnelChart.fn.init.call(this, plotArea, options);
+    }
+});
+
 var FunnelPlotArea = PlotAreaBase.extend({
     render: function() {
-        this.createFunnelChart(this.series);
+        this.createChart(FunnelChart, filterSeriesByType(this.series, [ FUNNEL ]));
+        this.createChart(PyramidChart, filterSeriesByType(this.series, [ PYRAMID ]));
     },
 
-    createFunnelChart: function(series) {
+    createChart: function(chartType, series) {
         var firstSeries = series[0];
-        var funnelChart = new FunnelChart(this, {
+        if (!firstSeries) {
+            return;
+        }
+
+        var chart = new chartType(this, {
             series: series,
             legend: this.options.legend,
             neckRatio: firstSeries.neckRatio,
@@ -12639,7 +12657,7 @@ var FunnelPlotArea = PlotAreaBase.extend({
             highlight: firstSeries.highlight
         });
 
-        this.appendChart(funnelChart);
+        this.appendChart(chart);
     },
 
     appendChart: function(chart, pane) {
@@ -13461,7 +13479,7 @@ PlotAreaFactory.current.register(XYPlotArea, [
 
 PlotAreaFactory.current.register(PiePlotArea, [ PIE ]);
 PlotAreaFactory.current.register(DonutPlotArea, [ DONUT ]);
-PlotAreaFactory.current.register(FunnelPlotArea, [ FUNNEL ]);
+PlotAreaFactory.current.register(FunnelPlotArea, [ FUNNEL, PYRAMID ]);
 
 PlotAreaFactory.current.register(PolarPlotArea, [ POLAR_AREA, POLAR_LINE, POLAR_SCATTER ]);
 PlotAreaFactory.current.register(RadarPlotArea, [ RADAR_AREA, RADAR_COLUMN, RADAR_LINE ]);
@@ -13487,7 +13505,7 @@ SeriesBinder.current.register([ POLAR_AREA, POLAR_LINE, POLAR_SCATTER ], [ X, Y 
 SeriesBinder.current.register([ RADAR_AREA, RADAR_COLUMN, RADAR_LINE ], [ VALUE ], [ COLOR, DRILLDOWN_FIELD ]);
 
 SeriesBinder.current.register(
-    [ FUNNEL ],
+    [ FUNNEL, PYRAMID ],
     [ VALUE ], [ CATEGORY, COLOR, "visibleInLegend", "visible", DRILLDOWN_FIELD ]
 );
 
@@ -13719,7 +13737,7 @@ var Chart = Class.extend({
 
             if (firstSeries.type === DONUT) {
                 points = pointByCategoryName(plotArea.pointsBySeriesName(seriesName), categoryName);
-            } else if (firstSeries.type === PIE || firstSeries.type === FUNNEL) {
+            } else if (inArray(firstSeries.type, [ PIE, FUNNEL, PYRAMID ])) {
                 points = pointByCategoryName((plotArea.charts[0] || {}).points, categoryName);
             } else {
                 points = plotArea.pointsBySeriesName(seriesName);
@@ -15086,7 +15104,7 @@ var Chart = Class.extend({
         var currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex];
         var items;
 
-        if (inArray(currentSeries.type, [ PIE, DONUT, FUNNEL ])) {
+        if (inArray(currentSeries.type, [ PIE, DONUT, FUNNEL, PYRAMID ])) {
             items = plotArea.findPoint(function(point) {
                 return point.series.index === seriesIndex && point.index === pointIndex;
             });

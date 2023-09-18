@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -52,9 +52,9 @@ var __meta__ = {
             "orderId": "Order ID"
         },
 
-        SIZE_CALCULATION_TEMPLATE = "<table style='visibility: hidden;'>" +
+        SIZE_CALCULATION_TEMPLATE = `<table ${kendo.attr("style-visibility")}="hidden">` +
             "<tbody>" +
-                "<tr style='height:{0}'>" +
+                `<tr ${kendo.attr("style-height")}="{0}">` +
                     "<td>&nbsp;</td>" +
                 "</tr>" +
             "</tbody>" +
@@ -501,6 +501,7 @@ var __meta__ = {
                 table = $(kendo.format(SIZE_CALCULATION_TEMPLATE, rowHeight)),
                 height;
 
+            kendo.applyStylesFromKendoAttributes(table, ["height", "visibility"]);
             content.append(table);
             height = outerHeight(table.find("tr"));
             table.remove();

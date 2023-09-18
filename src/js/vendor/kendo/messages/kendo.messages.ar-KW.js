@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -245,21 +245,21 @@
                     },
                     moveConfirm: {
                         title: "تأكيد النسخ أو النقل",
-                        content: "<p style='text-align: center;'>هل أنت متأكد من إتمام النسخ أو الحذف؟</p>",
+                        content: "<p class='k-text-center'>هل أنت متأكد من إتمام النسخ أو الحذف؟</p>",
                         okText: "نسخ",
                         cancel: "نقل",
                         close: "إغلاق"
                     },
                     deleteConfirm: {
                         title: "تأكيد الحذف",
-                        content: "<p style='text-align: center;'>هل أنت متأكد من حذف الملفات المحددة؟?<br/>لا يمكنك التراجع عن هذا الإجراء.</p>",
+                        content: "<p class='k-text-center'>هل أنت متأكد من حذف الملفات المحددة؟?<br/>لا يمكنك التراجع عن هذا الإجراء.</p>",
                         okText: "حذف",
                         cancel: "إلغاء",
                         close: "إغلاق"
                     },
                     renamePrompt: {
                         title: "إعادة التسمية",
-                        content: "<p style='text-align: center;'>أدخل اسم ملف جديد</p>",
+                        content: "<p class='k-text-center'>أدخل اسم ملف جديد</p>",
                         okText: "إعادة التسمية",
                         cancel: "إلغاء",
                         close: "إغلاق"

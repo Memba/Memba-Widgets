@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -249,7 +249,8 @@ var __meta__ = {
                 options = that.options,
                 columns = that._ownerColumns(),
                 flattenMenuCols,
-                menuTemplate;
+                menuTemplate,
+                menuElement;
 
             if (that._hasGroups()) {
                 columns = that._groupColumns(columns);
@@ -265,7 +266,7 @@ var __meta__ = {
                 menuTemplate = kendo.template(template);
             }
 
-            that.wrapper.html(menuTemplate({
+            menuElement = $(menuTemplate({
                 uid: kendo.guid(),
                 ns: kendo.ns,
                 messages: options.messages,
@@ -280,6 +281,9 @@ var __meta__ = {
                 reorderable: options.reorderable,
                 groupable: options.groupable
             }));
+
+            kendo.applyStylesFromKendoAttributes(menuElement, ["display"]);
+            that.wrapper.empty().append(menuElement);
 
             that.popup = that.wrapper[POPUP]({
                 anchor: that.link,
@@ -1443,7 +1447,7 @@ var __meta__ = {
             if (column.groupHeader) {
                 return `<span class="k-column-menu-group-header"><span class="k-column-menu-group-header-text">${column.title}</span></span>`;
             } else {
-                return `<label class="k-column-list-item" role="menuitemcheckbox" aria-checked="false" ${column.matchesMedia === false ? "style=\'display:none;\'" : ""}><input class="k-checkbox k-checkbox-md k-rounded-md" type="checkbox" title="${encodeTitles ? encode(column.title) : column.title}" data-${ns}field="${column.field.replace(/\"/g, "&#34;")}" data-${ns}index="${column.index} data-${ns}locked="${column.locked}" data-${ns}uid="${column.uid}" /><span class="k-checkbox-label">${encodeTitles ? encode(column.title) : column.title}</span></label>`;
+                return `<label class="k-column-list-item" role="menuitemcheckbox" aria-checked="false" ${column.matchesMedia === false ? `${kendo.attr("style-display")}="none"` : ""}><input class="k-checkbox k-checkbox-md k-rounded-md" type="checkbox" title="${encodeTitles ? encode(column.title) : column.title}" data-${ns}field="${column.field.replace(/\"/g, "&#34;")}" data-${ns}index="${column.index} data-${ns}locked="${column.locked}" data-${ns}uid="${column.uid}" /><span class="k-checkbox-label">${encodeTitles ? encode(column.title) : column.title}</span></label>`;
             }
         }).join("");
     }
@@ -1535,7 +1539,7 @@ ${hasLockableColumns || hasStickableColumns || reorderable ? LOCK_STICK_COLUMNS_
             if (column.groupHeader) {
                 return `<li class="k-column-menu-group-header" ${omitWrapAttribute}="true" ><span class="k-column-menu-group-header-text">${column.title}</span></li>`;
             } else {
-                return `<li role="menuitemcheckbox" aria-checked="false" ${column.matchesMedia === false ? "style='display:none;'" : ""}><input type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" title="${encodeTitles ? encode(column.title) : column.title}" data-${ns}field="${column.field.replace(/\"/g,"&#34;")}" data-${ns}index="${column.index}" data-${ns}locked="${column.locked}" data-${ns}uid="${column.uid}"/>${encodeTitles ? encode(column.title) : column.title}</li>`;
+                return `<li role="menuitemcheckbox" aria-checked="false" ${column.matchesMedia === false ? `${kendo.attr("style-display")}="none"` : ""}><input type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" title="${encodeTitles ? encode(column.title) : column.title}" data-${ns}field="${column.field.replace(/\"/g,"&#34;")}" data-${ns}index="${column.index}" data-${ns}locked="${column.locked}" data-${ns}uid="${column.uid}"/>${encodeTitles ? encode(column.title) : column.title}</li>`;
             }
         }).join("");
     }

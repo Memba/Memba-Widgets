@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -20,7 +20,7 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
-    version: '2023.2.718'.replace(/^\s+|\s+$/g, ''),
+    version: '2023.2.829'.replace(/^\s+|\s+$/g, ''),
     licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
@@ -191,7 +191,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2023.2.718".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2023.2.829".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -5255,6 +5255,20 @@ function pad(number, digits, end) {
     kendo.registerCssClasses("size", sizeValues);
     //kendo.registerCssClasses("align", alignValues);
     kendo.registerCssClasses("positionMode", positionModeValues);
+
+    kendo.applyStylesFromKendoAttributes = function(element, styleProps) {
+        let selector = styleProps.map(styleProp=> `[${kendo.attr(`style-${styleProp}`)}]`).join(',');
+        element.find(selector).addBack(selector).each((_, currentElement) => {
+            let $currentElement = $(currentElement);
+            styleProps.forEach(function(styleProp) {
+                let kendoAttr = kendo.attr(`style-${styleProp}`);
+                if ($currentElement.attr(kendoAttr)) {
+                    $currentElement.css(styleProp, $currentElement.attr(kendoAttr));
+                    $currentElement.removeAttr(kendoAttr);
+                }
+            });
+        });
+    };
 
     // jQuery deferred helpers
 

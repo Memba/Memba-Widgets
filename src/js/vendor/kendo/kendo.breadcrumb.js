@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -21,7 +21,9 @@ var __meta__ = {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         extend = $.extend,
+        mediaQuery = kendo.mediaQuery,
         isPlainObject = $.isPlainObject,
+        support = kendo.support,
         encode = kendo.htmlEncode,
 
         BREADCRUMB = ".kendoBreadcrumb",
@@ -37,7 +39,7 @@ var __meta__ = {
         DOT = ".";
 
     var breadcrumbStyles = {
-        widget: "k-breadcrumb",
+        widget: "k-breadcrumb k-breadcrumb-wrap",
         overlay: "k-breadcrumb-container",
         textbox: "k-input-inner",
         textboxWrapper: "k-textbox k-input k-input-md k-rounded-md k-input-solid",
@@ -75,6 +77,8 @@ var __meta__ = {
                 that.items(options.items);
             }
 
+            that._applyCssClasses();
+
             that._resizeHandler = kendo.onResize(function() {
                 that.resize(true);
             });
@@ -86,6 +90,7 @@ var __meta__ = {
             bindToLocation: false,
             items: null,
             name: "Breadcrumb",
+            size: "medium",
             gap: 0,
             rootIcon: "home",
             delimiterIcon: "chevron-right",
@@ -304,7 +309,7 @@ var __meta__ = {
             that.wrapper.attr(ARIA_LABEL, "Breadcrumb");
 
             that.overlay = that.wrapper
-                .append($("<ol />").addClass(breadcrumbStyles.overlay))
+                .append($("<ol />").addClass(breadcrumbStyles.overlay + "  !k-flex-wrap"))
                 .find(DOT + breadcrumbStyles.overlay);
         },
 
@@ -495,8 +500,10 @@ var __meta__ = {
             var that = this,
                 wrapper = that.wrapper,
                 overlay = that.overlay,
-                items = that.overlay.find(DOT + breadcrumbStyles.item + ":visible:not(.k-breadcrumb-root-item)"),
-                availableWidth = wrapper.width() - that.options.gap,
+                items = that.overlay.find(DOT + breadcrumbStyles.item + ":not(.k-breadcrumb-root-item)"),
+                delimiterWidth = kendo._outerWidth(that.overlay.find(DOT + breadcrumbStyles.delimiter + ":visible").first()),
+                availableWidth = wrapper.width() - that.options.gap - delimiterWidth,
+                lastHidden,
                 item;
 
             if (items.length == 1) {
@@ -511,16 +518,22 @@ var __meta__ = {
                         break;
                     }
 
-                    item.hide();
+                    lastHidden = item;
+                    item.find(DOT + breadcrumbStyles.delimiter).hide();
+                    item.find(DOT + breadcrumbStyles.link).hide();
                     that._displayOverflowIcons(true);
                 }
+            }
+
+            if (lastHidden) {
+                lastHidden.find(DOT + breadcrumbStyles.delimiter).show();
             }
         },
 
         _showItem: function(item, overlayWidth, availableWidth) {
             if (item.length && availableWidth > overlayWidth + kendo._outerWidth(item, true)) {
-                item.show();
-
+                item.find(DOT + breadcrumbStyles.link).show();
+                item.prev().find(DOT + breadcrumbStyles.delimiter).show();
                 return true;
             }
 
@@ -531,8 +544,9 @@ var __meta__ = {
             var that = this,
                 wrapper = that.wrapper,
                 overlay = that.overlay,
-                items = that.overlay.find(DOT + breadcrumbStyles.item + ":hidden:not(.k-breadcrumb-root-item)"),
-                availableWidth = wrapper.width() - that.options.gap,
+                items = that.overlay.find(DOT + breadcrumbStyles.item + ":not(.k-breadcrumb-root-item)"),
+                delimiterWidth = kendo._outerWidth(that.overlay.find(DOT + breadcrumbStyles.delimiter + ":visible").first()),
+                availableWidth = wrapper.width() - that.options.gap - delimiterWidth,
                 item, overlayWidth;
 
             if (!items.length) {
@@ -578,6 +592,8 @@ var __meta__ = {
             }).join("/");
         }
     });
+
+    kendo.cssProperties.registerPrefix("Breadcrumb", "k-breadcrumb-");
 
     kendo.ui.plugin(Breadcrumb);
 

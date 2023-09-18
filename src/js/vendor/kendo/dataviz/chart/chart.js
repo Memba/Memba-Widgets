@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -948,15 +948,17 @@ import "../../kendo.icons.js";
             if (!tooltip.template) {
                 tooltip.template = Tooltip.template = ({ autoHide, rtl, font, border, opacity }) =>
                     `<div class='k-tooltip ${autoHide ? "k-tooltip-closable" : ""} k-chart-tooltip ${rtl ? "k-rtl" : ""}' ` +
-                    `style='display:none; position: absolute; font: ${font};` +
-                    `${border ? "border:" + border.width + "px solid;" : ""}` +
-                    `opacity: ${opacity};'>` +
+                    `${kendo.attr("style-display")}="none" ${kendo.attr("style-position")}="absolute" ` +
+                    `${kendo.attr("style-font")}="${font}" ${kendo.attr("style-opacity")}="${opacity}" ` +
+                    `${border ? `${kendo.attr("style-border")}="${border.width}px solid" ` : ""}` +
+                    `>` +
                     '<div class="k-tooltip-content"></div>' +
                     `${autoHide ? '' : '<div class="k-tooltip-button">' + kendo.ui.icon($('<a href="#" title="Close"></a>'), { icon: "x" }) + '</div>'}` +
                     "</div>";
             }
 
             tooltip.element = $(tooltip.template(tooltip.options));
+            kendo.applyStylesFromKendoAttributes(tooltip.element, ["display", "position", "font", "border", "opacity"]);
 
             tooltip.move = tooltip.move.bind(tooltip);
             tooltip._mouseleave = tooltip._mouseleave.bind(tooltip);
@@ -1083,14 +1085,16 @@ import "../../kendo.icons.js";
 
         show: function(e) {
             var tooltip = this;
-
+            var fakeContainer = $("<div></div>");
             this.anchor = e.anchor;
             this.element.css(normalizeStyle(e.style));
             this.element.toggleClass(TOOLTIP_INVERSE, !!e.className);
             this.element.toggleClass(SHARED_TOOLTIP_CLASS, !!e.shared);
 
             var content = e.shared ? this._sharedContent(e) : this._pointContent(e.point);
-            this.element.find('.k-tooltip-content').html(content);
+            fakeContainer.html(content);
+            kendo.applyStylesFromKendoAttributes(fakeContainer, ["background-color"]);
+            this.element.find('.k-tooltip-content').empty().append(fakeContainer);
 
             if (!tooltip.options.autoHide) {
                 tooltip.element.off("click" + NS).on("click" + NS, ".k-tooltip-button", tooltip._closeTooltipHandler);
@@ -1132,6 +1136,8 @@ import "../../kendo.icons.js";
 
         _sharedContent: function(e) {
             var points = e.points;
+            var that = this;
+
             var nameColumn = dataviz.grep(points, function(point) {
                 return defined(point.series.name);
             }).length;
@@ -1150,7 +1156,7 @@ import "../../kendo.icons.js";
                 points: points,
                 category: e.category,
                 categoryText: e.categoryText,
-                content: this._pointContent,
+                content: this._pointContent.bind(that),
                 colorMarker: colorMarker,
                 nameColumn: nameColumn,
                 colspan: colspan
@@ -1459,7 +1465,7 @@ import "../../kendo.icons.js";
             result += "<tr>";
 
             if (colorMarker) {
-                result += `<td><span class='k-chart-shared-tooltip-marker' style='background-color:${encode(point.series.color)}'></span></td>`;
+                result += `<td><span class='k-chart-shared-tooltip-marker' ${kendo.attr("style-background-color")}="${encode(point.series.color)}"></span></td>`;
             }
 
             if (nameColumn) {

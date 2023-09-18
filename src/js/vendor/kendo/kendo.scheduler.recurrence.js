@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1620,8 +1620,8 @@ var __meta__ = {
                         '</li>' +
                         '<li class="k-radio-item">' +
                             `<input class="k-recur-month-radio k-radio k-radio-md" type="radio" name="month" value="weekday" aria-label="${encode(messages.repeatOn)} ${encode(messages.day)}" title="${encode(messages.repeatOn)} ${encode(messages.day)}" />` +
-                            `<input class="k-recur-weekday-offset" title="${encode(messages.repeatOn)}" style="width:8em;" />` +
-                            `<input class="k-recur-weekday" title="${encode(messages.day)}" style="width:8em;" />` +
+                            `<input class="k-recur-weekday-offset" title="${encode(messages.repeatOn)}" ${kendo.attr("style-width")}="8em" />` +
+                            `<input class="k-recur-weekday" title="${encode(messages.day)}" ${kendo.attr("style-width")}="8em" />` +
                         '</li>' +
                     '</ul>' +
                 '</div>' +
@@ -1633,12 +1633,12 @@ var __meta__ = {
                     '<ul class="k-radio-list">' +
                         '<li class="k-radio-item">' +
                             `<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="monthday" title="${encode(messages.repeatOn)} ${encode(messages.month)}" />` +
-                            `<input class="k-recur-month" aria-label="${encode(messages.month)}" title="${encode(messages.month)}" style="width:8em;" />` +
+                            `<input class="k-recur-month" aria-label="${encode(messages.month)}" title="${encode(messages.month)}" ${kendo.attr("style-width")}="8em" />` +
                             `<input class="k-recur-monthday" aria-label="${encode(messages.date)}" title="${encode(messages.date)}" />` +
                         '</li>' +
                         '<li class="k-radio-item">' +
                             `<input class="k-recur-year-radio k-radio k-radio-md" type="radio" name="year" value="weekday" title="${encode(messages.repeatOn)} ${encode(messages.day)}" />` +
-                            `<input class="k-recur-weekday-offset" title="${encode(messages.repeatOn)}" style="width:8em;"/><input class="k-recur-weekday" title="${encode(messages.day)}" style="width:8em;"/>${encode(messages.of)}<input class="k-recur-month" title="${encode(messages.of + messages.month)}" style="width:8em;"/>` +
+                            `<input class="k-recur-weekday-offset" title="${encode(messages.repeatOn)}" ${kendo.attr("style-width")}="8em"/><input class="k-recur-weekday" title="${encode(messages.day)}" ${kendo.attr("style-width")}="8em"/>${encode(messages.of)}<input class="k-recur-month" title="${encode(messages.of + messages.month)}" ${kendo.attr("style-width")}="8em"/>` +
                         '</li>' +
                     '</ul>' +
                 '</div>' +
@@ -2219,6 +2219,7 @@ var __meta__ = {
             var that = this;
             var rule = that._value;
             var options = that.options;
+            var recurrenceViewHtml;
 
             var data = {
                  frequency: frequency || "never",
@@ -2234,7 +2235,11 @@ var __meta__ = {
             }
 
             kendo.destroy(that._container);
-            that._container.html(RECURRENCE_VIEW_TEMPLATE(data));
+
+            recurrenceViewHtml = $(RECURRENCE_VIEW_TEMPLATE(data));
+            kendo.applyStylesFromKendoAttributes(recurrenceViewHtml, ["width"]);
+
+            that._container.html(recurrenceViewHtml);
 
             if (!frequency) {
                 that._value = {};
@@ -2485,19 +2490,19 @@ var __meta__ = {
                         '<div class="k-repeat-rule k-listgroup-form-field-wrapper"></div>' +
                     '</label>' +
                 '</li>' +
-                '<li class="k-monthday-view k-item k-listgroup-item" style="display:none">' +
+                `<li class="k-monthday-view k-item k-listgroup-item" ${kendo.attr("style-display")}="none">` +
                     '<label class="k-label k-listgroup-form-row">' +
                         `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
                         `<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" aria-label="${encode(messages.date)}" title="${encode(messages.day)}" pattern="\\d*"/></div>` +
                     '</label>' +
                 '</li>' +
-                '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
+                `<li class="k-weekday-view k-item k-listgroup-item" ${kendo.attr("style-display")}="none">` +
                     '<label class="k-label k-listgroup-form-row">' +
                         `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.every)}</span>` +
                         `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="${encode(messages.every)}"></select></div>` +
                     '</label>' +
                 '</li>' +
-                '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
+                `<li class="k-weekday-view k-item k-listgroup-item" ${kendo.attr("style-display")}="none">` +
                     '<label class="k-label k-listgroup-form-row">' +
                         `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
                         `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="${encode(messages.day)}"></select></div>` +
@@ -2512,19 +2517,19 @@ var __meta__ = {
                         '<div class="k-repeat-rule k-listgroup-form-field-wrapper"></div>' +
                     '</label>' +
                 '</li>' +
-                '<li class="k-monthday-view k-item k-listgroup-item" style="display:none">' +
+                `<li class="k-monthday-view k-item k-listgroup-item" ${kendo.attr("style-display")}="none">` +
                     '<label class="k-label k-listgroup-form-row">' +
                         `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
                         `<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" aria-label="${encode(messages.date)}" title="${encode(messages.day)}" pattern="\\d*"/></div>` +
                     '</label>' +
                 '</li>' +
-                '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
+                `<li class="k-weekday-view k-item k-listgroup-item" ${kendo.attr("style-display")}="none">` +
                     '<label class="k-label k-listgroup-form-row">' +
                         `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.every)}</span>` +
                         `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="${encode(messages.every)}"></select></div>` +
                     '</label>' +
                 '</li>' +
-                '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' +
+                `<li class="k-weekday-view k-item k-listgroup-item" ${kendo.attr("style-display")}="none">` +
                     '<label class="k-label k-listgroup-form-row">' +
                         `<span class="k-item-title k-listgroup-form-field-label">${encode(messages.day)}</span>` +
                         `<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="${encode(messages.day)}"></select></div>` +
@@ -2906,6 +2911,8 @@ var __meta__ = {
             };
 
             var html = RECURRENCE_REPEAT_PATTERN_TEMPLATE(data);
+            var $html = $(html);
+            kendo.applyStylesFromKendoAttributes($html, ["display"]);
 
             var container = that._container = that._container || this._pane.view().content.find("li.k-recur-view");
             var rule = that._value;
@@ -2915,7 +2922,7 @@ var __meta__ = {
             }
 
             kendo.destroy(container);
-            container.html(html);
+            container.html($html);
 
             if (!html) {
                 that._value = {};

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1227,7 +1227,7 @@ var __meta__ = {
                     dataSource: resource.dataSource.data(),
                     valuePrimitive: resource.valuePrimitive,
                     optionLabel: "None",
-                    template: (data) => `<span ${data.disabled ? "data-disabled" : ""}><span class="k-scheduler-mark" style="background-color:${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}</span>`,
+                    template: (data) => `<span ${data.disabled ? "data-disabled" : ""}><span class="k-scheduler-mark" ${kendo.attr("style-background-color")}="${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}</span>`,
                     select: function(e) {
                         if (e.dataItem && e.dataItem.disabled) {
                             e.preventDefault();
@@ -1308,8 +1308,8 @@ var __meta__ = {
                     dataValueField: resource.dataValueField,
                     dataSource: resource.dataSource.data(),
                     valuePrimitive: resource.valuePrimitive,
-                    itemTemplate: (data) => `<span ${data.disabled ? "data-disabled" : ""}><span class="k-scheduler-mark" style="background-color:${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}</span>`,
-                    tagTemplate: (data) => `<span class="k-scheduler-mark" style="background-color:${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}`,
+                    itemTemplate: (data) => `<span ${data.disabled ? "data-disabled" : ""}><span class="k-scheduler-mark" ${kendo.attr("style-background-color")}="${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}</span>`,
+                    tagTemplate: (data) => `<span class="k-scheduler-mark" ${kendo.attr("style-background-color")}="${data[resource.dataColorField] || "none"}"></span>${data[resource.dataTextField]}`,
                     select: function(e) {
                         if (e.dataItem && e.dataItem.disabled) {
                             e.preventDefault();
@@ -1504,7 +1504,7 @@ var __meta__ = {
         _buildDesktopEditTemplate: function(model, fields, editableFields) {
             var messages = this.options.messages;
 
-            const startTimezone = '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">' +
+            const startTimezone = `<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" ${kendo.attr("style-display")}="none">` +
                                     '<div class="k-form">' +
                                     '<div class="k-form-field"><div class="k-form-field-wrap">' + kendo.html.renderCheckBox($('<input class="k-timezone-toggle"/>'), { label: messages.editor.separateTimezones }) + '</div></div>';
 
@@ -1543,7 +1543,7 @@ var __meta__ = {
         _buildMobileEditTemplate: function(model, fields, editableFields) {
             var messages = this.options.messages;
 
-            const startTimezone = '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">' +
+            const startTimezone = `<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" ${kendo.attr("style-display")}="none">` +
                                     '<ul class="k-listgroup k-listgroup-flush">' +
                                         '<li class="k-item k-listgroup-item">' +
                                             '<label class="k-label k-listgroup-form-row">' +
@@ -1902,6 +1902,7 @@ var __meta__ = {
             var that = this;
             var editable = that.options.editable;
             var html = '<div ' + kendo.attr("uid") + '="' + model.uid + '" class="k-popup-edit-form k-scheduler-edit-form"><div class="k-edit-form-container">';
+            var $html;
             var messages = that.options.messages;
             var updateText = messages.save;
             var updateIcon = "save";
@@ -1933,7 +1934,10 @@ var __meta__ = {
 
             html += '</div></div></div>';
 
-            var container = this.container = $(html)
+            $html = $(html);
+            kendo.applyStylesFromKendoAttributes($html, ["display"]);
+
+            var container = this.container = $html
                 .appendTo(that.element).eq(0)
                 .kendoWindow(extend({
                     modal: true,
@@ -5634,12 +5638,12 @@ var __meta__ = {
         _zonePicker: function() {
             var that = this;
 
-            that._zonePickerLabel = $("<li class='k-item k-listgroup-item k-zonepicker' style='display:none'>" +
+            that._zonePickerLabel = $("<li class='k-item k-listgroup-item k-zonepicker'>" +
                                         "<label class='k-label k-listgroup-form-row'>" +
                                             "<span class='k-item-title k-listgroup-form-field-label'></span>" +
                                             "<div class='k-listgroup-form-field-wrapper'></div>" +
                                         "</label>" +
-                                    "</li>");
+                                    "</li>").hide();
 
             that._zone = $('<select></select>')
                             .appendTo(that._zonePickerLabel.find("div"))

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -2727,8 +2727,9 @@ var __meta__ = {
         _showNoRecordsTemplate: function() {
             var wrapper = '<div class="{0}">{1}</div>';
             var defaultTemplate = '<div class="k-grid-norecords-template"{1}>{0}</div>';
-            var scrollableNoGridHeightStyles = (this.options.scrollable && !this.wrapper[0].style.height) ? ' style="margin:0 auto;position:static;"' : '';
+            var scrollableNoGridHeightStyles = (this.options.scrollable && !this.wrapper[0].style.height) ? ` ${kendo.attr("style-margin")}="0 auto" ${kendo.attr("style-position")}="static"` : '';
             var template;
+            var noRecordsElement;
 
             this._contentTree.render([]);
             if (this._hasLockedColumns) {
@@ -2737,7 +2738,9 @@ var __meta__ = {
 
             template = kendo.format(defaultTemplate, this.options.messages.noRows, scrollableNoGridHeightStyles);
 
-            $(kendo.template(() => kendo.format(wrapper, NORECORDSCLASS, template))({})).insertAfter(this.table);
+            noRecordsElement = $(kendo.template(() => kendo.format(wrapper, NORECORDSCLASS, template))({}));
+            kendo.applyStylesFromKendoAttributes(noRecordsElement, ["margin", "position"]);
+            noRecordsElement.insertAfter(this.table);
         },
 
         _showStatus: function(message) {

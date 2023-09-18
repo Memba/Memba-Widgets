@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -300,8 +300,8 @@ import "../location.js";
         },
 
         createElement: function() {
-            this.element = $("<img style='position: absolute; display: block;' alt='" + this.options.tileTitle + "' />")
-                            .css({ width: this.options.size, height: this.options.size })
+            this.element = $("<img alt='" + this.options.tileTitle + "' />")
+                            .css({ position: "absolute", display: "block", width: this.options.size, height: this.options.size })
                             .on("error", (function(e) {
                                 if (this.errorUrl()) {
                                     e.target.setAttribute("src", this.errorUrl());

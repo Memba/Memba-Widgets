@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -118,7 +118,7 @@ var __meta__ = {
                 return item.url ? "a" : "span";
             },
             contentAttributes: function(content) {
-                return content.active !== true ? " style='display:none' aria-hidden='true'" : "";
+                return content.active !== true ? ` ${kendo.attr("style-display")}="none" aria-hidden='true'` : "";
             },
             content: function(item) {
                 return item.content ? item.content : item.contentUrl ? "" : "&nbsp;";
@@ -1039,9 +1039,12 @@ var __meta__ = {
 
                 contents = map( tab, function(value, idx) {
                             if (typeof value.content == "string" || value.contentUrl) {
-                                return $(TabStrip.renderContent({
+                                let tabstripContent = $(TabStrip.renderContent({
                                     item: extend(value, { index: idx })
                                 }));
+
+                                kendo.applyStylesFromKendoAttributes(tabstripContent, ["display"]);
+                                return tabstripContent;
                             }
                         });
             } else {

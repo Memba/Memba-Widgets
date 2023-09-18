@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -131,7 +131,7 @@ var __meta__ = {
                     )}` +
                 '</select>' +
                 (values ?
-                `<select title="${messages.additionalValue}" data-${ns}bind="value:filters[1].value" data-${ns}text-field="text" data-${ns}value-field="value" data-${ns}source="${kendo.stringify(values).replace(/\'/g,"&#39;")}" data-${ns}role="dropdownlist" data-${ns}option-label="${messages.selectValue}" data-${ns}value-primitive="true">` +
+                `<select title="${messages.additionalValue}" data-${ns}bind="value:filters[1].value" data-${ns}text-field="text" data-${ns}value-field="value" data-${ns}source='${kendo.stringify(values).replace(/\'/g,"&#39;")}' data-${ns}role="dropdownlist" data-${ns}option-label="${messages.selectValue}" data-${ns}value-primitive="true">` +
                 '</select>'
                 :
                 `<input title="${messages.additionalValue}" data-${ns}bind="value: filters[1].value" class="k-input-inner" type="text" ${role ? `data-${ns}role="${role}"` : ""}/>`
@@ -1103,7 +1103,7 @@ var __meta__ = {
 
     var DataSource = kendo.data.DataSource;
 
-    var multiCkeckMobileTemplate = ({ field, title, ns, messages, search, checkAll }) =>
+    var multiCheckMobileTemplate = ({ field, title, ns, messages, search, checkAll }) =>
         `<div data-${ns}role="view" class="k-grid-filter-menu">` +
             `<div data-${ns}role="header" class="k-header">` +
                 `<a href="#" class="k-header-cancel k-link" title="${messages.cancel}" ` +
@@ -1123,7 +1123,7 @@ var __meta__ = {
                     '</li>'
                     : '') +
                     '<li class="k-filter-tools">' +
-                        `<span style="${checkAll ? "" : "visibility: hidden;" }" class="k-label k-select-all" title="${messages.checkAll}" ` +
+                        `<span ${checkAll ? "" : `${kendo.attr("style-visibility")}="hidden"`} class="k-label k-select-all" title="${messages.checkAll}" ` +
                             `aria-label="${messages.checkAll}">${messages.checkAll}</span>` +
                         `<span class="k-label k-clear-all" title="${messages.clearAll}" ` +
                             `aria-label="${messages.clearAll}">${messages.clearAll}</span>` +
@@ -1360,15 +1360,17 @@ var __meta__ = {
                 this.container = this.form.find(".k-multicheck-wrap");
             }
             if (this._isMobile) {
-                that.form = $("<div />")
-                    .html(kendo.template(multiCkeckMobileTemplate)({
-                        field: that.field,
-                        title: options.title || that.field,
-                        ns: kendo.ns,
-                        messages: options.messages,
-                        search: options.search,
-                        checkAll: options.checkAll
-                    }));
+                let checkMobileHtml = $(kendo.template(multiCheckMobileTemplate)({
+                    field: that.field,
+                    title: options.title || that.field,
+                    ns: kendo.ns,
+                    messages: options.messages,
+                    search: options.search,
+                    checkAll: options.checkAll
+                }));
+
+                kendo.applyStylesFromKendoAttributes(checkMobileHtml, ["visibility"]);
+                that.form = $("<div />").append(checkMobileHtml);
 
                 that.view = that.pane.append(that.form.html());
                 that.form = that.view.element.find("form");

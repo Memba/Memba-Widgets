@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -45,13 +45,13 @@ import "./kendo.resizable.js";
             RIGHTCURSOR = "k-cursor-ew-resize",
             DIAGONALCURSOR = "k-cursor-nwse-resize",
             RTLDIAGONALCURSOR = "k-cursor-nesw-resize",
-            GRABCURSOR = "k-cursor-grab",
+            GRABCURSOR = "k-cursor-move",
             GRABBINGCURSOR = "k-cursor-grabbing",
             MINIMALSPAN = 1,
             CURSORCLASSES = "k-cursor-nesw-resize k-cursor-nwse-resize k-cursor-ew-resize k-cursor-ns-resize";
 
         var tileLayoutStyles = {
-            wrapper: "k-widget k-tilelayout",
+            wrapper: "k-tilelayout",
             item: "k-tilelayout-item k-card",
             itemHeader: "k-tilelayout-item-header k-card-header",
             itemHeaderTitle: "k-card-title",

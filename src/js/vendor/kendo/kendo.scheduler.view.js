@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,7 +8,6 @@
  */
 import "./kendo.core.js";
 import "./kendo.toolbar.js";
-
 
 var __meta__ = {
     id: "scheduler.view",
@@ -73,7 +72,7 @@ var __meta__ = {
             return "";
         }
 
-        return "<div style='position:relative'>" + table(tableRows, className) + "</div>";
+        return `<div ${kendo.attr("style-position")}="relative">${table(tableRows, className)}</div>`;
     }
 
     function timesHeader(columnLevelCount, allDaySlot, rowCount) {
@@ -145,6 +144,18 @@ var __meta__ = {
             return this._daySlotCollections.length;
         },
 
+        _refreshSlotCollections: function() {
+            var slotCollections = [this._timeSlotCollections || [], this._daySlotCollections || []];
+
+            for (var slotCollectionIndex = 0; slotCollectionIndex < slotCollections.length; slotCollectionIndex++) {
+                var collections = slotCollections[slotCollectionIndex];
+                for (var collectionIndex = 0; collectionIndex < collections.length; collectionIndex++) {
+                    var collection = collections[collectionIndex];
+                    collection.refresh();
+                }
+            }
+        },
+
         daySlotByPosition: function(x, y, byDate) {
             return this._slotByPosition(x, y, this._daySlotCollections, byDate);
         },
@@ -154,41 +165,41 @@ var __meta__ = {
         },
 
         _slotByPosition: function(x, y, collections, byDate) {
-           for (var collectionIndex = 0; collectionIndex < collections.length; collectionIndex++) {
-               var collection = collections[collectionIndex];
+            for (var collectionIndex = 0; collectionIndex < collections.length; collectionIndex++) {
+                var collection = collections[collectionIndex];
 
-               for (var slotIndex = 0; slotIndex < collection.count(); slotIndex++) {
-                   var slot = collection.at(slotIndex);
-                   var width = slot.element.offsetWidth;
-                   var height = slot.element.offsetHeight;
-                   var nextSlot;
+                for (var slotIndex = 0; slotIndex < collection.count(); slotIndex++) {
+                    var slot = collection.at(slotIndex);
+                    var width = slot.offsetWidth;
+                    var height = slot.offsetHeight;
+                    var nextSlot;
 
-                   var horizontalEnd = slot.element.offsetLeft + width;
-                   var verticalEnd = slot.element.offsetTop + height;
+                    var horizontalEnd = slot.offsetLeft + width;
+                    var verticalEnd = slot.offsetTop + height;
 
-                   if (!byDate) {
-                        nextSlot = collection.at(slotIndex + 1);
-                   }
+                    if (!byDate) {
+                         nextSlot = collection.at(slotIndex + 1);
+                    }
 
-                   if (nextSlot) {
-                       if (nextSlot.element.offsetLeft != slot.element.offsetLeft) {
-                           if (this._isRtl) {
-                               horizontalEnd = slot.element.offsetLeft + (slot.element.offsetLeft - nextSlot.element.offsetLeft);
-                           } else {
-                               horizontalEnd = nextSlot.element.offsetLeft;
-                           }
-                       } else {
-                           verticalEnd = nextSlot.element.offsetTop;
-                       }
-                   }
+                    if (nextSlot) {
+                        if (nextSlot.offsetLeft != slot.offsetLeft) {
+                            if (this._isRtl) {
+                                horizontalEnd = slot.offsetLeft + (slot.offsetLeft - nextSlot.offsetLeft);
+                            } else {
+                                horizontalEnd = nextSlot.offsetLeft;
+                            }
+                        } else {
+                            verticalEnd = nextSlot.offsetTop;
+                        }
+                    }
 
-                   if (x >= slot.element.offsetLeft && x < horizontalEnd &&
-                       y >= slot.element.offsetTop && y < verticalEnd) {
-                       return slot;
-                   }
-               }
-           }
-        },
+                    if (x >= slot.offsetLeft && x < horizontalEnd &&
+                        y >= slot.offsetTop && y < verticalEnd) {
+                        return slot;
+                    }
+                }
+            }
+         },
 
         refresh: function() {
             var collectionIndex;
@@ -1147,6 +1158,16 @@ var __meta__ = {
             this.groups.push(resourceView);
 
             return resourceView;
+        },
+
+        _refreshResourceViews: function() {
+            var groups = this.groups;
+
+            if (groups) {
+                for (var i = 0; i < groups.length; i++) {
+                    groups[i]._refreshSlotCollections();
+                }
+            }
         },
 
         dateForTitle: function() {
@@ -2293,6 +2314,8 @@ var __meta__ = {
                     that.table.removeClass("k-scrollbar-h");
                 }
             }
+
+            that._refreshResourceViews();
         },
 
         _topSection: function(columnLevels, allDaySlot, rowCount) {
@@ -2609,6 +2632,7 @@ var __meta__ = {
             var that = this;
             var dateTableRows = [];
             var columnIndex;
+            var result;
 
             for (var columnLevelIndex = 0; columnLevelIndex < columnLevels.length; columnLevelIndex++) {
                 var level = columnLevels[columnLevelIndex];
@@ -2638,7 +2662,7 @@ var __meta__ = {
                 allDayTableRows.push(td.join(""));
             }
 
-            return $(
+            result = $(
                 '<div class="k-scheduler-header">' +
                     '<div class="k-scheduler-header-wrap">' +
                         table(dateTableRows) +
@@ -2646,6 +2670,10 @@ var __meta__ = {
                     '</div>' +
                 '</div>'
             );
+
+            kendo.applyStylesFromKendoAttributes(result, ["position"]);
+
+            return result;
         },
 
         _formatEventAriaLabel: function(title, start, end, isAllDay) {

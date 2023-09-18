@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -499,6 +499,8 @@ var __meta__ = {
             this.contentHeight = options.contentHeight;
             this.enablePager = options.enablePager;
             this.pagerOverlay = options.pagerOverlay;
+
+            that.pane.dimension.forceEnabled();
         },
 
         scrollTo: function(page, instant) {
@@ -573,7 +575,7 @@ var __meta__ = {
                 var containerHeight = this.element.parent().height();
 
                 if (this.enablePager === true) {
-                    var pager = this.element.parent().find("ul.k-scrollview-nav");
+                    var pager = this.element.parent().find("div.k-scrollview-nav");
                     if (!this.pagerOverlay && pager.length) {
                         containerHeight -= kendo._outerHeight(pager, true);
                     }
@@ -592,7 +594,7 @@ var __meta__ = {
 
             this.scrollTo(this.page, true, true);
 
-            this.pageCount = floor(pane.total() / width);
+            this.pageCount = this.pageElements.length;
             this.minSnap = - (this.pageCount - 1) * width;
             this.maxSnap = 0;
         },
@@ -709,7 +711,7 @@ var __meta__ = {
                 var containerHeight = this.element.parent().height();
 
                 if (this.options.enablePager === true) {
-                    var pager = this.element.parent().find("ul.k-scrollview-nav");
+                    var pager = this.element.parent().find("div.k-scrollview-nav");
                     if (!this.options.pagerOverlay && pager.length) {
                         containerHeight -= kendo._outerHeight(pager, true);
                     }
@@ -966,6 +968,12 @@ var __meta__ = {
     var Page = kendo.Class.extend({
         init: function(container) {
             this.element = $("<li class='" + className(VIRTUAL_PAGE_CLASS) + "'></li>");
+            this.element.css({
+                position: "absolute",
+                top: "0",
+                left: "0"
+            });
+
             this.width = container.width();
             this.element.width(this.width);
             container.append(this.element);
@@ -1004,18 +1012,13 @@ var __meta__ = {
             element = that.element;
 
             kendo.stripWhitespace(element[0]);
+            var scrollViewWrap = $(`<${element.children().length === 0 ? 'ul' : 'div'} class="k-scrollview-wrap" />`);
 
-            if (element.children().length === 0) {
-                element
-                .wrapInner("<ul class='k-scrollview-wrap'/>");
-            } else {
-                element
-                .wrapInner("<div class='k-scrollview-wrap'/>");
-            }
+            element.wrapInner(scrollViewWrap);
 
             that.itemsWrapper = element.find(".k-scrollview-wrap");
 
-            element.addClass("k-widget " + className("scrollview"));
+            element.addClass(className("scrollview"));
 
             that._initNavigation();
 
@@ -1310,8 +1313,8 @@ var __meta__ = {
 
             itemsWrapper.attr("id", itemsWrapperId);
 
-            prevArrow = $(`<a class="k-scrollview-prev" role="button" aria-label="${messages.previousButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon({ icon: "chevron-left", size: "xxxlarge" })}</a>`);
-            nextArrow = $(`<a class="k-scrollview-next" role="button" aria-label="${messages.nextButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon({ icon: "chevron-right", size: "xxxlarge" })}</a>`);
+            prevArrow = $(`<span class="k-scrollview-prev" role="button" aria-label="${messages.previousButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon({ icon: "chevron-left", size: "xxxlarge" })}</span>`);
+            nextArrow = $(`<span class="k-scrollview-next" role="button" aria-label="${messages.nextButtonLabel}" aria-controls="${itemsWrapperId}">${kendo.ui.icon({ icon: "chevron-right", size: "xxxlarge" })}</span>`);
 
             prevArrow.hide();
             nextArrow.hide();
@@ -1323,8 +1326,8 @@ var __meta__ = {
             that.ariaLiveEl = $("<div aria-live='polite' aria-atomic='true' class='k-sr-only'></div>");
             that.element.append(that.ariaLiveEl);
 
-            navigationContainer.on(CLICK + NS, "a.k-scrollview-prev", that.prev.bind(that));
-            navigationContainer.on(CLICK + NS, "a.k-scrollview-next", that.next.bind(that));
+            navigationContainer.on(CLICK + NS, "span.k-scrollview-prev", that.prev.bind(that));
+            navigationContainer.on(CLICK + NS, "span.k-scrollview-next", that.next.bind(that));
         },
 
         _navigatable: function() {
@@ -1349,17 +1352,19 @@ var __meta__ = {
 
             that.itemsWrapper
                 .attr("role", "list")
-                .children().attr({
-                    "role": "listitem",
-                    "aria-roledescription": "slide"
-                });
+                .children()
+                    .addClass("k-scrollview-view")
+                    .attr({
+                        "role": "listitem",
+                        "aria-roledescription": "slide"
+                    });
 
             if (!that.options.navigatable) {
                 return;
             }
 
-            navigationContainer.find(">a.k-scrollview-prev").attr(TABINDEX, 0);
-            navigationContainer.find(">a.k-scrollview-next").attr(TABINDEX, 0);
+            navigationContainer.find(">span.k-scrollview-prev").attr(TABINDEX, 0);
+            navigationContainer.find(">span.k-scrollview-next").attr(TABINDEX, 0);
 
             that.element.on(KEYDOWN + NS, that, that._keyDown.bind(that));
             that.element.on(FOCUS + NS, that._focus.bind(that));
@@ -1402,8 +1407,8 @@ var __meta__ = {
         _toggleNavigation: function(e) {
             var page = e.nextPage || e.nextPage === 0 ? e.nextPage : e.currentPage;
             var navigationContainer = this._navigationContainer;
-            var prevArrow = navigationContainer.find(">a.k-scrollview-prev");
-            var nextArrow = navigationContainer.find(">a.k-scrollview-next");
+            var prevArrow = navigationContainer.find(">span.k-scrollview-prev");
+            var nextArrow = navigationContainer.find(">span.k-scrollview-next");
 
             prevArrow.hide();
             nextArrow.hide();

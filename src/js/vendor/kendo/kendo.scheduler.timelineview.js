@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -45,7 +45,7 @@ var __meta__ = {
         DATA_HEADER_TEMPLATE = kendo.template(({ date }) => `<span class='k-link k-nav-day'>${kendo.format('{0:m}', date)}</span>`),
         EVENT_WRAPPER_TEMPLATE = (task) =>
             `<div role="button" aria-label="${encode(task.ariaLabel)}" data-${task.ns}uid="${task.uid}" ` +
-            `${task.resources[0] ? `style="background-color:${task.resources[0].color}; border-color: ${task.resources[0].color}" class="k-event">` : 'class="k-event">'}` +
+            `${task.resources[0] ? `${kendo.attr("style-background-color")}="${task.resources[0].color}" ${kendo.attr("style-border-color")}="${task.resources[0].color}" class="k-event">` : 'class="k-event">'}` +
                 '<span class="k-event-actions">' +
                     `${task.tail ? kendo.ui.icon("caret-alt-left") : ''}` +
                     `${task.isException() ? kendo.ui.icon("arrows-no-repeat") :
@@ -1980,6 +1980,7 @@ var __meta__ = {
             });
 
             var element = $(template(data));
+            kendo.applyStylesFromKendoAttributes(element, ["background-color", "border-color"]);
 
             this.angular("compile", function() {
                 return {

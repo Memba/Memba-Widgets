@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8612,7 +8612,7 @@ function drawDOM(element, options) {
                 // <table> element from its content.
                 //
                 // XXX: This is likely to break as soon as the widget HTML is modified.
-                grid = closest(el, ".k-grid.k-widget");
+                grid = closest(el, ".k-grid");
                 if (grid && grid.querySelector(".k-auto-scrollable")) {
                     gridHead = grid.querySelector(".k-grid-header");
                 }
@@ -8634,7 +8634,7 @@ function drawDOM(element, options) {
                 }
             }
             if (options.repeatHeaders && gridHead) {
-                grid = closest(el, ".k-grid.k-widget");
+                grid = closest(el, ".k-grid");
                 grid.insertBefore(gridHead.cloneNode(true), grid.firstChild);
             }
         }

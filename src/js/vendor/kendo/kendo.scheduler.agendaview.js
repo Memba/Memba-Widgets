@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -26,7 +26,7 @@ import "./kendo.icons.js";
             ROLE = "role";
 
         var EVENT_WRAPPER_TEMPLATE = (task) => `<div class="k-task" title="${encode((task.title || "").replace(/"/g,"\'"))}" ${kendo.attr('uid')}="${task.uid}">` +
-            `${task.resources[0] ? `<span class="k-scheduler-mark" style="background-color:${task.resources[0].color}"></span>` : ''}` +
+            `${task.resources[0] ? `<span class="k-scheduler-mark" ${kendo.attr("style-background-color")}="${task.resources[0].color}"></span>` : ''}` +
             `${task.isException() ? kendo.ui.icon("arrows-no-repeat") :
                 (task.isRecurring() ? kendo.ui.icon("arrow-rotate-cw") : '')}` +
             `<span class="k-scheduler-task-text">${kendo.template(task.template)(task)}</span>` +
@@ -555,7 +555,10 @@ import "./kendo.icons.js";
                         this._groupedView._renderDates(table.find("tbody"));
                     } else {
                         groups = this._tasks(events);
-                        table.find("tbody").append(this._renderTaskGroups(groups, []));
+                        var taskGroups = $(this._renderTaskGroups(groups, []));
+                        kendo.applyStylesFromKendoAttributes(taskGroups, ["background-color"]);
+
+                        table.find("tbody").append(taskGroups);
                     }
                 }
 

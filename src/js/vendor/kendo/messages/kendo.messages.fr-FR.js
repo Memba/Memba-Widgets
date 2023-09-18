@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -97,21 +97,21 @@
         },
         moveConfirm: {
           title: ' ',
-          content: '<p style=\'text-align: center;\'>Voulez-vous déplacer les fichiers sélectionnés ou les copier?</p>',
+          content: '<p class=\'k-text-center\'>Voulez-vous déplacer les fichiers sélectionnés ou les copier?</p>',
           okText: 'Copier',
           cancel: 'Déplacer',
           close: 'Fermer'
         },
         deleteConfirm: {
           title: 'Confirmation de l\'effacement',
-          content: '<p style=\'text-align: center;\'>Voulez-vous vraiment supprimer les fichiers sélectionnés?<br/>Il n\'est pas possible d\'annuler cette opération.</p>',
+          content: '<p class=\'k-text-center\'>Voulez-vous vraiment supprimer les fichiers sélectionnés?<br/>Il n\'est pas possible d\'annuler cette opération.</p>',
           okText: 'Supprimer',
           cancel: 'Annuler',
           close: 'Fermer'
         },
         renamePrompt: {
           title: 'Renommer',
-          content: '<p style=\'text-align: center;\'>Entrez un nouveau nom de fichier</p>',
+          content: '<p class=\'k-text-center\'>Entrez un nouveau nom de fichier</p>',
           okText: 'Renommer',
           cancel: 'Annuler',
           close: 'Fermer'

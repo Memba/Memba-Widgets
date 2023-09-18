@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -965,7 +965,18 @@ import "../kendo.icons.js";
         _focusOutside: function() {
             // move focus outside the Editor, see https://github.com/telerik/kendo/issues/3673
             if (kendo.support.browser.msie && this.textarea) {
-                var tempInput = $("<input style='position:fixed;left:1px;top:1px;width:1px;height:1px;font-size:0;border:0;opacity:0' />").appendTo(document.body).trigger("focus");
+                var tempInput = $("<input />")
+                    .css({
+                        position: "fixed",
+                        left: "1px",
+                        top: "1px",
+                        width: "1px",
+                        height: "1px",
+                        "font-size": "0",
+                        border: "0",
+                        opacity: "0"
+                })
+                .appendTo(document.body).trigger("focus");
                 tempInput.trigger("blur").remove();
             }
         },

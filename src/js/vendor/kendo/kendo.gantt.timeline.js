@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -50,15 +50,15 @@ var __meta__ = {
     var RESIZE_HINT = ({ styles }) => `<div class="${styles.marquee}">` +
                            `<div class="${styles.marqueeColor}"></div>` +
                        '</div>';
-    var RESIZE_TOOLTIP_TEMPLATE = ({ styles, messages, start, end, format }) => `<div style="z-index: 100002;" class="${styles.tooltipWrapper} k-gantt-resize-hint">` +
+    var RESIZE_TOOLTIP_TEMPLATE = ({ styles, messages, start, end, format }) => `<div class="${styles.tooltipWrapper} k-gantt-resize-hint">` +
                                    `<div class="${styles.tooltipContent}">` +
                                         `<div>${kendo.htmlEncode(messages.start)}: ${kendo.toString(start, format)}</div>` +
                                         `<div>${kendo.htmlEncode(messages.end)}: ${kendo.toString(end, format)}</div>` +
                                    '</div>' +
                               '</div>';
-    var PERCENT_RESIZE_TOOLTIP_TEMPLATE = ({ styles, text }) => `<div style="z-index: 100002;" class="${styles.tooltipWrapper}" >` +
+    var PERCENT_RESIZE_TOOLTIP_TEMPLATE = ({ styles, text }) => `<div ${kendo.attr("style-z-index")}="100002" class="${styles.tooltipWrapper}" >` +
                                    `<div class="${styles.tooltipContent}">${text}%</div>` +
-                                   `<div class="${styles.tooltipCallout}" style="left:13px;"></div>` +
+                                   `<div class="${styles.tooltipCallout}" ${kendo.attr("style-left")}="13px"></div>` +
                               '</div>';
     var TASK_TOOLTIP_TEMPLATE = ({ styles, task, messages }) => `<div class="${kendo.htmlEncode(styles.taskDetails)}">` +
                                     `<strong>${kendo.htmlEncode(task.title)}</strong>` +
@@ -73,9 +73,9 @@ var __meta__ = {
             `<div>${plannedStart}: ${startDate}</div>` +
             `<div>${plannedEnd}: ${endDate}</div>` +
         '</div>';
-    var SIZE_CALCULATION_TEMPLATE = "<table style='visibility: hidden;'>" +
+    var SIZE_CALCULATION_TEMPLATE = `<table ${kendo.attr("style-visibility")}="hidden">` +
         "<tbody>" +
-            "<tr style='height:{0}'>" +
+            `<tr ${kendo.attr("style-height")}="{0}">` +
                 "<td>&nbsp;</td>" +
             "</tr>" +
         "</tbody>" +
@@ -545,8 +545,11 @@ var __meta__ = {
         _calculateMilestoneWidth: function() {
             var size;
             var className = GanttView.styles.task + " " + GanttView.styles.taskMilestone;
-            var milestone = $("<div class='" + className + "' style='visibility: hidden; position: absolute'>");
             var boundingClientRect;
+            var milestone = $(`<div class="${className}">`).css({
+                visibility: "hidden",
+                position: "absolute"
+            });
 
             this.content.append(milestone);
 
@@ -564,7 +567,10 @@ var __meta__ = {
 
         _calculateResourcesMargin: function() {
             var margin;
-            var wrapper = $("<div class='" + GanttView.styles.resourcesWrap + "' style='visibility: hidden; position: absolute'>");
+            var wrapper = $(`<div class="${GanttView.styles.resourcesWrap}">`).css({
+                visibility: "hidden",
+                position: "absolute"
+            });
 
             this.content.append(wrapper);
 
@@ -578,8 +584,11 @@ var __meta__ = {
         _calculateTaskBorderWidth: function() {
             var width;
             var className = GanttView.styles.task + " " + GanttView.styles.taskSingle;
-            var task = $("<div class='" + className + "' style='visibility: hidden; position: absolute'>");
             var computedStyle;
+            var task = $(`<div class="${className}">`).css({
+                visibility: "hidden",
+                position: "absolute"
+            });
 
             this.content.append(task);
 
@@ -1337,6 +1346,7 @@ var __meta__ = {
                 format: options.resizeTooltipFormat
             }))
             .css({
+                "z-index": "100002",
                 "top": 0,
                 "left": 0
             });
@@ -1400,6 +1410,7 @@ var __meta__ = {
                 format: options.resizeTooltipFormat
             }))
             .css({
+                "z-index": "100002",
                 "top": this._resizeTooltipTop,
                 "left": tooltipLeft,
                 "min-width": tooltipWidth
@@ -1418,8 +1429,9 @@ var __meta__ = {
         _updatePercentCompleteTooltip: function(top, left, text) {
             this._removePercentCompleteTooltip();
 
-            var tooltip = this._percentCompleteResizeTooltip = $(PERCENT_RESIZE_TOOLTIP_TEMPLATE({ styles: GanttView.styles, text: text }))
-                .appendTo(this.element);
+            var tooltip = this._percentCompleteResizeTooltip = $(PERCENT_RESIZE_TOOLTIP_TEMPLATE({ styles: GanttView.styles, text: text }));
+            kendo.applyStylesFromKendoAttributes(tooltip, ["z-index", "left"]);
+            tooltip.appendTo(this.element);
 
             var tooltipMiddle = Math.round(outerWidth(tooltip) / 2);
             var arrow = tooltip.find(DOT + GanttView.styles.callout);
@@ -1491,11 +1503,12 @@ var __meta__ = {
             var left = isRtl ? mouseLeft - (contentOffset.left + contentScrollLeft + kendo.support.scrollbar())
                 : mouseLeft - (contentOffset.left - contentScrollLeft);
             var top = (rowOffset.top + outerHeight(row) - contentOffset.top) + content.scrollTop();
-            var tooltip = this._taskTooltip = $('<div style="z-index: 100002;" class="' + styles.tooltipWrapper + '" >' +
+            var tooltip = this._taskTooltip = $('<div class="' + styles.tooltipWrapper + '" >' +
                                    '<div class="' + styles.taskContent + '"></div></div>');
 
             tooltip
                 .css({
+                    "z-index": "100002",
                     "left": left,
                     "top": top
                 })
@@ -1528,7 +1541,7 @@ var __meta__ = {
             var left = isRtl ? mouseLeft - (contentOffset.left + contentScrollLeft + kendo.support.scrollbar())
                 : mouseLeft - (contentOffset.left - contentScrollLeft);
             var top = (rowOffset.top + outerHeight(row) - contentOffset.top) + content.scrollTop();
-            var tooltip = this._offsetTooltip = $('<div style="z-index: 100002;" class="' + styles.tooltipWrapper + '" ></div>');
+            var tooltip = this._offsetTooltip = $('<div class="' + styles.tooltipWrapper + '" ></div>');
             var offsetValue = Math.round((task.end.getTime() - task.plannedEnd.getTime()) / 60000);
             var plannedTasksMessages = this.options.messages.plannedTasks;
             var minutes = offsetValue % 60;
@@ -1558,6 +1571,7 @@ var __meta__ = {
 
             tooltip
                 .css({
+                    "z-index": "100002",
                     "left": left,
                     "top": top
                 })
@@ -1589,11 +1603,12 @@ var __meta__ = {
             var left = isRtl ? mouseLeft - (contentOffset.left + contentScrollLeft + kendo.support.scrollbar())
                 : mouseLeft - (contentOffset.left - contentScrollLeft);
             var top = (rowOffset.top + outerHeight(row) - contentOffset.top) + content.scrollTop();
-            var tooltip = this._plannedTooltip = $('<div style="z-index: 100002;" class="' + styles.tooltipWrapper + ' ' + styles.plannedTooltip + '" ></div>');
+            var tooltip = this._plannedTooltip = $('<div class="' + styles.tooltipWrapper + ' ' + styles.plannedTooltip + '" ></div>');
             var editorMessages = this.options.messages.editor;
 
             tooltip
                 .css({
+                    "z-index": "100002",
                     "left": left,
                     "top": top
                 })
@@ -2454,6 +2469,7 @@ var __meta__ = {
                 var calculatedCellHeight;
                 var content = that.wrapper.find(DOT + styles.tasksWrapper);
 
+                kendo.applyStylesFromKendoAttributes(table, ["height", "visibility"]);
                 content.append(table);
 
                 calculatedRowHeight = outerHeight(table.find("tr"));

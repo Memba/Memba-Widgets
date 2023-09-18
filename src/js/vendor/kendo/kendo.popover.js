@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -45,8 +45,8 @@ var __meta__ = {
         }),
         CARDTEMPLATE = ({ header, actions, body, positioning }) => `${header ? '<div class="k-popover-header">' + header + '</div>' : ''}` +
         `<div class="k-popover-body">${body}</div>` +
-        `${actions ? '<div class="k-popover-actions k-actions k-hstack k-justify-content-' + positioning + '">' + actions + '</div>' : ''}`,
-        TEMPLATE = ({ callout, dir }) => '<div role="tooltip" class="k-popover k-widget">' +
+        `${actions ? '<div class="k-popover-actions k-actions k-actions-horizontal k-justify-content-' + positioning + '">' + actions + '</div>' : ''}`,
+        TEMPLATE = ({ callout, dir }) => '<div role="tooltip" class="k-popover">' +
         `${callout ? '<div class="k-popover-callout k-callout-' + dir + '"></div><div class="k-popover-inner"></div>' : ''}` +
         '</div>',
         SHOW = "show",

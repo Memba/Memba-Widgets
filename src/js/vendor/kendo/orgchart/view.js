@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -90,9 +90,9 @@ import "../kendo.html.button.js";
         return result;
     };
 
-    var NODE_CONTAINER = '<div class="k-orgchart-node-container k-justify-content-around" style="width:100%"></div>';
+    var NODE_CONTAINER = '<div class="k-orgchart-node-container k-justify-content-around"></div>';
 
-    var NODE_CONTAINER_GROUPED = '<div role="group" class="k-orgchart-node-container k-justify-content-around k-hstack" style="width:100%"></div>';
+    var NODE_CONTAINER_GROUPED = '<div role="group" class="k-orgchart-node-container k-justify-content-around k-hstack"></div>';
 
     var ITEM_TEMPLATE = '<div class="k-orgchart-node k-vstack k-align-items-center"></div>';
 
@@ -101,7 +101,7 @@ import "../kendo.html.button.js";
     });
 
     var CARD_TEMPLATE = ({ color, avatar, name, title, editable, menuLabel }) => {
-        var result = `<div class="k-card-body k-hstack" style="border-color:${encode(color)}">`;
+        var result = `<div class="k-card-body k-hstack" ${kendo.attr("style-border-color")}="${encode(color)}">`;
 
         if (!!avatar) {
             result += '<div class="k-avatar k-avatar-solid-primary k-avatar-solid k-avatar-lg k-rounded-full">' +
@@ -546,6 +546,8 @@ import "../kendo.html.button.js";
             cardWrapper.append(content);
             node.append(cardWrapper);
 
+            kendo.applyStylesFromKendoAttributes(node, ["border-color"]);
+
             return node;
         },
 
@@ -871,7 +873,7 @@ import "../kendo.html.button.js";
             var vertical = true,
                 nodeContainer;
 
-                nodeContainer = $(NODE_CONTAINER);
+                nodeContainer = $(NODE_CONTAINER).css("width", "100%");
                 group.append(nodeContainer);
                 vertical = this._renderInner(nodeContainer, items, level, parentColumns, parentLeft);
 
@@ -1482,7 +1484,7 @@ import "../kendo.html.button.js";
         _renderNodesContainer: function(group, data) {
             var nodeGroupContainerTemplate = kendo.template(NODE_GROUP_CONTAINER),
                 nodeGroup = $('<div class="k-orgchart-node-group k-align-items-center k-vstack">'),
-                nodeContainer = $(NODE_CONTAINER_GROUPED),
+                nodeContainer = $(NODE_CONTAINER_GROUPED).css("width", "100%"),
                 nodeGroupContainer = $(nodeGroupContainerTemplate(data)),
                 groupHeaderTemplate;
 

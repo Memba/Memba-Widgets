@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -510,7 +510,7 @@ var __meta__ = {
         value = value || {};
 
         if (!isPrimitiveType(value)) {
-            protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(value));
+            protoKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(value)).filter(f => f.indexOf("__") !== 0);
         }
 
         keys = Object.getOwnPropertyNames(value).concat(protoKeys);
@@ -4620,12 +4620,15 @@ var __meta__ = {
         },
 
         _composeItemsFilter: function(group, parents) {
-            var filter = this.filter() || {
+            var filter = {
                 logic: "and",
                 filters: []
             };
 
-            filter.logic = 'and';
+            if (this.filter()) {
+                filter.filters.push(this.filter());
+            }
+
             filter = extend(true, {}, filter);
             filter.filters.push({
                 field: group.field,

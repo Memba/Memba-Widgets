@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -49,7 +49,7 @@ var __meta__ = {
         DATA_HEADER_TEMPLATE = kendo.template(({ isMobile, date }) => `<span class='k-link k-nav-day'>${isMobile ? kendo.toString(date,'ddd')[0] : kendo.toString(date,'ddd M/dd')}</span>`),
 
         ALLDAY_EVENT_WRAPPER_TEMPLATE = (event) => `<div role="button" aria-label="${encode(event.ariaLabel)}" ${kendo.attr('uid')}="${event.uid}"` +
-                `${(event.resources[0] ? `style="background-color:${event.resources[0].color}; border-color: ${event.resources[0].color}"` : '')} class="k-event">` +
+                `${(event.resources[0] ? `${kendo.attr("style-background-color")}="${event.resources[0].color}" ${kendo.attr("style-border-color")}="${event.resources[0].color}"` : '')} class="k-event">` +
                 '<span class="k-event-actions">' +
                     (event.tail || event.middle ? kendo.ui.icon("caret-alt-left") : '') +
                     (event.isException() ? kendo.ui.icon("arrows-no-repeat") : (event.isRecurring() ? kendo.ui.icon("arrow-rotate-cw") : '') ) +
@@ -64,7 +64,7 @@ var __meta__ = {
             '</div>',
 
         EVENT_WRAPPER_TEMPLATE = (event) => `<div role="button" aria-label="${encode(event.ariaLabel)}" ${kendo.attr('uid')}="${event.uid}"` +
-                `${(event.resources[0] ? `style="background-color:${event.resources[0].color}; border-color: ${event.resources[0].color}"` : '')} class="k-event">` +
+                `${(event.resources[0] ? `${kendo.attr("style-background-color")}="${event.resources[0].color}" ${kendo.attr("style-border-color")}="${event.resources[0].color}"` : '')} class="k-event">` +
                  '<span class="k-event-actions">' +
                     (event.isException() ? kendo.ui.icon("arrows-no-repeat") : (event.isRecurring() ? kendo.ui.icon("arrow-rotate-cw") : '') ) +
                 '</span>' +
@@ -1647,6 +1647,7 @@ var __meta__ = {
             });
 
             var element = $(template(data));
+            kendo.applyStylesFromKendoAttributes(element, ["background-color", "border-color"]);
 
             this.angular("compile", function() {
                 return {

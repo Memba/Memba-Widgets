@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -33,7 +33,7 @@ var __meta__ = {
         DAY_TEMPLATE = kendo.template(({ date }) => `<span class="k-link k-nav-day">${encode(kendo.toString(date, "dd"))}</span>`),
         EVENT_WRAPPER_STRING = (task) =>
             `<div role="button" data-${task.ns}uid="${task.uid}" aria-label="${encode(task.ariaLabel)}" ` +
-            (task.resources[0] ? `style="background-color: ${task.resources[0].color}; border-color: ${task.resources[0].color}" class="k-event">` : 'class="k-event">') +
+            (task.resources[0] ? `${kendo.attr("style-background-color")}="${task.resources[0].color}" ${kendo.attr("style-border-color")}="${task.resources[0].color}" class="k-event">` : 'class="k-event">') +
                 '<span class="k-event-actions">' +
                     `${task.tail || task.middle ? kendo.ui.icon("caret-alt-left") : ''}` +
                     `${task.isException() ? kendo.ui.icon("arrows-no-repeat") :
@@ -53,8 +53,8 @@ var __meta__ = {
 
     var CELL_INNER_SPACING = 2;
 
-    var MORE_BUTTON_TEMPLATE = kendo.template(({ width, left, top }) =>
-        `<div style="width:${width}px;left:${left}px;top:${top}px" role="button" aria-label="Show all events in Day view." class="k-more-events k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">${kendo.ui.icon({ icon: "more-horizontal", iconClass: "k-button-icon" })}</div>`
+    var MORE_BUTTON_TEMPLATE = kendo.template(() =>
+        `<div role="button" aria-label="Show all events in Day view." class="k-more-events k-button k-button-md k-rounded-md k-button-solid k-button-solid-base">${kendo.ui.icon({ icon: "more-horizontal", iconClass: "k-button-icon" })}</div>`
     );
 
     var MonthGroupedView = kendo.Class.extend({
@@ -1258,6 +1258,8 @@ var __meta__ = {
                 template: this.options.eventTemplate
             })));
 
+            kendo.applyStylesFromKendoAttributes(element, ["background-color", "border-color"]);
+
             this.angular("compile", function() {
                 return {
                     elements: element,
@@ -1323,11 +1325,11 @@ var __meta__ = {
                     offsetLeft = startSlot.offsetLeft + "px";
                 }
 
-                container = $(kendo.format('<div class="k-events-container" style="top:{0};left:{1};width:{2}"></div>',
-                    startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + "px",
-                    offsetLeft,
-                    startSlot.offsetWidth + "px"
-                ));
+                container = $('<div class="k-events-container"></div>').css({
+                    top: startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + "px",
+                    left: offsetLeft,
+                    width: startSlot.offsetWidth + "px"
+                });
 
                 slot.container = container;
 
@@ -1396,10 +1398,7 @@ var __meta__ = {
                         continue;
                     }
 
-                    slot.more = $(MORE_BUTTON_TEMPLATE({
-                        ns: kendo.ns,
-                        start: slotIndex,
-                        end: slotIndex,
+                    slot.more = $(MORE_BUTTON_TEMPLATE()).css({
                         width: slot.clientWidth - 2,
                         left: slot.offsetLeft + 2,
                         top: (eventHeight === "auto")
@@ -1413,7 +1412,7 @@ var __meta__ = {
                                 ( (eventCount - 1) * eventSpacing) +
                                 CELL_INNER_SPACING
                             )
-                    }));
+                    });
 
                     this.content[0].appendChild(slot.more[0]);
                 }

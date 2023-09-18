@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -190,7 +190,10 @@ var __meta__ = {
             } else {
                 element.removeClass("k-table-alt-row");
             }
-            element.html(renderColumns(this.options, data.item, templates));
+
+            let renderedColumns = $(renderColumns(this.options, data.item, templates));
+            kendo.applyStylesFromKendoAttributes(renderedColumns, ["width", "max-width"]);
+            element.empty().append(renderedColumns);
         } else {
             element.find("." + GROUPITEM).remove();
             element.find(".k-list-item-text").html(itemTemplate(data.item || {}));
@@ -234,7 +237,7 @@ var __meta__ = {
 
             if (currentWidth) {
                 let widthValue = `${currentWidthInt}${percentageUnitsRegex.test(currentWidth) ? "%" : "px"}`;
-                widthStyle = `style="width: ${widthValue}; max-width: ${widthValue};"`;
+                widthStyle = `${kendo.attr("style-width")}="${widthValue}" ${kendo.attr("style-max-width")}="${widthValue}"`;
             }
 
             item += "<span class='k-table-td' " + widthStyle + ">";

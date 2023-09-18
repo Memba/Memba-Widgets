@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -15,7 +15,7 @@ var __meta__ = {
     name: "Chat",
     category: "web",
     description: "The Chat component.",
-    depends: [ "core", "draganddrop" ]
+    depends: [ "core", "draganddrop", "html.button" ]
 };
 
 (function($, undefined) {
@@ -26,7 +26,7 @@ var __meta__ = {
     var DOT = ".";
 
     var chatStyles = {
-        wrapper: "k-widget k-chat",
+        wrapper: "k-chat",
         canvas: "k-chat-canvas",
         viewWrapper: "k-message-list",
         messageBoxWrapper: "k-message-box",
@@ -150,12 +150,13 @@ var __meta__ = {
             var height = options.height;
             var width = options.width;
             var uiElements = "<div class='" + chatStyles.viewWrapper + "'></div>" +
-                             "<span class='" + chatStyles.messageBoxWrapper + "'></span>" +
-                             "<div class='" + chatStyles.toolbarBoxWrapper + "' role='toolbar' style='display:none;'></div>";
+                             "<span class='" + chatStyles.messageBoxWrapper + "'></span>";
+            var toolbarElement = $(`<div class="${chatStyles.toolbarBoxWrapper}" role="toolbar"></div>`).hide();
 
             this.wrapper = this.element
                 .addClass(chatStyles.wrapper)
-                .append(uiElements);
+                .append(uiElements)
+                .append(toolbarElement);
 
             if (options.toolbar && options.toolbar.buttons && options.toolbar.buttons.length) {
                 this.wrapper.find(DOT + chatStyles.toolbarBoxWrapper).show();

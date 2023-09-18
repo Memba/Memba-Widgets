@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.718 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -32,13 +32,15 @@ import "./kendo.textbox.js";
 import "./kendo.form.js";
 import "./kendo.toolbar.js";
 import "./kendo.icons.js";
+import "./grid/contextmenu.js";
+import "./grid/commands.js";
 
 var __meta__ = {
     id: "grid",
     name: "Grid",
     category: "web",
     description: "The Grid widget displays tabular data and offers rich support for interacting with data,including paging, sorting, grouping, and selection.",
-    depends: [ "data", "columnsorter", "sortable", "toolbar", "html.button", "icons" ],
+    depends: [ "data", "columnsorter", "sortable", "toolbar", "html.button", "icons", "menu" ],
     features: [ {
         id: "grid-editing",
         name: "Editing",
@@ -281,6 +283,27 @@ var __meta__ = {
         headerCellInner: "k-cell-inner"
     };
     var GroupsPager;
+
+    var defaultBodyContextMenu = [
+        "copySelection",
+        "copySelectionNoHeaders",
+        "separator",
+        "create",
+        "edit",
+        "destroy",
+        "select",
+        "separator",
+        "reorderRow",
+        "exportPDF",
+        "exportExcel",
+        "separator"
+    ];
+
+    var defaultHeadContextMenu = [
+        "sortAsc",
+        "sortDesc",
+        "separator"
+    ];
 
     if (ui.Pager) {
         GroupsPager = ui.Pager.extend({
@@ -680,7 +703,6 @@ var __meta__ = {
 
         repaintScrollbar: function(shouldScrollWrapper) {
             var that = this,
-                html = "",
                 maxHeight = that.options.maxScrollHeight,
                 dataSource = that.dataSource,
                 scrollbar = !kendo.support.kineticScrollNeeded ? kendo.support.scrollbar() : 0,
@@ -696,15 +718,20 @@ var __meta__ = {
 
             totalHeight = (dataSource._isGroupPaged() ? dataSource.groupsTotal(true) : dataSource.total()) * itemHeight + addScrollBarHeight;
 
-            for (idx = 0; idx < math.floor(totalHeight / maxHeight); idx++) {
-                html += '<div style="width:1px;height:' + maxHeight + 'px"></div>';
-            }
+            var divElements = $(new Array(math.floor(totalHeight / maxHeight) + 1).join('<div></div>'))
+                .css({
+                    width: "1px",
+                    height: `${maxHeight}px`
+                });
 
             if (totalHeight % maxHeight) {
-                html += '<div style="width:1px;height:' + (totalHeight % maxHeight) + 'px"></div>';
+                divElements = divElements.add($("<div></div>").css({
+                    width: "1px",
+                    height: `${(totalHeight % maxHeight)}px`
+                }));
             }
 
-            that.verticalScrollbar.html(html);
+            that.verticalScrollbar.empty().append(divElements);
 
             if (wasScrolledToBottom && !that._isScrolledToBottom() && !that.dataSource._isGroupPaged()) {
                 that.scrollToBottom();
@@ -1390,10 +1417,13 @@ var __meta__ = {
         }
     }
 
-    function removeColumnAttribute(column, attribute, property, value) {
+    function removeColumnAttribute(column, attribute, property, value, removeAttributeProperty) {
         createColumnAttribute(column, attribute, property);
-
-        column[attribute][property] = column[attribute][property].replace(value, "");
+        if (removeAttributeProperty) {
+            delete column[attribute][property];
+        } else {
+            column[attribute][property] = column[attribute][property].replace(value, "");
+        }
     }
 
     function lockedColumns(columns) {
@@ -1464,7 +1494,8 @@ var __meta__ = {
                 result.push({
                     field: columns[idx].field,
                     width: columns[idx].width,
-                    values: columns[idx].values
+                    values: columns[idx].values,
+                    title: columns[idx].title
                 });
             }
         }
@@ -1671,7 +1702,9 @@ var __meta__ = {
         }
 
         if (tbodySupportsInnerHtml) {
-            tbody[0].innerHTML = html;
+            let $html = $(html);
+            kendo.applyStylesFromKendoAttributes($html, ["display", "left", "right"]);
+            tbody.empty().append($html);
         } else {
             placeholder = document.createElement(DIV);
             placeholder.innerHTML = "<table class='k-grid-table k-table'><tbody class='k-table-tbody'>" + html + "</tbody></table>";
@@ -1685,34 +1718,21 @@ var __meta__ = {
 
     function addHiddenStyle(attr) {
         attr = attr || {};
-        var style = attr.style;
+        let kendoStyleAttrObject = {};
+        kendoStyleAttrObject[kendo.attr("style-display")] = "none";
 
-        if (!style) {
-            style = "display:none";
-        } else {
-            style = style.replace(/display:[^;]*/i, "display:none");
-            if (!style.match(/display:/i)) {
-                style = style.replace(/(.*)?/i, "display:none;$1");
-            }
-        }
-
-        return extend({}, attr, { style: style });
+        return extend({}, attr, kendoStyleAttrObject);
     }
 
     function hasHiddenStyle(attr) {
         attr = attr || {};
-        var style = attr.style || "";
 
-        return style.indexOf("display:none") !== -1;
+        return !!attr[kendo.attr("style-display")];
     }
 
     function removeHiddenStyle(attr) {
         attr = attr || {};
-        var style = attr.style;
-
-        if (style) {
-            attr.style = style.replace(/(display\s*:\s*none\s*;?)*/ig, "");
-        }
+        delete attr[kendo.attr("style-display")];
 
         return attr;
     }
@@ -1738,15 +1758,7 @@ var __meta__ = {
         }
 
         colgroup = $(new Array(groups + 1).join('<col class="k-group-col">') + cols.join(""));
-
-        colgroup.each((_, col) => {
-            var $col = $(col);
-
-            if ($col.attr(kendo.attr("style-width"))) {
-                $col.css('width', $col.attr(kendo.attr("style-width")));
-                $col.removeAttr(kendo.attr("style-width"));
-            }
-        });
+        kendo.applyStylesFromKendoAttributes(colgroup, ["width"]);
 
         if (!colgroup.is("colgroup")) {
             colgroup = $("<colgroup/>").append(colgroup);
@@ -1996,6 +2008,10 @@ var __meta__ = {
                 that._footer();
             }
 
+            if (that.options.contextMenu) {
+                that._initContextMenu();
+            }
+
             if (that.lockedContent) {
                 that.wrapper.addClass("k-grid-lockedcolumns");
                 that._resizeHandler = function() {
@@ -2119,6 +2135,7 @@ var __meta__ = {
             reorderable: false,
             columnMenu: false,
             detailTemplate: null,
+            contextMenu: false,
             columnResizeHandleWidth: 3,
             size: "medium",
             mobile: "",
@@ -2139,7 +2156,25 @@ var __meta__ = {
                     canceledit: defaultCommands.canceledit.text,
                     excel: defaultCommands.excel.text,
                     pdf: defaultCommands.pdf.text,
-                    search: defaultCommands.search.text
+                    search: defaultCommands.search.text,
+                    select: "Select",
+                    selectRow: "Select Row",
+                    selectAllRows: "All rows",
+                    clearSelection: "Clear selection",
+                    copySelection: "Copy selection",
+                    copySelectionNoHeaders: "Copy selection (No Headers)",
+                    reorderRow: "Reorder row",
+                    reorderRowUp: "Up",
+                    reorderRowDown: "Down",
+                    reorderRowTop: "Top",
+                    reorderRowBottom: "Bottom",
+                    exportPdf: "Export to PDF",
+                    exportExcel: "Export to Excel",
+                    exportToExcelAll: "All",
+                    exportToExcelSelection: "Selection",
+                    exportToExcelSelectionNoHeaders: "Selection (No Headers)",
+                    sortAsc: "Sort Ascending",
+                    sortDesc: "Sort Descending"
                 },
                 noRecords: NORECORDS,
                 expandCollapseColumnHeader: "",
@@ -2306,6 +2341,14 @@ var __meta__ = {
 
             if (that._draggableRowsInstance && that._draggableRowsInstance.element) {
                 that._draggableRowsInstance.destroy();
+            }
+
+            if (that.tbodyContextMenu) {
+                that.tbodyContextMenu.destroy();
+            }
+
+            if (that.theadContextMenu) {
+                that.theadContextMenu.destroy();
             }
 
             that._draggableRowsInstance = null;
@@ -3913,7 +3956,7 @@ var __meta__ = {
                 that._draggableRowsInstance.destroy();
             }
 
-            if (this.options.reorderable.rows.moveClickMove !== false && this._hasDragHandleColumn) {
+            if (this.options.reorderable.rows.clickMoveClick !== false && this._hasDragHandleColumn) {
                 clickMoveClick = true;
             }
 
@@ -4016,6 +4059,24 @@ var __meta__ = {
 
             if (!that.trigger(ROWREORDER, args)) {
                 that.reorderRows(selectable ? that.select() : row, args.newIndex);
+            }
+        },
+
+        reorderRowTo: function(row, index) {
+            var that = this,
+                item = that.dataItem(row),
+                oldIndex = row.index();
+
+            if (index < 0 || index === oldIndex) {
+                return;
+            }
+
+            if (!that.trigger(ROWREORDER, {
+                row: row,
+                oldIndex: row.index(),
+                newIndex: index
+            })) {
+                that.dataSource.pushMove(index, [item]);
             }
         },
 
@@ -6388,6 +6449,7 @@ var __meta__ = {
         _clipboard: function() {
             var options = this.options;
             var selectable = options.selectable;
+
             if (selectable && options.allowCopy) {
                 var grid = this;
                 if (!options.navigatable) {
@@ -6770,14 +6832,22 @@ var __meta__ = {
                 filterCells.each(function() {
                     var th = $(this);
                     var column = th.data("column");
-                    var style = th.attr("style") || "";
+
                     if (column.sticky) {
-                        th.attr("style", style + column.stickyStyle);
+                        if (isPlainObject(column.stickyStyle)) {
+                            th.css({
+                                left: column.stickyStyle.left || "",
+                                right: column.stickyStyle.right || ""
+                            });
+                        }
+
                         th.addClass(STICKY_HEADER_CLASS);
                     } else {
-                        style = style.replace(leftRegExp, "");
-                        style = style.replace(rightRegExp, "");
-                        th.attr("style", style);
+                        th.css({
+                            left: "",
+                            right: ""
+                        });
+
                         th.removeClass(STICKY_HEADER_CLASS);
                     }
                 });
@@ -6877,7 +6947,7 @@ var __meta__ = {
                 column = columns[i];
                 stickyLeft = stickyWidths.left[i];
                 stickyRight = stickyWidths.right[i];
-                stickyStyle = "left: " + stickyLeft + "px; right: " + stickyRight + "px;";
+                stickyStyle = { left: stickyLeft + "px", right: stickyRight + "px" };
 
                 if (column.columns) {
                     childCols = visibleChildColumns([column]);
@@ -6890,9 +6960,12 @@ var __meta__ = {
                     }
                 }
 
-                addColumnAttribute(column, "attributes", "style", stickyStyle);
-                addColumnAttribute(column, "headerAttributes", "style", stickyStyle);
-                addColumnAttribute(column, "footerAttributes", "style", stickyStyle);
+                addColumnAttribute(column, "attributes", kendo.attr("style-left"), stickyStyle.left);
+                addColumnAttribute(column, "attributes", kendo.attr("style-right"), stickyStyle.right);
+                addColumnAttribute(column, "headerAttributes", kendo.attr("style-left"), stickyStyle.left);
+                addColumnAttribute(column, "headerAttributes", kendo.attr("style-right"), stickyStyle.right);
+                addColumnAttribute(column, "footerAttributes", kendo.attr("style-left"), stickyStyle.left);
+                addColumnAttribute(column, "footerAttributes", kendo.attr("style-right"), stickyStyle.right);
 
                 column.stickyStyle = stickyStyle;
             }
@@ -6915,17 +6988,17 @@ var __meta__ = {
                 }
 
                 removeColumnAttribute(column, "attributes", "class", cellClassRegExp);
-                removeColumnAttribute(column, "attributes", "style", leftRegExp);
-                removeColumnAttribute(column, "attributes", "style", rightRegExp);
+                removeColumnAttribute(column, "attributes", kendo.attr("style-left"), '', true);
+                removeColumnAttribute(column, "attributes", kendo.attr("style-right"), '', true);
 
                 removeColumnAttribute(column, "headerAttributes", "class", headerClassRegExp);
                 removeColumnAttribute(column, "headerAttributes", "class", headerClassNoBorderRegExp);
-                removeColumnAttribute(column, "headerAttributes", "style", leftRegExp);
-                removeColumnAttribute(column, "headerAttributes", "style", rightRegExp);
+                removeColumnAttribute(column, "headerAttributes", kendo.attr("style-left"), '', true);
+                removeColumnAttribute(column, "headerAttributes", kendo.attr("style-right"), '', true);
 
                 removeColumnAttribute(column, "footerAttributes", "class", footerClassRegExp);
-                removeColumnAttribute(column, "footerAttributes", "style", leftRegExp);
-                removeColumnAttribute(column, "footerAttributes", "style", rightRegExp);
+                removeColumnAttribute(column, "footerAttributes", kendo.attr("style-left"), '', true);
+                removeColumnAttribute(column, "footerAttributes", kendo.attr("style-right"), '', true);
             }
         },
 
@@ -8252,6 +8325,10 @@ var __meta__ = {
                 return false;
             }
 
+            if (row.is(".k-filter-row")) {
+                return false;
+            }
+
             if (row.is(DOT + GROUPING_ROW)) {
                 row.find(".k-icon,.k-svg-icon").first().click();
 
@@ -8466,6 +8543,10 @@ var __meta__ = {
                         index--;
                     }
                     return leafDataCells(container).filter(isCellVisible).eq(index);
+                } else {
+                    if (this._hasDetails()) {
+                        index--;
+                    }
                 }
             } else {
                 row = rowIndex === 0 ? $() : rows.eq(rowIndex - 1);
@@ -8703,6 +8784,55 @@ var __meta__ = {
             }
 
             that._initMobile();
+        },
+
+        _initContextMenu: function() {
+            var that = this,
+                options = that.options,
+                tbodyContextMenu = isPlainObject(options.contextMenu) && isArray(options.contextMenu.body) ? { items: options.contextMenu.body } : { items: defaultBodyContextMenu },
+                theadContextMenu = isPlainObject(options.contextMenu) && isArray(options.contextMenu.head) ? { items: options.contextMenu.head } : { items: defaultHeadContextMenu };
+
+            var mainOptions = isPlainObject(options.contextMenu) ? options.contextMenu : {};
+
+            tbodyContextMenu = extend({}, {
+                messages: options.messages,
+                target: that.tbody,
+                filter: ".k-table-td",
+                action: that._action.bind(that),
+                states: that._buildStates()
+            }, mainOptions, tbodyContextMenu);
+
+            theadContextMenu = extend({}, {
+                messages: options.messages,
+                target: that.thead,
+                filter: ".k-table-th",
+                action: that._action.bind(that),
+                states: that._buildStates()
+            }, mainOptions, theadContextMenu);
+
+            that.tbodyContextMenu = new ui.grid.ContextMenu("<ul></ul>", tbodyContextMenu);
+            that.theadContextMenu = new ui.grid.ContextMenu("<ul></ul>", theadContextMenu);
+        },
+
+        _buildStates: function() {
+            var that = this;
+
+            return {
+                isEditable: that.options.editable,
+                isSelectable: that.options.selectable,
+                isSortable: that.options.sortable,
+                isRowReorderable: isPlainObject(that.options.reorderable) ? that.options.reorderable.rows : that.options.reorderable,
+                hasSelection: () => (this.select() ? this.select().length > 0 : false),
+                isSorted: () => !(this.dataSource.sort() ? this.dataSource.sort().length > 0 : false),
+            };
+        },
+
+        _action: function(args) {
+            var commandName = args.command,
+                commandOptions = extend({ grid: this }, args.options),
+                command = new ui.grid.commands[commandName](commandOptions);
+
+            return command.exec();
         },
 
         _initMobile: function() {
@@ -9175,7 +9305,9 @@ var __meta__ = {
                 }
 
                 if (!that.dataSource || !that.dataSource.view().length) {
-                    noRecordsElement = $(that.noRecordsTemplate({ grid: that })).insertAfter(that.table);
+                    noRecordsElement = $(that.noRecordsTemplate({ grid: that }));
+                    kendo.applyStylesFromKendoAttributes(noRecordsElement, ["margin", "position"]);
+                    noRecordsElement.insertAfter(that.table);
 
                     that.angular("compile", function() {
                         return {
@@ -9561,6 +9693,7 @@ var __meta__ = {
 
             if (footerTemplate) {
                 html = $(that._wrapFooter(footerTemplate(aggregates)));
+                kendo.applyStylesFromKendoAttributes(html, ["display", "left", "right"]);
 
                 if (footer.length) {
                     var tmp = html;
@@ -10392,7 +10525,7 @@ var __meta__ = {
                 } else if (columnValues && columnValues.length && isPlainObject(columnValues[0]) && "value" in columnValues[0] && field) {
                     var v = convertToObject(columnValues);
                     var f = v[settings.useWithBlock ? kendo.getter(field)(data) : field];
-                    html += f != null ? f : '';
+                    html += encode(f != null ? f : '');
                 } else {
                     let fieldValue = '';
                     if (field) {
@@ -10554,7 +10687,7 @@ var __meta__ = {
         _noRecordsTmpl: function() {
             var wrapper = '<div class="{0}">{1}</div>';
             var defaultTemplate = '<div class="k-grid-norecords-template"{1}>{0}</div>';
-            var scrollableNoGridHeightStyles = (this.options.scrollable && !this.wrapper[0].style.height) ? ' style="margin:0 auto;position:static;"' : '';
+            var scrollableNoGridHeightStyles = (this.options.scrollable && !this.wrapper[0].style.height) ? ` ${kendo.attr("style-margin")}="0 auto" ${kendo.attr("style-position")}="static"` : '';
             var state = { storage: {}, count: 0 };
             var settings = $.extend({}, kendo.Template, this.options.templateSettings);
             var paramName = settings.paramName;
@@ -10707,13 +10840,20 @@ var __meta__ = {
                     type = typeof template;
 
                     if (column.sticky) {
+                        let stickyAttributes = '';
                         groupHeaderColumnTemplateClass = (column.groupHeaderColumnTemplateClass || '');
 
                         if (!groupHeaderColumnTemplateClass) {
                             groupHeaderColumnTemplateClass = column.groupHeaderColumnTemplateClass = "group-header-column-template-" + kendo.guid();
                         }
 
-                        resultHtml += "<td class='k-table-td " + STICKY_CELL_CLASS + " " + groupHeaderColumnTemplateClass + "' style='" + (column.stickyStyle || '') + "'>";
+                        if (isPlainObject(column.stickyStyle)) {
+                            let stickyLeft = column.stickyStyle.left ? `${kendo.attr("style-left")}="${column.stickyStyle.left}"` : '';
+                            let stickyRight = column.stickyStyle.right ? `${kendo.attr("style-right")}="${column.stickyStyle.right}"` : '';
+                            stickyAttributes = `${stickyLeft} ${stickyRight}`;
+                        }
+
+                        resultHtml += `<td class="k-table-td ${STICKY_CELL_CLASS} ${groupHeaderColumnTemplateClass}" ${stickyAttributes}>`;
                     } else {
                         resultHtml += "<td class='k-table-td'>";
                     }
@@ -11264,6 +11404,7 @@ var __meta__ = {
                    }
 
                    tr = $(html);
+                   kendo.applyStylesFromKendoAttributes(tr, ["display", "left", "right"]);
                 }
             } else {
                 for (idx = 0; idx < columns.length; idx++) {
@@ -12814,6 +12955,7 @@ var __meta__ = {
 
             if (endlessAppend) {
                 that.tbody.append(html);
+                kendo.applyStylesFromKendoAttributes(that.tbody, ["display", "left", "right"]);
                 clearTimeout(that._endlessFetchTimeOut);
                 that._endlessFetchTimeOut = setTimeout(function() {
                     if (that._groupToCollapse) {
@@ -12886,6 +13028,8 @@ var __meta__ = {
                 groupHeaderColumnTemplate(extend({}, groupHeaderData, { groupCells: level, colspan: groups - level, text: text })) :
                 groupRowBuilderFunc(colspan, level, text, null, null, null, isRtl)
             );
+
+            kendo.applyStylesFromKendoAttributes(newGroupRowElement, ["display", "left", "right"]);
 
             if (prevElement.is("tbody")) {
                 prevElement.prepend(newGroupRowElement);
@@ -13561,6 +13705,11 @@ var __meta__ = {
 
    ui.plugin(Grid);
    ui.plugin(VirtualScrollable);
+
+   extend(kendo.ui.grid, {
+       defaultBodyContextMenu: defaultBodyContextMenu,
+       defaultHeadContextMenu: defaultHeadContextMenu,
+   });
 
 })(window.kendo.jQuery);
 export default kendo;

@@ -8,6 +8,8 @@
 
 /* global define, jQuery */
 
+// @see https://stackoverflow.com/questions/10024469/whats-the-best-way-to-retry-an-ajax-request-on-failure-using-jquery
+
 (function umd(factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.

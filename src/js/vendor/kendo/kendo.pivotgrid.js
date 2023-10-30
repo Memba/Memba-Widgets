@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -333,18 +333,18 @@ var __meta__ = {
         return result;
     }
 
-    function createLocalMeasure(field, key, format) {
+    function createLocalMeasure(field, key, format, aggregate) {
         var formatFunc = function(value) { return kendo.format(this.format, value); };
         var measureMap = {
-            "Sum": sumAggregate,
-            "Average": averageAggregate,
-            "Min": minAggregate,
-            "Max": maxAggregate,
+            "sum": sumAggregate,
+            "average": averageAggregate,
+            "min": minAggregate,
+            "max": maxAggregate,
         };
         var valueFunc = function(item) { return item[this.field]; };
         var measure = {
                 value: valueFunc.bind({ field: field }),
-                aggregate: measureMap[key],
+                aggregate: measureMap[aggregate],
                 caption: key,
                 uniqueName: key,
                 type: 2,
@@ -1377,7 +1377,7 @@ var __meta__ = {
                     var measures = cube.measures;
 
                     for (var key in measures) {
-                        result.push(createLocalMeasure(measures[key].field, key, measures[key].format));
+                        result.push(createLocalMeasure(measures[key].field, key, measures[key].format, measures[key].aggregate));
                     }
 
                     return result;
@@ -4678,7 +4678,7 @@ var __meta__ = {
         _element: function() {
             var options = this.options;
             this.element.addClass("k-pivotgrid-configurator-button");
-            this.element.html(kendo.format("<span>{0}<span class='k-icon k-i-gear'></span></span>",options.text));
+            this.element.html(kendo.format("<span>{0}{1}</span>",options.text, kendo.ui.icon('gear')));
         }
     });
 
@@ -4836,6 +4836,18 @@ var __meta__ = {
         _aria: function() {
             var that = this;
             that.element.attr("role", "grid");
+        },
+
+        setDataSource: function(dataSource) {
+            this.options.dataSource = dataSource;
+
+            this._dataSource();
+
+            this._bindConfigurator();
+
+            if (this.options.autoBind) {
+                dataSource.fetch();
+            }
         },
 
         _initPivotGridNavigation: function() {

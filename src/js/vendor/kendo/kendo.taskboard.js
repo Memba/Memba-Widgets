@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -583,10 +583,24 @@ import "./kendo.textbox.js";
 
             _processTools: function(tools) {
                 var that = this,
-                    states = that._buildStates();
+                    states = that._buildStates(),
+                    isDefaultTool;
 
                 tools.forEach(t => {
                     var rules = t.rules || that.defaultTools[t] ? that.defaultTools[t].rules : null;
+                    isDefaultTool = isPlainObject(t) && Object.keys(t).length >= 1 && t.name && that.defaultTools[t.name];
+
+                    if (isDefaultTool) {
+                        var temp = extend({}, t);
+                        extend(t, that.defaultTools[t.name], temp);
+                    }
+
+                    if (isDefaultTool && t.name == "search") {
+                        extend(t.componentOptions, {
+                            icon: t.icon || that.defaultTools[t.name].componentOptions.icon,
+                            placeholder: t.text || that.options.messages.search
+                        });
+                    }
 
                     if (!rules) {
                         return;

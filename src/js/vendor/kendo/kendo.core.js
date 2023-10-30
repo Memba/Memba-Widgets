@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -20,8 +20,8 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
-    version: '2023.2.829'.replace(/^\s+|\s+$/g, ''),
-    licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
+    version: '2023.3.1010'.replace(/^\s+|\s+$/g, ''),
+    licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code?utm_medium=product&utm_source=kendojquery&utm_campaign=kendo-ui-jquery-purchase-license-keys-warning'
 };
 
 
@@ -191,7 +191,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2023.2.829".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2023.3.1010".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -2897,15 +2897,10 @@ function pad(number, digits, end) {
 
         exprToArray: (expression, safe) => {
             expression = expression || "";
-            const FIELD_REGEX = /\[(?:(\d+)|['"](.*?)['"])\]|((?:(?!\[.*?\]|\.).)+)/g;
-            const fields = [];
 
-            expression.replace(FIELD_REGEX, (_, index, indexAccessor, field) => {
-                fields.push(kendo.isPresent(index) ? index : (indexAccessor || field));
-                return undefined;
-            });
-
-            return fields;
+            return expression.indexOf(".") >= 0 || expression.indexOf("[") >= 0 ?
+                expression.split(/[[\].]/).map(v => v.replace(/["']/g, '')).filter(v => v) :
+                expression === "" ? [] : [expression];
         },
 
         getter: function(expression, safe) {
@@ -3015,7 +3010,9 @@ function pad(number, digits, end) {
         init: function(element, options) {
             var that = this;
 
-            validatePackage();
+            if (!validatePackage()) {
+                that._showWatermarkOverlay = addWatermarkOverlay;
+            }
 
             that.element = kendo.jQuery(element).handler(that);
 
@@ -5502,14 +5499,19 @@ function pad(number, digits, end) {
         };
     }());
 
-    var KendoLicensing = { validatePackage: function() {},setScriptKey: function() {} };
+    var KendoLicensing = { validatePackage: function() { return true; },setScriptKey: function() {} };
 
     window.KendoLicensing = {
         setScriptKey: KendoLicensing.setScriptKey
     };
 
     function validatePackage() {
-        KendoLicensing.validatePackage(packageMetadata);
+        return KendoLicensing.validatePackage(packageMetadata);
+    }
+
+    function addWatermarkOverlay(el) {
+        KendoLicensing.addWatermarkOverlay && KendoLicensing.addWatermarkOverlay(el, packageMetadata);
+        KendoLicensing.showBanner && KendoLicensing.showBanner(packageMetadata);
     }
 
 })(jQuery, window);

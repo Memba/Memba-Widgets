@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "../kendo.drawing.js";
+import "./upload.js";
 
 (function($, undefined) {
     var extend = $.extend,
@@ -16,6 +17,7 @@ import "../kendo.drawing.js";
         Surface = drawing.Surface,
         RENDER = "render",
         Class = kendo.Class,
+        UploadHelper = kendo.pdfviewer.UploadHelper,
 
         DEFAULT_DPR = 2;
 
@@ -26,6 +28,20 @@ import "../kendo.drawing.js";
         Image: "image",
         Text: "text"
     };
+
+    var BLANK_PAGE_TEMPLATE = (dropzoneId) => `<div class="k-page k-blank-page">
+        <div id="${dropzoneId}" class="k-external-dropzone">
+            <div class="k-dropzone-inner">
+                <span class="k-dropzone-icon k-svg-icon k-icon-xxxl k-svg-i-upload">
+                    <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                        <path d="M32 384v96h448v-96H32zm192-64h64V192h96L256 32 128 192h96v128z"></path>
+                    </svg>
+                </span>
+                <span class="k-dropzone-hint">Drag and drop files here to upload</span>
+            </div>
+        </div>
+        <input name="files" accept=".pdf" type="file" ref-pdfviewer-blank-page-upload>
+    </div>`;
 
     var Page = Class.extend({
         init: function(options, viewer) {
@@ -55,6 +71,36 @@ import "../kendo.drawing.js";
                     .height(size.height);
         },
         destroy: function() {
+            kendo.destroy(this.element);
+        },
+        render: noop
+    });
+
+    var BlankPage = Page.extend({
+        init: function(options, viewer) {
+            this.viewer = viewer;
+            this.options = options;
+            this._externalDropZoneId = `${viewer.element.attr("id")}-external-dropzone`;
+            this.element = $(BLANK_PAGE_TEMPLATE(this._externalDropZoneId));
+            this._uploadHelper = new UploadHelper(viewer);
+        },
+        _initUpload: function() {
+            this._upload = this._uploadHelper._initUpload(this.element.find("input[ref-pdfviewer-blank-page-upload]"), {
+                dropZone: `#${this._externalDropZoneId}`,
+                showFileList: false,
+                async: {
+                    autoUpload: false,
+                    saveUrl: "save"
+                }
+            });
+        },
+        resize: noop,
+        _updatePageSize: noop,
+        destroy: function() {
+            if (this._upload) {
+                this._upload.destroy();
+            }
+
             kendo.destroy(this.element);
         },
         render: noop
@@ -329,6 +375,9 @@ import "../kendo.drawing.js";
     });
     extend(kendo.pdfviewer.pdfjs, {
         Page: PDFJSPage
+    });
+    extend(kendo.pdfviewer, {
+        BlankPage: BlankPage
     });
 })(window.kendo.jQuery);
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -84,7 +84,7 @@ import "./spreadsheet/print.js";
         };
 
         var classNames = {
-            wrapper: "k-widget k-spreadsheet"
+            wrapper: "k-widget k-spreadsheet k-spreadsheet-legacy"
         };
 
         var Spreadsheet = kendo.ui.Widget.extend({
@@ -120,6 +120,10 @@ import "./spreadsheet/print.js";
                 $(window).on("resize" + NS, this._resizeHandler);
 
                 this.element.on("keydown" + NS, this._keyDown.bind(this));
+
+                if (this._showWatermarkOverlay) {
+                    this._showWatermarkOverlay(this.element[0]);
+                }
             },
 
             _keyDown: function(e) {

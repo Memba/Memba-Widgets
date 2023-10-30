@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -151,7 +151,8 @@ var __meta__ = {
                     culture: options.culture,
                     messages: that.options.messages
                 }),
-                autoSwitchParts: options.autoSwitchParts
+                autoSwitchParts: options.autoSwitchParts,
+                autoFill: false
             });
 
             that._emptyMask = this.element.val();
@@ -228,7 +229,8 @@ var __meta__ = {
             },
             fillMode: "solid",
             rounded: "medium",
-            label: null
+            label: null,
+            autoFill: false
         },
 
         events: [
@@ -287,7 +289,8 @@ var __meta__ = {
                     culture: that.options.culture,
                     messages: that.options.messages
                 }),
-                autoSwitchParts: that.options.autoSwitchParts
+                autoSwitchParts: that.options.autoSwitchParts,
+                autoFill: that.options.autoFill
             });
         },
 
@@ -393,12 +396,20 @@ var __meta__ = {
                 .on("focusout" + ns, function() {
                     that.wrapper.removeClass(FOCUSED);
                 });
+
+            if (this.dateInputInstance) {
+                this.dateInputInstance.bindEvents();
+            }
         },
 
         _unbindInput: function() {
             this.element
                 .off("focus" + ns)
                 .off("focusout" + ns);
+
+            if (this.dateInputInstance) {
+                this.dateInputInstance.unbindEvents();
+            }
         },
 
         _editable: function(options) {

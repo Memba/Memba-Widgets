@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1632,24 +1632,32 @@ var __meta__ = {
             result = new Query(that.data),
             descriptor;
 
+            var getFilteredData = (g, data) => {
+                data = data || new Query(allData).filter([{
+                    field: g.field,
+                    operator: "eq",
+                    value: g.value,
+                    ignoreCase: false
+                }]);
+
+                return data;
+            };
+
             if (descriptors.length > 0) {
                 descriptor = descriptors[0];
 
                 if (options && options.groupPaging) {
                     result = new Query(allData).groupAllData(descriptor, allData).select(function(group) {
-                        var data = new Query(allData).filter([{
-                            field: group.field,
-                            operator: "eq",
-                            value: group.value,
-                            ignoreCase: false
-                        }]);
-                        var items = descriptors.length > 1 ? new Query(group.items).group(descriptors.slice(1), data.toArray(), options).toArray() : group.items;
+                        var cachedFilteredData;
+
+                        var items = descriptors.length > 1 ? new Query(group.items).group(descriptors.slice(1), getFilteredData(group, cachedFilteredData).toArray(), options).toArray() : group.items;
+
                         return {
                             field: group.field,
                             value: group.value,
                             hasSubgroups: descriptors.length > 1,
                             items: items,
-                            aggregates: data.aggregate(descriptor.aggregates),
+                            aggregates: descriptor.aggregates && descriptor.aggregates.length ? getFilteredData(group, cachedFilteredData).aggregate(descriptor.aggregates) : {},
                             uid: kendo.guid(),
                             itemCount: items.length,
                             subgroupCount: items.length
@@ -1658,13 +1666,13 @@ var __meta__ = {
 
                 } else {
                     result = result.groupBy(descriptor).select(function(group) {
-                        var data = new Query(allData).filter([ { field: group.field, operator: "eq", value: group.value, ignoreCase: false } ]);
+                        var cachedFilteredData;
                         return {
                             field: group.field,
                             value: group.value,
-                            items: descriptors.length > 1 ? new Query(group.items).group(descriptors.slice(1), data.toArray()).toArray() : group.items,
+                            items: descriptors.length > 1 ? new Query(group.items).group(descriptors.slice(1), getFilteredData(group, cachedFilteredData).toArray()).toArray() : group.items,
                             hasSubgroups: descriptors.length > 1,
-                            aggregates: data.aggregate(descriptor.aggregates)
+                            aggregates: descriptor.aggregates && descriptor.aggregates.length ? getFilteredData(group, cachedFilteredData).aggregate(descriptor.aggregates) : {},
                         };
                     });
                 }

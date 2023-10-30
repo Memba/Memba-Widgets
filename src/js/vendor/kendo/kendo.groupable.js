@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -268,7 +268,8 @@ var __meta__ = {
             sort: {
                 dir: ASCENDING,
                 compare: null
-            }
+            },
+            enableContextMenu: false
         },
 
         indicator: function(field) {
@@ -291,6 +292,10 @@ var __meta__ = {
             var dirIcon = indicator.find(".k-chip-icon");
             var newDir = dirIcon.attr(kendoAttr(DIR)) === ASCENDING ? DESCENDING : ASCENDING;
 
+            if ($(e.originalEvent.target).closest('.k-groupable-context-menu').length) {
+                return;
+            }
+
             dirIcon.attr(kendoAttr(DIR), newDir);
             that._change();
         },
@@ -310,7 +315,10 @@ var __meta__ = {
                                 removable: true,
                                 size: that.options.size || "medium",
                                 remove: that.removeHandler.bind(that),
-                                click: that.clickHandler.bind(that)
+                                click: that.clickHandler.bind(that),
+                                actions: that.options.enableContextMenu ? [
+                                    { icon: "more-vertical", iconClass: "k-groupable-context-menu" }
+                                ] : null
                             }).data("kendoChip");
             wrapper = indicator.wrapper;
             icon = wrapper.find(".k-chip-icon").first();

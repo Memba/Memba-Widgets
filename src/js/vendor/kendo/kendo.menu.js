@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -431,7 +431,7 @@ var __meta__ = {
         getParents(elem);
         var last = parents[parents.length - 1];
         while ($(last).is(animationContainerSelector)) {
-            var popupElement = $(last).children("ul");
+            var popupElement = $(last).find(popupSelector);
             elem = popupParentItem(popupElement, overflowWrapper)[0];
             if (!elem) {
                 break;
@@ -1256,7 +1256,7 @@ var __meta__ = {
 
         _popupOpen: function(e) {
             if (!this._keyTriggered) {
-                e.sender.element.children("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
+                e.sender.element.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
             }
             if (this.options.scrollable) {
                 this._setPopupHeight(e.sender);
@@ -1475,7 +1475,7 @@ var __meta__ = {
             var that = this;
             var element = $(e.currentTarget);
             var hasChildren = that._itemHasChildren(element);
-            var popupId = element.data(POPUP_OPENER_ATTR) || element.parent().data(POPUP_ID_ATTR);
+            var popupId = element.data(POPUP_OPENER_ATTR) || element.closest(popupSelector).data(POPUP_ID_ATTR);
             var pointerTouch = isPointerTouch(e);
             var isParentClosing = false;
 
@@ -1581,7 +1581,7 @@ var __meta__ = {
             var popupElement = $(e.currentTarget);
 
             if (!isPointerTouch(e) && popupElement.is(animationContainerSelector)) {
-                that._closePopups(popupElement.children("ul"));
+                that._closePopups(popupElement.find(popupSelector));
             }
         },
 

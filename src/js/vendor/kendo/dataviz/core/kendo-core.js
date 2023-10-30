@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -54,6 +54,7 @@ var FORMAT_REGEX = /\{\d+:?/;
 var HEIGHT = "height";
 var HIGHLIGHT_ZINDEX = 100;
 var INSIDE = "inside";
+var INHERIT = "inherit";
 var LEFT = "left";
 var MAX_VALUE = Number.MAX_VALUE;
 var MIN_VALUE = -Number.MAX_VALUE;
@@ -95,6 +96,7 @@ var constants = {
 	HEIGHT: HEIGHT,
 	HIGHLIGHT_ZINDEX: HIGHLIGHT_ZINDEX,
 	INSIDE: INSIDE,
+	INHERIT: INHERIT,
 	LEFT: LEFT,
 	MAX_VALUE: MAX_VALUE,
 	MIN_VALUE: MIN_VALUE,
@@ -283,20 +285,17 @@ function hasClasses(element, classNames) {
     }
 }
 
+// TODO: Remove and replace with Map/WeakMap.
 var HashMap = function HashMap() {
-    this._map = {};
+    this._map = new Map();
 };
 
-HashMap.prototype.get = function get (name) {
-    return this._map[this._key(name)];
+HashMap.prototype.get = function get (key) {
+    return this._map.get(key);
 };
 
-HashMap.prototype.set = function set (name, value) {
-    this._map[this._key(name)] = value;
-};
-
-HashMap.prototype._key = function _key (name) {
-    return name instanceof Date ? name.getTime() : name;
+HashMap.prototype.set = function set (key, value) {
+    this._map.set(key, value);
 };
 
 function inArray(value, array) {
@@ -352,6 +351,10 @@ var InstanceObserver = Class.extend({
         }
     }
 });
+
+function isPlainObject(value) {
+    return Object.prototype.toString.call(value) === "[object Object]";
+}
 
 function map(array, callback) {
     var length = array.length;
@@ -469,6 +472,155 @@ function setDefaultOptions(type, options) {
     } else {
         proto.options = options;
     }
+}
+
+var KICON = 'k-icon';
+var KI_PREFFIX = 'k-i-';
+var KSVGICON = 'k-svg-icon';
+var KSVG_PREFFIX = 'k-svg-i-';
+
+var HTMLBaseIcon = Class.extend({
+    init: function(element, options) {
+        this.element = element;
+        this.options = deepExtend({}, this.options, options);
+
+        this.wrapper();
+    },
+
+    wrapper: function() {
+        this.addClasses();
+    },
+
+    addClasses: function() {
+    },
+
+    html: function() {
+        return this.element.outerHTML;
+    }
+});
+
+setDefaultOptions(HTMLBaseIcon, {
+    name: '',
+    size: 'none',
+    themeColor: 'none',
+    flip: 'default',
+    iconClass: '',
+    stylingOptions: [ 'size', 'themeColor', 'fill' ]
+});
+
+var HTMLFontIcon = HTMLBaseIcon.extend({
+    init: function(element, options) {
+        HTMLBaseIcon.fn.init.call(this, element, options);
+    },
+
+    wrapper: function() {
+        // Find if there is an existing k-i- class appended to the element.
+        var currentIconClass = this.element.className.split(" ").find(function (x) { return x.startsWith(KI_PREFFIX); });
+        var className = this.options.icon ? ("" + (this.options.icon.startsWith(KI_PREFFIX) ? "" : KI_PREFFIX) + (this.options.icon)) : "";
+
+        this._className = className;
+
+        addClass(this.element, KICON);
+        removeClass(this.element, currentIconClass); // Remove any existing icons.
+        addClass(this.element, className);
+        addClass(this.element, this.options.iconClass || '');
+
+        HTMLBaseIcon.fn.wrapper.call(this);
+    }
+});
+
+setDefaultOptions(HTMLFontIcon, {
+    name: 'HTMLFontIcon',
+    icon: null
+});
+
+var HTMLSvgIcon = HTMLBaseIcon.extend({
+    init: function(element, options) {
+        // Ensure that the inner contents of the wrapping span element are always removed for re-rendering purposes.
+        element.innerHTML = "";
+
+        HTMLBaseIcon.fn.init.call(this, element, options);
+    },
+
+    wrapper: function() {
+        var icon = this.options.icon;
+        var iconClass = this.options.iconClass;
+        var currentIconClass = this.element.className.split(" ").find(function (x) { return x.startsWith(KSVG_PREFFIX); });
+
+        if (!icon && iconClass) {
+            // match k-i-(some-icon-name)
+            var regex = /k-i-(\w+(?:-\w+)*)/;
+            var iconNameMatch = iconClass.match(regex);
+            if (iconNameMatch) {
+                icon = iconNameMatch[1];
+                iconClass = iconClass.replace(iconNameMatch[0], "");
+            }
+        }
+
+        if (isString(icon)) {
+            icon = icon.replace("k-i-", "").replace(/-./g, function (x) { return x[1].toUpperCase(); });
+            icon = this.options.svgIcons[icon] || this.options.svgIcons[(icon + "Icon")];
+        }
+
+        var className = icon && icon.name ? ("" + KSVG_PREFFIX + (icon.name)) : "";
+        this._className = className;
+
+        addClass(this.element, KSVGICON);
+        removeClass(this.element, currentIconClass);
+        addClass(this.element, className);
+        addClass(this.element, iconClass || "");
+        this.element.setAttribute("aria-hidden", "true");
+
+        if (icon && isPlainObject(icon)) {
+            var svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svgElement.setAttribute("viewBox", icon.viewBox || "");
+            svgElement.setAttribute("focusable", "false");
+            svgElement.innerHTML = icon.content || "";
+
+            this.element.appendChild(svgElement);
+        }
+
+        HTMLBaseIcon.fn.wrapper.call(this);
+    }
+});
+
+setDefaultOptions(HTMLSvgIcon, {
+    name: 'HTMLSvgIcon',
+    icon: null,
+    svgIcons: {}
+});
+
+var ICON_TYPES = {
+    'svg': HTMLSvgIcon,
+    'font': HTMLFontIcon
+};
+
+function renderIcon(iconElement, iconOptions) {
+    var element = iconElement;
+    var options = iconOptions;
+
+    if (!element
+        || (isObject(element) && !(element instanceof HTMLElement))
+        || isString(element)) {
+        options = element;
+        element = document.createElement("span");
+    }
+
+    if (isString(options)) {
+        options = {
+            icon: options
+        };
+    }
+
+    if (!options.type) {
+        options.type = 'svg';
+    }
+
+    if (!ICON_TYPES[options.type]) {
+        return null;
+    }
+
+    return (new ICON_TYPES[options.type](element, options).html());
 }
 
 function sparseArrayLimits(arr) {
@@ -1410,7 +1562,7 @@ var ChartElement = Class.extend({
 
     hasHighlight: function() {
         var options = (this.options || {}).highlight;
-        return !(!this.createHighlight || (options && options.visible === false));
+        return !(!this.createHighlight || (options && options.visible === false) || this.visible === false);
     },
 
     toggleHighlight: function(show, opacity) {
@@ -4339,31 +4491,6 @@ var CategoryAxis = Axis.extend({
         };
     },
 
-    totalRangeIndices: function(limit) {
-        var options = this.options;
-        var min = isNumber(options.min) ? options.min : 0;
-        var max;
-
-        if (isNumber(options.max)) {
-            max = options.max;
-        } else if (isNumber(options.min)) {
-            max = min + options.categories.length;
-        } else {
-            max = this.totalRange().max || 1;
-        }
-
-        if (limit) {
-            var totalRange = this.totalRange();
-            min = limitValue(min, 0, totalRange.max);
-            max = limitValue(max, 0, totalRange.max);
-        }
-
-        return {
-            min: min,
-            max: max
-        };
-    },
-
     range: function() {
         var options = this.options;
         var min = isNumber(options.min) ? options.min : 0;
@@ -4693,7 +4820,7 @@ var CategoryAxis = Axis.extend({
 
     scaleRange: function(scale, cursor) {
         var position = Math.abs(this.pointOffset(cursor));
-        var rangeIndices = this.totalRangeIndices();
+        var rangeIndices = this.limitedRangeIndices();
         var range = rangeIndices.max - rangeIndices.min;
         var delta = this.scaleToDelta(scale, range);
         var minDelta = position * delta;
@@ -4733,7 +4860,7 @@ var CategoryAxis = Axis.extend({
         var options = this.options;
         var justified = options.justified;
         var labelOptions = options.labels;
-        var ref = this.totalRangeIndices(true);
+        var ref = this.limitedRangeIndices(true);
         var min = ref.min;
         var max = ref.max;
         var start = Math.floor(min);
@@ -4772,7 +4899,7 @@ var CategoryAxis = Axis.extend({
     },
 
     shouldRenderNote: function(value) {
-        var range = this.totalRangeIndices();
+        var range = this.limitedRangeIndices();
 
         return Math.floor(range.min) <= value && value <= Math.ceil(range.max);
     },
@@ -4807,7 +4934,7 @@ var CategoryAxis = Axis.extend({
     },
 
     pan: function(delta) {
-        var range = this.totalRangeIndices(true);
+        var range = this.limitedRangeIndices(true);
         var ref = this.scaleOptions();
         var scale = ref.scale;
         var offset = round(delta / scale, DEFAULT_PRECISION);
@@ -4823,7 +4950,7 @@ var CategoryAxis = Axis.extend({
         var reverse = ref.reverse;
         var vertical = ref.vertical;
         var valueAxis = vertical ? Y : X;
-        var range = this.totalRangeIndices(true);
+        var range = this.limitedRangeIndices(true);
         var ref$1 = this.scaleOptions();
         var scale = ref$1.scale;
         var box = ref$1.box;
@@ -4878,6 +5005,38 @@ var CategoryAxis = Axis.extend({
         };
     },
 
+    limitedRangeIndices: function(totalLimit) {
+        var options = this.options;
+        var min = isNumber(options.min) ? options.min : 0;
+        var max;
+
+        if (isNumber(options.max)) {
+            max = options.max;
+        } else if (isNumber(options.min)) {
+            max = min + options.categories.length;
+        } else {
+            max = this.totalRange().max || 1;
+        }
+
+        if (totalLimit) {
+            var totalRange = this.totalRange();
+            min = limitValue(min, 0, totalRange.max);
+            max = limitValue(max, 0, totalRange.max);
+        }
+
+        return {
+            min: min,
+            max: max
+        };
+    },
+
+    totalRangeIndices: function() {
+        return {
+            min: 0,
+            max: this.totalRange().max || 1
+        };
+    },
+
     mapCategories: function() {
         if (!this._categoriesMap) {
             var map$$1 = this._categoriesMap = new HashMap();
@@ -4929,7 +5088,11 @@ var BASE_UNITS = [
 ];
 var FIT = "fit";
 
-function categoryRange(categories) {
+function categoryRange(categories, clearCache) {
+    if (clearCache) {
+        categories._range = undefined;
+    }
+
     var range = categories._range;
     if (!range) {
         range = categories._range = sparseArrayLimits(categories);
@@ -5273,10 +5436,22 @@ var DateCategoryAxis = CategoryAxis.extend({
         options.srcCategories = categories;
 
         if (categories.length > 0) {
-            var range = categoryRange(categories);
+            var range = categoryRange(categories, true);
             var maxDivisions = options.maxDivisions;
+            var safeOptions = initUnit(options);
 
-            this.dataRange = new DateRange(range.min, range.max, initUnit(options));
+            var forecast = options._forecast;
+            if (forecast) {
+                if (forecast.before > 0) {
+                    range.min = addDuration(range.min, -forecast.before, safeOptions.baseUnit, safeOptions.weekStartDay);
+                }
+
+                if (forecast.after > 0) {
+                    range.max = addDuration(range.max, forecast.after, safeOptions.baseUnit, safeOptions.weekStartDay);
+                }
+            }
+
+            this.dataRange = new DateRange(range.min, range.max, safeOptions);
 
             if (maxDivisions) {
                 var dataRange = this.dataRange.displayRange();
@@ -5809,6 +5984,14 @@ var DateCategoryAxis = CategoryAxis.extend({
 
     totalRange: function() {
         return this.dataRange.total();
+    },
+
+    totalRangeIndices: function() {
+        var range = this.dataRange.total();
+        return {
+            min: this.dataRange.totalIndex(range.min),
+            max: this.dataRange.totalIndex(range.max)
+        };
     },
 
     totalCount: function() {
@@ -8002,10 +8185,12 @@ kendo.deepExtend(kendo.dataviz, {
     isFunction: isFunction,
     isNumber: isNumber,
     isObject: isObject,
+    isPlainObject: isPlainObject,
     isString: isString,
     map: map,
     mousewheelDelta: mousewheelDelta,
     FontLoader: FontLoader,
+    renderIcon: renderIcon,
     setDefaultOptions: setDefaultOptions,
     sparseArrayLimits: sparseArrayLimits,
     styleValue: styleValue,

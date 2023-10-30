@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,12 +12,15 @@ import "../kendo.binder.js";
 import "../kendo.numerictextbox.js";
 import "../kendo.dropdownlist.js";
 import "../kendo.icons.js";
+import "../kendo.draganddrop.js";
 
 (function($, undefined) {
     var kendo = window.kendo,
         encode = kendo.htmlEncode,
         extend = $.extend,
         Class = kendo.Class,
+        Draggable = kendo.ui.Draggable,
+        outerWidth = kendo._outerWidth,
         EXTENSIONS = {
             svg: ".svg",
             png: ".png"
@@ -148,7 +151,7 @@ import "../kendo.icons.js";
         },
         options: {
             resizable: false,
-            template: ({ messages }) => "<div class='k-search-container'>" +
+            template: ({ messages }) => '<div class="k-search-panel k-pos-sticky k-top-center">' +
                           `<button aria-label='${encode(messages.dragHandle)}' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-search-dialog-draghandle'>${kendo.ui.icon({ icon: "handle-drag", iconClass: "k-button-icon" })}</button>` +
                           "<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'>" +
                               `<input class='k-search-dialog-input k-input-inner' data-bind='value: boundValue, events: { keyup: onKeyup, input: onInput }' aria-label='${encode( messages.inputLabel)}' title='${encode(messages.inputLabel)}' />` +
@@ -167,31 +170,90 @@ import "../kendo.icons.js";
                 that._initializeDialog();
             }
 
-            that.dialog.open();
+            that.options.open();
+            that._showSearchDialog();
+        },
+        close: function() {
+            var that = this;
+            that.options.close();
+            that._hideSearchDialog();
+        },
+        _showSearchDialog: function() {
+            var that = this;
+
+            that.dialog.css("left",`${(that.options.pageContainer.innerWidth() / 2) - (outerWidth(that.dialog, true) / 2)}px`);
+
+            that.dialog.kendoStop().kendoAnimate({
+                effects: { zoom: { direction: "in" }, fade: { direction: "in" } },
+                duration: 350,
+                complete: function(ev) {
+                    that.dialog.find(".k-search-dialog-input").trigger("focus");
+                }
+            });
+        },
+        _hideSearchDialog: function() {
+            var that = this;
+
+            that.dialog.kendoStop().kendoAnimate({
+                effects: { zoom: { direction: "out", properties: { scale: 0.7 } }, fade: { direction: "out" } },
+                duration: 350,
+                hide: true
+            });
         },
         _initializeDialog: function() {
             var that = this;
             var template = kendo.template(that.options.template);
-            var dialogElm = $("<div class='k-pdf-viewer-search-dialog'></div>").append(template({
+            var dialogElm = $(template({
                 messages: that.options.messages
             }));
-            var dialogOffset = {
-                top: that.options.position.top + 16,
-                left: that.options.position.left + 16
-            };
 
-            that.dialog = new kendo.ui.Window(dialogElm, extend({}, that.options, {
-                autoFocus: false,
-                title: false,
-                position: { top: dialogOffset.top, left: dialogOffset.left },
-                minHeight: 30,
-                draggable: {
-                    dragHandle: ".k-search-dialog-draghandle"
+            that.options.pageContainer.prepend(dialogElm);
+            that.dialog = dialogElm;
+
+            that._draggable = new Draggable(dialogElm, {
+                filter: ".k-search-dialog-draghandle",
+                axis: "x",
+                dragstart: function(e) {
+                    var wnd = that.dialog;
+                    var containment = that.options.pageContainer;
+
+                    wnd.startPosition = {
+                        left: e.x.client - kendo.getOffset(wnd, "position").left,
+                    };
+
+                    if (!containment) {
+                        return null;
+                    }
+
+                    containment._innerWidth = containment.innerWidth();
+
+                    if (parseInt(containment._innerWidth, 10) > containment[0].clientWidth) {
+                        containment._innerWidth -= kendo.support.scrollbar();
+                    }
+
+                    wnd.maxLeft = containment._innerWidth - outerWidth(wnd, true);
                 },
-                activate: function(ev) {
-                    ev.sender.element.find(".k-search-dialog-input").trigger("focus");
-                }
-            }));
+                drag: function(e) {
+                    var wnd = that.dialog;
+                    var position = {};
+                    var left;
+
+                    left = e.x.client - wnd.startPosition.left;
+
+                    if (left && isNaN(left) && left.toString().indexOf("px") < 0) {
+                        position.left = left;
+                    } else {
+                        position.left = Math.max(
+                            Math.min(parseInt(left, 10), parseInt(wnd.maxLeft, 10)),
+                            0
+                        );
+                    }
+
+                    wnd.css(position);
+                },
+            });
+
+            that._draggable.userEvents.stopPropagation = false;
 
             that.searchModel = kendo.observable({
                 boundValue: "",
@@ -206,7 +268,7 @@ import "../kendo.icons.js";
                 prev: that.options.prev,
                 close: function() {
                     this.set("boundValue", "");
-                    that.dialog.close();
+                    that.close();
                 },
                 onKeyup: function(ev) {
                     var key = ev.keyCode;
@@ -215,6 +277,8 @@ import "../kendo.icons.js";
                     if (key === keys.ENTER) {
                         navigationFn();
                         ev.preventDefault();
+                    } else if (key == keys.ESC) {
+                        this.close();
                     }
                 },
                 onInput: function(ev) {
@@ -222,7 +286,7 @@ import "../kendo.icons.js";
                 }
             });
 
-            kendo.bind(that.dialog.element, that.searchModel);
+            kendo.bind(dialogElm, that.searchModel);
         }
     });
 

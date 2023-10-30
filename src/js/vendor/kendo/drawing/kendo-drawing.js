@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1421,6 +1421,15 @@ var Element$1 = (function (HasObservers$$1) {
         }
 
         return valueOrDefault(this.options.get("opacity"), 1);
+    };
+
+    Element.prototype.className = function className (value) {
+        if (defined(value)) {
+            this.options.set("className", value);
+            return this;
+        }
+
+        return this.options.get("className");
     };
 
     Element.prototype.clippedBBox = function clippedBBox (transformation) {
@@ -5472,6 +5481,33 @@ var Node = (function (BaseNode$$1) {
         BaseNode$$1.prototype.optionsChange.call(this, e);
     };
 
+    Node.prototype.accessibilityOptionsChange = function accessibilityOptionsChange (e) {
+        var field = e.field;
+        var value = e.value;
+
+        if (field === "role") {
+            if (value) {
+                this.attr("role", value);
+            } else {
+                this.removeAttr("role");
+            }
+        } else if (field === "ariaLabel") {
+            if (value) {
+                this.attr("aria-label", value);
+            } else {
+                this.removeAttr("aria-label");
+            }
+        } else if (field === "ariaRoleDescription") {
+            if (value) {
+                this.attr("aria-roledescription", value);
+            } else {
+                this.removeAttr("aria-roledescription");
+            }
+        } else if (field === "className") {
+            this.className(value);
+        }
+    };
+
     Node.prototype.attr = function attr (name, value) {
         if (this.element) {
             this.element.setAttribute(name, value);
@@ -5498,6 +5534,18 @@ var Node = (function (BaseNode$$1) {
         for (var i = 0; i < styles.length; i++) {
             this$1.css(styles[i][0], styles[i][1]);
         }
+    };
+
+    Node.prototype.className = function className (value) {
+        var this$1 = this;
+
+        if (this.element) {
+            (ref = this.element.classList).remove.apply(ref, this.element.classList);
+            value.split(" ").forEach(function (item) {
+                this$1.element.classList.add(item);
+            });
+        }
+        var ref;
     };
 
     Node.prototype.removeAttr = function removeAttr (name) {
@@ -5553,6 +5601,22 @@ var Node = (function (BaseNode$$1) {
 
     Node.prototype.renderId = function renderId () {
         return renderAttr("id", this.srcElement.options.id);
+    };
+
+    Node.prototype.renderClassName = function renderClassName () {
+        return renderAttr("class", this.srcElement.options.className);
+    };
+
+    Node.prototype.renderRole = function renderRole () {
+        return renderAttr("role", this.srcElement.options.role);
+    };
+
+    Node.prototype.renderAriaLabel = function renderAriaLabel () {
+        return renderAttr("aria-label", this.srcElement.options.ariaLabel);
+    };
+
+    Node.prototype.renderAriaRoleDescription = function renderAriaRoleDescription () {
+        return renderAttr("aria-roledescription", this.srcElement.options.ariaRoleDescription);
     };
 
     Node.prototype.createDefinitions = function createDefinitions () {
@@ -6030,6 +6094,8 @@ var PathNode = (function (Node$$1) {
             break;
         }
 
+        this.accessibilityOptionsChange(e);
+
         Node$$1.prototype.optionsChange.call(this, e);
     };
 
@@ -6120,7 +6186,9 @@ var PathNode = (function (Node$$1) {
 
     PathNode.prototype.template = function template () {
         return "<path " + (this.renderId()) + " " + (this.renderStyle()) + " " + (this.renderOpacity()) + " " + (renderAttr('d', this.renderData())) +
-                "" + (this.renderStroke()) + (this.renderFill()) + (this.renderDefinitions()) + (this.renderTransform()) + "></path>";
+                "" + (this.renderStroke()) + (this.renderFill()) + (this.renderDefinitions()) + (this.renderTransform()) +
+                (this.renderClassName()) + " " + (this.renderRole()) +
+                (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) + "></path>";
     };
 
     return PathNode;
@@ -6175,6 +6243,8 @@ var CircleNode = (function (PathNode$$1) {
         return "<circle " + (this.renderId()) + " " + (this.renderStyle()) + " " + (this.renderOpacity()) +
                     "cx='" + (this.center().x) + "' cy='" + (this.center().y) + "' r='" + (this.radius()) + "'" +
                     (this.renderStroke()) + " " + (this.renderFill()) + " " + (this.renderDefinitions()) +
+                    (this.renderClassName()) + " " + (this.renderRole()) +
+                    (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
                     (this.renderTransform()) + " ></circle>";
     };
 
@@ -6193,13 +6263,26 @@ var GroupNode = (function (Node$$1) {
     GroupNode.fn.init = GroupNode.fn.constructor;
 
     GroupNode.prototype.template = function template () {
-        return ("<g" + (this.renderId() + this.renderTransform() + this.renderStyle() + this.renderOpacity() + this.renderDefinitions()) + ">" + (this.renderChildren()) + "</g>");
+        return ("<g" + (this.renderId() +
+            this.renderTransform() +
+            this.renderClassName() +
+            this.renderStyle() +
+            this.renderOpacity() +
+            this.renderRole() +
+            this.renderAriaLabel() +
+            this.renderAriaRoleDescription() +
+            this.renderDefinitions()) + ">" + (this.renderChildren()) + "</g>");
     };
 
     GroupNode.prototype.optionsChange = function optionsChange (e) {
-        if (e.field === "transform") {
-            this.transformChange(e.value);
+        var field = e.field;
+        var value = e.value;
+
+        if (field === "transform") {
+            this.transformChange(value);
         }
+
+        this.accessibilityOptionsChange(e);
 
         Node$$1.prototype.optionsChange.call(this, e);
     };
@@ -6263,7 +6346,9 @@ var ImageNode = (function (PathNode$$1) {
 
     ImageNode.prototype.template = function template () {
         return "<image preserveAspectRatio='none' " + (this.renderId()) + " " + (this.renderStyle()) + " " + (this.renderTransform()) + " " + (this.renderOpacity()) +
-               (this.renderPosition()) + " " + (this.renderSource()) + " " + (this.renderDefinitions()) + ">" +
+               (this.renderPosition()) + " " + (this.renderSource()) + " " + (this.renderDefinitions()) +
+               (this.renderClassName()) + " " + (this.renderRole()) +
+                (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) + ">" +
                "</image>";
     };
 
@@ -6330,7 +6415,10 @@ var RectNode = (function (PathNode$$1) {
         return "<rect " + (this.renderId()) + " " + (this.renderStyle()) + " " + (this.renderOpacity()) + " x='" + (this.origin().x) + "' y='" + (this.origin().y) + "' " +
                     "rx='" + (this.rx()) + "' ry='" + (this.ry()) + "' " +
                     "width='" + (this.size().width) + "' height='" + (this.size().height) + "' " + (this.renderStroke()) + " " +
-                    (this.renderFill()) + " " + (this.renderDefinitions()) + " " + (this.renderTransform()) + " />";
+                    (this.renderFill()) + " " + (this.renderDefinitions()) + " " + (this.renderTransform()) +
+                    (this.renderClassName()) + " " + (this.renderRole()) +
+                    (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
+                    " />";
     };
 
     return RectNode;
@@ -6426,7 +6514,10 @@ var TextNode = (function (PathNode$$1) {
     TextNode.prototype.template = function template () {
         return "<text " + (this.renderId()) + " " + (this.renderTextAnchor()) + " " + (this.renderStyle()) + " " + (this.renderOpacity()) +
                     "x='" + (this.pos().x) + "' y='" + (this.pos().y) + "' " + (this.renderStroke()) + " " + (this.renderTransform()) + " " + (this.renderDefinitions()) +
-                    (this.renderFill()) + ">" + (this.renderContent()) + "</text>";
+                    "" + (this.renderFill()) +
+                    (this.renderClassName()) + " " + (this.renderRole()) +
+                    (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
+                    ">" + (this.renderContent()) + "</text>";
     };
 
     return TextNode;
@@ -9194,7 +9285,10 @@ function whenImagesAreActuallyLoaded(elements, callback) {
             }
         }
     });
-    next();
+
+    if (!pending) {
+        next();
+    }
 
     function next() {
         if (!done && --pending <= 0) {

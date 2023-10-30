@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -11,6 +11,7 @@ import "../kendo.core.js";
 (function($, undefined) {
     var Class = kendo.Class,
         extend = $.extend,
+        SEARCH_HIGHLIGHT_MARK_CLASS = "k-search-highlight-mark",
         isArray = Array.isArray;
 
     var SearchDOM = Class.extend({
@@ -65,6 +66,7 @@ import "../kendo.core.js";
 
             if (text.length > 0) {
                 span = $(node).wrap("<span>").parent();
+                span.parent().attr("role", "presentation");
                 span.empty();
                 that.splitChars(span.get(0), text);
                 span.children().unwrap();
@@ -164,12 +166,12 @@ import "../kendo.core.js";
 
             $(that.targets)
                 .find("." + that.options.charClass + "[" + kendo.attr("match-index") + "=" + that.currentIndex + "]")
-                .wrapInner("<mark>");
+                .wrapInner(`<span class="${SEARCH_HIGHLIGHT_MARK_CLASS}">`);
         },
 
         resetMark: function() {
             var that = this;
-            $(that.targets).find("mark").contents().unwrap();
+            $(that.targets).find("." + SEARCH_HIGHLIGHT_MARK_CLASS).contents().unwrap();
         },
 
         nextMatch: function() {
@@ -201,7 +203,7 @@ import "../kendo.core.js";
         },
 
         getFirstMarked: function() {
-            return $(this.targets).find("mark").eq(0);
+            return $(this.targets).find("." + SEARCH_HIGHLIGHT_MARK_CLASS).eq(0);
         },
 
         destroy: function() {

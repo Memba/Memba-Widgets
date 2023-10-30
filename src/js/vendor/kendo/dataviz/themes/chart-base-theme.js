@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,20 +14,28 @@
  */
  import "../../kendo.dataviz.core.js";
 
-(function() {
+(function($) {
 /* eslint-disable space-before-blocks, space-before-function-paren */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 
+var TRENDLINE_LINEAR = 'linearTrendline';
+var TRENDLINE_MOVING_AVERAGE = 'movingAverageTrendline';
+var TRENDLINE_SERIES = [
+    TRENDLINE_LINEAR, TRENDLINE_MOVING_AVERAGE
+];
+
+var INHERIT = "inherit";
+
 var BAR_GAP = 1.5;
 var BAR_SPACING = 0.4;
-var BLACK = '#000';
+var BLACK$$1 = '#000';
 var SANS = 'Arial, Helvetica, sans-serif';
 var SANS11 = "11px " + SANS;
 var SANS12 = '12px ' + SANS;
 var SANS16 = '16px ' + SANS;
 var TRANSPARENT = 'transparent';
-var WHITE = '#fff';
+var WHITE$$1 = '#fff';
 
 var notes = function () { return ({
     icon: {
@@ -103,7 +111,7 @@ var boxPlotSeries = function () { return ({
         _brightness: 0.8,
         width: 1
     },
-    downColor: WHITE,
+    downColor: WHITE$$1,
     gap: 1,
     highlight: {
         border: {
@@ -155,7 +163,7 @@ var candlestickSeries = function () { return ({
         _brightness: 0.8,
         width: 1
     },
-    downColor: WHITE,
+    downColor: WHITE$$1,
     gap: 1,
     highlight: {
         border: {
@@ -167,7 +175,7 @@ var candlestickSeries = function () { return ({
         }
     },
     line: {
-        color: BLACK,
+        color: BLACK$$1,
         width: 1
     },
     spacing: 0.3
@@ -236,7 +244,7 @@ var scatterLineSeries = function () { return ({
 var waterfallSeries = function () { return ({
     gap: 0.5,
     line: {
-        color: BLACK,
+        color: BLACK$$1,
         width: 1
     },
     spacing: BAR_SPACING
@@ -268,6 +276,8 @@ var funnelSeries = function () { return ({
     }
 }); };
 
+var pyramidSeries = funnelSeries;
+
 var heatmapSeries = function () { return ({
     labels: {
         color: '',
@@ -281,7 +291,22 @@ var heatmapSeries = function () { return ({
     }
 }); };
 
-var seriesDefaults = function (options) { return ({
+var trendlineSeriesDefaults = function () { return TRENDLINE_SERIES.reduce(
+    function (options, type) {
+        options[type] = {
+            color: INHERIT,
+            trendline: {},
+            markers: {
+                visible: false
+            },
+            width: 1,
+            dashType: 'longDash'
+        };
+
+        return options;
+    }, {}); };
+
+var seriesDefaults = function (options) { return ($.extend({
     visible: true,
     labels: {
         font: SANS11
@@ -302,6 +327,7 @@ var seriesDefaults = function (options) { return ({
     pie: pieSeries(),
     donut: donutSeries(),
     funnel: funnelSeries(),
+    pyramid: pyramidSeries(),
     horizontalWaterfall: waterfallSeries(),
     line: lineSeries(),
     notes: notes(),
@@ -318,7 +344,9 @@ var seriesDefaults = function (options) { return ({
     verticalBullet: bulletSeries(),
     verticalLine: lineSeries(),
     waterfall: waterfallSeries()
-}); };
+},
+    trendlineSeriesDefaults()
+)); };
 
 var title = function () { return ({
     font: SANS16
@@ -363,4 +391,4 @@ kendo.deepExtend(kendo.dataviz, {
     chartBaseTheme: baseTheme
 });
 
-})();
+})(window.kendo.jQuery);

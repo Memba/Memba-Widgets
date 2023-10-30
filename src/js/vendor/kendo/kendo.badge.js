@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -24,7 +24,7 @@ var __meta__ = {
     var HIDDEN = 'k-hidden';
 
     var iconTemplate = ({ icon }) => kendo.ui.icon($(`<span class='k-badge-icon'></span>`), { icon: icon });
-    var svgIconTemplate = ({ icon }) => `<span class='k-badge-icon k-svg-icon'>${icon}</span>`;
+    var svgIconTemplate = ({ icon }) => `<span class='k-badge-icon k-svg-icon k-icon'>${icon}</span>`;
 
     var Badge = Widget.extend({
         init: function(element, options) {

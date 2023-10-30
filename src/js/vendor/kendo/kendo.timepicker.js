@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -93,6 +93,7 @@ var __meta__ = {
 
     var TimeView = function(options) {
         var that = this,
+        focusTime = options.focusTime,
         id = options.id;
 
         that.options = options;
@@ -113,6 +114,9 @@ var __meta__ = {
         }
 
         that._createList(options.timeView && options.timeView.list === "scroll");
+        if (focusTime) {
+            that._focusTime = new DATE(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate(), focusTime.getHours(), focusTime.getMinutes(), focusTime.getSeconds());
+        }
 
         if (id) {
             that._timeViewID = id + "_timeview";
@@ -348,6 +352,10 @@ var __meta__ = {
                 that.bind();
             }
 
+            if (that._focusTime) {
+                that.value(that._focusTime);
+            }
+
             // In some cases when the popup is opened resize is triggered which will cause it to close
             // Setting the below flag will prevent this from happening
             // Reference: https://github.com/telerik/kendo/pull/7553
@@ -424,7 +432,7 @@ var __meta__ = {
             }
 
             if (options.timeView && options.timeView.list === "scroll") {
-                html = that._createListContent(kendo.date.splitDateFormat(format));
+                html = that._createListContent(kendo.date.splitDateFormat(format), options.interval);
             } else {
                 that.getDatesInRange(msStart, msMax, startDate, max, msInterval, start).forEach(function(date) {
                     html += template(toString(date, format, options.culture));
@@ -837,7 +845,7 @@ var __meta__ = {
             return result;
         },
 
-        _createListContent: function(parts) {
+        _createListContent: function(parts, interval) {
             var length = parts.length;
             var result = "";
             var part;
@@ -849,7 +857,7 @@ var __meta__ = {
                 if (part.type === "literal" || part.type == "dayperiod") {
                     result += this._literalTemplate(part);
                 } else {
-                    values = this._getValues(part, true);
+                    values = this._getValues(part, true, interval);
                     result += this._itemTemplate(values.values, part, this.options.messages[part.type], values.index);
                 }
             }
@@ -883,11 +891,17 @@ var __meta__ = {
             return result;
         },
 
-        _getValues: function(part, shouldPad) {
+        _getValues: function(part, shouldPad, interval) {
             var result = [];
             var index;
             var start = 0;
             var end;
+            var step = 0;
+            var currentStep = 0;
+
+            if ($.isPlainObject(interval)) {
+                step = interval[part.type] || 0;
+            }
 
             if (part.type === "hour") {
                 start = part.hour12 ? 1 : 0;
@@ -902,7 +916,18 @@ var __meta__ = {
             }
 
             for (; start <= end; start++) {
-                result.push(shouldPad ? pad(start) : start);
+                if (step > 0) {
+                    if (start === 0 || (start === 1 && part.type === "hour")) {
+                        result.push(shouldPad ? pad(currentStep) : currentStep);
+                    }
+
+                    if (start % step === 0 && currentStep + step <= end) {
+                        currentStep += step;
+                        result.push(shouldPad ? pad(currentStep) : currentStep);
+                    }
+                } else {
+                    result.push(shouldPad ? pad(start) : start);
+                }
             }
 
             return {
@@ -1289,6 +1314,10 @@ var __meta__ = {
             options = options || {};
             options.componentType = options.componentType || "classic";
 
+            if ($.isPlainObject(options.interval) && options.componentType !== "modern") {
+                options.interval = 30; // If an object is passed to the classic picker, fall back to the default interval value.
+            }
+
             Widget.fn.init.call(that, element, options);
 
             element = that.element;
@@ -1385,6 +1414,7 @@ var __meta__ = {
             format: "",
             dates: [],
             parseFormats: [],
+            focusTime: null,
             value: null,
             interval: 30,
             height: 200,
@@ -1429,6 +1459,10 @@ var __meta__ = {
         setOptions: function(options) {
             var that = this;
             var value = that._value;
+
+            if ($.isPlainObject(options.interval) && options.componentType !== "modern") {
+                options.interval = 30; // If an object is passed to the classic picker, fall back to the default interval value.
+            }
 
             Widget.fn.setOptions.call(that, options);
             options = that.options;
@@ -1707,6 +1741,7 @@ var __meta__ = {
                     } else {
                         element.val(value);
                     }
+                    that.timeView._focusTime = null;
                 },
                 open: function(e) {
                     if (that.options.timeView && that.options.timeView.list !== "scroll") {

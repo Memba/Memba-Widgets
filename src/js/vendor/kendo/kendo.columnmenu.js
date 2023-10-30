@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,6 +7,7 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.popup.js";
+import "./kendo.tabstrip.js";
 import "./kendo.filtermenu.js";
 import "./kendo.menu.js";
 import "./kendo.expansionpanel.js";
@@ -17,7 +18,7 @@ var __meta__ = {
     id: "columnmenu",
     name: "Column Menu",
     category: "framework",
-    depends: [ "popup", "filtermenu", "menu", 'expansionpanel', 'html.button', "icons" ],
+    depends: [ "popup", "tabstrip", "filtermenu", "menu", 'expansionpanel', 'html.button', "icons" ],
     advanced: true
 };
 
@@ -42,6 +43,7 @@ var __meta__ = {
         UNSTICK = "unstick",
         POPUP = "kendoPopup",
         FILTERMENU = "kendoFilterMenu",
+        TABSTRIP = "kendoTabStrip",
         MENU = "kendoMenu",
         EXPANSIONPANEL = "kendoExpansionPanel",
         NS = ".kendoColumnMenu",
@@ -162,7 +164,9 @@ var __meta__ = {
 
             that.link = that._createLink();
 
-            that.wrapper = $('<div class="k-column-menu"/>');
+            that.wrapper = $('<div />');
+
+            that._applyCssClasses();
 
             that._refreshHandler = that.refresh.bind(that);
 
@@ -199,6 +203,8 @@ var __meta__ = {
 
             that._stickyColumns();
 
+            that._sizeColumns();
+
             that._groupColumn();
 
             that.trigger(INIT, { field: that.field, container: that.wrapper });
@@ -230,18 +236,33 @@ var __meta__ = {
                 movePrev: "Move previous",
                 moveNext: "Move next",
                 groupColumn: "Group column",
-                ungroupColumn: "Ungroup column"
+                ungroupColumn: "Ungroup column",
+                autoSizeColumn: "Autosize This Column",
+                autoSizeAllColumns: "Autosize All Columns"
             },
             filter: "",
             columns: true,
             sortable: true,
             filterable: true,
+            autoSize: false,
             animations: {
                 left: "slide"
             },
             encodeTitles: false,
             componentType: "classic",
             appendTo: null
+        },
+
+        _applyCssClasses: function() {
+            var that = this,
+                componentType = that.options.componentType,
+                wrapper = that.wrapper;
+
+            if (componentType === "tabbed") {
+                wrapper.addClass("k-column-menu-tabbed");
+            }
+
+            wrapper.addClass("k-column-menu");
         },
 
         _createMenu: function() {
@@ -262,6 +283,8 @@ var __meta__ = {
 
             if (that._isModernComponentType()) {
                 menuTemplate = kendo.template(modernTemplate);
+            } else if (that._isTabbedComponentType()) {
+                menuTemplate = kendo.template(tabbedTemplate);
             } else {
                 menuTemplate = kendo.template(template);
             }
@@ -279,7 +302,8 @@ var __meta__ = {
                 encodeTitles: options.encodeTitles,
                 omitWrapAttribute: kendo.attr("omit-wrap"),
                 reorderable: options.reorderable,
-                groupable: options.groupable
+                groupable: options.groupable,
+                autoSize: options.autoSize
             }));
 
             kendo.applyStylesFromKendoAttributes(menuElement, ["display"]);
@@ -301,7 +325,7 @@ var __meta__ = {
                 }
             }).data(POPUP);
 
-            if (that._isModernComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 that.popup.element.addClass("k-grid-columnmenu-popup");
                 that._createExpanders();
             } else {
@@ -312,6 +336,19 @@ var __meta__ = {
                         that._updateMenuItems();
                     }
                 }).data(MENU);
+            }
+
+            if (that._isTabbedComponentType()) {
+                that.tabStrip = menuElement[TABSTRIP]({
+                    applyMinHeight: false,
+                    animation: {
+                        open: {
+                            effects: "fadeIn"
+                        }
+                    }
+                }).data(TABSTRIP);
+
+                that.tabStrip.activateTab(that.tabStrip.tabGroup.find("li:first"));
             }
         },
 
@@ -346,12 +383,15 @@ var __meta__ = {
                 useBareTemplate: true
             };
 
-            that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title: kendo.ui.icon("columns") + '<span>' + encode(options.messages.columns) + '</span>'
-            }));
-            that.wrapper.find(".k-column-menu-filter")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title: kendo.ui.icon("filter") + '<span>' + encode(options.messages.filter) + '</span>'
-            }));
+            if (that._isModernComponentType()) {
+                that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
+                    title: kendo.ui.icon("columns") + '<span>' + encode(options.messages.columns) + '</span>'
+                }));
+                that.wrapper.find(".k-column-menu-filter")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
+                    title: kendo.ui.icon("filter") + '<span>' + encode(options.messages.filter) + '</span>'
+                }));
+            }
+
             that.wrapper.find(".k-column-menu-position")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
                 title: kendo.ui.icon("set-column-position") + '<span>' + encode(options.messages.setColumnPosition) + '</span>'
             }));
@@ -419,6 +459,10 @@ var __meta__ = {
 
         _isModernComponentType: function() {
             return this.options.componentType === 'modern' && !this._isMobile;
+        },
+
+        _isTabbedComponentType: function() {
+            return this.options.componentType === 'tabbed' && !this._isMobile;
         },
 
         _deactivate: function() {
@@ -720,7 +764,7 @@ var __meta__ = {
         _getRenderedList: function() {
             var that = this;
 
-            if (that._isModernComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 return $(that.wrapper).find('.k-columns-item');
             } else {
                 return that._isMobile && that.view ?
@@ -732,7 +776,7 @@ var __meta__ = {
         _getRenderedListElements: function(renderedList) {
             var that = this;
 
-            if (that._isModernComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 return renderedList.find('label');
             } else {
                 return renderedList.find("span." + (this._isMobile ? "k-listgroup-form-field-wrapper" : "k-menu-link"));
@@ -749,7 +793,7 @@ var __meta__ = {
             that.popup.element.off("keydown" + NS).on("keydown" + NS, function(e) {
                 var target = $(e.target);
 
-                if (that._isModernComponentType() && e.keyCode === kendo.keys.ENTER) {
+                if ((that._isModernComponentType() || that._isTabbedComponentType()) && e.keyCode === kendo.keys.ENTER) {
                     target.click();
                 }
                 if (e.keyCode == kendo.keys.ESC) {
@@ -847,7 +891,7 @@ var __meta__ = {
             if (that.options.sortable) {
                 that.refresh();
 
-                if (that._isModernComponentType()) {
+                if (that._isModernComponentType() || that._isTabbedComponentType()) {
                     that.wrapper.on("click" + NS, ".k-sort-asc, .k-sort-desc", that._sortHandler.bind(that));
                 } else {
                     that.menu.bind(SELECT, that._sortHandler.bind(that));
@@ -880,7 +924,7 @@ var __meta__ = {
         },
 
         _getSortItemsContainer: function(item) {
-            return this._isModernComponentType() ? item.parents('.k-columnmenu-item-wrapper').first() : item.parent();
+            return this._isModernComponentType() || this._isTabbedComponentType() ? item.parents('.k-columnmenu-item-wrapper').first() : item.parent();
         },
 
         _sortDataSource: function(item, dir) {
@@ -936,7 +980,7 @@ var __meta__ = {
 
                 that.owner.bind(["columnUnlock", "columnLock" ], that._updateColumnsLockedStateHandler);
 
-                if (that._isModernComponentType()) {
+                if (that._isModernComponentType() || that._isTabbedComponentType()) {
                     that.wrapper.on("click" + NS, '.k-columns-item .k-button:not(.k-button-solid-primary)', function() {
                         that._updateColumnsMenu();
                     });
@@ -1029,6 +1073,25 @@ var __meta__ = {
             }
             that.popup.close();
             that.owner.bind(["columnHide", "columnShow"], that._updateColumnsMenuHandler);
+        },
+
+        _sizeColumns: function() {
+            var that = this;
+
+            if (that._isTabbedComponentType()) {
+                that.wrapper.on("click" + NS, ".k-auto-size-column, .k-auto-size-all", that._autoSizeHandler.bind(that));
+            }
+        },
+
+        _autoSizeHandler: function(e) {
+            var that = this,
+                item = e.item ? $(e.item) : $(e.target);
+
+            if (item.hasClass("k-auto-size-column")) {
+                that.owner.autoFitColumn(that.field);
+            } else if (item.hasClass("k-auto-size-all")) {
+                that.owner.autoFitColumns();
+            }
         },
 
         _updateColumnsMenu: function(omitCheckState) {
@@ -1174,7 +1237,7 @@ var __meta__ = {
                             }
                         },
                         componentType: that.options.componentType,
-                        cycleForm: !that._isModernComponentType()
+                        cycleForm: !that._isModernComponentType() && !that._isTabbedComponentType()
                     },
                     options.filterable)
                     ).data(widget);
@@ -1194,7 +1257,7 @@ var __meta__ = {
         _lockColumns: function() {
             var that = this;
 
-            if (that._isModernComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 that.wrapper.on("click" + NS, ".k-lock, .k-unlock", that._lockableHandler.bind(that));
             } else {
                 that.menu.bind(SELECT, that._lockableHandler.bind(that));
@@ -1221,7 +1284,7 @@ var __meta__ = {
         _reorderColumns: function() {
             var that = this;
 
-            if (that._isModernComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 that.wrapper.on("click" + NS, ".k-move-prev, .k-move-next", that._reorderHandler.bind(that));
             } else {
                 that.menu.bind(SELECT, that._reorderHandler.bind(that));
@@ -1248,7 +1311,7 @@ var __meta__ = {
         _groupColumn: function() {
             var that = this;
 
-            if (that._isModernComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 that.wrapper.on("click" + NS, ".k-group, .k-ungroup", that._groupHandler.bind(that));
             } else {
                 that.menu.bind(SELECT, that._groupHandler.bind(that));
@@ -1271,7 +1334,7 @@ var __meta__ = {
         _stickyColumns: function() {
             var that = this;
 
-            if (that._isModernComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 that.wrapper.on("click" + NS, ".k-stick, .k-unstick", that._stickableHandler.bind(that));
             } else {
                 that.menu.bind(SELECT, that._stickableHandler.bind(that));
@@ -1452,7 +1515,20 @@ var __meta__ = {
         }).join("");
     }
 
-    const SORTABLE_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
+const SIZING_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
+<div>\
+<div class="k-columnmenu-item k-auto-size-column" tabindex="0">\
+${kendo.ui.icon("max-width")}${encode(messages.autoSizeColumn)}\
+</div>\
+</div>\
+<div>\
+<div class="k-columnmenu-item k-auto-size-all" tabindex="0">\
+${kendo.ui.icon("display-inline-flex")}${encode(messages.autoSizeAllColumns)}\
+</div>\
+</div>\
+</div>`;
+
+const SORTABLE_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
 <div>\
 <div class="k-columnmenu-item k-sort-asc" tabindex="0">\
 ${kendo.ui.icon("sort-asc-small")}${encode(messages.sortAscending)}\
@@ -1531,6 +1607,42 @@ ${showColumns ? COLUMNS_PARTIAL_MODERN({ columns, messages, encodeTitles, ns }) 
 ${filterable ? '<div class="k-columnmenu-item-wrapper"><div class="k-columnmenu-item-content k-column-menu-filter"><div class="k-filterable"></div></div></div>' : ''}\
 ${groupable ? GROUPABLE_PARTIAL_MODERN({ messages }) : ''}\
 ${hasLockableColumns || hasStickableColumns || reorderable ? LOCK_STICK_COLUMNS_PARTIAL_MODERN({ hasLockableColumns, hasStickableColumns, messages, reorderable }) : ''}`;
+
+    /* ------------------------- TABBED TEMPLATE ------------------------- */
+
+    function tabbedTemplateGeneralSettings(sortable, hasLockableColumns, hasStickableColumns, reorderable, groupable, autoSize, messages) {
+        var result = "<div>";
+
+        if (sortable) {
+            result += SORTABLE_PARTIAL_MODERN({ messages });
+        }
+
+        if (groupable) {
+            result += GROUPABLE_PARTIAL_MODERN({ messages });
+        }
+
+        if (hasLockableColumns || hasStickableColumns || reorderable) {
+            result += LOCK_STICK_COLUMNS_PARTIAL_MODERN({ hasLockableColumns, hasStickableColumns, messages, reorderable });
+        }
+
+        if (autoSize) {
+            result += SIZING_PARTIAL_MODERN({ messages });
+        }
+
+        result += "</div>";
+        return result;
+    }
+
+    var tabbedTemplate = ({ sortable, filterable, showColumns, messages, columns, hasLockableColumns, hasStickableColumns, encodeTitles, ns, reorderable, groupable, autoSize }) => `<div>
+                            <ul>
+                                ${ filterable ? `<li>${kendo.ui.icon("filter")}</li>` : ''}
+                                ${ sortable || hasLockableColumns || hasStickableColumns || reorderable || groupable || autoSize ? `<li>${kendo.ui.icon("sliders")}</li>` : ''}
+                                ${ showColumns ? `<li>${kendo.ui.icon("columns")}</li>` : ''}
+                            </ul>
+                            ${filterable ? '<div><div class="k-columnmenu-item-wrapper"><div class="k-columnmenu-item-content k-column-menu-filter"><div class="k-filterable"></div></div></div></div>' : ''}
+                            ${ sortable || hasLockableColumns || hasStickableColumns || reorderable || groupable || autoSize ? tabbedTemplateGeneralSettings(sortable, hasLockableColumns, hasStickableColumns, reorderable, groupable, autoSize, messages) : '' }
+                            ${ showColumns ? `<div>${ COLUMNS_PARTIAL_MODERN({ columns, messages, encodeTitles, ns }) }</div>` : '' }
+                        </div>`;
 
     /* ------------------------- CLASSIC TEMPLATE ------------------------- */
 

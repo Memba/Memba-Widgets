@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -51,6 +51,7 @@ import "../kendo.core.js";
             element = this.element;
 
             element.addClass(FormulaInput.classNames.wrapper)
+                .attr('aria-haspopup', 'menu')
                 .attr("contenteditable", true)
                 .attr("spellcheck", false)
                 .css("white-space", "pre");
@@ -224,6 +225,10 @@ import "../kendo.core.js";
             this.list = new kendo.ui.StaticList($('<ul />')
                 .addClass(FormulaInput.classNames.listWrapper)
                 .insertAfter(this.element), {
+                    aria: {
+                        role: 'menu',
+                        itemRole: 'menuitem'
+                    },
                     autoBind: false,
                     selectable: true,
                     change: this._formulaListChange.bind(this),

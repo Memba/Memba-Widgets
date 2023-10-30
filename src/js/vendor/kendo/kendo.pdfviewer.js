@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -10,6 +10,7 @@ import "./kendo.mobile.scroller.js";
 import "./kendo.toolbar.js";
 import "./kendo.combobox.js";
 import "./kendo.textbox.js";
+import "./pdfviewer/common.js";
 import "./pdfviewer/processors/pdfjs-processor.js";
 import "./pdfviewer/processors/dpl-processor.js";
 import "./pdfviewer/page.js";
@@ -22,17 +23,21 @@ var __meta__ = {
     name: "PDFViewer",
     category: "web",
     description: "PDFViewer to display pdfs in the browser",
-    depends: ["core", "window", "dialog", "toolbar", "mobile.scroller", "upload", "combobox", "drawing", "binder", "dropdownlist", "numerictextbox", "textbox"]
+    depends: ["core", "window", "dialog", "toolbar", "draganddrop", "upload", "combobox", "drawing", "binder", "dropdownlist", "numerictextbox", "textbox"]
 };
 
 (function($, undefined) {
     var NS = ".kendoPDFViewer",
         kendo = window.kendo,
         ui = kendo.ui,
+        Scroller = ui.PdfViewerCommon.Scroller,
+        getCurrentPage = ui.PdfViewerCommon.currentPage,
+        scrollToPage = ui.PdfViewerCommon.scrollToPage,
         extend = $.extend,
         drawing = kendo.drawing,
         keys = $.extend({ PLUS: 187, MINUS: 189, ZERO: 48, NUMPAD_ZERO: 96 }, kendo.keys),
         Page,
+        BlankPage = kendo.pdfviewer.BlankPage,
         Widget = ui.Widget,
         progress = kendo.ui.progress,
         SCROLL = "scroll",
@@ -58,7 +63,7 @@ var __meta__ = {
         },
         styles = {
             viewer: "k-pdf-viewer k-widget",
-            scroller: "k-canvas k-list-scroller",
+            scroller: "k-canvas k-pdf-viewer-canvas k-pos-relative k-overflow-auto",
             enableTextSelection: "k-enable-text-select",
             enablePanning: "k-enable-panning",
             highlightClass: "k-search-highlight",
@@ -90,6 +95,10 @@ var __meta__ = {
             that._loadDocument();
 
             kendo.notify(that, kendo.ui);
+
+            if (that._showWatermarkOverlay) {
+                that._showWatermarkOverlay(that.wrapper[0]);
+            }
         },
 
         events: [
@@ -660,10 +669,14 @@ var __meta__ = {
             var that = this;
 
             if (!that.pageContainer) {
-                that.pageContainer = $("<div />");
-                that.pageContainer.addClass(styles.scroller);
+                that.pageContainerWrapper = $("<div />");
+                that.pageContainerWrapper.addClass(styles.scroller);
+
+                that.pageContainer = $("<div class='k-pdf-viewer-pages' />");
                 that.pageContainer.attr(TABINDEX, 0);
-                that.wrapper.append(that.pageContainer);
+
+                that.pageContainerWrapper.append(that.pageContainer);
+                that.wrapper.append(that.pageContainerWrapper);
             }
         },
 
@@ -719,10 +732,11 @@ var __meta__ = {
         },
 
         _renderBlankPage: function() {
-            this._blankPage = new Page(this.options.defaultPageSize, this);
+            this._blankPage = new BlankPage(this.options.defaultPageSize, this);
 
             this.pageContainer.append(this._blankPage.element);
 
+            this._blankPage._initUpload();
             this.trigger(UPDATE, { isBlank: true });
         },
 
@@ -802,29 +816,19 @@ var __meta__ = {
                 });
             }
 
-            that._scroller = new kendo.mobile.ui.Scroller(that.pageContainer, {
-                zoom: false,
-                elastic: true
-            });
-
-            that._scroller.scrollElement.addClass(styles.enablePanning);
-            that._scroller.bind(SCROLL, that._scroll.bind(this));
+            that.pageContainer.addClass(styles.enablePanning);
+            that.pageContainerWrapper.bind(SCROLL, that._scroll.bind(that));
         },
 
         _scroll: function(e) {
             var that = this,
-                containerScrollHeight = that.pageContainer[0].scrollHeight,
-                containerHeight = that.pageContainer.height(),
-                containerScrollTop = e.scrollTop,
-                containerOffsetTop = that.pageContainer.offset().top,
+                containerHeight = that.pageContainerWrapper.height(),
                 total = that.pages.length,
                 pageNum = that._pageNum,
                 pageIndex = pageNum - 1,
                 pageToLoadNum = pageNum,
                 pageToLoad,
-                currentPage, currentPageTop, currentPageHeight,
-                previousPage, prevPageTop, prevPageHeight,
-                scrollDirection = containerScrollTop - that._prevScrollTop > 0 ? 1 : -1;
+                currentPage;
 
                 if (that._preventScroll || !total) {
                     that._preventScroll = false;
@@ -832,24 +836,9 @@ var __meta__ = {
                 }
 
                 that._scrollingStarted = true;
-
+                const nextPageIndex = getCurrentPage(that.element[0]);
                 currentPage = that.pages[pageIndex];
-                currentPageTop = currentPage.element.offset().top - containerOffsetTop;
-                currentPageHeight = currentPage.element.height();
-
-                if (scrollDirection == -1 && that.pages[pageIndex + scrollDirection]) {
-                    previousPage = that.pages[pageIndex - that._visiblePagesCount] || that.pages[pageIndex + scrollDirection];
-                    prevPageTop = previousPage.element.offset().top - containerOffsetTop;
-                    prevPageHeight = previousPage.element.height();
-                }
-
-                if (Math.abs(containerScrollTop - (that._prevScrollTop || 0)) > containerHeight * that.zoomScale) {
-                    pageToLoadNum = Math.floor(containerScrollTop * (1 / (containerScrollHeight / total))) + 1;
-                } else if (currentPageTop < 0 && Math.abs(currentPageTop) >= currentPageHeight / 2 && scrollDirection === 1) {
-                    pageToLoadNum++;
-                } else if (previousPage && Math.abs(prevPageTop) <= prevPageHeight / 2) {
-                    pageToLoadNum--;
-                }
+                pageToLoadNum = pageNum + nextPageIndex - pageIndex;
 
                 if (pageNum !== pageToLoadNum && pageToLoadNum >= 1 && pageToLoadNum <= total) {
                     pageToLoad = that.pages[pageToLoadNum - 1].element;
@@ -863,8 +852,6 @@ var __meta__ = {
 
                     that.trigger(UPDATE, { action: PAGE_CHANGE, page: pageToLoadNum, total: total });
                 }
-
-                that._prevScrollTop = containerScrollTop;
         },
 
         _wheel: function(e) {
@@ -922,6 +909,17 @@ var __meta__ = {
                     that.activatePage(page);
                 }
 
+                if (that.pdfScroller) {
+                    that.pdfScroller.destroy();
+                }
+
+                that.pdfScroller = new Scroller(that.pageContainer[0].parentNode, {
+                    filter: '.k-page',
+                    events: { }
+                });
+
+                that.pdfScroller.enablePanEventsTracking();
+
                 progress(that.pageContainer, false);
             });
         },
@@ -936,27 +934,18 @@ var __meta__ = {
 
         activatePage: function(number) {
             var page = this.pages && this.pages[number - 1],
-                scroller = this._scroller,
-                scrollerTopPosition,
-                scrollerTopOffset,
-                pageTopOffset,
-                pageMargin;
+                pageContainer = this.pageContainerWrapper;
 
             if (!page) {
                 return;
             }
 
-            scrollerTopPosition = scroller.scrollTop;
-            scrollerTopOffset = scroller.element.offset().top;
-            pageTopOffset = page.element.offset().top;
-            pageMargin = !this._autoFit ? parseInt(page.element.css("marginTop"), 10) : 0;
 
             this._pageNum = number;
             this._loadVisiblePages();
 
             this._preventScroll = true;
-
-            this._scroller.scrollTo(0, -scrollerTopPosition - pageTopOffset + scrollerTopOffset + pageMargin);
+            scrollToPage(pageContainer[0], number - 1);
             this.trigger(UPDATE, { action: PAGE_CHANGE, page: number, total: this.pages.length });
         },
 
@@ -1121,9 +1110,8 @@ var __meta__ = {
                 this.pages = [];
             }
 
-            if (this._scroller) {
-                this._scroller.unbind();
-                this._scroller.destroy();
+            if (this.pdfScroller) {
+                this.pdfScroller.destroy();
             }
             this.pageContainer.off(NS);
 
@@ -1138,11 +1126,9 @@ var __meta__ = {
             this.pageContainer.off(NS);
             this.pageContainer.empty();
 
-            if (this._scroller)
+            if (this.pdfScroller)
             {
-                this._scroller.reset();
-                this._scroller.unbind();
-                this._scroller.destroy();
+                this.pdfScroller.destroy();
             }
         },
 
@@ -1153,10 +1139,12 @@ var __meta__ = {
                 enable = true;
             }
 
-            that._scroller.userEvents._shouldNotMove = enable;
+            if (that.pdfScroller) {
+                enable ? that.pdfScroller.disablePanEventsTracking() : that.pdfScroller.enablePanEventsTracking();
+            }
 
-            that._scroller.scrollElement.toggleClass(styles.enableTextSelection, enable);
-            that._scroller.scrollElement.toggleClass(styles.enablePanning, !enable);
+            that.pageContainer.toggleClass(styles.enableTextSelection, enable);
+            that.pageContainer.toggleClass(styles.enablePanning, !enable);
         },
 
 

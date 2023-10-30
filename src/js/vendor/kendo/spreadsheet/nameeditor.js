@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -76,7 +76,7 @@ import "../kendo.icons.js";
                 .on("click", ".k-button-delete", function(ev){
                     ev.preventDefault();
                     ev.stopPropagation();
-                    var item = $(ev.target).closest(".k-item");
+                    var item = $(ev.target).closest(".k-list-item");
                     item = this.combo.dataItem(item);
                     this._deleteItem(item.name);
                 }.bind(this));

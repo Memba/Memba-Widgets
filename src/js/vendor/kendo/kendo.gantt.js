@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -235,6 +235,10 @@ var __meta__ = {
             this._createEditor();
 
             kendo.notify(this);
+
+            if (this._showWatermarkOverlay) {
+                this._showWatermarkOverlay(this.wrapper[0]);
+            }
         },
 
         events: [
@@ -2417,7 +2421,11 @@ var __meta__ = {
                                         that.list.current(cell);
                                         focusTable(that.list.content.find("table"), true);
                                     } else {
-                                        focusSequence[i].find("[tabindex=0]:visible").focus();
+                                        if (focusSequence[i].is(":kendoFocusable")) {
+                                            focusSequence[i].focus();
+                                        } else {
+                                            focusSequence[i].find("[tabindex=0]:visible").focus();
+                                        }
                                     }
                                     e.preventDefault();
                                     break;
@@ -2426,7 +2434,11 @@ var __meta__ = {
                         } else {
                             for (i = focusedIndex + 1; i < focusSequence.length; i++) {
                                 if (!focusSequence[i].hasClass("k-hidden")) {
-                                    focusSequence[i].find("[tabindex=0]:visible").focus();
+                                    if (focusSequence[i].is(":kendoFocusable")) {
+                                        focusSequence[i].focus();
+                                    } else {
+                                        focusSequence[i].find("[tabindex=0]:visible").focus();
+                                    }
                                     e.preventDefault();
                                   break;
                                 }

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -46,7 +46,7 @@ import "../kendo.menu.js";
             ] },
             "copySelection": { name: "copySelection", text: "Copy selection", icon: "page-header-section", rules: "isSelectable", softRules: "hasSelection", command: "CopySelectionCommand", options: "withHeaders" },
             "copySelectionNoHeaders": { name: "copySelectionNoHeaders", text: "Copy selection (No Headers)", icon: "file-txt", rules: "isSelectable", softRules: "hasSelection", command: "CopySelectionCommand" },
-            "reorderRow": { name: "reorderRow", text: "Reorder row", icon: "arrows-no-change", rules: "isRowReorderable", softRules: "isSorted", items: [
+            "reorderRow": { name: "reorderRow", text: "Reorder row", icon: "caret-alt-expand", rules: "isRowReorderable", softRules: "isSorted", items: [
                 { name: "reorderRowUp", text: "Up", icon: "caret-alt-up", command: "ReorderRowCommand", options: "dir:up" },
                 { name: "reorderRowDown", text: "Down", icon: "caret-alt-down", command: "ReorderRowCommand", options: "dir:down" },
                 { name: "reorderRowTop", text: "Top", icon: "caret-alt-to-top", command: "ReorderRowCommand", options: "dir:top" },
@@ -60,6 +60,8 @@ import "../kendo.menu.js";
             ] },
             "sortAsc": { name: "sortAsc", text: "Sort Ascending", icon: "sort-asc-small", rules: "isSortable", command: "SortCommand", options: "dir:asc" },
             "sortDesc": { name: "sortDesc", text: "Sort Descending", icon: "sort-desc-small", rules: "isSortable", command: "SortCommand", options: "dir:desc" },
+            "moveGroupPrevious": { name: "moveGroupPrevious", text: "Move previous", icon: "arrow-left", rules: "isGroupable", softRules: "canMoveGroupPrev", command: "MoveGroupCommand", options: "dir:prev" },
+            "moveGroupNext": { name: "moveGroupNext", text: "Move next", icon: "arrow-right", rules: "isGroupable", softRules: "canMoveGroupNext", command: "MoveGroupCommand", options: "dir:next" }
             // "filter": { name: "filter", text: "Filter", icon: "filter", attr: { [kendo.attr("is-filter")]: true }, items: [
             //     { content: '<div class="k-columnmenu-item-wrapper"><div class="k-columnmenu-item-content k-column-menu-filter"><div class="k-filterable"></div></div></div>' }
             // ] },
@@ -109,8 +111,7 @@ import "../kendo.menu.js";
 
             menu.element.find(`[${kendo.attr('soft-rules')}]`).each((i, item) => {
                 var rules = $(item).attr(kendo.attr('soft-rules')).split(";");
-
-                menu.enable(item, this._validateSoftRules(rules));
+                menu.enable(item, this._validateSoftRules(rules, elTarget));
             });
         },
 
@@ -192,7 +193,7 @@ import "../kendo.menu.js";
             });
         },
 
-        _validateSoftRules: function(rules) {
+        _validateSoftRules: function(rules, target) {
             var that = this;
 
             if (!rules || !(rules && rules.length)) {
@@ -200,7 +201,7 @@ import "../kendo.menu.js";
             }
 
             for (var i = 0; i < rules.length; i++) {
-                if (!this._readState(rules[i])) {
+                if (!this._readState(rules[i], target)) {
                     return false;
                 }
             }
@@ -225,12 +226,12 @@ import "../kendo.menu.js";
             return true;
         },
 
-        _readState: function(state) {
+        _readState: function(state, target) {
             var that = this,
                 states = that.options.states;
 
             if (kendo.isFunction(states[state])) {
-                return states[state]();
+                return states[state](target);
             } else {
                 return states[state];
             }

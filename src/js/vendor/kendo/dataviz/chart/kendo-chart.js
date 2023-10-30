@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -18,7 +18,7 @@
  import "../../kendo.dataviz.core.js";
 
 (function($) {
-/* eslint-disable space-before-blocks, space-before-function-paren, curly */
+/* eslint-disable */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -28,6 +28,7 @@ var datavizConstants = dataviz.constants;
 var MAX_VALUE = datavizConstants.MAX_VALUE;
 var MIN_VALUE = datavizConstants.MIN_VALUE;
 var VALUE = datavizConstants.VALUE;
+var DATE = datavizConstants.DATE;
 var CENTER = datavizConstants.CENTER;
 var TOP = datavizConstants.TOP;
 var BOTTOM = datavizConstants.BOTTOM;
@@ -38,7 +39,6 @@ var X = datavizConstants.X;
 var Y = datavizConstants.Y;
 var RIGHT = datavizConstants.RIGHT;
 var BLACK = datavizConstants.BLACK;
-var DATE = datavizConstants.DATE;
 var DEFAULT_PRECISION = datavizConstants.DEFAULT_PRECISION;
 var ARC = datavizConstants.ARC;
 var defined = dataviz.defined;
@@ -49,10 +49,12 @@ var Point = dataviz.Point;
 var Box = dataviz.Box;
 var alignPathToPixel = dataviz.alignPathToPixel;
 var setDefaultOptions = dataviz.setDefaultOptions;
+var isString = dataviz.isString;
 var inArray = dataviz.inArray;
 var isFunction = dataviz.isFunction;
 var valueOrDefault = dataviz.valueOrDefault;
 var isObject = dataviz.isObject;
+var parseDate = dataviz.parseDate;
 var deepExtend = dataviz.deepExtend;
 var last = dataviz.last;
 var eventElement = dataviz.eventElement;
@@ -62,8 +64,6 @@ var ShapeElement = dataviz.ShapeElement;
 var getSpacing = dataviz.getSpacing;
 var CurveProcessor = dataviz.CurveProcessor;
 var append = dataviz.append;
-var isString = dataviz.isString;
-var parseDate = dataviz.parseDate;
 var styleValue = dataviz.styleValue;
 var CategoryAxis = dataviz.CategoryAxis;
 var BoxElement = dataviz.BoxElement;
@@ -588,6 +588,12 @@ var EQUALLY_SPACED_SERIES = [
     BULLET, RANGE_COLUMN, RANGE_BAR, WATERFALL, HORIZONTAL_WATERFALL
 ];
 
+var TRENDLINE_LINEAR = 'linearTrendline';
+var TRENDLINE_MOVING_AVERAGE = 'movingAverageTrendline';
+var TRENDLINE_SERIES = [
+    TRENDLINE_LINEAR, TRENDLINE_MOVING_AVERAGE
+];
+
 var LEGEND_ITEM_CLICK = "legendItemClick";
 var LEGEND_ITEM_HOVER = "legendItemHover";
 var LEGEND_ITEM_LEAVE = "legendItemLeave";
@@ -625,6 +631,8 @@ var MOUSEWHEEL_ZOOM_RATE = 0.3;
 
 var DRILLDOWN = "drilldown";
 var DRILLDOWN_FIELD = "drilldown";
+
+var MIN_MOVING_AVERAGE_PERIOD = 2;
 
 var constants = {
 	INITIAL_ANIMATION_DURATION: INITIAL_ANIMATION_DURATION,
@@ -712,7 +720,11 @@ var constants = {
 	BELOW: BELOW,
 	HEATMAP: HEATMAP,
 	DRILLDOWN: DRILLDOWN,
-	DRILLDOWN_FIELD: DRILLDOWN_FIELD
+	DRILLDOWN_FIELD: DRILLDOWN_FIELD,
+	MIN_MOVING_AVERAGE_PERIOD: MIN_MOVING_AVERAGE_PERIOD,
+	TRENDLINE_SERIES: TRENDLINE_SERIES,
+	TRENDLINE_LINEAR: TRENDLINE_LINEAR,
+	TRENDLINE_MOVING_AVERAGE: TRENDLINE_MOVING_AVERAGE
 };
 
 var DEFAULT_ERROR_BAR_WIDTH = 4;
@@ -852,6 +864,94 @@ var CategoricalErrorBar = ErrorBarBase.extend({
     }
 });
 
+function anyHasZIndex(elements) {
+    for (var idx = 0; idx < elements.length; idx++) {
+        if (defined(elements[idx].zIndex)) {
+            return true;
+        }
+    }
+}
+
+function appendIfNotNull(array, element) {
+    if (element !== null) {
+        array.push(element);
+    }
+}
+
+function areNumbers(values) {
+    return countNumbers(values) === values.length;
+}
+
+function segmentVisible(series, fields, index) {
+    var visible = fields.visible;
+    if (defined(visible)) {
+        return visible;
+    }
+
+    var pointVisibility = series.pointVisibility;
+    if (pointVisibility) {
+        return pointVisibility[index];
+    }
+}
+
+function bindSegments(series) {
+    var data = series.data;
+    var points = [];
+    var sum = 0;
+    var count = 0;
+
+    for (var idx = 0; idx < data.length; idx++) {
+        var pointData = SeriesBinder.current.bindPoint(series, idx);
+        var value = pointData.valueFields.value;
+
+        if (isString(value)) {
+            value = parseFloat(value);
+        }
+
+        if (isNumber(value)) {
+            pointData.visible = segmentVisible(series, pointData.fields, idx) !== false;
+
+            pointData.value = Math.abs(value);
+            points.push(pointData);
+
+            if (pointData.visible) {
+                sum += pointData.value;
+            }
+
+            if (value !== 0) {
+                count++;
+            }
+        } else {
+            points.push(null);
+        }
+    }
+
+    return {
+        total: sum,
+        points: points,
+        count: count
+    };
+}
+
+function categoriesCount(series) {
+    var seriesCount = series.length;
+    var categories = 0;
+
+    for (var i = 0; i < seriesCount; i++) {
+        categories = Math.max(categories, series[i].data.length);
+    }
+
+    return categories;
+}
+
+function equalsIgnoreCase(a, b) {
+    if (a && b) {
+        return a.toLowerCase() === b.toLowerCase();
+    }
+
+    return a === b;
+}
+
 var MAX_EXPAND_DEPTH = 5;
 
 function evalOptions(options, context, state, dryRun) {
@@ -890,15 +990,168 @@ function evalOptions(options, context, state, dryRun) {
     return needsEval;
 }
 
-function categoriesCount(series) {
-    var seriesCount = series.length;
-    var categories = 0;
+function filterSeriesByType(series, types) {
+    var result = [];
 
-    for (var i = 0; i < seriesCount; i++) {
-        categories = Math.max(categories, series[i].data.length);
+    var seriesTypes = [].concat(types);
+    for (var idx = 0; idx < series.length; idx++) {
+        var currentSeries = series[idx];
+        if (inArray(currentSeries.type, seriesTypes)) {
+            result.push(currentSeries);
+        }
     }
 
-    return categories;
+    return result;
+}
+
+function getDateField(field, row, intlService) {
+    if (row === null) {
+        return row;
+    }
+
+    var key = "_date_" + field;
+    var value = row[key];
+
+    if (!value) {
+        value = parseDate(intlService, getter(field, true)(row));
+        row[key] = value;
+    }
+
+    return value;
+}
+
+function hasGradientOverlay(options) {
+    var overlay = options.overlay;
+
+    return overlay && overlay.gradient && overlay.gradient !== "none";
+}
+
+function hasValue(value) {
+    return defined(value) && value !== null;
+}
+
+function isDateAxis(axisOptions, sampleCategory) {
+    var type = axisOptions.type;
+    var dateCategory = sampleCategory instanceof Date;
+
+    return (!type && dateCategory) || equalsIgnoreCase(type, DATE);
+}
+
+function singleItemOrArray(array) {
+    return array.length === 1 ? array[0] : array;
+}
+
+var AREA_REGEX = /area/i;
+
+function seriesMissingValues(series) {
+    if (series.missingValues) {
+        return series.missingValues;
+    }
+
+    return AREA_REGEX.test(series.type) || series.stack ? ZERO : INTERPOLATE;
+}
+
+function hasValue$1(series, item) {
+    var fields = SeriesBinder.current.bindPoint(series, null, item);
+    var valueFields = fields.valueFields;
+
+    for (var field in valueFields) {
+        if (dataviz.convertableToNumber(valueFields[field])) {
+            return true;
+        }
+    }
+}
+
+function findNext(ref) {
+    var start = ref.start;
+    var dir = ref.dir;
+    var min = ref.min;
+    var max = ref.max;
+    var getter$$1 = ref.getter;
+    var hasItem = ref.hasItem;
+    var series = ref.series;
+
+    var pointHasValue, outPoint;
+    var idx = start;
+    do {
+        idx += dir;
+        //aggregating and binding the item takes too much time for large number of categories
+        //will assume that if the aggregation does not create value for a missing item for one it will not create for others
+        if (hasItem(idx)) {
+            outPoint = getter$$1(idx);
+            pointHasValue = hasValue$1(series, outPoint.item);
+        }
+    } while (min <= idx && idx <= max && !pointHasValue);
+
+    if (pointHasValue) {
+        return outPoint;
+    }
+}
+
+function createOutOfRangePoints(series, range, count, getter$$1, hasItem) {
+    var min = range.min;
+    var max = range.max;
+    var hasMinPoint = min > 0 && min < count;
+    var hasMaxPoint = max + 1 < count;
+
+    if (hasMinPoint || hasMaxPoint) {
+        var missingValues = seriesMissingValues(series);
+        var minPoint, maxPoint;
+        if (missingValues !== INTERPOLATE) {
+            if (hasMinPoint) {
+                minPoint = getter$$1(min - 1);
+            }
+
+            if (hasMaxPoint) {
+                maxPoint = getter$$1(max + 1);
+            }
+        } else {
+            var outPoint, pointHasValue;
+            if (hasMinPoint) {
+                outPoint = getter$$1(min - 1);
+                pointHasValue = hasValue$1(series, outPoint.item);
+                if (!pointHasValue) {
+                    minPoint = findNext({
+                        start: min,
+                        dir: -1,
+                        min: 0,
+                        max: count - 1,
+                        getter: getter$$1,
+                        hasItem: hasItem,
+                        series: series
+                    });
+                } else {
+                    minPoint = outPoint;
+                }
+            }
+
+            if (hasMaxPoint) {
+                outPoint = getter$$1(max + 1);
+                pointHasValue = hasValue$1(series, outPoint.item);
+                if (!pointHasValue) {
+                    maxPoint = findNext({
+                        start: max,
+                        dir: 1,
+                        min: 0,
+                        max: count - 1,
+                        getter: getter$$1,
+                        hasItem: hasItem,
+                        series: series
+                    });
+                } else {
+                    maxPoint = outPoint;
+                }
+            }
+        }
+
+        if (minPoint) {
+            series._outOfRangeMinPoint = minPoint;
+        }
+
+        if (maxPoint) {
+            series._outOfRangeMaxPoint = maxPoint;
+        }
+    }
 }
 
 var CategoricalChart = ChartElement.extend({
@@ -1329,9 +1582,9 @@ var CategoricalChart = ChartElement.extend({
     },
 
     limitPoint: function(point) {
-        var limittedSlot = this.categoryAxis.limitSlot(point.box);
-        if (!limittedSlot.equals(point.box)) {
-            point.reflow(limittedSlot);
+        var limitedSlot = this.categoryAxis.limitSlot(point.box);
+        if (!limitedSlot.equals(point.box)) {
+            point.reflow(limitedSlot);
         }
     },
 
@@ -1387,7 +1640,7 @@ var CategoricalChart = ChartElement.extend({
             for (var seriesIx$1 = 0; seriesIx$1 < seriesCount; seriesIx$1++) {
                 var currentSeries = series[seriesIx$1];
                 var currentCategory = this$1.categoryAxis.categoryAt(categoryIx);
-                var pointData = this$1._bindPoint(currentSeries, seriesIx$1, categoryIx);
+                var pointData = this$1.plotArea.bindPoint(currentSeries, categoryIx);
 
                 callback(pointData, {
                     category: currentCategory,
@@ -1408,7 +1661,7 @@ var CategoricalChart = ChartElement.extend({
         var outOfRangePoint = series[field];
         if (outOfRangePoint) {
             var categoryIx = outOfRangePoint.categoryIx;
-            var pointData = this._bindPoint(series, seriesIx, categoryIx, outOfRangePoint.item);
+            var pointData = this.plotArea.bindPoint(series, categoryIx, outOfRangePoint.item);
 
             callback(pointData, {
                 category: outOfRangePoint.category,
@@ -1418,24 +1671,6 @@ var CategoricalChart = ChartElement.extend({
                 dataItem: outOfRangePoint.item
             });
         }
-    },
-
-    _bindPoint: function(series, seriesIx, categoryIx, item) {
-        if (!this._bindCache) {
-            this._bindCache = [];
-        }
-
-        var bindCache = this._bindCache[seriesIx];
-        if (!bindCache) {
-            bindCache = this._bindCache[seriesIx] = [];
-        }
-
-        var data = bindCache[categoryIx];
-        if (!data) {
-            data = bindCache[categoryIx] = SeriesBinder.current.bindPoint(series, categoryIx, item);
-        }
-
-        return data;
     },
 
     formatPointValue: function(point, format) {
@@ -2132,14 +2367,6 @@ setDefaultOptions(ClipAnimation, {
 
 AnimationFactory.current.register("clip", ClipAnimation);
 
-function anyHasZIndex(elements) {
-    for (var idx = 0; idx < elements.length; idx++) {
-        if (defined(elements[idx].zIndex)) {
-            return true;
-        }
-    }
-}
-
 var ClipAnimationMixin = {
     createAnimation: function() {
         var root = this.getRoot();
@@ -2708,12 +2935,6 @@ setDefaultOptions(BarLabel, {
     },
     zIndex: 2
 });
-
-function hasGradientOverlay(options) {
-    var overlay = options.overlay;
-
-    return overlay && overlay.gradient && overlay.gradient !== "none";
-}
 
 var BAR_ALIGN_MIN_WIDTH = 6;
 
@@ -3497,10 +3718,6 @@ setDefaultOptions(Candlestick, {
 deepExtend(Candlestick.prototype, PointEventsMixin);
 deepExtend(Candlestick.prototype, NoteMixin);
 
-function areNumbers(values) {
-    return countNumbers(values) === values.length;
-}
-
 var CandlestickChart = CategoricalChart.extend({
     reflowCategories: function(categorySlots) {
         var children = this.children;
@@ -4024,10 +4241,6 @@ var ScatterErrorBar = ErrorBarBase.extend({
     }
 });
 
-function hasValue(value) {
-    return defined(value) && value !== null;
-}
-
 var ScatterChart = ChartElement.extend({
     init: function(plotArea, options) {
 
@@ -4316,7 +4529,7 @@ var ScatterChart = ChartElement.extend({
             }
 
             for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
-                var ref$1 = this$1._bindPoint(currentSeries, seriesIx, pointIx);
+                var ref$1 = this$1.plotArea.bindPoint(currentSeries, pointIx);
                 var value = ref$1.valueFields;
                 var fields = ref$1.fields;
 
@@ -4355,9 +4568,7 @@ setDefaultOptions(ScatterChart, {
     },
     clip: true
 });
-deepExtend(ScatterChart.prototype, ClipAnimationMixin, {
-    _bindPoint: CategoricalChart.prototype._bindPoint
-});
+deepExtend(ScatterChart.prototype, ClipAnimationMixin);
 
 var Bubble = LinePoint.extend({
     init: function(value, options) {
@@ -5486,225 +5697,6 @@ setDefaultOptions(Pane, {
     visible: true
 });
 
-function appendIfNotNull(array, element) {
-    if (element !== null) {
-        array.push(element);
-    }
-}
-
-function segmentVisible(series, fields, index) {
-    var visible = fields.visible;
-    if (defined(visible)) {
-        return visible;
-    }
-
-    var pointVisibility = series.pointVisibility;
-    if (pointVisibility) {
-        return pointVisibility[index];
-    }
-}
-
-function bindSegments(series) {
-    var data = series.data;
-    var points = [];
-    var sum = 0;
-    var count = 0;
-
-    for (var idx = 0; idx < data.length; idx++) {
-        var pointData = SeriesBinder.current.bindPoint(series, idx);
-        var value = pointData.valueFields.value;
-
-        if (isString(value)) {
-            value = parseFloat(value);
-        }
-
-        if (isNumber(value)) {
-            pointData.visible = segmentVisible(series, pointData.fields, idx) !== false;
-
-            pointData.value = Math.abs(value);
-            points.push(pointData);
-
-            if (pointData.visible) {
-                sum += pointData.value;
-            }
-
-            if (value !== 0) {
-                count++;
-            }
-        } else {
-            points.push(null);
-        }
-    }
-
-    return {
-        total: sum,
-        points: points,
-        count: count
-    };
-}
-
-function equalsIgnoreCase(a, b) {
-    if (a && b) {
-        return a.toLowerCase() === b.toLowerCase();
-    }
-
-    return a === b;
-}
-
-function filterSeriesByType(series, types) {
-    var result = [];
-
-    var seriesTypes = [].concat(types);
-    for (var idx = 0; idx < series.length; idx++) {
-        var currentSeries = series[idx];
-        if (inArray(currentSeries.type, seriesTypes)) {
-            result.push(currentSeries);
-        }
-    }
-
-    return result;
-}
-
-function getDateField(field, row, intlService) {
-    if (row === null) {
-        return row;
-    }
-
-    var key = "_date_" + field;
-    var value = row[key];
-
-    if (!value) {
-        value = parseDate(intlService, getter(field, true)(row));
-        row[key] = value;
-    }
-
-    return value;
-}
-
-function isDateAxis(axisOptions, sampleCategory) {
-    var type = axisOptions.type;
-    var dateCategory = sampleCategory instanceof Date;
-
-    return (!type && dateCategory) || equalsIgnoreCase(type, DATE);
-}
-
-function singleItemOrArray(array) {
-    return array.length === 1 ? array[0] : array;
-}
-
-var AREA_REGEX = /area/i;
-
-function seriesMissingValues(series) {
-    if (series.missingValues) {
-        return series.missingValues;
-    }
-
-    return AREA_REGEX.test(series.type) || series.stack ? ZERO : INTERPOLATE;
-}
-
-function hasValue$1(series, item) {
-    var fields = SeriesBinder.current.bindPoint(series, null, item);
-    var valueFields = fields.valueFields;
-
-    for (var field in valueFields) {
-        if (dataviz.convertableToNumber(valueFields[field])) {
-            return true;
-        }
-    }
-}
-
-function findNext(ref) {
-    var start = ref.start;
-    var dir = ref.dir;
-    var min = ref.min;
-    var max = ref.max;
-    var getter$$1 = ref.getter;
-    var hasItem = ref.hasItem;
-    var series = ref.series;
-
-    var pointHasValue, outPoint;
-    var idx = start;
-    do {
-        idx += dir;
-        //aggregating and binding the item takes too much time for large number of categories
-        //will assume that if the aggregation does not create value for a missing item for one it will not create for others
-        if (hasItem(idx)) {
-            outPoint = getter$$1(idx);
-            pointHasValue = hasValue$1(series, outPoint.item);
-        }
-    } while (min <= idx && idx <= max && !pointHasValue);
-
-    if (pointHasValue) {
-        return outPoint;
-    }
-}
-
-function createOutOfRangePoints(series, range, count, getter$$1, hasItem) {
-    var min = range.min;
-    var max = range.max;
-    var hasMinPoint = min > 0 && min < count;
-    var hasMaxPoint = max + 1 < count;
-
-    if (hasMinPoint || hasMaxPoint) {
-        var missingValues = seriesMissingValues(series);
-        var minPoint, maxPoint;
-        if (missingValues !== INTERPOLATE) {
-            if (hasMinPoint) {
-                minPoint = getter$$1(min - 1);
-            }
-
-            if (hasMaxPoint) {
-                maxPoint = getter$$1(max + 1);
-            }
-        } else {
-            var outPoint, pointHasValue;
-            if (hasMinPoint) {
-                outPoint = getter$$1(min - 1);
-                pointHasValue = hasValue$1(series, outPoint.item);
-                if (!pointHasValue) {
-                    minPoint = findNext({
-                        start: min,
-                        dir: -1,
-                        min: 0,
-                        max: count - 1,
-                        getter: getter$$1,
-                        hasItem: hasItem,
-                        series: series
-                    });
-                } else {
-                    minPoint = outPoint;
-                }
-            }
-
-            if (hasMaxPoint) {
-                outPoint = getter$$1(max + 1);
-                pointHasValue = hasValue$1(series, outPoint.item);
-                if (!pointHasValue) {
-                    maxPoint = findNext({
-                        start: max,
-                        dir: 1,
-                        min: 0,
-                        max: count - 1,
-                        getter: getter$$1,
-                        hasItem: hasItem,
-                        series: series
-                    });
-                } else {
-                    maxPoint = outPoint;
-                }
-            }
-        }
-
-        if (minPoint) {
-            series._outOfRangeMinPoint = minPoint;
-        }
-
-        if (maxPoint) {
-            series._outOfRangeMaxPoint = maxPoint;
-        }
-    }
-}
-
 var PlotAreaBase = ChartElement.extend({
     init: function(series, options, chartService) {
         ChartElement.fn.init.call(this, options);
@@ -5719,6 +5711,8 @@ var PlotAreaBase = ChartElement.extend({
         this.crosshairs = [];
         this.chartService = chartService;
         this.originalOptions = options;
+        this.originalSeries = series;
+        this._bindCache = new WeakMap();
 
         this.createPanes();
         this.render();
@@ -5733,6 +5727,21 @@ var PlotAreaBase = ChartElement.extend({
         for (var i = 0; i < series.length; i++) {
             series[i].index = i;
         }
+    },
+
+    bindPoint: function(series, pointIx, item) {
+        var cached = this._bindCache.get(series);
+        if (!cached) {
+            cached = [];
+            this._bindCache.set(series, cached);
+        }
+
+        var data = cached[pointIx];
+        if (!data) {
+            data = cached[pointIx] = SeriesBinder.current.bindPoint(series, pointIx, item);
+        }
+
+        return data;
     },
 
     createPanes: function() {
@@ -6026,6 +6035,8 @@ var PlotAreaBase = ChartElement.extend({
             this$1.removeCrosshairs(panesArray[i]);
             panesArray[i].empty();
         }
+
+        this._bindCache = new WeakMap();
 
         this.render(panesArray);
         this.detachLabels();
@@ -6658,6 +6669,54 @@ var PlotAreaBase = ChartElement.extend({
         labelAxis.options.plotBands = undefined;
 
         return labelAxis;
+    },
+
+    isTrendline: function(series) {
+        return series && inArray(series.type, TRENDLINE_SERIES);
+    },
+
+    trendlineFactory: function() { /* abstract */ },
+
+    createTrendlineSeries: function() {
+        var this$1 = this;
+
+        var modifiedSeries = [];
+
+        this.series = this.series.map(function (series) {
+            if (!this$1.isTrendline(series)) {
+                return series;
+            }
+
+            var forSeries = this$1.seriesByName(series.for);
+            if (!forSeries) {
+                throw new Error('Invalid Configuration: Unable to locate linked series ' +
+                    "\"" + (series.for) + "\" for trendline \"" + (series.name) + "\".");
+            }
+
+            var valueFields = SeriesBinder.current.valueFields(forSeries);
+            var field = last(valueFields); // Use the last field for multi-field series
+
+            var trendlineSeries = this$1.trendlineFactory($.extend({}, {field: field}, series), forSeries);
+            if (trendlineSeries) {
+                if (forSeries.visible === false) {
+                    trendlineSeries.visible = false;
+                }
+
+                if (trendlineSeries.color === datavizConstants.INHERIT) {
+                    trendlineSeries.color = forSeries.color;
+                }
+
+                modifiedSeries.push(trendlineSeries);
+            }
+
+            return trendlineSeries;
+        }).filter(function (series) { return series !== null; });
+
+        return modifiedSeries;
+    },
+
+    seriesByName: function(name) {
+        return this.series.find(function (series) { return series.name === name; });
     }
 });
 
@@ -7661,6 +7720,215 @@ var WaterfallChart = BarChart.extend({
     }
 });
 
+function trendlineFactory(registry, type, context) {
+    var impl = registry[String(type)];
+    if (impl) {
+        return impl(context);
+    }
+
+    return null;
+}
+
+function calculateSlope(sourceValues, valueGetter) {
+    var x = 0;
+    var y = 0;
+    var x2 = 0;
+    var xy = 0;
+    var count = 0;
+    var slope, intercept;
+    var xMin = Number.MAX_VALUE;
+    var xMax = Number.MIN_VALUE;
+
+    for (var i = 0; i < sourceValues.length; i++) {
+        var value = sourceValues[i];
+        var ref = valueGetter(value);
+        var xValue = ref.xValue;
+        var yValue = ref.yValue;
+
+        if (isFinite(xValue) && xValue !== null && isFinite(yValue) && yValue !== null) {
+            xMin = Math.min(xValue, xMin);
+            xMax = Math.max(xValue, xMax);
+
+            count++;
+            x += xValue;
+            y += yValue;
+            x2 += Math.pow(xValue, 2);
+            xy += xValue * yValue;
+        }
+    }
+
+    if (count > 0) {
+        slope = (count * xy - x * y) / (count * x2 - Math.pow(x, 2));
+        intercept = (y - slope * x) / count;
+    }
+
+    return { slope: slope, intercept: intercept, count: count, xMin: xMin, xMax: xMax };
+}
+
+function linearTrendline(context) {
+    var options = context.options;
+    var categoryAxis = context.categoryAxis;
+    var seriesValues = context.seriesValues;
+
+    var ref = getData({ seriesValues: seriesValues, categoryAxis: categoryAxis, options: options });
+    var data = ref.data;
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'line',
+            data: data,
+            categoryField: 'category',
+            field: 'value'});
+    }
+
+    return null;
+}
+
+var valueGetter = function (fieldName) { return function (ref) {
+        var categoryIx = ref.categoryIx;
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: categoryIx + 1, yValue: valueFields[fieldName] });
+ }    };
+
+function getData(ref) {
+    var seriesValues = ref.seriesValues;
+    var categoryAxis = ref.categoryAxis;
+    var options = ref.options;
+
+    var ref$1 = calculateSlope(seriesValues(), valueGetter(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+
+    if (count > 0) {
+        var data = [];
+        var totalRange = categoryAxis.totalRangeIndices();
+        var currentRange = categoryAxis.currentRangeIndices();
+        var range = {
+            min: Math.floor(Math.max(currentRange.min - 1, totalRange.min)),
+            max: Math.ceil(Math.min(currentRange.max + 2, totalRange.max))
+        };
+
+        for (var i = range.min; i < range.max; i++) {
+            data[i] = {
+                category: categoryAxis.categoryAt(i, true),
+                value: slope * (i + 1) + intercept
+            };
+        }
+
+        return { data: data };
+    }
+
+    return { data: null };
+}
+
+function calculateMovingAverage(sourceValues, valueGetter, period) {
+    var averagePoints = [];
+    var values = [];
+    var start = Math.max(MIN_MOVING_AVERAGE_PERIOD, period) - 1;
+
+    var end = 0;
+    var sum = 0;
+
+    for (var i = 0; i < sourceValues.length; i++) {
+        var value = sourceValues[i];
+        var ref = valueGetter(value);
+        var xValue = ref.xValue;
+        var yValue = ref.yValue;
+
+        if (isFinite(yValue) && yValue !== null) {
+            values.push(yValue);
+            sum += yValue;
+            end = Math.max(i, end);
+        } else {
+            values.push(null);
+        }
+
+        if (i >= start) {
+            var count = values.filter(function (value) { return value !== null; }).length;
+            var lastValue = values.shift() || 0;
+
+            if (count > 0) {
+                var average = sum / count;
+                averagePoints.push([xValue, average]);
+
+                sum -= lastValue;
+                continue;
+            }
+        }
+
+        averagePoints.push([xValue, null]);
+    }
+
+    return averagePoints.slice(0, end + 1);
+}
+
+function movingAverageTrendline(context) {
+    var options = context.options;
+
+    var ref = getData$1(context);
+    var data = ref.data;
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'line',
+            data: data,
+            categoryField: 'category',
+            field: 'value'});
+    }
+
+    return null;
+}
+
+var valueGetter$1 = function (fieldName) { return function (ref) {
+        var categoryIx = ref.categoryIx;
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: categoryIx, yValue: valueFields[fieldName] });
+ }    };
+
+function calculatePoints(ref) {
+    var options = ref.options;
+    var categoryAxis = ref.categoryAxis;
+    var seriesValues = ref.seriesValues;
+
+    var period = (options.trendline || {}).period || MIN_MOVING_AVERAGE_PERIOD;
+    var totalRange = categoryAxis.totalRangeIndices();
+    var currentRange = categoryAxis.currentRangeIndices();
+    var range = {
+        min: Math.floor(Math.max(currentRange.min - period, totalRange.min)),
+        max: Math.ceil(Math.min(currentRange.max + period + 2, totalRange.max))
+    };
+
+    return calculateMovingAverage(seriesValues(range), valueGetter$1(options.field), period);
+}
+
+function getData$1(context) {
+    var categoryAxis = context.categoryAxis;
+    var points = calculatePoints(context);
+    var data = [];
+    points.forEach(function (ref) {
+        var categoryIx = ref[0];
+        var value = ref[1];
+
+        data[categoryIx] = {
+            category: categoryAxis.categoryAt(categoryIx, true),
+            value: value
+        };
+    });
+
+    if (data.length > 0) {
+        return { data: data };
+    }
+
+    return { data: null };
+}
+
+var registry = {};
+registry[TRENDLINE_LINEAR] = linearTrendline;
+registry[TRENDLINE_MOVING_AVERAGE] = movingAverageTrendline;
+
 var AREA_SERIES = [ AREA, VERTICAL_AREA, RANGE_AREA, VERTICAL_RANGE_AREA ];
 var OUT_OF_RANGE_SERIES = [ LINE, VERTICAL_LINE ].concat(AREA_SERIES);
 
@@ -7671,6 +7939,8 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         this.namedCategoryAxes = {};
         this.namedValueAxes = {};
         this.valueAxisRangeTracker = new AxisGroupRangeTracker();
+        this._seriesPointsCache = {};
+        this._currentPointsCache = {};
 
         if (series.length > 0) {
             this.invertAxes = inArray(
@@ -7686,14 +7956,17 @@ var CategoricalPlotArea = PlotAreaBase.extend({
                 }
             }
         }
-
     },
 
     render: function(panes) {
         if (panes === void 0) { panes = this.panes; }
 
+        this.series = [].concat( this.originalSeries );
         this.createCategoryAxes(panes);
+
         this.aggregateCategories(panes);
+        this.createTrendlineSeries(panes);
+
         this.createCategoryAxesLabels(panes);
         this.createCharts(panes);
         this.createValueAxes(panes);
@@ -7718,6 +7991,62 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         if (axis === this.valueAxis) {
             delete this.valueAxis;
         }
+    },
+
+    trendlineFactory: function(options, series) {
+        var categoryAxis = this.seriesCategoryAxis(options);
+        var seriesValues = this.seriesValues.bind(this, series.index);
+
+        var trendline = trendlineFactory(registry, options.type, {
+            options: options,
+            categoryAxis: categoryAxis,
+            seriesValues: seriesValues
+        });
+
+        if (trendline) {
+            // Inherit settings
+            trendline.categoryAxis = series.categoryAxis;
+            trendline.valueAxis = series.valueAxis;
+
+            return this.filterSeries(trendline, categoryAxis);
+        }
+
+        return trendline;
+    },
+
+    trendlineAggregateForecast: function() {
+        return this.series
+            .map(function (series) { return (series.trendline || {}).forecast; })
+            .filter(function (forecast) { return forecast !== undefined; })
+            .reduce(function (result, forecast) { return ({
+                before: Math.max(result.before, forecast.before || 0),
+                after: Math.max(result.after, forecast.after || 0)
+            }); }, { before: 0, after: 0 });
+    },
+
+    seriesValues: function(seriesIx, range) {
+        var this$1 = this;
+
+        var result = [];
+
+        var series = this.srcSeries[seriesIx];
+        var categoryAxis = this.seriesCategoryAxis(series);
+        var dateAxis = equalsIgnoreCase(categoryAxis.options.type, DATE);
+        if (dateAxis) {
+            this._seriesPointsCache = {};
+            this._currentPointsCache = {};
+            categoryAxis.options.dataItems = [];
+            series = this.aggregateSeries(series, categoryAxis, categoryAxis.totalRangeIndices());
+        }
+
+        var min = range ? range.min : 0;
+        var max = range ? range.max : series.data.length;
+        for (var categoryIx = min; categoryIx < max; categoryIx++) {
+            var data = this$1.bindPoint(series, categoryIx);
+            result.push({ categoryIx: categoryIx, category: data.fields.category, valueFields: data.valueFields });
+        }
+
+        return result;
     },
 
     createCharts: function(panes) {
@@ -7787,21 +8116,24 @@ var CategoricalPlotArea = PlotAreaBase.extend({
     aggregateCategories: function(panes) {
         var this$1 = this;
 
-        var series = this.srcSeries || this.series;
+        var series = [].concat( this.series );
         var processedSeries = [];
         this._currentPointsCache = {};
         this._seriesPointsCache = this._seriesPointsCache || {};
 
         for (var i = 0; i < series.length; i++) {
             var currentSeries = series[i];
-            var categoryAxis = this$1.seriesCategoryAxis(currentSeries);
-            var axisPane = this$1.findPane(categoryAxis.options.pane);
-            var dateAxis = equalsIgnoreCase(categoryAxis.options.type, DATE);
 
-            if ((dateAxis || currentSeries.categoryField) && inArray(axisPane, panes)) {
-                currentSeries = this$1.aggregateSeries(currentSeries, categoryAxis);
-            } else {
-                currentSeries = this$1.filterSeries(currentSeries, categoryAxis);
+            if (!this$1.isTrendline(currentSeries)) {
+                var categoryAxis = this$1.seriesCategoryAxis(currentSeries);
+                var axisPane = this$1.findPane(categoryAxis.options.pane);
+                var dateAxis = equalsIgnoreCase(categoryAxis.options.type, DATE);
+
+                if ((dateAxis || currentSeries.categoryField) && inArray(axisPane, panes)) {
+                    currentSeries = this$1.aggregateSeries(currentSeries, categoryAxis, categoryAxis.currentRangeIndices());
+                } else {
+                    currentSeries = this$1.filterSeries(currentSeries, categoryAxis);
+                }
             }
 
             processedSeries.push(currentSeries);
@@ -7818,7 +8150,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var dataLength = (series.data || {}).length;
         categoryAxis._seriesMax = Math.max(categoryAxis._seriesMax || 0, dataLength);
 
-        if (!(isNumber(categoryAxis.options.min) || isNumber(categoryAxis.options.max))) {
+        if (!(defined(categoryAxis.options.min) || defined(categoryAxis.options.max))) {
             return series;
         }
 
@@ -7847,7 +8179,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var this$1 = this;
 
         var key = (series.index) + ";" + (categoryAxis.categoriesHash());
-        if (this._seriesPointsCache[key]) {
+        if (this._seriesPointsCache && this._seriesPointsCache[key]) {
             this._currentPointsCache[key] = this._seriesPointsCache[key];
             return this._seriesPointsCache[key];
         }
@@ -7859,7 +8191,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var getFn = dateAxis ? getDateField : getField;
         var result = [];
         if (!dateAxis) {
-            categoryAxis.mapCategories();//fixes major performance issue caused by searching for the index for large data
+            categoryAxis.mapCategories(); //fixes major performance issue caused by searching for the index for large data
         }
 
         for (var idx = 0; idx < srcData.length; idx++) {
@@ -7882,7 +8214,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         return result;
     },
 
-    aggregateSeries: function(series, categoryAxis) {
+    aggregateSeries: function(series, categoryAxis, range) {
         var srcData = series.data;
         if (!srcData.length) {
             return series;
@@ -7892,9 +8224,9 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var result = deepExtend({}, series);
         var aggregator = new SeriesAggregator(deepExtend({}, series), SeriesBinder.current, DefaultAggregates.current);
         var data = result.data = [];
+
         var dataItems = categoryAxis.options.dataItems || [];
 
-        var range = categoryAxis.currentRangeIndices();
         var categoryItem = function (idx) {
             var categoryIdx = idx - range.min;
             var point = srcPoints[idx];
@@ -8241,6 +8573,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
                 var categoryAxis = (void 0);
 
                 if (isDateAxis(axisOptions, categories[0])) {
+                    axisOptions._forecast = this$1.trendlineAggregateForecast();
                     categoryAxis = new dataviz.DateCategoryAxis(axisOptions, this$1.chartService);
                 } else {
                     categoryAxis = new CategoryAxis(axisOptions, this$1.chartService);
@@ -9335,8 +9668,9 @@ var PlotAreaFactory = Class.extend({
         for (var idx = 0; idx < registry.length; idx++) {
             var entry = registry[idx];
             series = filterSeriesByType(srcSeries, entry.seriesTypes);
+            var trendlines = filterSeriesByType(srcSeries, TRENDLINE_SERIES);
 
-            if (series.length > 0) {
+            if ((series.length - trendlines.length) > 0) {
                 match = entry;
                 break;
             }
@@ -9449,6 +9783,7 @@ var Selection = Class.extend({
             top: (selectionStyles.height - rightHandleHeight) / 2
         });
 
+        /* eslint no-self-assign: "off" */
         wrapper.style.cssText = wrapper.style.cssText;
     },
 
@@ -9919,7 +10254,7 @@ var Selection = Class.extend({
                 limitValue(to + delta, range.from + 1, max),
                 min,
                 max
-             );
+            );
         }
 
         if (range.from !== oldRange.from || range.to !== oldRange.to) {
@@ -10233,6 +10568,130 @@ var ScatterLineChart = ScatterChart.extend({
 
 deepExtend(ScatterLineChart.prototype, LineChartMixin);
 
+function autoMajorUnit(min, max) {
+    var diff = round(max - min, DEFAULT_PRECISION - 1);
+
+    if (diff === 0) {
+        if (max === 0) {
+            return 0.1;
+        }
+
+        diff = Math.abs(max);
+    }
+
+    var scale = Math.pow(10, Math.floor(Math.log(diff) / Math.log(10)));
+    var relativeValue = round((diff / scale), DEFAULT_PRECISION);
+    var scaleMultiplier = 1;
+
+    if (relativeValue < 1.904762) {
+        scaleMultiplier = 0.2;
+    } else if (relativeValue < 4.761904) {
+        scaleMultiplier = 0.5;
+    } else if (relativeValue < 9.523809) {
+        scaleMultiplier = 1;
+    } else {
+        scaleMultiplier = 2;
+    }
+
+    return round(scale * scaleMultiplier, DEFAULT_PRECISION);
+}
+
+var scatterValueGetter = function (fieldName) { return function (ref) {
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: valueFields.x, yValue: valueFields[fieldName] });
+ }    };
+
+function scatterLinearTrendLine(context) {
+    var options = context.options;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$2({ seriesValues: seriesValues, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'scatterLine',
+            data: data});
+    }
+
+    return null;
+}
+
+function getData$2(ref) {
+    var seriesValues = ref.seriesValues;
+    var options = ref.options;
+
+    var ref$1 = calculateSlope(seriesValues(), scatterValueGetter(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+    var xMin = ref$1.xMin;
+    var xMax = ref$1.xMax;
+
+    if (count > 0) {
+        var data = [];
+        var forecast = (options.trendline || {}).forecast;
+        if (forecast) {
+            if (forecast.before > 0) {
+                xMin -= forecast.before;
+            }
+
+            if (forecast.after > 0) {
+                xMax += forecast.after;
+            }
+        }
+
+        var samplingInterval = (options.trendline || {}).samplingInterval;
+        var delta = valueOrDefault(samplingInterval,  autoMajorUnit(xMin, xMax) / 10);
+        if (samplingInterval <= 0) {
+            delta = xMax - xMin;
+        }
+
+        for (var x = xMin; x <= xMax; x += delta) {
+            data.push([ x,
+                slope * x + intercept
+            ]);
+        }
+
+        return data;
+    }
+
+    return null;
+}
+
+function scatterMovingAverageTrendline(context) {
+    var options = context.options;
+
+    var data = getData$3(context);
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'scatterLine',
+            data: data});
+    }
+
+    return null;
+}
+
+function getData$3(ref) {
+    var options = ref.options;
+    var seriesValues = ref.seriesValues;
+
+    var period = (options.trendline || {}).period || MIN_MOVING_AVERAGE_PERIOD;
+    var range = { before: period, after: period };
+    var data = calculateMovingAverage(seriesValues(range), scatterValueGetter(options.field), period);
+
+    if (data.length > 0) {
+        return data;
+    }
+
+    return null;
+}
+
+var scatterRegistry = {};
+scatterRegistry[TRENDLINE_LINEAR] = scatterLinearTrendLine;
+scatterRegistry[TRENDLINE_MOVING_AVERAGE] = scatterMovingAverageTrendline;
+
 var XYPlotArea = PlotAreaBase.extend({
     initFields: function() {
         this.namedXAxes = {};
@@ -10246,8 +10705,10 @@ var XYPlotArea = PlotAreaBase.extend({
         var this$1 = this;
         if (panes === void 0) { panes = this.panes; }
 
-        var seriesByPane = this.groupSeriesByPane();
+        this.series = [].concat( this.originalSeries );
+        this.createTrendlineSeries();
 
+        var seriesByPane = this.groupSeriesByPane();
         for (var i = 0; i < panes.length; i++) {
             var pane = panes[i];
             var paneSeries = seriesByPane[pane.options.name || "default"] || [];
@@ -10470,6 +10931,37 @@ var XYPlotArea = PlotAreaBase.extend({
 
         updateAxisOptions$1(this.options, index, vertical, options);
         updateAxisOptions$1(this.originalOptions, index, vertical, options);
+    },
+
+    trendlineFactory: function(options, series) {
+        var seriesValues = this.seriesValues.bind(this, series.index);
+
+        var trendline = trendlineFactory(scatterRegistry, options.type, {
+            options: options,
+            seriesValues: seriesValues
+        });
+
+        if (trendline) {
+            // Inherit settings
+            trendline.xAxis = series.xAxis;
+            trendline.yAxis = series.yAxis;
+        }
+
+        return trendline;
+    },
+
+    seriesValues: function(seriesIx) {
+        var this$1 = this;
+
+        var result = [];
+        var currentSeries = this.series[seriesIx];
+
+        for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
+            var data = this$1.bindPoint(currentSeries, pointIx);
+            result.push({ pointIx: pointIx, valueFields: data.valueFields });
+        }
+
+        return result;
     }
 });
 
@@ -11782,6 +12274,13 @@ var PolarPlotArea = PolarPlotAreaBase.extend({
         this.appendAxis(polarAxis);
     },
 
+    render: function() {
+        this.series = [].concat( this.originalSeries );
+        this.createTrendlineSeries();
+
+        PolarPlotAreaBase.fn.render.call(this);
+    },
+
     valueAxisOptions: function(defaults) {
         return deepExtend(defaults, {
             majorGridLines: { type: ARC },
@@ -11792,6 +12291,15 @@ var PolarPlotArea = PolarPlotAreaBase.extend({
     createValueAxis: function() {
         PolarPlotAreaBase.fn.createValueAxis.call(this);
         this.axisY = this.valueAxis;
+    },
+
+    trendlineFactory: function(options, series) {
+        var trendline = XYPlotArea.prototype.trendlineFactory.call(this, options, series);
+        if (trendline) {
+            trendline.type = POLAR_LINE;
+        }
+
+        return trendline;
     },
 
     appendChart: function(chart, pane) {
@@ -11873,7 +12381,9 @@ setDefaultOptions(PolarPlotArea, {
     yAxis: {}
 });
 
-deepExtend(PolarPlotArea.prototype, PlotAreaEventsMixin);
+deepExtend(PolarPlotArea.prototype, PlotAreaEventsMixin, {
+    seriesValues: XYPlotArea.prototype.seriesValues
+});
 
 function groupBySeriesIx(segments) {
     var seriesSegments = [];
@@ -12109,6 +12619,7 @@ var RadarPlotArea = PolarPlotAreaBase.extend({
         this.categoryAxis = categoryAxis;
         this.appendAxis(categoryAxis);
         this.aggregateCategories();
+        this.createTrendlineSeries();
         this.createCategoryAxesLabels();
     },
 
@@ -12142,6 +12653,15 @@ var RadarPlotArea = PolarPlotAreaBase.extend({
     filterSeries: function(currentSeries) {
         // Not supported for radar charts
         return currentSeries;
+    },
+
+    trendlineFactory: function(options, series) {
+        var trendline = CategoricalPlotArea.prototype.trendlineFactory.call(this, options, series);
+        if (trendline) {
+            trendline.type = RADAR_LINE;
+        }
+
+        return trendline;
     },
 
     createCharts: function() {
@@ -12240,7 +12760,8 @@ var RadarPlotArea = PolarPlotAreaBase.extend({
 deepExtend(RadarPlotArea.prototype, PlotAreaEventsMixin, {
     appendChart: CategoricalPlotArea.prototype.appendChart,
     aggregateSeries: CategoricalPlotArea.prototype.aggregateSeries,
-    seriesSourcePoints: CategoricalPlotArea.prototype.seriesSourcePoints
+    seriesSourcePoints: CategoricalPlotArea.prototype.seriesSourcePoints,
+    seriesValues: CategoricalPlotArea.prototype.seriesValues
 });
 
 setDefaultOptions(RadarPlotArea, {
@@ -12954,7 +13475,7 @@ var HeatmapChart = ChartElement.extend({
             var currentSeries = series[seriesIx];
 
             for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
-                var ref$1 = this$1._bindPoint(currentSeries, seriesIx, pointIx);
+                var ref$1 = this$1.plotArea.bindPoint(currentSeries, pointIx);
                 var valueFields = ref$1.valueFields;
                 if (defined(valueFields.value) && valueFields.value !== null) {
                     this$1.valueRange.min = Math.min(this$1.valueRange.min, valueFields.value);
@@ -13120,7 +13641,7 @@ var HeatmapChart = ChartElement.extend({
             var yRange = yAxis.currentRangeIndices();
 
             for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
-                var ref$2 = this$1._bindPoint(currentSeries, seriesIx, pointIx);
+                var ref$2 = this$1.plotArea.bindPoint(currentSeries, pointIx);
                 var value = ref$2.valueFields;
                 var fields = ref$2.fields;
                 var xIndex = xAxis.totalIndex(value.x);
@@ -13164,9 +13685,6 @@ setDefaultOptions(HeatmapChart, {
         format: "{2}"
     },
     clip: true
-});
-deepExtend(HeatmapChart.prototype, {
-    _bindPoint: CategoricalChart.prototype._bindPoint
 });
 
 var HeatmapPlotArea = PlotAreaBase.extend({
@@ -13470,19 +13988,24 @@ var TO = "to";
 PlotAreaFactory.current.register(CategoricalPlotArea, [
     BAR, COLUMN, LINE, VERTICAL_LINE, AREA, VERTICAL_AREA,
     CANDLESTICK, OHLC, BULLET, VERTICAL_BULLET, BOX_PLOT, VERTICAL_BOX_PLOT,
-    RANGE_COLUMN, RANGE_BAR, WATERFALL, HORIZONTAL_WATERFALL, RANGE_AREA, VERTICAL_RANGE_AREA
-]);
+    RANGE_COLUMN, RANGE_BAR, WATERFALL, HORIZONTAL_WATERFALL, RANGE_AREA, VERTICAL_RANGE_AREA ].concat( TRENDLINE_SERIES
+));
 
 PlotAreaFactory.current.register(XYPlotArea, [
-    SCATTER, SCATTER_LINE, BUBBLE
-]);
+    SCATTER, SCATTER_LINE, BUBBLE ].concat( TRENDLINE_SERIES
+));
 
 PlotAreaFactory.current.register(PiePlotArea, [ PIE ]);
 PlotAreaFactory.current.register(DonutPlotArea, [ DONUT ]);
 PlotAreaFactory.current.register(FunnelPlotArea, [ FUNNEL, PYRAMID ]);
 
-PlotAreaFactory.current.register(PolarPlotArea, [ POLAR_AREA, POLAR_LINE, POLAR_SCATTER ]);
-PlotAreaFactory.current.register(RadarPlotArea, [ RADAR_AREA, RADAR_COLUMN, RADAR_LINE ]);
+PlotAreaFactory.current.register(PolarPlotArea, [
+    POLAR_AREA, POLAR_LINE, POLAR_SCATTER ].concat( TRENDLINE_SERIES
+));
+
+PlotAreaFactory.current.register(RadarPlotArea, [
+    RADAR_AREA, RADAR_COLUMN, RADAR_LINE ].concat( TRENDLINE_SERIES
+));
 
 PlotAreaFactory.current.register(HeatmapPlotArea, [ HEATMAP ]);
 
@@ -14172,6 +14695,11 @@ var Chart = Class.extend({
         if (this._plotAreaHovered) {
             this._plotAreaHovered = false;
             this.trigger(PLOT_AREA_LEAVE);
+        }
+
+        if (this._hasInactiveOpacity() && this._activeChartInstance) {
+            this._applySeriesOpacity(this._activeChartInstance.children, null, true);
+            this._updateSeriesOpacity(null, true);
         }
     },
 

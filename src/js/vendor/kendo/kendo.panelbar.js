@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -221,7 +221,7 @@ var __meta__ = {
 
             Widget.fn.init.call(that, element, options);
 
-            element = that.wrapper = that.element.addClass("k-panelbar");
+            element = that.wrapper = that.element.addClass("k-panelbar k-pos-relative");
             options = that.options;
 
             if (element[0].id) {
@@ -268,6 +268,10 @@ var __meta__ = {
             }
 
             kendo.notify(that);
+
+            if (that._showWatermarkOverlay) {
+                that._showWatermarkOverlay(that.wrapper[0]);
+            }
         },
 
         events: [
@@ -1556,6 +1560,10 @@ var __meta__ = {
                 animation = animationSettings.expand,
                 hasCollapseAnimation = animationSettings.collapse && "effects" in animationSettings.collapse,
                 collapse = extend({}, animationSettings.expand, animationSettings.collapse);
+
+            if (element.hasClass("k-hidden")) {
+                element.removeClass("k-hidden");
+            }
 
             if (!hasCollapseAnimation) {
                 collapse = extend(collapse, { reverse: true });

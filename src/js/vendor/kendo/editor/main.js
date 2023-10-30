@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -100,7 +100,8 @@ import "../kendo.icons.js";
                 tableAlignRight: "table-position-end",
                 cleanFormatting: "clear-css",
                 copyFormat: "copy-format",
-                applyFormat: "apply-format"
+                applyFormat: "apply-format",
+                pdf: "file-pdf"
             };
 
             var cssClass = toolCssClassNames[name];
@@ -362,6 +363,10 @@ import "../kendo.icons.js";
             that.toolbar.resize();
 
             kendo.notify(that);
+
+            if (that._showWatermarkOverlay) {
+                that._showWatermarkOverlay(that.wrapper[0]);
+            }
         },
 
         events: [
@@ -1274,7 +1279,8 @@ import "../kendo.icons.js";
                 resizable: that.options.resizable && that.options.resizable.toolbar,
                 toggle: that._handleToolbarClick.bind(this),
                 click: that._handleToolbarClick.bind(this),
-                navigateOnTab: that.options.navigateOnTab
+                navigateOnTab: that.options.navigateOnTab,
+                evaluateTemplates: true
             };
 
             that.toolbar = new kendo.ui.ToolBar(toolbarContainer, toolbarOptions);
@@ -1527,7 +1533,7 @@ import "../kendo.icons.js";
         _processToolOptions: function(t, flatDefaultTools) {
             var that = this,
                 defaultTools = kendo.deepExtend({}, kendo.ui.Editor.defaultTools),
-                tool, name, view, shortcuts, options, uiOptions, icon, toolOptions, palette;
+                tool, name, view, shortcuts, options, uiOptions, icon, toolOptions, originalOptions, palette;
 
             tool = this._processDefaultTool(t, defaultTools);
 
@@ -1540,6 +1546,10 @@ import "../kendo.icons.js";
             uiOptions = options.ui || {};
             icon = EditorUtils.getToolCssClass(options.name, options.icon);
 
+            // We want to preserve any custom properties from the original tool object.
+            originalOptions = $.isPlainObject(t) ? $.extend({}, t) : {};
+            delete originalOptions.items;
+
             toolOptions = $.extend({
                 name: options.name,
                 command: options.command,
@@ -1548,7 +1558,7 @@ import "../kendo.icons.js";
                 icon: icon,
                 showText: "overflow",
                 showIcon: "both"
-            }, uiOptions);
+            }, uiOptions, originalOptions);
 
             if (options.tooltip) {
                 if (!toolOptions.attributes) {

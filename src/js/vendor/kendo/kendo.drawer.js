@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -86,6 +86,16 @@ var __meta__ = {
 
             if (options.minHeight && options.mode == PUSH) {
                 that.drawerContainer.css("min-height", options.minHeight);
+            }
+
+
+            if (that._showWatermarkOverlay) {
+                that._showWatermarkOverlay(that.drawerContainer[0]);
+            }
+
+            if (options.expanded) {
+                that._removeTransition();
+                that.show();
             }
         },
 
@@ -223,7 +233,7 @@ var __meta__ = {
             var contentElement = this.contentElement;
             var drawerItemsWrapper = this.drawerItemsWrapper = drawerElement.wrapAll("<div class='k-drawer-items'></div>").parent();
             var drawerWrapper = this.drawerWrapper = drawerItemsWrapper.wrap("<div class='k-drawer-wrapper'></div>").parent();
-            var drawerContainer = this.drawerContainer = element.wrap("<div class='k-drawer-container'></div>").parent();
+            var drawerContainer = this.drawerContainer = element.wrap("<div class='k-drawer-container k-pos-relative'></div>").parent();
 
             if (options.mini) {
                 if (options.mini.width) {
@@ -243,6 +253,14 @@ var __meta__ = {
             }
 
             element.append( drawerWrapper );
+        },
+
+        _addTransition: function() {
+            this.drawerWrapper.css("transition", "all .3s ease-out");
+        },
+
+        _removeTransition: function() {
+            this.drawerWrapper.css("transition", "none");
         },
 
         _setBodyOffset: function() {
@@ -352,6 +370,8 @@ var __meta__ = {
             var miniTemplate = this._miniTemplate;
             var miniWidth = options.mini && options.mini.width;
 
+            this._addTransition();
+
             if (this._miniTemplate) {
                 drawerItemsWrapper.html(miniTemplate);
                 that._initDrawerItems();
@@ -415,7 +435,7 @@ var __meta__ = {
                 drawerItemsWrapper.html(that.drawerElement);
             }
 
-            drawerWrapper.css("transition", "none");
+            this._removeTransition();
 
             if (options.mode != PUSH) {
                 this.overlayContainer.show();
@@ -443,7 +463,7 @@ var __meta__ = {
             var velocityThreshold = 0.8;
             var shouldShow;
 
-            drawerWrapper.css("transition", "all .3s ease-out");
+            this._addTransition();
 
             if (this.leftPositioned) {
                 shouldShow = velocity > -velocityThreshold && (velocity > velocityThreshold || pastHalf);
@@ -567,6 +587,7 @@ var __meta__ = {
         options: {
             name: "Drawer",
             autoCollapse: true,
+            expanded: false,
             position: LEFT,
             mode: "overlay",
             swipeToOpen: true,

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -40,7 +40,7 @@ var __meta__ = {
         SIZEFIELD = "size",
         TYPEFIELD = "type",
         DEFAULTSORTORDER = { field: TYPEFIELD, dir: "asc" },
-        EMPTYTILE = kendo.template(({ text }) => `<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${kendo.htmlEncode(text)}</span></div>`),
+        EMPTYTILE = kendo.template(({ text }) => `<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-svg-icon k-i-none"></span></span><span class="k-file-name">${kendo.htmlEncode(text)}</span></div>`),
         UPLOADTEMPLATE = ({ messages }) =>
             '<div class="k-upload k-upload-button-wrap">' +
                 '<div class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button">' +
@@ -456,7 +456,7 @@ var __meta__ = {
                 file = that._findFile(fileName);
 
             if (file) {
-                if (!that._showMessage(encode(kendo.format(that.options.messages.overwriteFile, fileName), "confirm"))) {
+                if (!that._showMessage(encode(kendo.format(that.options.messages.overwriteFile, fileName)), "confirm")) {
                     return null;
                 } else {
                     file._override = true;

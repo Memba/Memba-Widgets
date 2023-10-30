@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -234,7 +234,7 @@ var __meta__ = {
         iconCollapse: "caret-alt-down",
         iconExpand: "caret-alt-right",
         iconHidden: "k-i-none",
-        iconPlaceHolder: "k-icon k-i-none",
+        iconPlaceHolder: "k-treelist-toggle k-icon k-svg-icon k-i-none",
         input: "k-input",
         dropPositions: "k-i-insert-top k-i-insert-bottom k-i-plus k-i-insert-middle",
         dropTop: "insert-top",
@@ -1926,7 +1926,7 @@ var __meta__ = {
         var className = options.className;
 
         for (var i = 0, level = options.level; i < level; i++) {
-            spans.push(kendoDomElement("span", { className: className }));
+            spans.push(kendoDomElement("span", { className: className, 'aria-hidden': true }));
         }
 
         return spans;
@@ -3944,7 +3944,7 @@ var __meta__ = {
                 return;
             }
 
-            if (e.keyCode === keys.F10) {
+            if (e.keyCode === keys.F10 && this.toolbar && this.toolbar.length) {
                 this.toolbar.find("[tabindex=0]:visible").first().trigger("focus");
                 handled = true;
             }
@@ -6169,19 +6169,17 @@ var __meta__ = {
                         attr.ariaExpanded = model.expanded;
                         iconClass = model.expanded ? classNames.iconCollapse : classNames.iconExpand;
                     } else {
-                        iconClass = "none";
-                        iconType = "font";
+                        iconClass = classNames.iconPlaceHolder;
                     }
 
                     if (model._error) {
                         iconClass = classNames.refresh;
                     } else if (!model.loaded() && model.expanded) {
                         iconClass = "loading";
-                        iconType = "font";
                         attr["aria-busy"] = true;
                     }
 
-                    children.push(kendoHtmlElement(kendo.ui.icon($("<span ref-treelist-expand-collapse-icon class='k-treelist-toggle'></span>"), { icon: iconClass, type: iconType })));
+                    children.push(kendoHtmlElement(kendo.ui.icon($(`<span ref-treelist-expand-collapse-icon class="k-treelist-toggle ${iconClass === classNames.iconPlaceHolder ? 'k-i-none' : iconClass === 'loading' ? 'k-i-loading' : ''}"></span>`), { icon: iconClass, type: iconType })));
 
                     attr.style["white-space"] = "nowrap";
                 }

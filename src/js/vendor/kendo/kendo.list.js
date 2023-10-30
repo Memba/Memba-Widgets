@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1256,7 +1256,7 @@ var __meta__ = {
                     .prepend($(list.filterTemplate))
                     .find(".k-searchbox")
                     .append(list.filterInput);
-                list.enable();
+                list._enable();
             } : $.noop;
 
             list._postCreatePopup();
@@ -1319,7 +1319,7 @@ var __meta__ = {
                 list.popup.element
                     .find(".k-searchbox")
                     .append(list.filterInput);
-                list.enable();
+                list._enable();
             } : $.noop;
 
 
@@ -2123,7 +2123,7 @@ var __meta__ = {
         init: function(element, options) {
             Widget.fn.init.call(this, element, options);
 
-            this.element.attr("role", "listbox")
+            this.element.attr("role", (options.aria && options.aria.role) || 'listbox')
                         .on(CLICK + STATIC_LIST_NS, "li", this._click.bind(this))
                         .on(MOUSEENTER + STATIC_LIST_NS, "li", function() { $(this).addClass(HOVER); })
                         .on(MOUSELEAVE + STATIC_LIST_NS, "li", function() { $(this).removeClass(HOVER); });
@@ -2893,7 +2893,7 @@ var __meta__ = {
         },
 
         _renderItem: function(context) {
-            var item = '<li tabindex="-1" role="option" unselectable="on" ';
+            var item = `<li tabindex="-1" role="${(this.options.aria && this.options.aria.itemRole) || 'option'}" unselectable="on" `;
 
             var dataItem = context.item;
             var notFirstItem = context.index !== 0;

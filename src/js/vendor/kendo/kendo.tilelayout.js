@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -51,7 +51,7 @@ import "./kendo.resizable.js";
             CURSORCLASSES = "k-cursor-nesw-resize k-cursor-nwse-resize k-cursor-ew-resize k-cursor-ns-resize";
 
         var tileLayoutStyles = {
-            wrapper: "k-tilelayout",
+            wrapper: "k-tilelayout k-pos-relative",
             item: "k-tilelayout-item k-card",
             itemHeader: "k-tilelayout-item-header k-card-header",
             itemHeaderTitle: "k-card-title",
@@ -82,6 +82,10 @@ import "./kendo.resizable.js";
                 that._resizable();
                 that._navigatable();
                 that._reorderable();
+
+                if (that._showWatermarkOverlay) {
+                    that._showWatermarkOverlay(that.element[0]);
+                }
             },
 
             events: [

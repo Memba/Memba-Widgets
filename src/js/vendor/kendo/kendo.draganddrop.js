@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -656,7 +656,8 @@ var __meta__ = {
                 move: that._drag.bind(that),
                 end: that._end.bind(that),
                 cancel: that._onCancel.bind(that),
-                select: that._select.bind(that)
+                select: that._select.bind(that),
+                press: that._press.bind(that),
             });
 
             if (kendo.support.touch) {
@@ -686,9 +687,11 @@ var __meta__ = {
             filter: null,
             ignore: null,
             holdToDrag: false,
+            showHintOnHold: false,
             autoScroll: false,
             dropped: false,
-            clickMoveClick: false
+            clickMoveClick: false,
+            preventOsHoldFeatures: false
         },
 
         cancelHold: function() {
@@ -762,19 +765,9 @@ var __meta__ = {
             this._start(e);
         },
 
-        _start: function(e) {
+        _hint: function() {
             var that = this,
-                options = that.options,
-                container = options.container ? $(options.container) : null,
-                hint = options.hint;
-
-            if (this._shouldIgnoreTarget(e.touch.initialTouch) || (options.holdToDrag && !that._activated)) {
-                that.userEvents.cancel();
-                return;
-            }
-
-            that.currentTarget = e.target;
-            that.currentTargetOffset = getOffset(that.currentTarget);
+                hint = that.options.hint;
 
             if (hint) {
                 if (that.hint) {
@@ -793,6 +786,25 @@ var __meta__ = {
                     top: offset.top
                 })
                 .appendTo(document.body);
+            }
+        },
+
+        _start: function(e) {
+            var that = this,
+                options = that.options,
+                container = options.container ? $(options.container) : null,
+                hint = options.hint;
+
+            if (this._shouldIgnoreTarget(e.touch.initialTouch) || (options.holdToDrag && !that._activated)) {
+                that.userEvents.cancel();
+                return;
+            }
+
+            that.currentTarget = e.target;
+            that.currentTargetOffset = getOffset(that.currentTarget);
+
+            if (hint) {
+                that._hint();
 
                 that.angular("compile", function() {
                     that.hint.removeAttr("ng-repeat");
@@ -839,6 +851,9 @@ var __meta__ = {
                 this.userEvents.cancel();
             } else {
                 this._activated = true;
+                if (this.options.showHintOnHold) {
+                    this._hint();
+                }
             }
         },
 
@@ -955,6 +970,16 @@ var __meta__ = {
                 }
 
                 this.hint.css(compensation);
+            }
+        },
+
+        _press: function(ev) {
+            if (this.options.preventOsHoldFeatures) {
+                ev.target.css('-webkit-user-select', 'none');
+                ev.target.attr('unselectable', 'on');
+                ev.target.one('contextmenu', (ev) => {
+                    ev.preventDefault();
+                });
             }
         },
 

@@ -16,6 +16,7 @@ import webapp from '../../../webapp/locales/en.json';
 /**
  * Kendo UI resources
  */
+import 'kendo.core';
 import '../vendor/kendo/cultures/kendo.culture.en-GB';
 import '../vendor/kendo/messages/kendo.messages.en-GB';
 import './widgets.en.es6';

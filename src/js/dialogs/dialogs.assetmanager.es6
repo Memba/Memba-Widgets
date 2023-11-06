@@ -29,12 +29,12 @@ const {
 function openAssetManager(options = {}) {
     /*
     assert.instanceof(
-        kidoju.ToolAssets,
+        ToolAssets,
         assets,
         assert.format(
             assert.messages.instanceof.default,
             'assets',
-            'kidoju.ToolAssets'
+            'ToolAssets'
         )
     );
     */

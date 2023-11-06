@@ -24,7 +24,7 @@ module.exports = (config) => {
             terminal: true,
         },
 
-        // base path that will be used to resolve all patterns (eg. files, exclude)
+        // base path that will be used to resolve all patterns (e.g. files, exclude)
         basePath: '',
 
         // Increase timeout especially for phantomJS
@@ -162,8 +162,8 @@ module.exports = (config) => {
                         test: require.resolve(
                             path.join(
                                 __dirname,
-                                '/test/vendor/jquery.simulate.js'
-                            )
+                                '/test/vendor/jquery.simulate.js',
+                            ),
                         ),
                         use: [
                             {
@@ -180,8 +180,8 @@ module.exports = (config) => {
                         test: require.resolve(
                             path.join(
                                 __dirname,
-                                '/test/vendor/jquery.mockjax.js'
-                            )
+                                '/test/vendor/jquery.mockjax.js',
+                            ),
                         ),
                         use: [
                             {

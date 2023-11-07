@@ -7,3 +7,4 @@
 
 > 0.25%
 not dead
+ie 11 ## needed for Babel to handle exports properly

@@ -590,7 +590,6 @@ const Stage = DataBoundWidget.extend({
             this.element.is(CONSTANTS.DIV),
             'Please instantiate this widget with a <div/>'
         );
-        // debugger;
         // Set this.stage from the div element that makes the widget
         this.stage = this.element.css({
             position: RELATIVE, // !important for kj-element
@@ -811,12 +810,13 @@ const Stage = DataBoundWidget.extend({
             // Bind properties
             that._propertyBinding = function _propertyBinding() {
                 const widget = this;
-                if (widget.properties() instanceof ObservableObject) {
+                const properties = widget.properties();
+                if (properties instanceof ObservableObject) {
                     widget.stage
                         .children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS)
                         .each((index, stageElement) => {
                             // kendo.bind does unbind first
-                            bind(stageElement, widget.properties());
+                            bind(stageElement, properties);
                         });
                 }
             }.bind(that);
@@ -1013,7 +1013,6 @@ const Stage = DataBoundWidget.extend({
 
             // Remove loading overlay
             overlay.remove();
-
             // If the following line triggers `Uncaught TypeError: Cannot read property 'length' of null` in the console
             // This is probably because binding on properties has not been properly set - check html
             // as in <input type="text" style="width: 300px; height: 100px; font-size: 75px;" data-bind="value: ">
@@ -1360,7 +1359,6 @@ const Stage = DataBoundWidget.extend({
             );
             content = $(content);
         }
-
         // Empty stage element
         unbind(stageElement);
         destroy(stageElement);

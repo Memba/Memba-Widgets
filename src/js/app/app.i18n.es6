@@ -54,13 +54,13 @@ function __(id) {
  */
 Object.defineProperty(__, 'locale', {
     get() {
-        // In Kidoju-WebApp, the locale is defined in the html tag
+        // In Memba-WebApp, the locale is defined in the html tag
         return (
             document.getElementsByTagName('html')[0].getAttribute('lang') ||
             DEFAULT
         );
 
-        // Kidoju-Mobile
+        // Memba-Mobile
         // Note: cordova-plugin-globalization has method navigator.globalization.getLocaleName
         // but this method is asynchronous, so it is called in onDeviceReady to set LANGUAGE in window.localStorage
         // ret = (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
@@ -141,7 +141,7 @@ __.load = function load(value) {
                     localStorage.setItem(LANGUAGE, locale);
                 } catch (exception) {
                     // A QuotaExceededError in raised in private browsing, which we do not care about
-                    // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
+                    // @see https://github.com/jlchereau/Memba-Webapp/issues/181
                     // @see http://chrisberkhout.com/blog/localstorage-errors/
                     if (
                         !window.DOMException ||
@@ -176,16 +176,16 @@ __.load = function load(value) {
  */
 /*
 if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
-    // In Kidoju-WebApp
+    // In Memba-WebApp
     $(() => {
         // Load i18n locale
         __.load(__.locale).then(() => {
             // trigger event for localization
-            $(document).trigger(CONSTANTS.LOADED);
+            $(document).trigger(CONSTANTS.LOAD);
         });
     });
 } else {
-    // In Kidoju-Mobile
+    // In Memba-Mobile
     // Wait for Cordova to load
     document.addEventListener(
         'deviceready',
@@ -194,19 +194,19 @@ if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
                 // We have migrated from cordova-plugin-globalization
                 // as recommended at https://cordova.apache.org/news/2017/11/20/migrate-from-cordova-globalization-plugin.html
                 let locale =
-                    __.locale || window.navigator.language.substr(0, 2);
+                    __.locale || window.navigator.language.substring(0, 2);
                 if (config.locales.indexOf(locale) === -1) {
                     locale = DEFAULT;
                 }
                 __.load(locale).then(() => {
                     // trigger event for localization
-                    $(document).trigger(CONSTANTS.LOADED);
+                    $(document).trigger(CONSTANTS.LOAD);
                 });
             } else {
                 // Without window.navigator.language
                 __.load(__.locale || DEFAULT).then(() => {
                     // trigger event for localization
-                    $(document).trigger(CONSTANTS.LOADED);
+                    $(document).trigger(CONSTANTS.LOAD);
                 });
             }
         },

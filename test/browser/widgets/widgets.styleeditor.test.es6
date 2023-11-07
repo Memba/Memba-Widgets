@@ -76,7 +76,7 @@ describe('widgets.styleeditor', () => {
             );
             expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
                 .exist;
-            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-remove-command'))
                 .to.exist;
         });
 
@@ -101,7 +101,7 @@ describe('widgets.styleeditor', () => {
             expect(widget.wrapper.outerHeight()).to.equal(options.height);
             expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
                 .exist;
-            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-remove-command'))
                 .to.exist;
         });
 
@@ -130,7 +130,7 @@ describe('widgets.styleeditor', () => {
             );
             expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
                 .exist;
-            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-remove-command'))
                 .to.exist;
         });
 
@@ -161,7 +161,7 @@ describe('widgets.styleeditor', () => {
             );
             expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
                 .exist;
-            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-remove-command'))
                 .to.exist;
         });
     });
@@ -323,15 +323,15 @@ describe('widgets.styleeditor', () => {
                         // Click delete button
                         element
                             .find(
-                                'div.k-grid-toolbar > .k-button.k-grid-delete'
+                                'div.k-grid-toolbar > .k-button.k-grid-remove-command'
                             )
                             .simulate('click');
                         // remove next row
                         remove();
                     } else {
                         expect(change).to.have.callCount(count);
-                        done();
                     }
+                    done();
                 }, 0);
             }
             remove();

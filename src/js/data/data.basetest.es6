@@ -44,7 +44,7 @@ const BaseTest = BaseModel.define({
     init(options) {
         BaseModel.fn.init.call(this, options);
     },
-     */
+    */
 
     /**
      * Get the parent viewModel
@@ -191,7 +191,6 @@ const BaseTest = BaseModel.define({
             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const component = that.get(key).component();
                 if (!component.get('properties.disabled')) {
-                    // debugger;
                     score += that.get(`${key}.score`);
                 }
             }
@@ -220,7 +219,6 @@ const BaseTest = BaseModel.define({
                 json[key] = this.get(key).toJSON(); // .slice();
             }
         });
-        // debugger;
         return json;
     },
 });

@@ -58,7 +58,7 @@ const logger = new Logger('widgets.assetmanager');
 const NS = '.kendoAssetManager';
 const WIDGET_CLASS = 'k-widget m-assetmanager';
 const WINDOW_SELECTOR = '.m-assetmanager-window';
-const TOOLBAR_TMPL = `<div class="k-widget k-filebrowser-toolbar k-toolbar k-floatwrap">
+const TOOLBAR_TMPL = `<div class="k-widget k-filebrowser-toolbar k-toolbar k-toolbar-md k-floatwrap">
     <div class="k-toolbar-wrap">
         <label class="k-label" style="display:none">#=messages.toolbar.collections#<select data-role="dropdownlist"></select></label>
         <div class="k-widget k-upload"><div class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button">

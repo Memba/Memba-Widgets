@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -283,9 +283,6 @@ var __meta__ = {
             var that = this;
 
             if (that._maskLength) {
-                if (that.options.$angular) {//detach "input" event in angular scenario to keep the ng-model consistent and updated only when the change event of the textbox is raised.
-                    that.element.off(INPUT);
-                }
                 that.element
                     .on(ns(KEYDOWN), that._keydown.bind(that))
                     .on(ns(DROP), that._drop.bind(that))

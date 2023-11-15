@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -729,12 +729,23 @@ var __meta__ = {
             $(e.currentTarget).toggleClass(HOVER, e.type === "mouseenter");
         },
 
+        _isReset: function(value) {
+            var that = this;
+            return that.options.dateInput && that.options.autoFill && that._dateInput._emptyMask == value;
+        },
+
         _blur: function() {
             var that = this,
                 value = that.element.val();
 
             that.close();
             if (value !== that._oldText) {
+
+                if (that.options.autoFill && !that._isReset(value)) {
+                    that._dateInput.dateInputInstance.autoFill();
+                    value = that.element.val();
+                }
+
                 that._change(value);
                 if (!value) {
                     that.dateView.current(kendo.calendar.getToday());

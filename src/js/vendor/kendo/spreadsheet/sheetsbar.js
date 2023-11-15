@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -376,7 +376,7 @@ import "../kendo.icons.js";
                 var classNames = SheetsBar.classNames;
                 return element("a", {
                     role: "button",
-                    ariaLabel: "Add new sheet",
+                    'aria-label': "Add new sheet",
                     className: classNames.sheetsBarAdd + EMPTYCHAR + classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonDefaults
                 }, [element($(kendo.ui.icon({ icon: classNames.sheetsBarPlusIcon, iconClass: "k-button-icon" }))[0])]);
             },

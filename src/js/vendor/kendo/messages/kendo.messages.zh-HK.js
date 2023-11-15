@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -175,10 +175,6 @@
                 "exportAs": "匯出",
                 "import": "導入",
                 "print": "列印"
-            });
-        kendo.ui.Editor.defaultTools.pdf.options.template.options =
-            $.extend(true, kendo.ui.Editor.defaultTools.pdf.options.template.options, {
-                "title": "匯出 PDF"
             });
     }
 
@@ -1767,18 +1763,6 @@
                         "of": " / "
                     }
                 }
-            });
-    }
-
-    /* Mobile Messages ------------------------------ */
-
-    /* Mobile Scroller messages */
-    if (kendo.mobile.ui.Scroller) {
-        kendo.mobile.ui.Scroller.prototype.options.messages =
-            $.extend(true, kendo.mobile.ui.Scroller.prototype.options.messages, {
-                "pullTemplate": "下拉刷新",
-                "releaseTemplate": "釋放刷新",
-                "refreshTemplate": "刷新中..."
             });
     }
 

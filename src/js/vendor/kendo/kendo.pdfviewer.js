@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -672,11 +672,19 @@ var __meta__ = {
                 that.pageContainerWrapper = $("<div />");
                 that.pageContainerWrapper.addClass(styles.scroller);
 
-                that.pageContainer = $("<div class='k-pdf-viewer-pages' />");
+                that.pageContainer = $(`<div class="k-pdf-viewer-pages" style="--scale-factor: ${that.zoomScale}" />`);
                 that.pageContainer.attr(TABINDEX, 0);
 
                 that.pageContainerWrapper.append(that.pageContainer);
                 that.wrapper.append(that.pageContainerWrapper);
+            }
+        },
+
+        _setPageContainerScaleFactor(scale) {
+            var that = this;
+
+            if (that.pageContainer) {
+                that.pageContainer[0].style.setProperty("--scale-factor", scale);
             }
         },
 
@@ -818,6 +826,17 @@ var __meta__ = {
 
             that.pageContainer.addClass(styles.enablePanning);
             that.pageContainerWrapper.bind(SCROLL, that._scroll.bind(that));
+            that.pageContainerWrapper.on(CLICK + NS, ".k-annotation-layer a[href]", that._linkHandler.bind(that));
+        },
+
+        _linkHandler: function(e) {
+            var that = this,
+                link = $(e.target).attr("href");
+
+            if (link && link.indexOf("#") === 0) {
+                that.processor.navigateToDestination && that.processor.navigateToDestination(link);
+                e.preventDefault();
+            }
         },
 
         _scroll: function(e) {
@@ -1114,6 +1133,7 @@ var __meta__ = {
                 this.pdfScroller.destroy();
             }
             this.pageContainer.off(NS);
+            this.pageContainerWrapper.off(NS);
 
             Widget.fn.destroy.call(this);
         },

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -334,7 +334,6 @@ import "./upload.js";
 
             return this._renderTask.promise.then(function() {
                 that._renderTask = null;
-
             }).catch(function() {});
         },
         _renderTextLayer: function(viewport) {
@@ -343,7 +342,7 @@ import "./upload.js";
 
             if (that.textLayer) {
                 that.textLayer.remove();
-             }
+            }
 
             that.textLayer = $("<div class='k-text-layer'></div>").get(0);
             that.element.append(that.textLayer);
@@ -364,9 +363,67 @@ import "./upload.js";
                     enhanceTextSelection: true
                 };
 
+
                 that.processor.renderTextLayer(params);
+                that._renderAnnotationLayer(viewport);
             });
-        }
+        },
+        _renderAnnotationLayer: function(viewport) {
+            var that = this,
+                page = that._page;
+
+            if (that.annotationLayer) {
+                that.annotationLayer.remove();
+            }
+
+            that.annotationLayer = $("<div class='k-annotation-layer'></div>").css({
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                overflow: 'hidden',
+                height: that.element.height(),
+                width: that.element.width(),
+                pointerEvents: 'none',
+            });
+
+            that.element.append(that.annotationLayer);
+
+            page.getAnnotations({ intent: "display" }).then(function(annotations) {
+                var links = annotations.map(function(annotation) {
+                    if (annotation.subtype === 'Link') {
+                        var rect = annotation.rect;
+                        var boundingRect = [
+                            viewport.convertToViewportPoint(rect[0], rect[1]),
+                            viewport.convertToViewportPoint(rect[2], rect[3]),
+                        ];
+
+                        var left = Math.min(boundingRect[0][0], boundingRect[1][0]);
+                        var top = Math.min(boundingRect[0][1], boundingRect[1][1]);
+                        var width = Math.max(boundingRect[0][0], boundingRect[1][0]) - left;
+                        var height = Math.max(boundingRect[0][1], boundingRect[1][1]) - top;
+
+                        var url = annotation.url || (annotation.dest && `#${ kendo.isString(annotation.dest) ? encodeURI(annotation.dest) : encodeURI(JSON.stringify(annotation.dest)) }`);
+
+                        return { url: url, rect: { left, top, width, height } };
+                    }
+                });
+
+                links.forEach(function(link) {
+                    var span = $("<span></span>").css({
+                        position: 'absolute',
+                        left: link.rect.left,
+                        top: link.rect.top,
+                    }).append($(`<a ${link.url ? `href=${link.url}` : ''}></a>`).css({
+                        width: link.rect.width,
+                        height: link.rect.height,
+                        display: 'inline-block',
+                        pointerEvents: 'auto',
+                    }));
+
+                    that.annotationLayer.append(span);
+                });
+            });
+        },
     });
 
     extend(kendo.pdfviewer.dpl, {

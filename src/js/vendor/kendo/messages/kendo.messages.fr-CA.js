@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -685,6 +685,21 @@ if (kendo.ui.Dialog) {
 kendo.ui.Dialog.prototype.options.messages =
 $.extend(true, kendo.ui.Dialog.prototype.options.localization, {
   "close": "Fermer"
+});
+}
+
+/* Calendar */
+
+if (kendo.ui.Calendar) {
+kendo.ui.Calendar.prototype.options.messages =
+$.extend(true, kendo.ui.Calendar.prototype.options.messages, {
+  "weekColumnHeader": "S",
+  "navigateTo": "Naviguer à la vue ",
+  "parentViews": {
+    "month": "de l'année",
+    "year": "de la décennie",
+    "decade": "du centenaire"
+  }
 });
 }
 

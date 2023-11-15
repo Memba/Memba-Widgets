@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -241,9 +241,9 @@ var __meta__ = {
         return this.nodeValue;
     };
 
-    function HtmlNode(html, force) {
+    function HtmlNode(html, replace) {
         this.html = html;
-        this.force = force;
+        this.replace = replace;
     }
 
     HtmlNode.prototype = {
@@ -258,14 +258,22 @@ var __meta__ = {
            }
        },
        render: function(parent, cached) {
-           if (cached.nodeName !== this.nodeName || cached.html !== this.html || this.force) {
-               cached.remove();
-
-               var lastChild = parent.lastChild;
-
-               insertHtml(parent, this.html);
-
+        var lastChild, replacedNode;
+           if (cached.nodeName !== this.nodeName || cached.html !== this.html || this.replace) {
+               if (this.replace && cached.nodes && cached.nodes.length) {
+                // This could be changed to a for loop that replaces several nodes instead of the first one. Presently, there is no use-case scenario for that.
+                replacedNode = replaceNode(parent, cached.nodes[0], this.html);
+                lastChild = parent.lastChild;
+               } else {
+                cached.remove();
+                lastChild = parent.lastChild;
+                insertHtml(parent, this.html);
+               }
                this.nodes = [];
+
+               if (replacedNode) {
+                this.nodes.push(replacedNode);
+               }
 
                for (var child = lastChild ? lastChild.nextSibling : parent.firstChild; child; child = child.nextSibling) {
                    this.nodes.push(child);
@@ -284,6 +292,17 @@ var __meta__ = {
         while (HTML_CONTAINER.firstChild) {
             node.appendChild(HTML_CONTAINER.firstChild);
         }
+    }
+
+    function replaceNode(parent, node, html) {
+        var firstChild;
+
+        HTML_CONTAINER.innerHTML = html;
+        firstChild = HTML_CONTAINER.firstChild;
+
+        parent.replaceChild(firstChild, node);
+
+        return firstChild;
     }
 
     function html(value, force) {

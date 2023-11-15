@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -386,7 +386,6 @@ var __meta__ = {
 
                 this.dragging = new ui.HierarchicalDragAndDrop(this.element, {
                     reorderable: true,
-                    $angular: this.options.$angular,
                     autoScroll: this.options.autoScroll,
                     filter: "div:not(.k-disabled) .k-in",
                     allowedContainers: ".k-treeview",
@@ -1621,15 +1620,6 @@ var __meta__ = {
                 return;
             }
 
-            that.angular("compile", function() {
-                return {
-                    elements: node.get(),
-                    data: nodeData.map(function(item) {
-                        return { dataItem: item };
-                    })
-                };
-            });
-
             if (!group.length) {
                 group = $(that._renderGroup({
                     group: groupData
@@ -1707,10 +1697,6 @@ var __meta__ = {
                     return that.findByUid(item.uid).children("div");
                 });
 
-                if (render) {
-                    that.angular("cleanup", function() { return { elements: elements }; });
-                }
-
                 for (i = 0; i < items.length; i++) {
                     context.item = item = items[i];
                     nodeWrapper = elements[i];
@@ -1767,17 +1753,6 @@ var __meta__ = {
                     if (nodeWrapper.length) {
                         this.trigger("itemChange", { item: nodeWrapper, data: item, ns: ui });
                     }
-                }
-
-                if (render) {
-                    that.angular("compile", function() {
-                        return {
-                            elements: elements,
-                            data: $.map(items, function(item) {
-                                return [{ dataItem: item }];
-                            })
-                        };
-                    });
                 }
             }
         },
@@ -1855,8 +1830,6 @@ var __meta__ = {
                 });
 
             if (this.root.length && this.root[0].parentElement) {
-                this._angularItems("cleanup");
-
                 var group = $(groupHtml);
 
                 this.root
@@ -1874,7 +1847,6 @@ var __meta__ = {
                     ns: ui
                 });
             }
-            this._angularItems("compile");
         },
 
         refresh: function(e) {
@@ -2344,10 +2316,6 @@ var __meta__ = {
             if (node.attr("id") === that.root.attr(ARIA_ACTIVEDESCENDANT)) {
                 that.root.removeAttr(ARIA_ACTIVEDESCENDANT);
             }
-
-            this.angular("cleanup", function() {
-                return { elements: node.get() };
-            });
 
             parentNode = node.parent().parent();
             prevSibling = node.prev();

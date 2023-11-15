@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -299,6 +299,8 @@ import "../pdfviewer/upload.js";
             viewer.zoomScale = scale;
             viewer._scrollingStarted = false;
 
+            viewer._setPageContainerScaleFactor(scale);
+
             if (viewer.pages) {
                 viewer.pages.forEach(function(page) {
                     var pageHeight;
@@ -428,15 +430,17 @@ import "../pdfviewer/upload.js";
             var loadPromises = [];
             var renderPromises = [];
             var promise = $.Deferred();
+            var defaultScale = 3;
 
             that._originalScale = that.viewer.zoom();
+            that.viewer._setPageContainerScaleFactor(defaultScale);
 
             function getRenderPromise(page) {
                 renderPromises.push(page._renderPromise);
             }
 
             for (var i = 0; i < pages.length; i++) {
-                loadPromises.push(pages[i].load(3, true).then(getRenderPromise));
+                loadPromises.push(pages[i].load(defaultScale, true).then(getRenderPromise));
             }
 
             Promise.all(loadPromises).then(function() {

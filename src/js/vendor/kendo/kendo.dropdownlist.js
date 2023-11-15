@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -506,9 +506,6 @@ var __meta__ = {
                             .on(CLICKEVENTS, that._click.bind(that))
                             .on(HOVEREVENTS, that._toggleHover);
 
-            that.angular("compile", function() {
-                return { elements: that.optionLabel, data: [{ dataItem: that._optionLabelDataItem() }] };
-            });
         },
 
         _optionLabelText: function() {
@@ -1378,23 +1375,12 @@ var __meta__ = {
                 }
             }
 
-            var getElements = function() {
-                return {
-                    elements: span.get(),
-                    data: [ { dataItem: dataItem } ]
-                };
-            };
-
-            this.angular("cleanup", getElements);
-
             try {
                 span.html(template(dataItem));
             } catch (e) {
                 //dataItem has missing fields required in custom template
                 span.html("");
             }
-
-            this.angular("compile", getElements);
         },
 
         _preselect: function(value, text) {

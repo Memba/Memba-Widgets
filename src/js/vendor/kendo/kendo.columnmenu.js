@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -186,10 +186,6 @@ var __meta__ = {
             } else {
                 that._createMenu();
             }
-
-            that.owner._muteAngularRebind(function() {
-                that._angularItems("compile");
-            });
 
             that._sort();
 
@@ -562,26 +558,8 @@ var __meta__ = {
             });
         },
 
-        _angularItems: function(action) {
-            var that = this;
-            that.angular(action, function() {
-                var items = that.wrapper.find(".k-columns-item input[" + kendo.attr("field") + "]").map(function() {
-                    return $(this).closest("li");
-                });
-                var data = map(that._ownerColumns(), function(col) {
-                    return { column: col._originalObject };
-                });
-                return {
-                    elements: items,
-                    data: data
-                };
-            });
-        },
-
         destroy: function() {
             var that = this;
-
-            that._angularItems("cleanup");
 
             Widget.fn.destroy.call(that);
 
@@ -788,7 +766,10 @@ var __meta__ = {
                 instance, menuitem;
 
             $(".k-column-menu").not(that.wrapper).each(function() {
-                $(this).data(POPUP).close();
+                let popup = $(this).data(POPUP);
+                if (popup) {
+                    popup.close();
+                }
             });
             that.popup.element.off("keydown" + NS).on("keydown" + NS, function(e) {
                 var target = $(e.target);
@@ -1446,8 +1427,8 @@ var __meta__ = {
         _updateGroupColumns: function() {
             var element = this.element,
                 wrapper = this.wrapper,
-                groupEl = wrapper.find(".k-group"),
-                ungroupEl = wrapper.find(".k-ungroup");
+                groupEl = wrapper.find(".k-menu-item.k-group"),
+                ungroupEl = wrapper.find(".k-menu-item.k-ungroup");
 
             if (this.owner.groupable._canDrag(element)) {
                 groupEl.removeClass("k-hidden");

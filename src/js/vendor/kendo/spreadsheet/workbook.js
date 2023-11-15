@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -739,12 +739,23 @@ import "./excel-reader.js";
                 if (--count <= 0) {
                     data.images = images;
                     var workbook = new kendo.ooxml.Workbook(data);
-                    kendo.saveAs({
-                        dataURI: options.forceProxy ? workbook.toDataURL() : workbook.toBlob(),
+                    var saveOptions = {
                         fileName: data.fileName || options.fileName,
                         proxyURL: options.proxyURL,
                         forceProxy: options.forceProxy
-                    });
+                    };
+
+                    if (options.forceProxy) {
+                        kendo.saveAs($.extend(saveOptions, {
+                            dataURI: workbook.toBlob()
+                        }));
+                    } else {
+                        workbook.toDataURLAsync().then(function(data) {
+                            kendo.saveAs($.extend(saveOptions, {
+                                dataURI: data
+                            }));
+                        });
+                    }
                 }
             }
         },

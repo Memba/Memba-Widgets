@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -448,7 +448,7 @@ if (kendo.ui.PivotGrid) {
         "insertUnorderedList": "Liste à puces",
         "italic": "Italique",
         "cleanFormatting": "Effacer la mise en forme",
-        "print": "Impression",
+        "print": "Imprimer",
         "justifyCenter": "Centrer",
         "justifyFull": "Justifier",
         "justifyLeft": "Aligner le texte à gauche",
@@ -456,8 +456,8 @@ if (kendo.ui.PivotGrid) {
         "outdent": "Diminuer le retrait",
         "strikethrough": "Barré",
         "styles": "Styles",
-        "subscript": "Subscript",
-        "superscript": "Superscript",
+        "subscript": "Indice",
+        "superscript": "Exposant",
         "underline": "Souligné",
         "unlink": "Supprimer le lien hypertexte",
         "deleteFile": "Êtes-vous sûr de vouloir supprimer \"{0}\" ?",
@@ -482,7 +482,7 @@ if (kendo.ui.PivotGrid) {
         "linkText": "Texte",
         "linkToolTip": "Info-bulle",
         "linkWebAddress": "Adresse Web",
-        "search": "Search",
+        "search": "Rechercher",
         "createTable": "Insérer un tableau",
         "addColumnLeft": "Ajouter colonne à gauche",
         "addColumnRight": "Ajouter colonne à droite",
@@ -493,11 +493,11 @@ if (kendo.ui.PivotGrid) {
         "dropFilesHere": "Déposer des fichiers ici pour les télécharger",
         "formatting": "Formatage",
         "viewHtml": "Visualiser le HTML",
-        "dialogUpdate": "Mise à jour",
+        "dialogUpdate": "Mettre à jour",
         "insertFile": "Insérer un fichier",
         "dialogOk": "OK",
         "tableWizard": "Assistant de tableau",
-        "tableTab": "Table",
+        "tableTab": "Tableau",
         "cellTab": "Cellule",
         "accessibilityTab": "Accessibilité",
         "caption": "Sous-titre",
@@ -509,7 +509,7 @@ if (kendo.ui.PivotGrid) {
         "cellMargin": "Marge des cellules",
         "alignment": "Alignement",
         "background": "Fond",
-        "cssClass": "CSS Classe",
+        "cssClass": "Classe CSS",
         "id": "Id",
         "border": "Bordure",
         "borderStyle": "Style de bordure",

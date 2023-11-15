@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -2296,7 +2296,6 @@ var __meta__ = {
             }
 
             this._dragging = new kendo.ui.HierarchicalDragAndDrop(this.wrapper, {
-                $angular: this.$angular,
                 autoScroll: true,
                 holdToDrag: touchDevice,
                 filter: that._hasDragHandleColumn ? ".k-drag-cell" : "tbody>tr",
@@ -2632,7 +2631,7 @@ var __meta__ = {
             }
             var current = $(this.current());
             var isCurrentInHeader = false;
-            var currentIndex;
+            var currentIndex, currentRowIndex;
 
             this._cancelEditor();
 
@@ -2644,9 +2643,10 @@ var __meta__ = {
                 if (this._isActiveInTable() || this.editor) {
                     isCurrentInHeader = current.is("th");
                     currentIndex = isCurrentInHeader ? current.parent().children(":not(.k-group-cell)").index(current[0]) : Math.max(this.cellIndex(current), 0);
+                    currentRowIndex = !isCurrentInHeader && current.parent().index();
                 }
 
-                this._restoreCurrent(currentIndex, isCurrentInHeader);
+                this._restoreCurrent(currentIndex, isCurrentInHeader, currentRowIndex);
             }
 
             if (that._checkBoxSelection) {
@@ -2656,34 +2656,6 @@ var __meta__ = {
             that._aria();
 
             this.trigger(DATABOUND);
-        },
-
-        _angularFooters: function(command) {
-            var i, footer, aggregates;
-            var allAggregates = this.dataSource.aggregates();
-            var footerRows = this._footerItems();
-
-            for (i = 0; i < footerRows.length; i++) {
-                footer = footerRows.eq(i);
-                aggregates = allAggregates[footer.attr("data-parentId")];
-
-                this._angularFooter(command, footer.find("td").get(), aggregates);
-            }
-        },
-
-        _angularFooter: function(command, cells, aggregates) {
-            var columns = this.columns;
-            this.angular(command, function() {
-                return {
-                    elements: cells,
-                    data: map(columns, function(col) {
-                        return {
-                            column: col,
-                            aggregate: aggregates && aggregates[col.field]
-                        };
-                    })
-                };
-            });
         },
 
         items: function() {
@@ -3065,8 +3037,6 @@ var __meta__ = {
                 result.pageable.pageSize = dataSource.pageSize();
             }
 
-            result.$angular = undefined;
-
             return result;
         },
 
@@ -3098,10 +3068,6 @@ var __meta__ = {
             if (!that.thead) {
                 return;
             }
-
-            this.angular("cleanup", function() {
-                return { elements: that.thead.get() };
-            });
 
             that.thead.add(that.lockedHeader).find("th").each(function() {
                 var th = $(this),
@@ -3297,7 +3263,7 @@ var __meta__ = {
                 );
         },
 
-        _restoreCurrent: function(currentIndex, isCurrentInHeader) {
+        _restoreCurrent: function(currentIndex, isCurrentInHeader, currentRowIndex) {
             var rowIndex;
             var row;
             var td;
@@ -3313,8 +3279,8 @@ var __meta__ = {
             if (isCurrentInHeader) {
                 this._setCurrent(this.thead.find("th").eq(currentIndex));
             } else {
-                rowIndex = 0;
-                currentIndex = 0;
+                rowIndex = currentRowIndex || 0;
+                currentIndex = currentIndex || 0;
 
                 row = $();
 
@@ -4640,7 +4606,6 @@ var __meta__ = {
 
                 that._preventPageSizeRestore = false;
             };
-
             if (that._isIncellEditable() && editable.update !== false) {
                 that.wrapper
                     .on(that.options._editCellEvent || CLICK + NS, "tr:not(.k-grouping-row) > td", function(e) {
@@ -4664,7 +4629,7 @@ var __meta__ = {
                         }
 
                         if (that.editor) {
-                            if (that.editor.end()) {
+                            if (td.is(":not(.k-command-cell)") && that.editor.end()) {
                                 if (selectable) {
                                     $(activeElement()).trigger("blur");
                                 }
@@ -5024,13 +4989,6 @@ var __meta__ = {
 
             this._renderCols();
             this._renderHeader();
-
-            this.angular("compile", function() {
-                return {
-                    elements: header.find("th.k-header").get(),
-                    data: map(columns, function(col) { return { column: col }; })
-                };
-            });
         },
 
         _initVirtualTrees: function() {
@@ -5124,10 +5082,6 @@ var __meta__ = {
             } else {
                 toolbar.append(kendo.template(options)({}));
             }
-
-            this.angular("compile", function() {
-                return { elements: toolbar.get() };
-            });
         },
 
         _lockedColumns: function() {
@@ -5140,15 +5094,6 @@ var __meta__ = {
 
         _templateColumns: function() {
             return grep(this.columns, is("template"));
-        },
-
-        _flushCache: function() {
-            if (this.options.$angular && this._templateColumns().length) {
-                this._contentTree.render([]);
-                if (this._hasLockedColumns) {
-                    this._lockedContentTree.render([]);
-                }
-            }
         },
 
         _render: function(options) {
@@ -5176,10 +5121,6 @@ var __meta__ = {
             var viewChildrenMap;
 
             this._absoluteIndex = 0;
-
-            this._angularItems("cleanup");
-            this._angularFooters("cleanup");
-            this._flushCache();
 
             that._clearRenderMap();
 
@@ -5243,11 +5184,6 @@ var __meta__ = {
             if (this._touchScroller) {
                 this._touchScroller.contentResized();
             }
-
-            this._muteAngularRebind(function() {
-                this._angularItems("compile");
-                this._angularFooters("compile");
-            });
 
             this.items().filter(function() {
                 return $.inArray($(this).attr(uidAttr), selected) >= 0;
@@ -6042,7 +5978,7 @@ var __meta__ = {
             }
 
             if (iconElement) {
-                children.push(kendoDomElement("span", this.parseAttributes(iconElement)));
+                children.push(kendoHtmlElement(iconElement.outerHTML, true));
             }
             children.push(kendoHtmlElement($(element).html()));
 
@@ -6179,7 +6115,8 @@ var __meta__ = {
                         attr["aria-busy"] = true;
                     }
 
-                    children.push(kendoHtmlElement(kendo.ui.icon($(`<span ref-treelist-expand-collapse-icon class="k-treelist-toggle ${iconClass === classNames.iconPlaceHolder ? 'k-i-none' : iconClass === 'loading' ? 'k-i-loading' : ''}"></span>`), { icon: iconClass, type: iconType })));
+                    // The true flag at the end specifies that the element reference should be replaced instead of being removed and added back to the DOM tree. Check the HtmlNode.render function in kendo.dom.js.
+                    children.push(kendoHtmlElement(kendo.ui.icon($(`<span ref-treelist-expand-collapse-icon class="k-treelist-toggle ${iconClass === classNames.iconPlaceHolder ? 'k-i-none' : iconClass === 'loading' ? 'k-i-loading' : ''}"></span>`), { icon: iconClass, type: iconType }), true));
 
                     attr.style["white-space"] = "nowrap";
                 }
@@ -6261,12 +6198,12 @@ var __meta__ = {
             }
 
             if (column.template || !column.encoded) {
-                return kendoHtmlElement(value, true);
+                return kendoHtmlElement(value);
             } else {
                 if (incellEditing) {
-                    return kendoHtmlElement(value, true);
+                    return kendoHtmlElement(value);
                 } else {
-                    return kendoTextElement(value, true);
+                    return kendoTextElement(value);
                 }
             }
         },
@@ -6801,7 +6738,6 @@ var __meta__ = {
             }
 
             var settings;
-            var $angular = that.options.$angular;
             var uidAttr = kendo.attr('uid');
             var columns = leafColumns(that.columns),
                 filterable = that.options.filterable,
@@ -6869,10 +6805,6 @@ var __meta__ = {
                         showOperators: cellOptions.showOperators,
                         change: filterHandler
                     };
-
-                    if ($angular) {
-                        settings.$angular = $angular;
-                    }
 
                     $("<span/>").attr(kendo.attr("field"), field)
                         .appendTo(th)
@@ -7635,8 +7567,8 @@ var __meta__ = {
             }
 
             // refresh the current element as the DOM element reference can be changed after render()
+            that.current() && that.current().removeClass("k-focus");
             that._current = editedCell;
-
             that.trigger(EDIT, { container: cell, model: model });
         },
 
@@ -8204,10 +8136,6 @@ var __meta__ = {
                     reorderable: !!options.reorderable
                 };
 
-                if (options.$angular) {
-                    menuOptions.$angular = options.$angular;
-                }
-
                 ths.eq(i).kendoColumnMenu(menuOptions);
             }
         },
@@ -8299,7 +8227,7 @@ var __meta__ = {
     }
 
     function isInputElement(element) {
-       return $(element).is(":button,a,:input,a>.k-icon,a>.k-svg-icon,textarea,span.k-select,span.k-icon,span.k-svg-icon,span.k-link,.k-input,.k-multiselect-wrap,.k-tool-icon,.k-input-value-text,.k-input-inner,.k-button-icon");
+       return $(element).is(":button,a,:input,a>.k-icon,a>.k-svg-icon,textarea,span.k-select,span.k-icon:not(.k-treelist-toggle),span.k-svg-icon:not(.k-treelist-toggle),span.k-link,.k-input,.k-multiselect-wrap,.k-tool-icon,.k-input-value-text,.k-input-inner,.k-button-icon");
     }
 
     function isLocked(column) {

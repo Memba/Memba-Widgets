@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -234,8 +234,6 @@ var __meta__ = {
                     element: that.input,
                     dataSource: that.suggestDataSource
                 });
-
-                that._angularItems("compile");
 
             } else if (type == STRING) {
                 input.attr(kendo.attr("role"), "autocomplete")
@@ -503,25 +501,11 @@ var __meta__ = {
             this._clearInProgress = false;
         },
 
-        _angularItems: function(action) {
-            var elements = this.wrapper.closest("td").get();
-            var column = this.options.column;
-
-            this.angular(action, function() {
-                return {
-                    elements: elements,
-                    data: [{ column: column }]
-                };
-            });
-        },
-
         destroy: function() {
             var that = this;
 
             that.filterModel = null;
             that.operatorDropDown = null;
-
-            that._angularItems("cleanup");
 
             if (that._refreshHandler) {
                 that.dataSource.bind(CHANGE, that._refreshHandler);

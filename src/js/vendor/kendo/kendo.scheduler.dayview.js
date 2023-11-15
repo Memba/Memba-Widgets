@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1648,13 +1648,6 @@ var __meta__ = {
 
             var element = $(template(data));
             kendo.applyStylesFromKendoAttributes(element, ["background-color", "border-color"]);
-
-            this.angular("compile", function() {
-                return {
-                    elements: element,
-                    data: [ { dataItem: data } ]
-                };
-            });
 
             return element;
         },

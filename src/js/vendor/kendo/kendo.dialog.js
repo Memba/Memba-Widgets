@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -892,23 +892,8 @@ import "./kendo.icons.js";
                     return content.html();
                 }
 
-                this.angular("cleanup", function() {
-                    return { elements: content.children() };
-                });
-
                 kendo.destroy(content.children());
                 content.html(html);
-
-                this.angular("compile", function() {
-                    var a = [];
-                    for (var i = content.length; --i >= 0;) {
-                        a.push({ dataItem: data });
-                    }
-                    return {
-                        elements: content.children(),
-                        data: a
-                    };
-                });
 
                 that.options.content = html;
 

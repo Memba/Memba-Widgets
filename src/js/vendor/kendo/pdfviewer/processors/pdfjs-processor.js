@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -121,6 +121,35 @@ var __meta__ = {
                     });
                 };
             });
+        },
+        navigateToDestination: function(dest) {
+            var that = this;
+            var dest = dest.split("#")[1];
+
+            try {
+                dest = JSON.parse(decodeURI(dest));
+            } catch (error) {
+                dest = decodeURI(dest);
+            }
+
+            if (kendo.isString(dest)) {
+                that.pdf.getDestination(dest).then(function(explicitDest) {
+                    that._navigateToDest(explicitDest);
+                });
+            } else if (dest) {
+                that._navigateToDest(dest);
+            }
+        },
+        _navigateToDest: function(explicitDest) {
+            var that = this,
+                pageNumber = explicitDest[0],
+                zoom = explicitDest[4] || that.viewer.options.zoom;
+
+            that.pdf.getPageIndex(pageNumber)
+                .then(pageIndex => {
+                    that.viewer.activatePage(pageIndex + 1);
+                    that.viewer.zoom(`${zoom * 100}%`);
+                });
         },
         _updateDocument: function(file) {
             if (this.pdf && this.pdf.loadingTask) {

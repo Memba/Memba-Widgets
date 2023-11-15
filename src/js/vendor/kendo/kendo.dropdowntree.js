@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -634,7 +634,6 @@ var __meta__ = {
             var header = $(list.header);
             var template = list.options.headerTemplate;
 
-            this._angularElement(header, "cleanup");
             kendo.destroy(header);
             header.remove();
 
@@ -648,8 +647,6 @@ var __meta__ = {
 
             list.header = header[0] ? header : null;
             list.list.prepend(header);
-
-            this._angularElement(list.header, "compile");
         },
 
         _noData: function() {
@@ -657,7 +654,6 @@ var __meta__ = {
             var noData = $(list.noData);
             var template = list.options.noDataTemplate === true ? encode(list.options.messages.noData) : list.options.noDataTemplate;
 
-            list.angular("cleanup", function() { return { elements: noData }; });
             kendo.destroy(noData);
             noData.remove();
 
@@ -678,9 +674,7 @@ var __meta__ = {
                 return;
             }
 
-            this._angularElement(noData, "cleanup");
             noData.html(list.noDataTemplate({ instance: list }));
-            this._angularElement(noData, "compile");
         },
 
         _footer: function() {
@@ -688,7 +682,6 @@ var __meta__ = {
             var footer = $(list.footer);
             var template = list.options.footerTemplate;
 
-            this._angularElement(footer, "cleanup");
             kendo.destroy(footer);
             footer.remove();
 
@@ -709,9 +702,7 @@ var __meta__ = {
                 return;
             }
 
-            this._angularElement(footer, "cleanup");
             footer.html(list.footerTemplate({ instance: list }));
-            this._angularElement(footer, "compile");
         },
 
         _enable: function() {
@@ -856,16 +847,6 @@ var __meta__ = {
 
                 list.popup.one("open", list._popupOpen.bind(list));
             }
-        },
-
-        _angularElement: function(element, action) {
-            if (!element) {
-                return;
-            }
-
-            this.angular(action, function() {
-                return { elements: element };
-            });
         },
 
         _allowOpening: function() {
@@ -1133,8 +1114,6 @@ var __meta__ = {
                 };
             };
 
-            this.angular("cleanup", getElements);
-
             try {
                 span.html(valueTemplate(dataItem));
             } catch (e) {
@@ -1143,8 +1122,6 @@ var __meta__ = {
                     span.html("");
                 }
             }
-
-            this.angular("compile", getElements);
         },
 
         _accessors: function() {

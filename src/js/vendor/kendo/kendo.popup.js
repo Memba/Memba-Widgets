@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -245,6 +245,7 @@ var __meta__ = {
         open: function(x, y) {
             var that = this,
                 fixed = { isFixed: !isNaN(parseInt(y,10)), x: x, y: y },
+                shouldCorrectWidth = that._shouldCorrectWidth,
                 element = that.element,
                 options = that.options,
                 animation, wrapper,
@@ -277,7 +278,7 @@ var __meta__ = {
                     that._toggleResize(true);
                 }
 
-                that.wrapper = wrapper = kendo.wrap(element, options.autosize, options._resizeOnWrap)
+                that.wrapper = wrapper = kendo.wrap(element, options.autosize, options._resizeOnWrap, shouldCorrectWidth)
                     .css({
                         overflow: HIDDEN,
                         display: "block",

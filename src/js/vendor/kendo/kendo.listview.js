@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -374,17 +374,9 @@ var __meta__ = {
                     if (item.length > 0) {
                         idx = item.index();
 
-                        that.angular("cleanup", function() {
-                            return { elements: [ item ] };
-                        });
-
                         item.replaceWith(template(data));
                         item = that.items().eq(idx);
                         item.attr(kendo.attr("uid"), data.uid);
-
-                        that.angular("compile", function() {
-                            return { elements: [ item ], data: [ { dataItem: data } ] };
-                        });
 
                         that.trigger("itemChange", {
                             item: item,
@@ -399,8 +391,6 @@ var __meta__ = {
             if (that.trigger(DATABINDING, { action: e.action || "rebind", items: e.items, index: e.index })) {
                 return;
             }
-
-            that._angularItems("cleanup");
 
             if (!endlessAppend) {
                 that._destroyEditable();
@@ -458,7 +448,6 @@ var __meta__ = {
             }
 
             that._setContentHeight();
-            that._angularItems("compile");
 
             that._progress(false);
             that._endlessFetchInProgress = null;
@@ -883,10 +872,6 @@ var __meta__ = {
                     template = that.altTemplate;
                 }
 
-                that.angular("cleanup", function() {
-                    return { elements: [ editable.element ] };
-                });
-
                 data = that._modelFromElement(editable.element);
                 that._destroyEditable();
 
@@ -900,10 +885,6 @@ var __meta__ = {
                 if (that._hasBindingTarget()) {
                     kendo.bind(item, data);
                 }
-
-                that.angular("compile", function() {
-                    return { elements: [ item ], data: [ { dataItem: data } ] };
-                });
             }
             return true;
         },

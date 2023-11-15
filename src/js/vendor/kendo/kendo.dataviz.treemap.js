@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -147,7 +147,6 @@ var __meta__ = {
             var item, i;
 
             if (!node) {
-                this._cleanItems();
                 this.element.empty();
                 item = this._wrapItem(items[0]);
                 this._layout.createRoot(
@@ -188,13 +187,6 @@ var __meta__ = {
                     node: node
                 });
             }
-        },
-
-        _cleanItems: function() {
-            var that = this;
-            that.angular("cleanup", function() {
-               return { elements: that.element.find(".k-leaf div,.k-treemap-title,.k-treemap-title-vertical") };
-            });
         },
 
         _setColors: function(items) {
@@ -629,12 +621,6 @@ var __meta__ = {
         },
 
         _compile: function(element, dataItem) {
-            this.treeMap.angular("compile", function() {
-                return {
-                    elements: element,
-                    data: [ { dataItem: dataItem } ]
-                };
-            });
         },
 
         _getByUid: function(uid) {
@@ -672,12 +658,6 @@ var __meta__ = {
         },
 
         _clean: function(root) {
-            this.treeMap.angular("cleanup", function() {
-                return {
-                    elements: root.children(":not(.k-treemap-wrap)")
-                };
-            });
-
             root.css("background-color", "");
             root.removeClass("k-leaf");
             root.removeClass("k-inverse");

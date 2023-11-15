@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.3.1010 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -103,7 +103,8 @@ var __meta__ = {
         ARIA_BUSY = "aria-busy",
         ARIA_MULTISELECTABLE = "aria-multiselectable",
         ARIA_SELECTED = "aria-selected",
-        GROUP_ROW_SEL = ".k-table-group-row";
+        GROUP_ROW_SEL = ".k-table-group-row",
+        ACTIONSHEET_TITLEBAR = ".k-actionsheet-titlebar";
 
     var List = kendo.ui.DataBoundWidget.extend({
         init: function(element, options) {
@@ -276,7 +277,6 @@ var __meta__ = {
             var header = $(list.header);
             var template = list.options.headerTemplate;
 
-            this._angularElement(header, "cleanup");
             kendo.destroy(header);
             header.remove();
 
@@ -293,8 +293,6 @@ var __meta__ = {
             if (list.list.parent.length > 0) {
                 list.list.before(header);
             }
-
-            this._angularElement(list.header, "compile");
         },
 
         _filterHeader: function() {
@@ -303,6 +301,8 @@ var __meta__ = {
                     kendo.ui.icon({ icon: "search", iconClass: "k-input-icon" }) +
                 '</span>' +
             '</div>';
+
+            this.actionSheetFilterTemplate = `<div class="k-actionsheet-titlebar-group k-actionsheet-filter">${this.filterTemplate}</div>`;
 
             if (this._isFilterEnabled()) {
                 this.filterInput = $('<input class="k-input-inner" type="text" />')
@@ -322,7 +322,6 @@ var __meta__ = {
             var $header;
             var columnsHeader = $(list.columnsHeader);
 
-            this._angularElement(columnsHeader, "cleanup");
             kendo.destroy(columnsHeader);
             columnsHeader.remove();
 
@@ -363,8 +362,6 @@ var __meta__ = {
 
             list.columnsHeader = columnsHeader = $header;
             list.list.prepend(columnsHeader);
-
-            this._angularElement(list.columnsHeader, "compile");
         },
 
         _noData: function() {
@@ -372,7 +369,6 @@ var __meta__ = {
             var noData = $(list.noData);
             var template = list.options.noDataTemplate === true ? () => htmlEncode(list.options.messages.noData) : list.options.noDataTemplate;
 
-            list.angular("cleanup", function() { return { elements: noData }; });
             kendo.destroy(noData);
             noData.remove();
 
@@ -391,7 +387,6 @@ var __meta__ = {
             var template = list.options.footerTemplate;
             var footerEl = this.options.columns && this.options.columns.length ? TABLE_FOOTER_EL : LIST_FOOTER_EL;
 
-            this._angularElement(footer, "cleanup");
             kendo.destroy(footer);
             footer.remove();
 
@@ -446,10 +441,6 @@ var __meta__ = {
 
             if (!options.template) {
                 options.template = (data) => htmlEncode(kendo.getter(options.dataTextField)(data));
-            }
-
-            if (currentOptions.$angular) {
-                options.$angular = currentOptions.$angular;
             }
 
             return options;
@@ -620,16 +611,6 @@ var __meta__ = {
             }
         },
 
-        _angularElement: function(element, action) {
-            if (!element) {
-                return;
-            }
-
-            this.angular(action, function() {
-                return { elements: element };
-            });
-        },
-
         _renderNoData: function() {
             var list = this;
             var noData = list.noData;
@@ -638,9 +619,7 @@ var __meta__ = {
                 return;
             }
 
-            this._angularElement(noData, "cleanup");
             noData.html(list.noDataTemplate({ instance: list }));
-            this._angularElement(noData, "compile");
         },
 
         _toggleNoData: function(show) {
@@ -660,9 +639,7 @@ var __meta__ = {
                 return;
             }
 
-            this._angularElement(footer, "cleanup");
             footer.html(list.footerTemplate({ instance: list }));
-            this._angularElement(footer, "compile");
         },
 
         _allowOpening: function() {
@@ -1224,6 +1201,31 @@ var __meta__ = {
             }
         },
 
+        _addFilterHeader: function() {
+            var list = this;
+
+            if (list._isFilterEnabled()) {
+                list._filterHeader();
+
+                if (list.options.adaptiveMode === "auto" && (list.mediumMQL.mediaQueryList.matches || list.smallMQL.mediaQueryList.matches)) {
+                    list.popup.element
+                        .find(ACTIONSHEET_TITLEBAR)
+                        .append($(list.actionSheetFilterTemplate))
+                        .find(".k-searchbox")
+                        .append(list.filterInput);
+                    list._enable();
+                } else if (list.options.popupFilter) {
+                    list.list
+                        .parent()
+                        .prepend($(list.filterTemplate))
+                        .find(".k-searchbox")
+                        .append(list.filterInput);
+                }
+
+                list._enable();
+            }
+        },
+
         _createPopup: function() {
             var list = this;
 
@@ -1248,16 +1250,6 @@ var __meta__ = {
                     this._refreshFloatingLabel();
                 }
             }));
-
-            list._addFilterHeader = list._isFilterEnabled() && list.options.popupFilter ? () => {
-                list._filterHeader();
-                list.list
-                    .parent()
-                    .prepend($(list.filterTemplate))
-                    .find(".k-searchbox")
-                    .append(list.filterInput);
-                list._enable();
-            } : $.noop;
 
             list._postCreatePopup();
         },
@@ -1294,7 +1286,6 @@ var __meta__ = {
                             '</div>'
                             : "") +
                         '</div>' +
-                    (this._isFilterEnabled() ? `<div class="k-actionsheet-titlebar-group k-actionsheet-filter">${list.filterTemplate}</div>` : '') +
                 '</div>',
                 open: list._openHandler.bind(list),
                 close: list._closeHandler.bind(list),
@@ -1313,15 +1304,6 @@ var __meta__ = {
                     autosize: list.options.autoWidth
                 })
             });
-
-            list._addFilterHeader = this._isFilterEnabled() ? () => {
-                list._filterHeader();
-                list.popup.element
-                    .find(".k-searchbox")
-                    .append(list.filterInput);
-                list._enable();
-            } : $.noop;
-
 
             list._postCreatePopup();
             list._onActionSheetCreate();
@@ -3042,7 +3024,6 @@ var __meta__ = {
             var result;
 
             that.trigger(DATA_BINDING);
-            that._angularItems("cleanup");
 
             that._fixedHeader();
 
@@ -3076,7 +3057,6 @@ var __meta__ = {
                 that._valueDeferred.resolve();
             }
 
-            that._angularItems("compile");
             that.trigger(DATA_BOUND);
         },
 

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -76,6 +76,7 @@ var __meta__ = {
             }
 
             that._activeInput(activeInput);
+            that.element.addClass("k-hidden");
             that.toggle(that.options.enabled);
 
             var ns = that._ns = NS + "-" + kendo.guid();
@@ -91,6 +92,10 @@ var __meta__ = {
                 .on("keydown", ".k-upload-button", that._onUploadButtonKeydown.bind(that))
                 .on("click", ".k-upload-action", that._onFileAction.bind(that))
                 .on("click", ".k-clear-selected", that._onClearSelected.bind(that))
+                .on("click", ".k-upload-button", function(e) {
+                    e.preventDefault();
+                    that.element.click();
+                })
                 .on("click", ".k-upload-selected", that._onUploadSelected.bind(that))
                 .on("keydown", that._onKeyDown.bind(that))
                 .on("focusout", that._focusout.bind(that));
@@ -223,7 +228,7 @@ var __meta__ = {
         },
 
         focus: function() {
-            this.element.trigger("focus");
+            this.wrapper.find(".k-upload-button").trigger("focus");
         },
 
         destroy: function() {
@@ -394,13 +399,12 @@ var __meta__ = {
                 .data("kendo" + that.options.prefix + that.options.name, that);
 
             $(that.element)
-                .hide()
                 .attr(TABINDEX, "-1")
                 .removeAttr("id")
                 .off(NS);
 
             that._activeInput(input);
-            that.element.trigger("focus");
+            that.wrapper.find(".k-upload-button").trigger("focus");
         },
 
         _activeInput: function(input) {
@@ -421,12 +425,6 @@ var __meta__ = {
                     if (wrapper.hasClass("k-disabled")) {
                         e.preventDefault();
                     }
-                })
-                .on("focus" + NS, function() {
-                    $(this).parent().addClass(FOCUS_STATE);
-                })
-                .on("blur" + NS, function() {
-                    $(this).parent().removeClass(FOCUS_STATE);
                 })
                 .on("change" + NS, that._onInputChange.bind(that));
         },
@@ -512,7 +510,7 @@ var __meta__ = {
             }
 
             if ((!toFocus || toFocus.length === 0) && (key === kendoKeys.UP || key === kendoKeys.DOWN)) {
-                toFocus = that.element;
+                toFocus = that.wrapper.find(".k-upload-button");
             }
 
             if (toFocus && toFocus.length > 0) {
@@ -534,7 +532,7 @@ var __meta__ = {
                 that._checkAllComplete();
                 that._updateHeaderUploadStatus();
                 that._preventFocusRemove = true;
-                that.element.trigger("focus");
+                that.wrapper.find(".k-upload-button").trigger("focus");
             } else if (key === kendoKeys.SPACEBAR) {
                 if (focusedItem.find(".k-i-pause-sm,.k-svg-i-pause-sm").length > 0) {
                     that.trigger(PAUSE, eventArgs);
@@ -575,7 +573,7 @@ var __meta__ = {
                 if (!that.trigger(REMOVE, eventArgs)) {
                     that._module.onRemove({ target: $(focusedItem, that.wrapper) }, eventArgs, !hasValidationErrors);
                     that._preventFocusRemove = true;
-                    that.element.trigger("focus");
+                    that.wrapper.find(".k-upload-button").trigger("focus");
                 }
             } else if (key === kendoKeys.TAB) {
                 focusedItem.removeClass(FOCUS_STATE);
@@ -629,6 +627,7 @@ var __meta__ = {
             } else {
                 that._module.onSelect({ target: input }, files);
             }
+            that.focus();
         },
 
         _onUploadButtonKeydown: function(e) {
@@ -1086,14 +1085,14 @@ var __meta__ = {
                 if (icon.is(".k-i-x,.k-svg-i-x")) {
                     if (!that.trigger(REMOVE, eventArgs)) {
                         that._module.onRemove({ target: $(fileEntry, that.wrapper) }, eventArgs, !hasValidationErrors);
-                        that.element.trigger("focus");
+                        that.wrapper.find(".k-upload-button").trigger("focus");
                     }
                 } else if (icon.is(".k-i-cancel,.k-svg-i-cancel")) {
                     that.trigger(CANCEL, eventArgs);
                     that._module.onCancel({ target: $(fileEntry, that.wrapper) });
                     that._checkAllComplete();
                     that._updateHeaderUploadStatus();
-                    that.element.trigger("focus");
+                    that.wrapper.find(".k-upload-button").trigger("focus");
                 } else if (icon.is(".k-i-pause-sm,.k-svg-i-pause-sm")) {
                     that.trigger(PAUSE, eventArgs);
                     that.pause(fileEntry);

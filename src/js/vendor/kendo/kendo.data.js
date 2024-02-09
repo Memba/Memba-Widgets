@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -460,6 +460,8 @@ var __meta__ = {
 
             this.length = idx;
             this._parent = parentFn.bind(this);
+            this._loadPromises = [];
+            this._loadedNodes = [];
         },
         at: function(index) {
             var item = this[index];
@@ -647,7 +649,7 @@ var __meta__ = {
                     if (!composite) {
                         value = that.wrap(value, field, function() { return that; });
                     }
-                    if (!that._set(field, value) || field.indexOf("(") >= 0 || field.indexOf("[") >= 0) {
+                    if ((!that._set(field, value) || field.indexOf("(") >= 0 || field.indexOf("[") >= 0)) {
                         that.trigger(CHANGE, { field: field });
                     }
                 }
@@ -3148,12 +3150,11 @@ var __meta__ = {
             try {
                 for (var i = 0; i < items.length; i ++) {
                     var item = items[i];
-                    var model = this._createNewModel(item);
 
                     this._eachItem(this._data, function(dataItems) {
                         for (var idx = 0; idx < dataItems.length; idx++) {
                             var dataItem = dataItems.at(idx);
-                            if (dataItem.id === model.id) {
+                            if (dataItem.uid === item.uid) {
                                 moved.push(dataItem);
                                 dataItems.splice(index >= idx ? --index : index, 0, dataItems.splice(idx, 1)[0]);
                                 index++;
@@ -3934,7 +3935,7 @@ var __meta__ = {
                 options.aggregate = convertDescriptorsField(options.aggregate, that.reader.model);
             }
 
-            if (!that.options.groupPaging) {
+            if (!that.options.groupPaging || !(that.options.serverPaging && that.options.serverGrouping)) {
                 delete options.groupPaging;
             }
 
@@ -4184,7 +4185,7 @@ var __meta__ = {
                     that._addRange(that._observe(result.data));
 
                     if (options.skip + options.take > result.data.length) {
-                        options.skip = result.data.length - options.take;
+                        options.skip = Math.max(0, result.data.length - options.take);
                     }
 
                     that.view(query.range(options.skip, options.take).toArray());
@@ -4494,7 +4495,7 @@ var __meta__ = {
                 lastItem = group.items[Math.min(groupItemsSkip + take, groupItemCount - 1)];
 
                 if (firstItem.notFetched) {
-                    that.getGroupItems(group, options, parents, callback, math.max(math.floor(groupItemsSkip / pageSize), 0) * pageSize, math.round((groupItemsSkip + pageSize) / pageSize));
+                    that.getGroupItems(group, options, parents, callback, groupItemsSkip, math.round((groupItemsSkip + pageSize) / pageSize));
                     return true;
                 }
 
@@ -4531,8 +4532,9 @@ var __meta__ = {
 
             if (subgroups && subgroups.length) {
                 data.group = subgroups;
-                data.groupPaging = true;
             }
+
+            data.groupPaging = true;
 
             clearTimeout(that._timeout);
             that._timeout = setTimeout(function() {

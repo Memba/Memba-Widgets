@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -5503,6 +5503,12 @@ var Node = (function (BaseNode$$1) {
             } else {
                 this.removeAttr("aria-roledescription");
             }
+        } else if (field === "ariaChecked") {
+            if (defined(value)) {
+                this.attr("aria-checked", value);
+            } else {
+                this.removeAttr("aria-checked");
+            }
         } else if (field === "className") {
             this.className(value);
         }
@@ -5519,6 +5525,14 @@ var Node = (function (BaseNode$$1) {
 
         for (var i = 0; i < attrs.length; i++) {
             this$1.attr(attrs[i][0], attrs[i][1]);
+        }
+    };
+
+    Node.prototype.toggleAttr = function toggleAttr (name, value) {
+        if (value) {
+            this.attr(name, value);
+        } else {
+            this.removeAttr(name);
         }
     };
 
@@ -5617,6 +5631,10 @@ var Node = (function (BaseNode$$1) {
 
     Node.prototype.renderAriaRoleDescription = function renderAriaRoleDescription () {
         return renderAttr("aria-roledescription", this.srcElement.options.ariaRoleDescription);
+    };
+
+    Node.prototype.renderAriaChecked = function renderAriaChecked () {
+        return renderAttr("aria-checked", this.srcElement.options.ariaChecked);
     };
 
     Node.prototype.createDefinitions = function createDefinitions () {
@@ -5886,8 +5904,11 @@ var ClipNode = (function (Node$$1) {
     ClipNode.fn = ClipNode.prototype;
     ClipNode.fn.init = ClipNode.fn.constructor;
 
+    ClipNode.prototype.renderClipRule = function renderClipRule () {
+        return renderAttr("clip-rule", "evenodd");
+    };
     ClipNode.prototype.template = function template () {
-        return ("<clipPath id='" + (this.id) + "'>" + (this.renderChildren()) + "</clipPath>");
+        return ("<clipPath " + (this.renderClipRule()) + " id='" + (this.id) + "'>" + (this.renderChildren()) + "</clipPath>");
     };
 
     return ClipNode;
@@ -6188,7 +6209,8 @@ var PathNode = (function (Node$$1) {
         return "<path " + (this.renderId()) + " " + (this.renderStyle()) + " " + (this.renderOpacity()) + " " + (renderAttr('d', this.renderData())) +
                 "" + (this.renderStroke()) + (this.renderFill()) + (this.renderDefinitions()) + (this.renderTransform()) +
                 (this.renderClassName()) + " " + (this.renderRole()) +
-                (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) + "></path>";
+                (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
+                (this.renderAriaChecked()) + " ></path>";
     };
 
     return PathNode;
@@ -6245,7 +6267,7 @@ var CircleNode = (function (PathNode$$1) {
                     (this.renderStroke()) + " " + (this.renderFill()) + " " + (this.renderDefinitions()) +
                     (this.renderClassName()) + " " + (this.renderRole()) +
                     (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
-                    (this.renderTransform()) + " ></circle>";
+                    (this.renderAriaChecked()) + " " + (this.renderTransform()) + " ></circle>";
     };
 
     return CircleNode;
@@ -6271,6 +6293,7 @@ var GroupNode = (function (Node$$1) {
             this.renderRole() +
             this.renderAriaLabel() +
             this.renderAriaRoleDescription() +
+            this.renderAriaChecked() +
             this.renderDefinitions()) + ">" + (this.renderChildren()) + "</g>");
     };
 
@@ -6348,7 +6371,8 @@ var ImageNode = (function (PathNode$$1) {
         return "<image preserveAspectRatio='none' " + (this.renderId()) + " " + (this.renderStyle()) + " " + (this.renderTransform()) + " " + (this.renderOpacity()) +
                (this.renderPosition()) + " " + (this.renderSource()) + " " + (this.renderDefinitions()) +
                (this.renderClassName()) + " " + (this.renderRole()) +
-                (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) + ">" +
+                (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
+                (this.renderAriaChecked()) + " >" +
                "</image>";
     };
 
@@ -6418,7 +6442,7 @@ var RectNode = (function (PathNode$$1) {
                     (this.renderFill()) + " " + (this.renderDefinitions()) + " " + (this.renderTransform()) +
                     (this.renderClassName()) + " " + (this.renderRole()) +
                     (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
-                    " />";
+                    (this.renderAriaChecked()) + " />";
     };
 
     return RectNode;
@@ -6517,7 +6541,7 @@ var TextNode = (function (PathNode$$1) {
                     "" + (this.renderFill()) +
                     (this.renderClassName()) + " " + (this.renderRole()) +
                     (this.renderAriaLabel()) + " " + (this.renderAriaRoleDescription()) +
-                    ">" + (this.renderContent()) + "</text>";
+                    (this.renderAriaChecked()) + ">" + (this.renderContent()) + "</text>";
     };
 
     return TextNode;
@@ -6669,39 +6693,6 @@ var Surface$3 = (function (BaseSurface) {
 
 var NODE_MAP$2 = {};
 
-function renderPath(ctx, path) {
-    var segments = path.segments;
-
-    if (segments.length === 0) {
-        return;
-    }
-
-    var segment = segments[0];
-    var anchor = segment.anchor();
-    ctx.moveTo(anchor.x, anchor.y);
-
-    for (var i = 1; i < segments.length; i++) {
-        segment = segments[i];
-        anchor = segment.anchor();
-
-        var prevSeg = segments[i - 1];
-        var prevOut = prevSeg.controlOut();
-        var controlIn = segment.controlIn();
-
-        if (prevOut && controlIn) {
-            ctx.bezierCurveTo(prevOut.x, prevOut.y,
-                controlIn.x, controlIn.y,
-                anchor.x, anchor.y);
-        } else {
-            ctx.lineTo(anchor.x, anchor.y);
-        }
-    }
-
-    if (path.options.closed) {
-        ctx.closePath();
-    }
-}
-
 var Node$2 = (function (BaseNode$$1) {
     function Node(srcElement) {
         BaseNode$$1.call(this, srcElement);
@@ -6744,8 +6735,11 @@ var Node$2 = (function (BaseNode$$1) {
     Node.prototype.setClip = function setClip (ctx) {
         if (this.clip) {
             ctx.beginPath();
-            renderPath(ctx, this.clip);
-            ctx.clip();
+
+            var clipNode = new NODE_MAP$2[this.clip.nodeType](this.clip);
+            clipNode.renderPoints(ctx, this.clip);
+
+            ctx.clip("evenodd");
         }
     };
 
@@ -7327,6 +7321,39 @@ SurfaceCursor.prototype._resetCursor = function _resetCursor () {
         delete this._current;
     }
 };
+
+function renderPath(ctx, path) {
+    var segments = path.segments;
+
+    if (segments.length === 0) {
+        return;
+    }
+
+    var segment = segments[0];
+    var anchor = segment.anchor();
+    ctx.moveTo(anchor.x, anchor.y);
+
+    for (var i = 1; i < segments.length; i++) {
+        segment = segments[i];
+        anchor = segment.anchor();
+
+        var prevSeg = segments[i - 1];
+        var prevOut = prevSeg.controlOut();
+        var controlIn = segment.controlIn();
+
+        if (prevOut && controlIn) {
+            ctx.bezierCurveTo(prevOut.x, prevOut.y,
+                controlIn.x, controlIn.y,
+                anchor.x, anchor.y);
+        } else {
+            ctx.lineTo(anchor.x, anchor.y);
+        }
+    }
+
+    if (path.options.closed) {
+        ctx.closePath();
+    }
+}
 
 function addGradientStops(gradient, stops) {
     for (var idx = 0; idx < stops.length; idx++) {
@@ -8157,6 +8184,7 @@ function slice$1$1(thing) {
 }
 
 var KENDO_PSEUDO_ELEMENT = "KENDO-PSEUDO-ELEMENT";
+var KENDO_BULLET_TYPE = 'data-kendo-bullet-type';
 
 var IMAGE_CACHE = {};
 
@@ -9972,7 +10000,7 @@ function _renderElement(element, group) {
         }
     })();
 
-    if (!maybeRenderWidget(element, group)) {
+    if (!maybeRenderWidget(element, group) && !maybeRenderBullet(element, group)) {
         renderContents(element, group);
     }
 
@@ -10330,16 +10358,8 @@ function _renderElement(element, group) {
           case "disc":
           case "square":
             _drawBullet(function(bullet){
-                // XXX: the science behind these values is called "trial and error".
-                bullet.style.fontSize = "60%";
-                bullet.style.lineHeight = "200%";
-                bullet.style.paddingRight = "0.5em";
-                bullet.style.fontFamily = "DejaVu Serif";
-                bullet.innerHTML = {
-                    "disc"   : "\u25cf",
-                    "circle" : "\u25ef",
-                    "square" : "\u25a0"
-                }[listStyleType];
+                bullet.innerHTML = '&nbsp;';
+                bullet.setAttribute(KENDO_BULLET_TYPE, listStyleType);
             });
             break;
 
@@ -10712,6 +10732,40 @@ function maybeRenderWidget(element, group) {
     wrap$$1.transform(transform$1().translate(bbox.left, bbox.top));
 
     group.append(wrap$$1);
+
+    return true;
+}
+
+function maybeRenderBullet(element, group) {
+    var bulletType = element.getAttribute(KENDO_BULLET_TYPE);
+
+    if (!bulletType) {
+        return false;
+    }
+
+    var box = element.getBoundingClientRect();
+    var color = getComputedStyle$1(element).color;
+
+    if (bulletType === 'square') {
+        var rectSize = box.height / 5;
+        group.append(new Rect$2(new Rect([
+            box.right - rectSize,
+            box.top + box.height / 2.1
+        ], [rectSize, rectSize])).fill(color).stroke(color));
+    } else {
+        var radius = box.height / 7;
+        var center = [
+            box.right - radius,
+            box.top + (box.height + radius) / 2
+        ];
+        var circle = new Circle(new Circle$2(center, radius));
+        if (bulletType === 'circle') {
+            circle.stroke(color, 0.5);
+        } else {
+            circle.fill(color).stroke(null);
+        }
+        group.append(circle);
+    }
 
     return true;
 }

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -10,6 +10,7 @@ import "./kendo.list.js";
 import "./kendo.mobile.scroller.js";
 import "./kendo.virtuallist.js";
 import "./kendo.html.button.js";
+import { addInputPrefixSuffixContainers } from "./utils/prefix-suffix-containers.js";
 
 var __meta__ = {
     id: "combobox",
@@ -129,6 +130,10 @@ var __meta__ = {
                 that.enable(false);
             }
 
+            addInputPrefixSuffixContainers({ widget: that, wrapper: that.wrapper, options: that.options,
+                prefixInsertBefore: that.input,
+                suffixInsertAfter: that._clear.parent().length ? that._clear : that.input });
+
             kendo.notify(that);
             that._toggleCloseVisibility();
             that._applyCssClasses();
@@ -167,6 +172,12 @@ var __meta__ = {
             template: null,
             groupTemplate: (data) => encode(data),
             fixedGroupTemplate: (data) => encode(data),
+            prefixOptions: {
+                separator: true
+            },
+            suffixOptions: {
+                separator: true
+            },
             clearButton: true,
             syncValueAndText: true,
             autoWidth: false,
@@ -346,8 +357,9 @@ var __meta__ = {
 
             var item = that._focus();
             var dataItem = this.listView.dataItemByIndex(this.listView.getElementIndex(item));
+            var selectedIndex = that.select();
 
-            if (value !== that.value() && that.trigger("select", { dataItem: dataItem, item: item })) {
+            if (value !== that.value() && selectedIndex !== -1 && that.trigger("select", { dataItem: dataItem, item: item })) {
                 that.value(value);
                 return;
             }
@@ -914,6 +926,7 @@ var __meta__ = {
             var that = this;
             clearTimeout(that._busy);
             that._arrowIcon.removeClass(LOADING);
+            that._arrowIcon.find("svg").show();
             that._focused.attr("aria-busy", false);
             that._busy = null;
             that._toggleCloseVisibility();
@@ -1059,6 +1072,7 @@ var __meta__ = {
                 })
                 .show();
 
+            input.attr(kendo.attr("skip"), true);
             if (placeholderSupported) {
                 input.attr("placeholder", that.options.placeholder);
             }

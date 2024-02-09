@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -430,7 +430,9 @@ var FontTool = DelayedExecutionTool.extend({
 
         widget.bind("change", (e) => {
             editor._range = range;
-            Tool.exec(editor, toolName, e.sender.value());
+            if (e.sender.value() !== "") {
+                Tool.exec(editor, toolName, e.sender.value());
+            }
         });
 
         widget.bind("close", () => {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -126,12 +126,16 @@ var __meta__ = {
             that.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
 
             isRtl = kendo.support.isRtl(element);
+            that._numericWrap = that.element.find(".k-pager-numbers-wrap");
 
             if (isRtl) {
                 FIRST = LAST_CONST;
                 LAST = FIRST_CONST;
                 PREV = NEXT_CONST;
                 NEXT = PREV_CONST;
+                if (that._numericWrap.length) {
+                    that._numericWrap.empty();
+                }
             } else {
                 FIRST = FIRST_CONST;
                 LAST = LAST_CONST;
@@ -150,7 +154,6 @@ var __meta__ = {
             that._template();
 
             if (options.previousNext || options.numeric) {
-                that._numericWrap = that.element.find(".k-pager-numbers-wrap");
 
                 if (that._numericWrap.length === 0) {
                     that._numericWrap = $("<div class='k-pager-numbers-wrap' />").appendTo(that.element);
@@ -293,8 +296,11 @@ var __meta__ = {
                 } else {
                     if (width <= 600) {
                         info.hide();
-                    }
-                    if (options.numeric) {
+                        if (options.numeric) {
+                            that._numericSelect.show();
+                            that.list.hide();
+                        }
+                    } else if (options.numeric) {
                         that._numericSelect.hide();
                     }
                 }

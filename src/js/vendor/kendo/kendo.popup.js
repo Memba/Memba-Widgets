@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -174,6 +174,7 @@ var __meta__ = {
             viewport: window,
             copyAnchorStyles: true,
             autosize: false,
+            autowidth: false,
             modal: false,
             adjustSize: {
                 width: 0,
@@ -278,7 +279,7 @@ var __meta__ = {
                     that._toggleResize(true);
                 }
 
-                that.wrapper = wrapper = kendo.wrap(element, options.autosize, options._resizeOnWrap, shouldCorrectWidth)
+                that.wrapper = wrapper = kendo.wrap(element, options.autosize, options._resizeOnWrap, shouldCorrectWidth, options.autowidth)
                     .css({
                         overflow: HIDDEN,
                         display: "block",
@@ -426,13 +427,14 @@ var __meta__ = {
             if (that.visible()) {
                 wrap = (that.wrapper[0] ? that.wrapper : kendo.wrap(that.element).hide());
 
-                that.wrapper.removeClass("k-animation-container-shown");
                 that._toggleResize(false);
 
                 if (that._closing || that._trigger(CLOSE)) {
                     that._toggleResize(true);
                     return;
                 }
+
+                that.wrapper.removeClass("k-animation-container-shown");
 
                 // Close all inclusive popups.
                 that.element.find(".k-popup").each(function() {

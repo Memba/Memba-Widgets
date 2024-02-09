@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -285,9 +285,11 @@ var __meta__ = {
         if (!item.children(LINK_SELECTOR).length) {
             item.contents() // exclude groups, real links, templates and empty text nodes
                 .filter(function() { return (!this.nodeName.match(excludedNodesRegExp) && !(this.nodeType === 3 && !kendo.trim(this.nodeValue))); })
-                .wrapAll("<span class='" + LINK + "'></span>")
+                // adding role=none to span elements inside li[role=menuitem]
+                // to make screen readers announce submenus #telerik/kendo-ui-core/issues/6942
+                .wrapAll("<span class='" + LINK + "' role='none'></span>")
                 .filter(function(idx, elm) { return elm.nodeType === 3; })
-                .wrap("<span class='k-menu-link-text'></span>");
+                .wrap("<span class='k-menu-link-text' role='none'></span>");
         }
 
         updateArrow(item);
@@ -360,7 +362,7 @@ var __meta__ = {
         }
 
         if (options.items) {
-            $(element).children("ul").children("li").each(function(i) {
+            $(element).children("div").children("ul").children("li").each(function(i) {
                 storeItemSelectEventHandler(this, options.items[i]);
             });
         }
@@ -1429,7 +1431,7 @@ var __meta__ = {
                 items;
 
             element.removeClass("k-menu-horizontal k-menu-vertical");
-            element.addClass("k-widget k-reset k-menu-init " + MENU).addClass(MENU + "-" + this.options.orientation);
+            element.addClass("k-widget k-reset k-header k-menu-init " + MENU).addClass(MENU + "-" + this.options.orientation);
 
             if (this.options.orientation === "vertical") {
                 element.attr("aria-orientation", "vertical");
@@ -1520,7 +1522,7 @@ var __meta__ = {
             var that = this;
             var element = $(e.currentTarget);
             var popupOpener = element.data(POPUP_OPENER_ATTR);
-            var hasChildren = (element.children(animationContainerSelector).length || element.children(groupSelector).length) || popupOpener;
+            var hasChildren = element.children(popupSelector).length || popupOpener;
             var $window = $(window);
 
             if (popupOpener) {
@@ -1558,7 +1560,7 @@ var __meta__ = {
                  return;
             }
 
-            popupElement = popupElement.children("ul");
+            popupElement = popupElement.find(popupSelector);
             var popupId = popupElement.data(POPUP_ID_ATTR);
 
             if (popupId) {
@@ -1619,7 +1621,7 @@ var __meta__ = {
             var overflowWrapper = that._overflowWrapper();
             var popupId = current.data(POPUP_ID_ATTR);
             var popupOpener = overflowWrapper.find(popupOpenerSelector(popupId));
-            popupId = popupOpener.parent().data(POPUP_ID_ATTR);
+            popupId = popupOpener.closest(popupSelector).data(POPUP_ID_ATTR);
             that.close(popupOpener, true);
             while (popupId && !that._openedPopups[popupId]) {
                 if (popupOpener.parent().is(menuSelector)) {
@@ -1627,7 +1629,7 @@ var __meta__ = {
                 }
                 popupOpener = overflowWrapper.find(popupOpenerSelector(popupId));
                 that.close(popupOpener, true);
-                popupId = popupOpener.parent().data(POPUP_ID_ATTR);
+                popupId = popupOpener.closest(popupSelector).data(POPUP_ID_ATTR);
             }
         },
 
@@ -2309,7 +2311,7 @@ var __meta__ = {
                         text = encode(text);
                     }
 
-                    return `<span class='k-menu-link-text'>${text}</span>`;
+                    return `<span class='k-menu-link-text' role='none'>${text}</span>`;
                 });
             }
 
@@ -2334,7 +2336,7 @@ var __meta__ = {
                     var imgAttributes = fieldAccessor("imageAttr")(item);
                     var tag = url ? 'a' : 'span';
 
-                    return `<${tag} class='${rendering.textClass(item)}' ${url ? `href='${url}'` : ''} >` +
+                    return `<${tag} class='${rendering.textClass(item)}' role='none' ${url ? `href='${url}'` : ''} >` +
                         (imageUrl ? `<img ${rendering.imageCssAttributes(imgAttributes)}  alt='' src='${imageUrl}' />` : '') +
                         this.templates.sprite(item) +
                         this.options.template(data) +

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -39,6 +39,9 @@ var X = datavizConstants.X;
 var Y = datavizConstants.Y;
 var RIGHT = datavizConstants.RIGHT;
 var BLACK = datavizConstants.BLACK;
+var COORD_PRECISION = datavizConstants.COORD_PRECISION;
+var END = datavizConstants.END;
+var START = datavizConstants.START;
 var DEFAULT_PRECISION = datavizConstants.DEFAULT_PRECISION;
 var ARC = datavizConstants.ARC;
 var defined = dataviz.defined;
@@ -58,8 +61,8 @@ var parseDate = dataviz.parseDate;
 var deepExtend = dataviz.deepExtend;
 var last = dataviz.last;
 var eventElement = dataviz.eventElement;
-var getTemplate = dataviz.getTemplate;
 var TextBox = dataviz.TextBox;
+var getTemplate = dataviz.getTemplate;
 var ShapeElement = dataviz.ShapeElement;
 var getSpacing = dataviz.getSpacing;
 var CurveProcessor = dataviz.CurveProcessor;
@@ -70,8 +73,11 @@ var BoxElement = dataviz.BoxElement;
 var Title = dataviz.Title;
 var round = dataviz.round;
 var limitValue = dataviz.limitValue;
+var cycleIndex = dataviz.cycleIndex;
 var grep = dataviz.grep;
 var elementStyles = dataviz.elementStyles;
+var autoTextColor = dataviz.autoTextColor;
+var rad = dataviz.rad;
 var bindEvents = dataviz.bindEvents;
 var services = dataviz.services;
 var unbindEvents = dataviz.unbindEvents;
@@ -81,9 +87,12 @@ var Path = drawing.Path;
 var Animation = drawing.Animation;
 var AnimationFactory = drawing.AnimationFactory;
 var Group = drawing.Group;
+var Circle = drawing.Circle;
+var MultiPath = drawing.MultiPath;
 var Color = kendo.Color;
 var geometry = kendo.geometry;
 var GeometryPoint = geometry.Point;
+var GeometryCircle = geometry.Circle;
 var transform = geometry.transform;
 
 var ChartAxis = Class.extend({
@@ -588,10 +597,19 @@ var EQUALLY_SPACED_SERIES = [
     BULLET, RANGE_COLUMN, RANGE_BAR, WATERFALL, HORIZONTAL_WATERFALL
 ];
 
+var TRENDLINE_EXPONENTIAL = 'exponentialTrendline';
 var TRENDLINE_LINEAR = 'linearTrendline';
+var TRENDLINE_LOGARITHMIC = 'logarithmicTrendline';
 var TRENDLINE_MOVING_AVERAGE = 'movingAverageTrendline';
+var TRENDLINE_POLYNOMIAL = 'polynomialTrendline';
+var TRENDLINE_POWER = 'powerTrendline';
 var TRENDLINE_SERIES = [
-    TRENDLINE_LINEAR, TRENDLINE_MOVING_AVERAGE
+    TRENDLINE_EXPONENTIAL,
+    TRENDLINE_LINEAR,
+    TRENDLINE_LOGARITHMIC,
+    TRENDLINE_MOVING_AVERAGE,
+    TRENDLINE_POLYNOMIAL,
+    TRENDLINE_POWER
 ];
 
 var LEGEND_ITEM_CLICK = "legendItemClick";
@@ -617,6 +635,13 @@ var RENDER = "render";
 var SHOW_TOOLTIP = "showTooltip";
 var HIDE_TOOLTIP = "hideTooltip";
 var PANE_RENDER = "paneRender";
+
+var CHART_POINT_ROLE = "graphics-symbol";
+var CHART_POINT_CLASSNAME = "k-chart-point";
+var CHART_POINT_ROLE_DESCRIPTION = "Point";
+var LEGEND_ITEM_ROLE = "checkbox";
+var LEGEND_ITEM_CLASSNAME = "k-chart-legend-item";
+var LEGEND_ITEM_ARIA_ROLE_DESCRIPTION = "Legend item";
 
 var LOGARITHMIC = "log";
 var CATEGORY = "category";
@@ -723,8 +748,18 @@ var constants = {
 	DRILLDOWN_FIELD: DRILLDOWN_FIELD,
 	MIN_MOVING_AVERAGE_PERIOD: MIN_MOVING_AVERAGE_PERIOD,
 	TRENDLINE_SERIES: TRENDLINE_SERIES,
+	TRENDLINE_EXPONENTIAL: TRENDLINE_EXPONENTIAL,
 	TRENDLINE_LINEAR: TRENDLINE_LINEAR,
-	TRENDLINE_MOVING_AVERAGE: TRENDLINE_MOVING_AVERAGE
+	TRENDLINE_LOGARITHMIC: TRENDLINE_LOGARITHMIC,
+	TRENDLINE_MOVING_AVERAGE: TRENDLINE_MOVING_AVERAGE,
+	TRENDLINE_POLYNOMIAL: TRENDLINE_POLYNOMIAL,
+	TRENDLINE_POWER: TRENDLINE_POWER,
+	CHART_POINT_ROLE: CHART_POINT_ROLE,
+	CHART_POINT_CLASSNAME: CHART_POINT_CLASSNAME,
+	CHART_POINT_ROLE_DESCRIPTION: CHART_POINT_ROLE_DESCRIPTION,
+	LEGEND_ITEM_ROLE: LEGEND_ITEM_ROLE,
+	LEGEND_ITEM_CLASSNAME: LEGEND_ITEM_CLASSNAME,
+	LEGEND_ITEM_ARIA_ROLE_DESCRIPTION: LEGEND_ITEM_ARIA_ROLE_DESCRIPTION
 };
 
 var DEFAULT_ERROR_BAR_WIDTH = 4;
@@ -969,7 +1004,7 @@ function evalOptions(options, context, state, dryRun) {
     }
 
     for (var property in options) {
-        if (!inArray(property, state.excluded) && options.hasOwnProperty(property)) {
+        if (!inArray(property, state.excluded) && dataviz.hasOwnProperty(options, property)) {
             var propValue = options[property];
             if (isFunction(propValue)) {
                 needsEval = true;
@@ -1004,20 +1039,20 @@ function filterSeriesByType(series, types) {
     return result;
 }
 
-function getDateField(field, row, intlService) {
-    if (row === null) {
-        return row;
+var dateCache = new WeakMap();
+
+function parseDateCategory(category, row, intlService) {
+    if (row === null || typeof row !== 'object') {
+        return parseDate(intlService, category);
     }
 
-    var key = "_date_" + field;
-    var value = row[key];
-
-    if (!value) {
-        value = parseDate(intlService, getter(field, true)(row));
-        row[key] = value;
+    var date = dateCache.get(row);
+    if (!date) {
+        date = parseDate(intlService, category);
+        dateCache.set(row, date);
     }
 
-    return value;
+    return date;
 }
 
 function hasGradientOverlay(options) {
@@ -1238,35 +1273,47 @@ var CategoricalChart = ChartElement.extend({
             var positive = plotValue >= 0;
             var prevValue = startValue;
             var isStackedBar = false;
+            var stack = defined(point.series.stack) ? point.series.stack : this.options.defaultStack;
 
-            for (var i = 0; i < categoryPoints.length; i++) {
-                var other = categoryPoints[i];
+            if (stack) {
+                for (var i = 0; i < categoryPoints.length; i++) {
+                    var other = categoryPoints[i];
 
-                if (point === other) {
-                    break;
-                }
+                    if (point === other) {
+                        break;
+                    }
 
-                var stack = point.series.stack;
-                var otherStack = other.series.stack;
-                if (stack && otherStack) {
+                    var otherStack = defined(other.series.stack) ? other.series.stack : this$1.options.defaultStack;
+
+                    if (!otherStack) {
+                        continue;
+                    }
+
                     if (typeof stack === datavizConstants.STRING && stack !== otherStack) {
+                        continue;
+                    }
+
+                    if (stack === true && otherStack !== true) {
                         continue;
                     }
 
                     if (stack.group && stack.group !== otherStack.group) {
                         continue;
                     }
-                }
 
-                var otherValue = this$1.plotValue(other);
-                if ((otherValue >= 0 && positive) ||
-                    (otherValue < 0 && !positive)) {
-                    prevValue += otherValue;
-                    plotValue += otherValue;
-                    isStackedBar = true;
+                    var otherValue = this$1.plotValue(other);
+                    if ((otherValue >= 0 && positive) ||
+                        (otherValue < 0 && !positive)) {
+                        // zero values should be skipped for log axis (startValue !== 0)
+                        if (startValue === 0 || otherValue !== 0) {
+                            prevValue += otherValue;
+                            plotValue += otherValue;
+                            isStackedBar = true;
 
-                    if (this$1.options.isStacked100) {
-                        plotValue = Math.min(plotValue, 1);
+                            if (this$1.options.isStacked100) {
+                                plotValue = Math.min(plotValue, 1);
+                            }
+                        }
                     }
                 }
             }
@@ -1466,7 +1513,7 @@ var CategoricalChart = ChartElement.extend({
             excluded: [
                 "data", "aggregate", "_events", "tooltip", "content", "template",
                 "visual", "toggle", "_outOfRangeMinPoint", "_outOfRangeMaxPoint",
-                "drilldownSeriesFactory"
+                "drilldownSeriesFactory", "ariaTemplate", "ariaContent"
             ]
         };
 
@@ -1759,6 +1806,24 @@ var NoteMixin = {
     }
 };
 
+function guid() {
+    var id = "";
+    var i;
+    var random;
+
+    for (i = 0; i < 32; i++) {
+        random = Math.random() * 16 | 0;
+
+        if (i === 8 || i === 12 || i === 16 || i === 20) {
+            id += "-";
+        }
+
+        id += (i === 12 ? 4 : (i === 16 ? (random & 3 | 8) : random)).toString(16); // eslint-disable-line no-nested-ternary
+    }
+
+    return id;
+}
+
 var LinePoint = ChartElement.extend({
     init: function(value, options) {
         ChartElement.fn.init.call(this);
@@ -1767,12 +1832,12 @@ var LinePoint = ChartElement.extend({
         this.options = options;
         this.aboveAxis = valueOrDefault(this.options.aboveAxis, true);
         this.tooltipTracking = true;
+        this._id = guid();
     },
 
     render: function() {
         var ref = this.options;
         var markers = ref.markers;
-        var labels = ref.labels;
 
         if (this._rendered) {
             return;
@@ -1785,35 +1850,60 @@ var LinePoint = ChartElement.extend({
             this.append(this.marker);
         }
 
-        if (labels.visible) {
-            var labelTemplate = getTemplate(labels);
-            var pointData = this.pointData();
-            var labelText = this.value;
-            if (labelTemplate) {
-                labelText = labelTemplate(pointData);
-            } else if (labels.format) {
-                labelText = this.formatValue(labels.format);
-            }
-            this.label = new TextBox(labelText,
-                deepExtend({
-                    align: CENTER,
-                    vAlign: CENTER,
-                    margin: {
-                        left: 5,
-                        right: 5
-                    },
-                    zIndex: valueOrDefault(labels.zIndex, this.series.zIndex)
-                }, labels),
-                pointData
-            );
-            this.append(this.label);
-        }
-
+        this.createLabel();
         this.createNote();
 
         if (this.errorBar) {
             this.append(this.errorBar);
         }
+    },
+
+    createLabel: function() {
+        var options = this.options;
+        var labels = options.labels;
+
+        if (labels.visible) {
+            this.label = this.createLabelElement(labels);
+            this.append(this.label);
+        }
+    },
+
+    createLabelElement: function(options) {
+        return new TextBox(this.getLabelText(options),
+            deepExtend({
+                align: CENTER,
+                vAlign: CENTER,
+                margin: {
+                    left: 5,
+                    right: 5
+                },
+                zIndex: valueOrDefault(options.zIndex, this.series.zIndex)
+            }, options),
+            this.pointData()
+        );
+    },
+
+    getLabelText: function(options) {
+        var labelTemplate = getTemplate(options);
+
+        if (labelTemplate) {
+            return labelTemplate(this.pointData());
+        } else if (options.format) {
+            return this.formatValue(options.format);
+        }
+
+        return this.value;
+    },
+
+    getAriaLabelText: function() {
+        var labels = this.options.labels;
+        var ariaTemplate = dataviz.getAriaTemplate(labels);
+
+        if (ariaTemplate) {
+            return ariaTemplate(this.pointData());
+        }
+
+        return this.getLabelText(labels);
     },
 
     markerBorder: function() {
@@ -1842,7 +1932,10 @@ var LinePoint = ChartElement.extend({
             opacity: options.opacity,
             zIndex: valueOrDefault(options.zIndex, this.series.zIndex),
             animation: options.animation,
-            visual: options.visual
+            visual: options.visual,
+            accessibilityOptions: deepExtend({
+                ariaLabel: this.getAriaLabelText(this.options.labels)
+            }, this.options.accessibility)
         }, {
             dataItem: this.dataItem,
             value: this.value,
@@ -1979,6 +2072,28 @@ var LinePoint = ChartElement.extend({
         };
     },
 
+    createFocusHighlight: function() {
+        var markerOptions = this.options.markers;
+        var highlightOptions = this.options.accessibility.highlight;
+        var size = markerOptions.size + (markerOptions.border.width || 0);
+
+        var highlight = new ShapeElement({
+            type: markerOptions.type,
+            width: size,
+            height: size,
+            rotation: markerOptions.rotation,
+            background: highlightOptions.color,
+            border: highlightOptions.border,
+            opacity: highlightOptions.opacity,
+            padding: highlightOptions.border.width / 2,
+            zIndex: highlightOptions.zIndex
+        });
+
+        highlight.reflow(this._childBox);
+
+        return highlight.getElement();
+    },
+
     tooltipAnchor: function() {
         var markerBox = this.markerBox();
         var clipBox = this.owner.pane.clipBox();
@@ -2035,6 +2150,30 @@ var LinePoint = ChartElement.extend({
             stackValue: this.stackValue,
             series: this.series
         };
+    },
+
+    focusVisual: function() {
+        if (this.marker) {
+            if (this.marker.visual) {
+                this.marker.visual.options.set("id", this._id);
+            }
+
+            this.toggleFocusHighlight(true);
+        }
+    },
+
+    clearFocusFromVisual: function() {
+        if (this.marker) {
+            if (this.marker.visual) {
+                this.marker.visual.options.set("id", "");
+            }
+
+            this.toggleFocusHighlight(false);
+        }
+    },
+
+    getIndex: function() {
+        return defined(this.categoryIx) ? this.categoryIx : this.pointIx;
     }
 });
 
@@ -2076,6 +2215,12 @@ LinePoint.prototype.defaults = {
         line: {
             width: 1
         }
+    },
+    accessibility: {
+        tabIndex: 0,
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
     }
 };
 
@@ -2613,10 +2758,10 @@ var AreaSegment = LineSegment.extend({
 
         if (invertAxes) {
             fillPath.lineTo(end, lastPoint.y)
-                    .lineTo(end, firstPoint.y);
+                .lineTo(end, firstPoint.y);
         } else {
             fillPath.lineTo(lastPoint.x, end)
-                    .lineTo(firstPoint.x, end);
+                .lineTo(firstPoint.x, end);
         }
     }
 });
@@ -2936,6 +3081,49 @@ setDefaultOptions(BarLabel, {
     zIndex: 2
 });
 
+function addAccessibilityAttributesToVisual(visual, accessibilityOptions) {
+    if (accessibilityOptions) {
+        visual.options.className = accessibilityOptions.className;
+        visual.options.role = accessibilityOptions.role;
+        visual.options.ariaLabel = accessibilityOptions.ariaLabel;
+        visual.options.ariaRoleDescription = accessibilityOptions.ariaRoleDescription;
+        visual.options.ariaChecked = accessibilityOptions.ariaChecked;
+    }
+}
+
+var AccessibilityAttributesMixin = {
+    addAccessibilityAttributesToVisual: function() {
+        this._id = this._id || guid();
+
+        var accessibilityOptions = deepExtend({
+            ariaLabel: this.getAriaLabelText()
+        }, this.options.accessibility);
+
+        addAccessibilityAttributesToVisual(this.visual, accessibilityOptions);
+    },
+
+    getAriaLabelText: function getAriaLabelText() {
+        var labels = this.options.labels;
+        var ariaTemplate = dataviz.getAriaTemplate(labels);
+
+        if (ariaTemplate) {
+            return ariaTemplate(this.pointData());
+        }
+
+        return this.getLabelText(labels);
+    },
+
+    focusVisual: function focusVisual() {
+        this.visual.options.set("id", this._id);
+        this.toggleFocusHighlight(true);
+    },
+
+    clearFocusFromVisual: function clearFocusFromVisual() {
+        this.visual.options.set("id", "");
+        this.toggleFocusHighlight(false);
+    }
+};
+
 var BAR_ALIGN_MIN_WIDTH = 6;
 
 var Bar = ChartElement.extend({
@@ -2968,24 +3156,28 @@ var Bar = ChartElement.extend({
         var labels = options.labels;
 
         if (labels.visible) {
-            var pointData = this.pointData();
-            var labelTemplate = getTemplate(labels);
-            var labelText;
-
-            if (labelTemplate) {
-                labelText = labelTemplate(pointData);
-            } else {
-                labelText = this.formatValue(labels.format);
-            }
-
-            this.label = new BarLabel(labelText,
-                deepExtend({
-                    vertical: options.vertical
-                },
-                labels
-            ), pointData);
+            this.label = this.createLabelElement(labels);
             this.append(this.label);
         }
+    },
+
+    createLabelElement: function(options) {
+        return new BarLabel(this.getLabelText(options),
+            deepExtend({
+                vertical: this.options.vertical
+            },
+            options
+            ), this.pointData());
+    },
+
+    getLabelText: function(options) {
+        var labelTemplate = getTemplate(options);
+
+        if (labelTemplate) {
+            return labelTemplate(this.pointData());
+        }
+
+        return this.formatValue(options.format);
     },
 
     formatValue: function(format) {
@@ -3027,6 +3219,8 @@ var Bar = ChartElement.extend({
 
         if (this.visible !== false) {
             ChartElement.fn.createVisual.call(this);
+
+            this.addAccessibilityAttributesToVisual();
 
             if (customVisual) {
                 var visual = this.rectVisual = customVisual({
@@ -3121,6 +3315,13 @@ var Bar = ChartElement.extend({
         };
     },
 
+    createFocusHighlight: function(style) {
+        var borderWidth = this.options.accessibility.highlight.border.width;
+        var highlight = Path.fromRect(this.box.pad(borderWidth / 2).toRect(), style);
+
+        return alignPathToPixel(highlight);
+    },
+
     getBorderColor: function() {
         var color = this.color;
         var border = this.options.border;
@@ -3200,11 +3401,16 @@ var Bar = ChartElement.extend({
             total: this.total,
             series: this.series
         };
+    },
+
+    getIndex: function() {
+        return this.categoryIx;
     }
 });
 
 deepExtend(Bar.prototype, PointEventsMixin);
 deepExtend(Bar.prototype, NoteMixin);
+deepExtend(Bar.prototype, AccessibilityAttributesMixin);
 
 Bar.prototype.defaults = {
     border: {
@@ -3221,6 +3427,11 @@ Bar.prototype.defaults = {
     opacity: 1,
     notes: {
         label: {}
+    },
+    accessibility: {
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
     }
 };
 
@@ -3339,18 +3550,18 @@ var BarChart = CategoricalChart.extend({
         var ref = this;
         var options = ref.options;
         var children = ref.children;
-        var isStacked = options.isStacked;
+        var stackOrDefault = defined(series.stack) ? series.stack : options.defaultStack;
         var value = this.pointValue(data);
         var pointOptions = this.pointOptions(series, seriesIx);
 
         var labelOptions = pointOptions.labels;
-        if (isStacked) {
+        if (stackOrDefault) {
             if (labelOptions.position === OUTSIDE_END) {
                 labelOptions.position = INSIDE_END;
             }
         }
 
-        pointOptions.isStacked = isStacked;
+        pointOptions.isStacked = stackOrDefault;
 
         var color = data.fields.color || series.color;
         if (value < 0 && pointOptions.negativeColor) {
@@ -3378,8 +3589,8 @@ var BarChart = CategoricalChart.extend({
             this.append(cluster);
         }
 
-        if (isStacked) {
-            var stackWrap = this.getStackWrap(series, cluster);
+        if (options.isStacked) {
+            var stackWrap = this.getStackWrap(stackOrDefault, cluster);
             stackWrap.append(point);
         } else {
             cluster.append(point);
@@ -3388,21 +3599,18 @@ var BarChart = CategoricalChart.extend({
         return point;
     },
 
-    getStackWrap: function(series, cluster) {
-        var stack = series.stack;
+    getStackWrap: function(stack, cluster) {
         var stackGroup = stack ? stack.group || stack : stack;
         var wraps = cluster.children;
         var stackWrap;
 
-        if (typeof stackGroup === datavizConstants.STRING) {
+        if (typeof stackGroup === datavizConstants.STRING || stackGroup === true) {
             for (var i = 0; i < wraps.length; i++) {
                 if (wraps[i]._stackGroup === stackGroup) {
                     stackWrap = wraps[i];
                     break;
                 }
             }
-        } else {
-            stackWrap = wraps[0];
         }
 
         if (!stackWrap) {
@@ -3493,6 +3701,10 @@ var Candlestick = ChartElement.extend({
         this.value = value;
     },
 
+    getLabelText: function(options) {
+        return this.formatValue(options.format);
+    },
+
     reflow: function(box) {
         var ref = this;
         var options = ref.options;
@@ -3533,6 +3745,9 @@ var Candlestick = ChartElement.extend({
 
     createVisual: function() {
         ChartElement.fn.createVisual.call(this);
+
+        this.addAccessibilityAttributesToVisual();
+
         this._mainVisual = this.mainVisual(this.options);
         this.visual.append(
             this._mainVisual
@@ -3675,8 +3890,26 @@ var Candlestick = ChartElement.extend({
 
     overlapsBox: function(box) {
         return this.box.overlaps(box);
+    },
+
+    pointData: function() {
+        return {
+            dataItem: this.dataItem,
+            value: this.value,
+            meanPoints: this.meanPoints,
+            medianPoints: this.medianPoints,
+            whiskerPoints: this.whiskerPoints,
+            stackValue: this.stackValue,
+            series: this.series
+        };
+    },
+
+    getIndex: function() {
+        return this.categoryIx;
     }
 });
+
+Candlestick.prototype.createFocusHighlight = Bar.prototype.createFocusHighlight;
 
 setDefaultOptions(Candlestick, {
     vertical: true,
@@ -3698,6 +3931,9 @@ setDefaultOptions(Candlestick, {
                     "<tr><td>Close:</td><td>{3:C}</td></tr>" +
                 "</table>"
     },
+    labels: {
+        format: ""
+    },
     highlight: {
         opacity: 1,
         border: {
@@ -3712,11 +3948,17 @@ setDefaultOptions(Candlestick, {
     notes: {
         visible: true,
         label: {}
+    },
+    accessibility: {
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
     }
 });
 
 deepExtend(Candlestick.prototype, PointEventsMixin);
 deepExtend(Candlestick.prototype, NoteMixin);
+deepExtend(Candlestick.prototype, AccessibilityAttributesMixin);
 
 var CandlestickChart = CategoricalChart.extend({
     reflowCategories: function(categorySlots) {
@@ -3793,7 +4035,7 @@ var CandlestickChart = CategoricalChart.extend({
 
         pointOptions = this.evalPointOptions(pointOptions, value, fields);
 
-        if (series.type === CANDLESTICK) {
+        if (series.type === CANDLESTICK || series.type === OHLC) {
             if (value.open > value.close) {
                 color = data.fields.downColor || series.downColor || series.color;
             }
@@ -3818,12 +4060,9 @@ var CandlestickChart = CategoricalChart.extend({
     updateRange: function(value, fields) {
         var axisName = fields.series.axis;
         var parts = this.splitValue(value);
-        var axisRange = this.valueAxisRanges[axisName];
+        var axisRange = this.valueAxisRanges[axisName] || { min: MAX_VALUE, max: MIN_VALUE };
 
-        axisRange = this.valueAxisRanges[axisName] =
-            axisRange || { min: MAX_VALUE, max: MIN_VALUE };
-
-        axisRange = this.valueAxisRanges[axisName] = {
+        this.valueAxisRanges[axisName] = {
             min: Math.min.apply(Math, parts.concat([ axisRange.min ])),
             max: Math.max.apply(Math, parts.concat([ axisRange.max ]))
         };
@@ -4188,17 +4427,15 @@ var BoxPlotChart = CandlestickChart.extend({
 
     updateRange: function(value, fields) {
         var axisName = fields.series.axis;
-        var axisRange = this.valueAxisRanges[axisName];
         var parts = this.splitValue(value).concat(this.filterOutliers(value.outliers));
 
         if (defined(value.mean)) {
             parts = parts.concat(value.mean);
         }
 
-        axisRange = this.valueAxisRanges[axisName] =
-            axisRange || { min: MAX_VALUE, max: MIN_VALUE };
+        var axisRange = this.valueAxisRanges[axisName] || { min: MAX_VALUE, max: MIN_VALUE };
 
-        axisRange = this.valueAxisRanges[axisName] = {
+        this.valueAxisRanges[axisName] = {
             min: Math.min.apply(Math, parts.concat([ axisRange.min ])),
             max: Math.max.apply(Math, parts.concat([ axisRange.max ]))
         };
@@ -4398,7 +4635,7 @@ var ScatterChart = ChartElement.extend({
             excluded: [
                 "data", "tooltip", "content", "template", "visual", "toggle",
                 "_outOfRangeMinPoint", "_outOfRangeMaxPoint",
-                "drilldownSeriesFactory"
+                "drilldownSeriesFactory", "ariaTemplate", "ariaContent"
             ]
         };
 
@@ -4584,7 +4821,7 @@ var Bubble = LinePoint.extend({
         var center = this.box.center();
         var radius = (markers.size + markers.border.width + border.width) / 2;
         var highlightGroup = new Group();
-        var shadow = new drawing.Circle(new geometry.Circle([ center.x, center.y + radius / 5 + border.width / 2 ], radius + border.width / 2), {
+        var shadow = new Circle(new GeometryCircle([ center.x, center.y + radius / 5 + border.width / 2 ], radius + border.width / 2), {
             stroke: {
                 color: 'none'
             },
@@ -4602,7 +4839,7 @@ var Bubble = LinePoint.extend({
                 } ]
             })
         });
-        var overlay = new drawing.Circle(new geometry.Circle([ center.x, center.y ], radius), {
+        var overlay = new Circle(new GeometryCircle([ center.x, center.y ], radius), {
             stroke: {
                 color: border.color ||
                     new Color(markers.background).brightness(BORDER_BRIGHTNESS).toHex(),
@@ -4618,6 +4855,16 @@ var Bubble = LinePoint.extend({
         highlightGroup.append(shadow, overlay);
 
         return highlightGroup;
+    },
+
+    createFocusHighlight: function(style) {
+        var highlightOptions = this.options.accessibility.highlight;
+        var markers = this.options.markers;
+        var center = this.box.center();
+        var radius = (markers.size + markers.border.width) / 2 + highlightOptions.border.width / 2;
+        var highlight = new Circle(new GeometryCircle([ center.x, center.y ], radius), style);
+
+        return highlight;
     }
 });
 
@@ -4820,19 +5067,25 @@ var Bullet = ChartElement.extend({
         var labels = options.labels;
 
         if (labels.visible) {
-            var pointData = this.pointData();
-            var labelTemplate = getTemplate(labels);
-            var labelText;
-
-            if (labelTemplate) {
-                labelText = labelTemplate(pointData);
-            } else {
-                labelText = this.formatValue(labels.format);
-            }
-
-            this.label = new BarLabel(labelText, labels, pointData);
+            this.label = this.createLabelElement(labels);
             this.append(this.label);
         }
+    },
+
+    createLabelElement: function(options) {
+        return new BarLabel(this.getLabelText(options),
+            options,
+            this.pointData());
+    },
+
+    getLabelText: function(options) {
+        var labelTemplate = getTemplate(options);
+
+        if (labelTemplate) {
+            return labelTemplate(this.pointData());
+        }
+
+        return this.formatValue(options.format);
     },
 
     reflow: function(box) {
@@ -4874,6 +5127,8 @@ var Bullet = ChartElement.extend({
 
     createVisual: function() {
         ChartElement.fn.createVisual.call(this);
+
+        this.addAccessibilityAttributesToVisual();
 
         var options = this.options;
         var body = Path.fromRect(this.box.toRect(), {
@@ -4938,10 +5193,15 @@ var Bullet = ChartElement.extend({
 
     overlapsBox: function(box) {
         return this.box.overlaps(box);
+    },
+
+    getIndex: function() {
+        return this.categoryIx;
     }
 });
 
 Bullet.prototype.tooltipAnchor = Bar.prototype.tooltipAnchor;
+Bullet.prototype.createFocusHighlight = Bar.prototype.createFocusHighlight;
 
 setDefaultOptions(Bullet, {
     border: {
@@ -4967,11 +5227,17 @@ setDefaultOptions(Bullet, {
     },
     notes: {
         label: {}
+    },
+    accessibility: {
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
     }
 });
 
 deepExtend(Bullet.prototype, PointEventsMixin);
 deepExtend(Bullet.prototype, NoteMixin);
+deepExtend(Bullet.prototype, AccessibilityAttributesMixin);
 
 var BulletChart = CategoricalChart.extend({
     init: function(plotArea, options) {
@@ -5706,7 +5972,7 @@ var PlotAreaBase = ChartElement.extend({
         this.initSeries();
         this.charts = [];
         this.options.legend = this.options.legend || {};
-        this.options.legend.items = [];
+        this.options.legend.data = [];
         this.axes = [];
         this.crosshairs = [];
         this.chartService = chartService;
@@ -5951,7 +6217,7 @@ var PlotAreaBase = ChartElement.extend({
             }
         }
 
-        append(legend.items, data);
+        append(legend.data, data);
     },
 
     groupAxes: function(panes) {
@@ -6150,8 +6416,10 @@ var PlotAreaBase = ChartElement.extend({
                 }
             }
 
-            if (i !== 0 && yAnchor.pane === axis.pane) {
-                axis.alignTo(yAnchor);
+            // Locate pane anchor, if any, and align the axis to it
+            var paneYAnchor = paneAnchor(yAxes, pane) || yAnchor;
+            if (paneYAnchor !== axis) {
+                axis.alignTo(paneYAnchor);
                 axis.reflow(axis.box);
             }
         }
@@ -6196,7 +6464,7 @@ var PlotAreaBase = ChartElement.extend({
                 }
             }
 
-            if (round(axis$1.lineBox().y2, datavizConstants.COORD_PRECISION) === round(anchor$1.lineBox().y2, datavizConstants.COORD_PRECISION)) {
+            if (round(axis$1.lineBox().y2, COORD_PRECISION) === round(anchor$1.lineBox().y2, COORD_PRECISION)) {
                 // Push the axis below the previous x-axis so they don't overlap
                 if (bottomAnchors[paneId$1]) {
                     axis$1.reflow(axis$1.box
@@ -6393,7 +6661,6 @@ var PlotAreaBase = ChartElement.extend({
         var panes = ref.panes;
         var panesLength = panes.length;
         var remainingHeight = box.height();
-        var remainingPanes = panesLength;
         var autoHeightPanes = 0;
         var top = box.y1;
 
@@ -6433,7 +6700,6 @@ var PlotAreaBase = ChartElement.extend({
 
             currentPane$2.reflow(paneBox);
 
-            remainingPanes--;
             top += currentPane$2.options.height;
         }
     },
@@ -6503,7 +6769,7 @@ var PlotAreaBase = ChartElement.extend({
             opacity = 0;
         }
 
-        var bg = this._bgVisual = new drawing.MultiPath({
+        var bg = this._bgVisual = new MultiPath({
             fill: {
                 color: background,
                 opacity: opacity
@@ -6528,6 +6794,7 @@ var PlotAreaBase = ChartElement.extend({
         if (categoryIndex !== null) {
             for (var i = 0; i < charts.length; i++) {
                 var chart = charts[i];
+
                 if (chart.pane.options.name === "_navigator") {
                     continue;
                 }
@@ -6550,6 +6817,12 @@ var PlotAreaBase = ChartElement.extend({
     pointsBySeriesIndex: function(seriesIndex) {
         return this.filterPoints(function(point) {
             return point.series.index === seriesIndex;
+        });
+    },
+
+    pointsByPointIndex: function(pointIndex) {
+        return this.filterPoints(function(point) {
+            return point.getIndex() === pointIndex;
         });
     },
 
@@ -6636,7 +6909,7 @@ var PlotAreaBase = ChartElement.extend({
     createLabelAxis: function(axis, axisIndex, anchor) {
         var labelOptions = axis.options.labels;
         var position = labelOptions.position;
-        var onAxis = position !== datavizConstants.END && position !== datavizConstants.START;
+        var onAxis = position !== END && position !== START;
         var visible = labelOptions.visible;
 
         if (onAxis || visible === false) {
@@ -6646,7 +6919,7 @@ var PlotAreaBase = ChartElement.extend({
         var allAxes = this.groupAxes(this.panes);
         var crossingAxes = anchor.options.vertical ? allAxes.x : allAxes.y;
         var anchorCrossings = this.axisCrossingValues(anchor, crossingAxes);
-        var end = position === datavizConstants.END;
+        var end = position === END;
         var range = anchor.range();
         var edge = end ? range.max : range.min;
         var crossingValue = limitValue(anchorCrossings[axisIndex], range.min, range.max);
@@ -6717,6 +6990,68 @@ var PlotAreaBase = ChartElement.extend({
 
     seriesByName: function(name) {
         return this.series.find(function (series) { return series.name === name; });
+    },
+
+    getFirstPoint: function() {
+        return this.pointsBySeriesIndex(0)[0];
+    },
+
+    getPointBelow: function(point) {
+        return this._getNextPoint(point, this._pointsByVertical, 1);
+    },
+
+    getPointAbove: function(point) {
+        return this._getNextPoint(point, this._pointsByVertical, -1);
+    },
+
+    getPointToTheRight: function(point) {
+        return this._getNextPoint(point, this._pointsByHorizontal, 1);
+    },
+
+    getPointToTheLeft: function(point) {
+        return this._getNextPoint(point, this._pointsByHorizontal, -1);
+    },
+
+    _getNextPoint: function(point, getPointsFunc, increment) {
+        var this$1 = this;
+
+        var points = getPointsFunc.call(this, point);
+        var pointIndex = points.indexOf(point);
+        var nextIndex = pointIndex + increment;
+        var loopPoints = function (direction) {
+            // loop over to last non-empty collection
+            var result;
+            var offset = 0;
+            do {
+                offset += direction;
+                result = getPointsFunc.call(this$1, point, offset);
+            } while (result.length === 0);
+
+            return result;
+        };
+
+        if (nextIndex < 0) {
+            points = loopPoints(-1);
+
+            return points.at(-1);
+        } else if (nextIndex >= points.length) {
+            points = loopPoints(1);
+
+            return points.at(0);
+        }
+
+        return points[nextIndex];
+    },
+
+    _pointsByVertical: function(basePoint) {
+        return this.pointsByPointIndex(basePoint.getIndex());
+    },
+
+    _pointsByHorizontal: function(basePoint, offset) {
+        if (offset === void 0) { offset = 0; }
+
+        var index = cycleIndex(basePoint.series.index + offset, this.series.length);
+        return this.pointsBySeriesIndex(index);
     }
 });
 
@@ -6955,34 +7290,14 @@ var RangeBar = Bar.extend({
         var toOptions = deepExtend({}, labels, labels.to);
 
         if (fromOptions.visible) {
-            this.labelFrom = this._createLabel(fromOptions);
+            this.labelFrom = this.createLabelElement(fromOptions);
             this.append(this.labelFrom);
         }
 
         if (toOptions.visible) {
-            this.labelTo = this._createLabel(toOptions);
+            this.labelTo = this.createLabelElement(toOptions);
             this.append(this.labelTo);
         }
-    },
-
-    _createLabel: function(options) {
-        var labelTemplate = getTemplate(options);
-        var pointData = this.pointData();
-
-        var labelText;
-
-        if (labelTemplate) {
-            labelText = labelTemplate(pointData);
-        } else {
-            labelText = this.formatValue(options.format);
-        }
-
-        return new BarLabel(labelText,
-            deepExtend({
-                vertical: this.options.vertical
-            },
-            options
-        ), pointData);
     },
 
     reflow: function(targetBox) {
@@ -7088,6 +7403,7 @@ var RangeAreaPoint = ChartElement.extend({
         this.options = options;
         this.aboveAxis = valueOrDefault(this.options.aboveAxis, true);
         this.tooltipTracking = true;
+        this._id = guid();
         this.initLabelsFormat();
     },
 
@@ -7152,6 +7468,14 @@ var RangeAreaPoint = ChartElement.extend({
             from: this.fromPoint.highlightVisualArgs(),
             to: this.toPoint.highlightVisualArgs()
         };
+    },
+
+    createFocusHighlight: function() {
+        var group = new Group();
+        group.append(this.fromPoint.createFocusHighlight());
+        group.append(this.toPoint.createFocusHighlight());
+
+        return group;
     },
 
     tooltipAnchor: function() {
@@ -7255,6 +7579,18 @@ var RangeAreaPoint = ChartElement.extend({
         point.series = this.series;
         point.color = this.color;
         point.owner = this.owner;
+    },
+
+    focusVisual: function() {
+        this.fromPoint.focusVisual();
+    },
+
+    clearFocusFromVisual: function() {
+        this.toPoint.clearFocusFromVisual();
+    },
+
+    getIndex: function() {
+        return this.categoryIx;
     }
 });
 
@@ -7296,6 +7632,11 @@ RangeAreaPoint.prototype.defaults = {
     },
     tooltip: {
         format: '{0} - {1}'
+    },
+    accessibility: {
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
     }
 };
 
@@ -7729,6 +8070,7 @@ function trendlineFactory(registry, type, context) {
     return null;
 }
 
+// Optimized version of calculatePolynomial for order = 1
 function calculateSlope(sourceValues, valueGetter) {
     var x = 0;
     var y = 0;
@@ -7765,13 +8107,38 @@ function calculateSlope(sourceValues, valueGetter) {
     return { slope: slope, intercept: intercept, count: count, xMin: xMin, xMax: xMax };
 }
 
-function linearTrendline(context) {
+var checkAllPositive = function (sourceValues, fieldName) { return sourceValues.every(function (ref) {
+        var valueFields = ref.valueFields;
+
+        return !hasValue(valueFields[fieldName]) || valueFields[fieldName] > 0;
+        }); };
+
+function getTrendlineData(valueMapper, categoryAxis) {
+    var data = [];
+    var totalRange = categoryAxis.totalRangeIndices();
+    var currentRange = categoryAxis.currentRangeIndices();
+    var range = {
+        min: Math.floor(Math.max(currentRange.min - 1, totalRange.min)),
+        max: Math.ceil(Math.min(currentRange.max + 2, totalRange.max))
+    };
+
+    for (var i = range.min; i < range.max; i++) {
+        var x = (i + 1);
+        data[i] = {
+            category: categoryAxis.categoryAt(i, true),
+            value: valueMapper(x)
+        };
+    }
+
+    return data;
+}
+
+function exponentialTrendline(context) {
     var options = context.options;
     var categoryAxis = context.categoryAxis;
     var seriesValues = context.seriesValues;
 
-    var ref = getData({ seriesValues: seriesValues, categoryAxis: categoryAxis, options: options });
-    var data = ref.data;
+    var data = getData({ seriesValues: seriesValues, categoryAxis: categoryAxis, options: options });
     if (data) {
         return $.extend({}, options,
 
@@ -7788,7 +8155,7 @@ var valueGetter = function (fieldName) { return function (ref) {
         var categoryIx = ref.categoryIx;
         var valueFields = ref.valueFields;
 
-        return ({ xValue: categoryIx + 1, yValue: valueFields[fieldName] });
+        return ({ xValue: categoryIx + 1, yValue: Math.log(valueFields[fieldName]) });
  }    };
 
 function getData(ref) {
@@ -7796,31 +8163,112 @@ function getData(ref) {
     var categoryAxis = ref.categoryAxis;
     var options = ref.options;
 
-    var ref$1 = calculateSlope(seriesValues(), valueGetter(options.field));
+    var sourceValues = seriesValues();
+    if (!checkAllPositive(sourceValues, options.field)) {
+        return null;
+    }
+
+    var ref$1 = calculateSlope(sourceValues, valueGetter(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+    if (count > 0) {
+        // Exponential trendline equation:
+        // y = a * e ^ (b * x)
+        var a = Math.exp(intercept);
+        var b = slope;
+
+        return getTrendlineData(function (x) { return a * Math.exp(b * x); }, categoryAxis);
+    }
+
+    return null;
+}
+
+function linearTrendline(context) {
+    var options = context.options;
+    var categoryAxis = context.categoryAxis;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$1({ seriesValues: seriesValues, categoryAxis: categoryAxis, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'line',
+            data: data,
+            categoryField: 'category',
+            field: 'value'});
+    }
+
+    return null;
+}
+
+var valueGetter$1 = function (fieldName) { return function (ref) {
+        var categoryIx = ref.categoryIx;
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: categoryIx + 1, yValue: valueFields[fieldName] });
+ }    };
+
+function getData$1(ref) {
+    var seriesValues = ref.seriesValues;
+    var categoryAxis = ref.categoryAxis;
+    var options = ref.options;
+
+    var ref$1 = calculateSlope(seriesValues(), valueGetter$1(options.field));
     var slope = ref$1.slope;
     var intercept = ref$1.intercept;
     var count = ref$1.count;
 
     if (count > 0) {
-        var data = [];
-        var totalRange = categoryAxis.totalRangeIndices();
-        var currentRange = categoryAxis.currentRangeIndices();
-        var range = {
-            min: Math.floor(Math.max(currentRange.min - 1, totalRange.min)),
-            max: Math.ceil(Math.min(currentRange.max + 2, totalRange.max))
-        };
-
-        for (var i = range.min; i < range.max; i++) {
-            data[i] = {
-                category: categoryAxis.categoryAt(i, true),
-                value: slope * (i + 1) + intercept
-            };
-        }
-
-        return { data: data };
+        return getTrendlineData(function (x) { return slope * x + intercept; }, categoryAxis);
     }
 
-    return { data: null };
+    return null;
+}
+
+function logarithmicTrendline(context) {
+    var options = context.options;
+    var categoryAxis = context.categoryAxis;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$2({ seriesValues: seriesValues, categoryAxis: categoryAxis, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'line',
+            data: data,
+            categoryField: 'category',
+            field: 'value'});
+    }
+
+    return null;
+}
+
+var valueGetter$2 = function (fieldName) { return function (ref) {
+        var categoryIx = ref.categoryIx;
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: Math.log(categoryIx + 1), yValue: valueFields[fieldName] });
+ }    };
+
+function getData$2(ref) {
+    var seriesValues = ref.seriesValues;
+    var categoryAxis = ref.categoryAxis;
+    var options = ref.options;
+
+    var ref$1 = calculateSlope(seriesValues(), valueGetter$2(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+    if (count > 0) {
+        // Logarithmic trendline equation:
+        // y = a * ln (x) + b
+        var a = slope;
+        var b = intercept;
+        return getTrendlineData(function (x) { return a * Math.log(x) + b; }, categoryAxis);
+    }
+
+    return null;
 }
 
 function calculateMovingAverage(sourceValues, valueGetter, period) {
@@ -7867,8 +8315,7 @@ function calculateMovingAverage(sourceValues, valueGetter, period) {
 function movingAverageTrendline(context) {
     var options = context.options;
 
-    var ref = getData$1(context);
-    var data = ref.data;
+    var data = getData$3(context);
     if (data) {
         return $.extend({}, options,
 
@@ -7881,7 +8328,7 @@ function movingAverageTrendline(context) {
     return null;
 }
 
-var valueGetter$1 = function (fieldName) { return function (ref) {
+var valueGetter$3 = function (fieldName) { return function (ref) {
         var categoryIx = ref.categoryIx;
         var valueFields = ref.valueFields;
 
@@ -7901,10 +8348,10 @@ function calculatePoints(ref) {
         max: Math.ceil(Math.min(currentRange.max + period + 2, totalRange.max))
     };
 
-    return calculateMovingAverage(seriesValues(range), valueGetter$1(options.field), period);
+    return calculateMovingAverage(seriesValues(range), valueGetter$3(options.field), period);
 }
 
-function getData$1(context) {
+function getData$3(context) {
     var categoryAxis = context.categoryAxis;
     var points = calculatePoints(context);
     var data = [];
@@ -7919,15 +8366,197 @@ function getData$1(context) {
     });
 
     if (data.length > 0) {
-        return { data: data };
+        return data;
     }
 
-    return { data: null };
+    return null;
+}
+
+var MIN_ORDER = 1;
+var MAX_ORDER = 6;
+
+function calculatePolynomial(sourceValues, valueGetter, order) {
+    var k = Math.min(Math.max(order || MIN_ORDER, MIN_ORDER), MAX_ORDER) + 1;
+    var X$$1 = new dataviz.Matrix();
+    var Y$$1 = new dataviz.Matrix();
+    var count = 0;
+    var xMin = Number.MAX_VALUE;
+    var xMax = Number.MIN_VALUE;
+    var valueMapper = function (x) { return x; };
+    var coefficients = [];
+
+    for (var i = 0; i < sourceValues.length; i++) {
+        var value = sourceValues[i];
+        var ref = valueGetter(value);
+        var xValue = ref.xValue;
+        var yValue = ref.yValue;
+
+        if (isFinite(xValue) && xValue !== null && isFinite(yValue) && yValue !== null) {
+            xMin = Math.min(xValue, xMin);
+            xMax = Math.max(xValue, xMax);
+            count++;
+
+            // Set Y value in matrix
+            Y$$1.set(i, 0, yValue);
+
+            // Set indicator column to 1 for valid values
+            X$$1.set(i, 0, 1);
+            X$$1.set(i, 1, xValue);
+            for (var pow = 2; pow <= k; pow++) {
+                X$$1.set(i, pow, Math.pow(X$$1.get(i, 1), pow));
+            }
+        } else {
+            // Set indicator column to 0 for missing values
+            X$$1.set(i, 0, 0);
+        }
+    }
+
+    // Limit order to number of values.
+    X$$1.width = Math.min(k, count);
+
+    if (count > 0) {
+        // Polynomial trendline equation:
+        // y = aN * x^N + ... + a2 * x^2 + a1 * x + a0
+        coefficients = linearRegression(X$$1, Y$$1);
+        valueMapper = function (x) { return coefficients.reduce(function (y, a, n) { return y + a * Math.pow(x, n); }, 0); };
+    }
+
+    return {
+        coefficients: coefficients,
+        count: count,
+        valueMapper: valueMapper,
+        xMin: xMin,
+        xMax: xMax
+    };
+}
+
+function linearRegression(X$$1, Y$$1) {
+    var Xt = X$$1.transpose();
+    var B = Xt.multiply(X$$1).inverse().multiply(Xt).multiply(Y$$1); // the last square estimate of the coefficients
+
+    var coefficients = [];
+    for (var i = 0; i < B.height; i++) {
+        coefficients.push(B.get(i, 0));
+    }
+
+    // y_intercept and regression coefficients ('slopes')
+    return coefficients;
+
+    // It's possible to calculate statistics for the regression based on
+    // the LINEST function implementation in kendo-spreadsheet-common/src/calc.js
+    //
+    // * The standard errors (of coefficients and y-intercept)
+    // * The coefficient of determination (R^2)
+    // * The standard error for the y estimate
+    // * The F statistic
+    // * The degrees of freedom
+    // * The regression sum of squares (SSR)
+    // * The residual sum of squares (SSE)
+}
+
+function polynomialTrendline(context) {
+    var options = context.options;
+    var categoryAxis = context.categoryAxis;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$4({ seriesValues: seriesValues, categoryAxis: categoryAxis, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'line',
+            data: data,
+            categoryField: 'category',
+            field: 'value'});
+    }
+
+    return null;
+}
+
+var valueGetter$4 = function (fieldName) { return function (ref) {
+        var categoryIx = ref.categoryIx;
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: categoryIx + 1, yValue: valueFields[fieldName] });
+ }    };
+
+function getData$4(ref) {
+    var seriesValues = ref.seriesValues;
+    var categoryAxis = ref.categoryAxis;
+    var options = ref.options;
+
+    var order = (options.trendline || {}).order;
+    var ref$1 = calculatePolynomial(seriesValues(), valueGetter$4(options.field), order);
+    var count = ref$1.count;
+    var valueMapper = ref$1.valueMapper;
+
+    if (count > 0) {
+        // Polynomial trendline equation:
+        // y = aN * x^N + ... + a2 * x^2 + a1 * x + a0
+
+        return getTrendlineData(function (x) { return valueMapper(x); }, categoryAxis);
+    }
+
+    return null;
+}
+
+function powerTrendline(context) {
+    var options = context.options;
+    var categoryAxis = context.categoryAxis;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$5({ seriesValues: seriesValues, categoryAxis: categoryAxis, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'line',
+            data: data,
+            categoryField: 'category',
+            field: 'value'});
+    }
+
+    return null;
+}
+
+var valueGetter$5 = function (fieldName) { return function (ref) {
+        var categoryIx = ref.categoryIx;
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: Math.log(categoryIx + 1), yValue: Math.log(valueFields[fieldName]) });
+ }    };
+
+function getData$5(ref) {
+    var seriesValues = ref.seriesValues;
+    var categoryAxis = ref.categoryAxis;
+    var options = ref.options;
+
+    var sourceValues = seriesValues();
+    if (!checkAllPositive(sourceValues, options.field)) {
+        return null;
+    }
+
+    var ref$1 = calculateSlope(sourceValues, valueGetter$5(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+    if (count > 0) {
+        // Power trendline equation:
+        // y = a * x ^ b
+        var a = Math.exp(intercept);
+        var b = slope;
+
+        return getTrendlineData(function (x) { return a * Math.pow(x, b); }, categoryAxis);
+    }
+
+    return null;
 }
 
 var registry = {};
+registry[TRENDLINE_EXPONENTIAL] = exponentialTrendline;
 registry[TRENDLINE_LINEAR] = linearTrendline;
+registry[TRENDLINE_LOGARITHMIC] = logarithmicTrendline;
 registry[TRENDLINE_MOVING_AVERAGE] = movingAverageTrendline;
+registry[TRENDLINE_POLYNOMIAL] = polynomialTrendline;
+registry[TRENDLINE_POWER] = powerTrendline;
 
 var AREA_SERIES = [ AREA, VERTICAL_AREA, RANGE_AREA, VERTICAL_RANGE_AREA ];
 var OUT_OF_RANGE_SERIES = [ LINE, VERTICAL_LINE ].concat(AREA_SERIES);
@@ -7945,7 +8574,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         if (series.length > 0) {
             this.invertAxes = inArray(
                 series[0].type, [ BAR, BULLET, VERTICAL_LINE, VERTICAL_AREA, VERTICAL_RANGE_AREA,
-                                 RANGE_BAR, HORIZONTAL_WATERFALL, VERTICAL_BOX_PLOT ]
+                    RANGE_BAR, HORIZONTAL_WATERFALL, VERTICAL_BOX_PLOT ]
             );
 
             for (var i = 0; i < series.length; i++) {
@@ -8188,17 +8817,18 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var srcCategories = axisOptions.srcCategories;
         var dateAxis = equalsIgnoreCase(axisOptions.type, DATE);
         var srcData = series.data;
-        var getFn = dateAxis ? getDateField : getField;
         var result = [];
         if (!dateAxis) {
-            categoryAxis.mapCategories(); //fixes major performance issue caused by searching for the index for large data
+            categoryAxis.indexCategories();
         }
 
         for (var idx = 0; idx < srcData.length; idx++) {
-            var category = (void 0);
-            if (series.categoryField) {
-                category = getFn(series.categoryField, srcData[idx], this$1.chartService.intl);
-            } else {
+            var category = SeriesBinder.current.bindPoint(series, idx).fields.category;
+            if (dateAxis) {
+                category = parseDateCategory(category, srcData[idx], this$1.chartService.intl);
+            }
+
+            if (!defined(category)) {
                 category = srcCategories[idx];
             }
 
@@ -8304,13 +8934,14 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         return axis;
     },
 
-    stackableChartOptions: function(firstSeries, pane) {
-        var stack = firstSeries.stack;
-        var isStacked100 = stack && stack.type === "100%";
+    stackableChartOptions: function(series, pane) {
+        var anyStackedSeries = series.some(function (s) { return s.stack; });
+        var isStacked100 = series.some(function (s) { return s.stack && s.stack.type === "100%"; });
         var clip = pane.options.clip;
 
         return {
-            isStacked: stack,
+            defaultStack: series[0].stack,
+            isStacked: anyStackedSeries,
             isStacked100: isStacked100,
             clip: clip
         };
@@ -8321,7 +8952,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var unique = {};
         for (var idx = 0; idx < series.length; idx++) {
             var name = series[idx].categoryAxis || "$$default$$";
-            if (!unique.hasOwnProperty(name)) {
+            if (!dataviz.hasOwnProperty(unique, name)) {
                 unique[name] = true;
                 categoryAxes.push(name);
             }
@@ -8352,7 +8983,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
             invertAxes: this.invertAxes,
             gap: firstSeries.gap,
             spacing: firstSeries.spacing
-        }, this.stackableChartOptions(firstSeries, pane)));
+        }, this.stackableChartOptions(series, pane)));
 
         this.appendChart(barChart, pane);
     },
@@ -8395,11 +9026,10 @@ var CategoricalPlotArea = PlotAreaBase.extend({
             return;
         }
 
-        var firstSeries = series[0];
         var lineChart = new LineChart(this, $.extend({
             invertAxes: this.invertAxes,
             series: series
-        }, this.stackableChartOptions(firstSeries, pane)));
+        }, this.stackableChartOptions(series, pane)));
 
         this.appendChart(lineChart, pane);
     },
@@ -8409,11 +9039,10 @@ var CategoricalPlotArea = PlotAreaBase.extend({
             return;
         }
 
-        var firstSeries = series[0];
         var areaChart = new AreaChart(this, $.extend({
             invertAxes: this.invertAxes,
             series: series
-        }, this.stackableChartOptions(firstSeries, pane)));
+        }, this.stackableChartOptions(series, pane)));
 
         this.appendChart(areaChart, pane);
     },
@@ -8730,6 +9359,80 @@ var CategoricalPlotArea = PlotAreaBase.extend({
     updateAxisOptions: function(axis, options) {
         updateAxisOptions(this.options, axis, options);
         updateAxisOptions(this.originalOptions, axis, options);
+    },
+
+    _pointsByVertical: function(basePoint, offset) {
+        if (offset === void 0) { offset = 0; }
+
+        if (this.invertAxes) {
+            return this._siblingsBySeriesIndex(basePoint.series.index, offset);
+        }
+
+        return this._siblingsByPointIndex(basePoint.getIndex());
+    },
+
+    _pointsByHorizontal: function(basePoint, offset) {
+        if (offset === void 0) { offset = 0; }
+
+        if (this.invertAxes) {
+            return this._siblingsByPointIndex(basePoint.getIndex());
+        }
+
+        var siblings = this._siblingsBySeriesIndex(basePoint.series.index, offset);
+
+        if (this.chartService.rtl) {
+            return siblings.reverse();
+        }
+
+        return siblings;
+    },
+
+    _siblingsByPointIndex: function(pointIndex) {
+        var this$1 = this;
+
+        var charts = this.charts;
+        var result = [];
+
+        for (var i = 0; i < charts.length; i++) {
+            var chart = charts[i];
+
+            if (chart.pane && chart.pane.options.name === "_navigator") {
+                continue;
+            }
+
+            var chartPoints = chart.points
+                .filter(function (point) { return point && point.visible !== false && point.getIndex() === pointIndex; }
+                );
+
+            result.push.apply(result, chartPoints.sort(this$1._getSeriesCompareFn(chartPoints[0])));
+        }
+
+        return result;
+    },
+
+    _siblingsBySeriesIndex: function(seriesIndex, offset) {
+        var index = cycleIndex(seriesIndex + offset, this.series.length);
+
+        return this.pointsBySeriesIndex(index);
+    },
+
+    _getSeriesCompareFn: function(point) {
+        var isStacked = this._isInStackedSeries(point);
+
+        if (isStacked && this.invertAxes || !isStacked && !this.invertAxes) {
+            return function (a, b) { return a.box.center().x - b.box.center().x; };
+        }
+
+        return function (a, b) { return a.box.center().y - b.box.center().y; };
+    },
+
+    _isInStackedSeries: function(point) {
+        var sortableSeries = inArray(point.series.type,
+            [ AREA, VERTICAL_AREA, RANGE_AREA, VERTICAL_RANGE_AREA, LINE, VERTICAL_LINE, RADAR_LINE, RADAR_AREA]);
+
+        var stackableSeries = inArray(point.series.type, [ COLUMN, BAR]);
+
+        return sortableSeries || stackableSeries && point.options.isStacked;
     }
 });
 
@@ -9114,6 +9817,7 @@ ZoomSelection.prototype.options = {
 
 var ref = drawing.util;
 var limitValue$1 = ref.limitValue;
+var valueOrDefault$1 = ref.valueOrDefault;
 
 // Limit the zoom rate between 1% and 90% per mousewheel event.
 // At zoom rates close to 100% the axis range quickly becomes 0.
@@ -9192,9 +9896,9 @@ var LegendLayout = ChartElement.extend({
         this.visual = new drawing.Layout(null, {
             spacing: vertical ? 0 : options.spacing,
             lineSpacing: vertical ? options.spacing : 0,
-            orientation: vertical ? "vertical" : "horizontal",
+            orientation: vertical ? datavizConstants.VERTICAL : datavizConstants.HORIZONTAL,
             reverse: options.rtl,
-            alignItems: vertical ? "start" : "center"
+            alignItems: vertical ? START : CENTER
         });
 
         for (var idx = 0; idx < children.length; idx++) {
@@ -9223,6 +9927,1101 @@ var LegendLayout = ChartElement.extend({
     createVisual: function() {}
 });
 
+var DEFAULT_MARKER_SIZE = 10;
+var DEFAULT_MARKER_BORDER_WIDTH = 2;
+
+var LegendItemMarker = ShapeElement.extend({
+    visualStyle: function() {
+        var options = this.markerOptions();
+        var border = options.border;
+
+        return {
+            stroke: {
+                width: border.width,
+                color: border.color,
+                opacity: valueOrDefault$1(border.opacity, options.opacity),
+                dashType: border.dashType
+            },
+            fill: {
+                color: options.background,
+                opacity: options.opacity
+            },
+            cursor: options.cursor
+        };
+    },
+
+    markerOptions: function() {
+        return this.options;
+    },
+
+    markerHighlightOptions: function() {
+        var options = this.markerOptions();
+        var borderWidth = options.highlight.border.width;
+
+        return deepExtend(
+            {},
+            options,
+            { background: options.border.color },
+            options.highlight,
+            options.type === datavizConstants.CROSS ? {
+                background: options.highlight.border.color,
+                border: { color: options.highlight.background, width: borderWidth / 2 },
+                width: options.width,
+                height: options.height,
+                margin: { top: 0, left: 0 }
+            } : {}
+        );
+    },
+
+    createHighlight: function() {
+        var highlight = new ShapeElement(this.markerHighlightOptions());
+        var box = this.paddingBox.clone();
+        highlight.reflow(box.pad(highlight.options.border.width));
+        this.highlight = [ highlight.getElement() ];
+
+        return this.highlight;
+    }
+});
+
+setDefaultOptions(LegendItemMarker, {
+    border: {
+        width: DEFAULT_MARKER_BORDER_WIDTH
+    },
+    width: DEFAULT_MARKER_SIZE - DEFAULT_MARKER_BORDER_WIDTH,
+    height: DEFAULT_MARKER_SIZE - DEFAULT_MARKER_BORDER_WIDTH,
+    background: WHITE,
+    margin: {
+        top: -1,
+        left: -1
+    },
+    vAlign: TOP,
+    align: LEFT,
+    highlight: {
+        width: DEFAULT_MARKER_SIZE,
+        height: DEFAULT_MARKER_SIZE,
+        border: {
+            color: WHITE,
+            width: DEFAULT_MARKER_BORDER_WIDTH
+        }
+    }
+});
+
+var ChartElement$1 = Class.extend({
+    init: function(options) {
+
+        this.children = [];
+
+        this.options = deepExtend({}, this.options, this.initUserOptions(options));
+    },
+
+    initUserOptions: function(options) {
+        return options;
+    },
+
+    reflow: function(targetBox) {
+        var children = this.children;
+        var box;
+
+        for (var i = 0; i < children.length; i++) {
+            var currentChild = children[i];
+            currentChild.reflow(targetBox);
+
+            box = box ? box.wrap(currentChild.box) : currentChild.box.clone();
+        }
+
+        this.box = box || targetBox;
+    },
+
+    destroy: function() {
+        var children = this.children;
+
+        if (this.animation) {
+            this.animation.destroy();
+        }
+
+        for (var i = 0; i < children.length; i++) {
+            children[i].destroy();
+        }
+    },
+
+    getRoot: function() {
+        var parent = this.parent;
+
+        return parent ? parent.getRoot() : null;
+    },
+
+    getSender: function() {
+        var service = this.getService();
+        if (service) {
+            return service.sender;
+        }
+    },
+
+    getService: function() {
+        var element = this;
+        while (element) {
+            if (element.chartService) {
+                return element.chartService;
+            }
+            element = element.parent;
+        }
+    },
+
+    translateChildren: function(dx, dy) {
+        var children = this.children;
+        var childrenCount = children.length;
+
+        for (var i = 0; i < childrenCount; i++) {
+            children[i].box.translate(dx, dy);
+        }
+    },
+
+    append: function() {
+        var arguments$1 = arguments;
+        var this$1 = this;
+
+        for (var i = 0; i < arguments.length; i++) {
+            var item = arguments$1[i];
+            this$1.children.push(item);
+            item.parent = this$1;
+        }
+    },
+
+    renderVisual: function() {
+        if (this.options.visible === false) {
+            return;
+        }
+
+        this.createVisual();
+
+        this.addVisual();
+
+        this.renderChildren();
+
+        this.createAnimation();
+        this.renderComplete();
+    },
+
+    addVisual: function() {
+        if (this.visual) {
+            this.visual.chartElement = this;
+
+            if (this.parent) {
+                this.parent.appendVisual(this.visual);
+            }
+        }
+    },
+
+    renderChildren: function() {
+        var children = this.children;
+        var length = children.length;
+        for (var i = 0; i < length; i++) {
+            children[i].renderVisual();
+        }
+    },
+
+    createVisual: function() {
+        this.visual = new Group({
+            zIndex: this.options.zIndex,
+            visible: valueOrDefault(this.options.visible, true)
+        });
+    },
+
+    createAnimation: function() {
+        if (this.visual && this.options.animation) {
+            this.animation = Animation.create(
+                this.visual, this.options.animation
+            );
+        }
+    },
+
+    appendVisual: function(childVisual) {
+        if (!childVisual.chartElement) {
+            childVisual.chartElement = this;
+        }
+
+        if (childVisual.options.noclip) {
+            this.clipRoot().visual.append(childVisual);
+        } else if (defined(childVisual.options.zIndex)) {
+            this.stackRoot().stackVisual(childVisual);
+        } else if (this.isStackRoot) {
+            this.stackVisual(childVisual);
+        } else if (this.visual) {
+            this.visual.append(childVisual);
+        } else {
+            // Allow chart elements without visuals to
+            // pass through child visuals
+            this.parent.appendVisual(childVisual);
+        }
+    },
+
+    clipRoot: function() {
+        if (this.parent) {
+            return this.parent.clipRoot();
+        }
+
+        return this;
+    },
+
+    stackRoot: function() {
+        if (this.parent) {
+            return this.parent.stackRoot();
+        }
+
+        return this;
+    },
+
+    stackVisual: function(childVisual) {
+        var zIndex = childVisual.options.zIndex || 0;
+        var visuals = this.visual.children;
+        var length = visuals.length;
+        var pos;
+
+        for (pos = 0; pos < length; pos++) {
+            var sibling = visuals[pos];
+            var here = valueOrDefault(sibling.options.zIndex, 0);
+            if (here > zIndex) {
+                break;
+            }
+        }
+
+        this.visual.insert(pos, childVisual);
+    },
+
+    traverse: function(callback) {
+        var children = this.children;
+        var length = children.length;
+
+        for (var i = 0; i < length; i++) {
+            var child = children[i];
+
+            callback(child);
+            if (child.traverse) {
+                child.traverse(callback);
+            }
+        }
+    },
+
+    closest: function(match) {
+        var element = this;
+        var matched = false;
+
+        while (element && !matched) {
+            matched = match(element);
+
+            if (!matched) {
+                element = element.parent;
+            }
+        }
+
+        if (matched) {
+            return element;
+        }
+    },
+
+    renderComplete: function() {},
+
+    hasHighlight: function() {
+        var options = (this.options || {}).highlight;
+        return !(!this.createHighlight || (options && options.visible === false) || this.visible === false);
+    },
+
+    toggleHighlight: function(show, opacity) {
+        var this$1 = this;
+
+        var options = (this.options || {}).highlight || {};
+        var customVisual = options.visual;
+        var highlight = this._highlight;
+
+        if (!highlight) {
+            var highlightOptions = {
+                fill: {
+                    color: WHITE,
+                    opacity: opacity || 0.2
+                },
+                stroke: {
+                    color: WHITE,
+                    width: 1,
+                    opacity: opacity || 0.2
+                }
+            };
+
+            if (customVisual) {
+                highlight = this._highlight = customVisual(
+                    $.extend(this.highlightVisualArgs(), {
+                        createVisual: function () { return this$1.createHighlight(highlightOptions); },
+                        sender: this.getSender(),
+                        series: this.series,
+                        dataItem: this.dataItem,
+                        category: this.category,
+                        value: this.value,
+                        percentage: this.percentage,
+                        runningTotal: this.runningTotal,
+                        total: this.total
+                    })
+                );
+
+                if (!highlight) {
+                    return;
+                }
+            } else {
+                highlight = this._highlight = this.createHighlight(highlightOptions);
+            }
+
+            if (!defined(highlight.options.zIndex)) {
+                highlight.options.zIndex = valueOrDefault(options.zIndex, this.options.zIndex);
+            }
+
+            this.appendVisual(highlight);
+        }
+
+        highlight.visible(show);
+    },
+
+    toggleFocusHighlight: function(show) {
+        var options = ((this.options || {}).accessibility || {}).highlight || {};
+        var focusHighlight = this._focusHighlight;
+
+        if (!show && !focusHighlight) {
+            return;
+        }
+
+        if (!focusHighlight) {
+            var rootBackground = this.getRoot().options.background;
+            var highlightColor = autoTextColor(rootBackground);
+            var focusHighlightOptions = {
+                fill: {
+                    opacity: options.opacity,
+                    color: options.color
+                },
+                stroke: $.extend({}, {color: highlightColor}, options.border),
+                zIndex: options.zIndex
+            };
+
+            focusHighlight = this._focusHighlight = this.createFocusHighlight(focusHighlightOptions);
+
+            this.appendVisual(focusHighlight);
+        }
+
+        focusHighlight.visible(show);
+    },
+
+    createGradientOverlay: function(element, options, gradientOptions) {
+        var overlay = new Path($.extend({
+            stroke: {
+                color: "none"
+            },
+            fill: this.createGradient(gradientOptions),
+            closed: element.options.closed
+        }, options));
+
+        overlay.segments.elements(element.segments.elements());
+
+        return overlay;
+    },
+
+    createGradient: function(options) {
+        if (this.parent) {
+            return this.parent.createGradient(options);
+        }
+    },
+
+    supportsPointInactiveOpacity: function() {
+        return true;
+    }
+});
+
+ChartElement$1.prototype.options = { };
+
+var Point$1 = Class.extend({
+    init: function(x, y) {
+
+        this.x = x || 0;
+        this.y = y || 0;
+    },
+
+    clone: function() {
+        return new Point$1(this.x, this.y);
+    },
+
+    equals: function(point) {
+        return point && this.x === point.x && this.y === point.y;
+    },
+
+    rotate: function(center, degrees) {
+        var theta = rad(degrees);
+        var cosT = Math.cos(theta);
+        var sinT = Math.sin(theta);
+        var cx = center.x;
+        var cy = center.y;
+        var ref = this;
+        var x = ref.x;
+        var y = ref.y;
+
+        this.x = round(
+            cx + (x - cx) * cosT + (y - cy) * sinT,
+            COORD_PRECISION
+        );
+
+        this.y = round(
+            cy + (y - cy) * cosT - (x - cx) * sinT,
+            COORD_PRECISION
+        );
+
+        return this;
+    },
+
+    multiply: function(a) {
+
+        this.x *= a;
+        this.y *= a;
+
+        return this;
+    },
+
+    distanceTo: function(point) {
+        var dx = this.x - point.x;
+        var dy = this.y - point.y;
+
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+});
+
+Point$1.onCircle = function(center, angle, radius) {
+    var radians = rad(angle);
+
+    return new Point$1(
+        center.x - radius * Math.cos(radians),
+        center.y - radius * Math.sin(radians)
+    );
+};
+
+var Box$1 = Class.extend({
+    init: function(x1, y1, x2, y2) {
+
+        this.x1 = x1 || 0;
+        this.y1 = y1 || 0;
+        this.x2 = x2 || 0;
+        this.y2 = y2 || 0;
+    },
+
+    equals: function(box) {
+        return this.x1 === box.x1 && this.x2 === box.x2 &&
+            this.y1 === box.y1 && this.y2 === box.y2;
+    },
+
+    width: function() {
+        return this.x2 - this.x1;
+    },
+
+    height: function() {
+        return this.y2 - this.y1;
+    },
+
+    translate: function(dx, dy) {
+        this.x1 += dx;
+        this.x2 += dx;
+        this.y1 += dy;
+        this.y2 += dy;
+
+        return this;
+    },
+
+    move: function(x, y) {
+        var height = this.height();
+        var width = this.width();
+
+        if (defined(x)) {
+            this.x1 = x;
+            this.x2 = this.x1 + width;
+        }
+
+        if (defined(y)) {
+            this.y1 = y;
+            this.y2 = this.y1 + height;
+        }
+
+        return this;
+    },
+
+    wrap: function(targetBox) {
+        this.x1 = Math.min(this.x1, targetBox.x1);
+        this.y1 = Math.min(this.y1, targetBox.y1);
+        this.x2 = Math.max(this.x2, targetBox.x2);
+        this.y2 = Math.max(this.y2, targetBox.y2);
+
+        return this;
+    },
+
+    wrapPoint: function(point) {
+        var arrayPoint = isArray(point);
+        var x = arrayPoint ? point[0] : point.x;
+        var y = arrayPoint ? point[1] : point.y;
+        this.wrap(new Box$1(x, y, x, y));
+
+        return this;
+    },
+
+    snapTo: function(targetBox, axis) {
+
+        if (axis === X || !axis) {
+            this.x1 = targetBox.x1;
+            this.x2 = targetBox.x2;
+        }
+
+        if (axis === Y || !axis) {
+            this.y1 = targetBox.y1;
+            this.y2 = targetBox.y2;
+        }
+
+        return this;
+    },
+
+    alignTo: function(targetBox, anchor) {
+        var height = this.height();
+        var width = this.width();
+        var axis = anchor === TOP || anchor === BOTTOM ? Y : X;
+        var offset = axis === Y ? height : width;
+
+        if (anchor === CENTER) {
+            var targetCenter = targetBox.center();
+            var center = this.center();
+
+            this.x1 += targetCenter.x - center.x;
+            this.y1 += targetCenter.y - center.y;
+        } else if (anchor === TOP || anchor === LEFT) {
+            this[axis + 1] = targetBox[axis + 1] - offset;
+        } else {
+            this[axis + 1] = targetBox[axis + 2];
+        }
+
+        this.x2 = this.x1 + width;
+        this.y2 = this.y1 + height;
+
+        return this;
+    },
+
+    shrink: function(dw, dh) {
+
+        this.x2 -= dw;
+        this.y2 -= dh;
+
+        return this;
+    },
+
+    expand: function(dw, dh) {
+        this.shrink(-dw, -dh);
+        return this;
+    },
+
+    pad: function(padding) {
+        var spacing = getSpacing(padding);
+
+        this.x1 -= spacing.left;
+        this.x2 += spacing.right;
+        this.y1 -= spacing.top;
+        this.y2 += spacing.bottom;
+
+        return this;
+    },
+
+    unpad: function(padding) {
+        var spacing = getSpacing(padding);
+
+        spacing.left = -spacing.left;
+        spacing.top = -spacing.top;
+        spacing.right = -spacing.right;
+        spacing.bottom = -spacing.bottom;
+
+        return this.pad(spacing);
+    },
+
+    clone: function() {
+        return new Box$1(this.x1, this.y1, this.x2, this.y2);
+    },
+
+    center: function() {
+        return new Point$1(
+            this.x1 + this.width() / 2,
+            this.y1 + this.height() / 2
+        );
+    },
+
+    containsPoint: function(point) {
+
+        return point.x >= this.x1 && point.x <= this.x2 &&
+               point.y >= this.y1 && point.y <= this.y2;
+    },
+
+    points: function() {
+        return [
+            new Point$1(this.x1, this.y1),
+            new Point$1(this.x2, this.y1),
+            new Point$1(this.x2, this.y2),
+            new Point$1(this.x1, this.y2)
+        ];
+    },
+
+    getHash: function() {
+        return [ this.x1, this.y1, this.x2, this.y2 ].join(",");
+    },
+
+    overlaps: function(box) {
+        return !(box.y2 < this.y1 || this.y2 < box.y1 || box.x2 < this.x1 || this.x2 < box.x1);
+    },
+
+    rotate: function(rotation) {
+        var width = this.width();
+        var height = this.height();
+        var ref = this.center();
+        var cx = ref.x;
+        var cy = ref.y;
+
+        var r1 = rotatePoint(0, 0, cx, cy, rotation);
+        var r2 = rotatePoint(width, 0, cx, cy, rotation);
+        var r3 = rotatePoint(width, height, cx, cy, rotation);
+        var r4 = rotatePoint(0, height, cx, cy, rotation);
+
+        width = Math.max(r1.x, r2.x, r3.x, r4.x) - Math.min(r1.x, r2.x, r3.x, r4.x);
+        height = Math.max(r1.y, r2.y, r3.y, r4.y) - Math.min(r1.y, r2.y, r3.y, r4.y);
+
+        this.x2 = this.x1 + width;
+        this.y2 = this.y1 + height;
+
+        return this;
+    },
+
+    toRect: function() {
+        return new geometry.Rect([ this.x1, this.y1 ], [ this.width(), this.height() ]);
+    },
+
+    hasSize: function() {
+        return this.width() !== 0 && this.height() !== 0;
+    },
+
+    align: function(targetBox, axis, alignment) {
+        var c1 = axis + 1;
+        var c2 = axis + 2;
+        var sizeFunc = axis === X ? datavizConstants.WIDTH : datavizConstants.HEIGHT;
+        var size = this[sizeFunc]();
+
+        if (inArray(alignment, [ LEFT, TOP ])) {
+            this[c1] = targetBox[c1];
+            this[c2] = this[c1] + size;
+        } else if (inArray(alignment, [ RIGHT, BOTTOM ])) {
+            this[c2] = targetBox[c2];
+            this[c1] = this[c2] - size;
+        } else if (alignment === CENTER) {
+            this[c1] = targetBox[c1] + (targetBox[sizeFunc]() - size) / 2;
+            this[c2] = this[c1] + size;
+        }
+    }
+});
+
+function rotatePoint(x, y, cx, cy, angle) {
+    var theta = rad(angle);
+
+    return new Point$1(
+        cx + (x - cx) * Math.cos(theta) + (y - cy) * Math.sin(theta),
+        cy - (x - cx) * Math.sin(theta) + (y - cy) * Math.cos(theta)
+    );
+}
+
+var BoxElement$1 = ChartElement$1.extend({
+    init: function(options) {
+        ChartElement$1.fn.init.call(this, options);
+
+        this.options.margin = getSpacing(this.options.margin);
+        this.options.padding = getSpacing(this.options.padding);
+    },
+
+    reflow: function(targetBox) {
+        var this$1 = this;
+
+        var options = this.options;
+        var width = options.width;
+        var height = options.height;
+        var shrinkToFit = options.shrinkToFit;
+        var hasSetSize = width && height;
+        var margin = options.margin;
+        var padding = options.padding;
+        var borderWidth = options.border.width;
+        var box;
+
+        var reflowPaddingBox = function () {
+            this$1.align(targetBox, X, options.align);
+            this$1.align(targetBox, Y, options.vAlign);
+            this$1.paddingBox = box.clone().unpad(margin).unpad(borderWidth);
+        };
+
+        var contentBox = targetBox.clone();
+        if (hasSetSize) {
+            contentBox.x2 = contentBox.x1 + width;
+            contentBox.y2 = contentBox.y1 + height;
+        }
+
+        if (shrinkToFit) {
+            contentBox.unpad(margin).unpad(borderWidth).unpad(padding);
+        }
+
+        ChartElement$1.fn.reflow.call(this, contentBox);
+
+        if (hasSetSize) {
+            box = this.box = new Box$1(0, 0, width, height);
+        } else {
+            box = this.box;
+        }
+
+        if (shrinkToFit && hasSetSize) {
+            reflowPaddingBox();
+            contentBox = this.contentBox = this.paddingBox.clone().unpad(padding);
+        } else {
+            contentBox = this.contentBox = box.clone();
+            box.pad(padding).pad(borderWidth).pad(margin);
+            reflowPaddingBox();
+        }
+
+        this.translateChildren(
+            box.x1 - contentBox.x1 + margin.left + borderWidth + padding.left,
+            box.y1 - contentBox.y1 + margin.top + borderWidth + padding.top
+        );
+
+        var children = this.children;
+        for (var i = 0; i < children.length; i++) {
+            var item = children[i];
+            item.reflow(item.box);
+        }
+    },
+
+    align: function(targetBox, axis, alignment) {
+        this.box.align(targetBox, axis, alignment);
+    },
+
+    hasBox: function() {
+        var options = this.options;
+        return options.border.width || options.background;
+    },
+
+    createVisual: function() {
+        ChartElement$1.fn.createVisual.call(this);
+
+        var options = this.options;
+        if (options.visible && this.hasBox()) {
+            this.visual.append(Path.fromRect(
+                this.paddingBox.toRect(),
+                this.visualStyle()
+            ));
+        }
+    },
+
+    visualStyle: function() {
+        var options = this.options;
+        var border = options.border || {};
+
+        return {
+            stroke: {
+                width: border.width,
+                color: border.color,
+                opacity: valueOrDefault(border.opacity, options.opacity),
+                dashType: border.dashType
+            },
+            fill: {
+                color: options.background,
+                opacity: options.opacity
+            },
+            cursor: options.cursor
+        };
+    }
+});
+
+setDefaultOptions(BoxElement$1, {
+    align: LEFT,
+    vAlign: TOP,
+    margin: {},
+    padding: {},
+    border: {
+        color: BLACK,
+        width: 0
+    },
+    background: "",
+    shrinkToFit: false,
+    width: 0,
+    height: 0,
+    visible: true
+});
+
+var ShapeElement$1 = BoxElement$1.extend({
+    init: function(options, pointData) {
+        BoxElement$1.fn.init.call(this, options);
+
+        this.pointData = pointData;
+    },
+
+    getElement: function() {
+        var ref = this;
+        var options = ref.options;
+        var box = ref.paddingBox;
+        var type = options.type;
+        var rotation = options.rotation;
+        var center = box.center();
+        var halfWidth = box.width() / 2;
+        var halfHeight = box.height() / 2;
+
+        if (!options.visible || !this.hasBox()) {
+            return null;
+        }
+
+        var style = this.visualStyle();
+        var element;
+
+        if (type === CIRCLE) {
+            element = new Circle(
+                new GeometryCircle([
+                    round(box.x1 + halfWidth, COORD_PRECISION),
+                    round(box.y1 + halfHeight, COORD_PRECISION)
+                ], Math.min(halfWidth, halfHeight)),
+                style
+            );
+        } else if (type === datavizConstants.TRIANGLE) {
+            element = Path.fromPoints([
+                [ box.x1 + halfWidth, box.y1 ],
+                [ box.x1, box.y2 ],
+                [ box.x2, box.y2 ]
+            ], style).close();
+        } else if (type === datavizConstants.CROSS) {
+            element = new MultiPath(style);
+
+            element.moveTo(box.x1, box.y1).lineTo(box.x2, box.y2);
+            element.moveTo(box.x1, box.y2).lineTo(box.x2, box.y1);
+        } else {
+            var rect = box.toRect();
+            if (type === datavizConstants.ROUNDED_RECT) {
+                var borderRadius = valueOrDefault$1(options.borderRadius, rect.width() / 5);
+                rect.setCornerRadius(borderRadius);
+            }
+
+            element = Path.fromRect(rect, style);
+        }
+
+        if (rotation) {
+            element.transform(transform()
+                .rotate(-rotation, [ center.x, center.y ])
+            );
+        }
+
+        element.options.zIndex = options.zIndex;
+
+        return element;
+    },
+
+    createElement: function() {
+        var this$1 = this;
+
+        var customVisual = this.options.visual;
+        var pointData = this.pointData || {};
+        var visual;
+
+        if (customVisual) {
+            visual = customVisual({
+                value: pointData.value,
+                dataItem: pointData.dataItem,
+                sender: this.getSender(),
+                series: pointData.series,
+                category: pointData.category,
+                rect: this.paddingBox.toRect(),
+                options: this.visualOptions(),
+                createVisual: function () { return this$1.getElement(); }
+            });
+        } else {
+            visual = this.getElement();
+        }
+
+        return visual;
+    },
+
+    visualOptions: function() {
+        var options = this.options;
+        return {
+            background: options.background,
+            border: options.border,
+            margin: options.margin,
+            padding: options.padding,
+            type: options.type,
+            size: options.width,
+            visible: options.visible
+        };
+    },
+
+    createVisual: function() {
+        this.visual = this.createElement();
+
+        addAccessibilityAttributesToVisual(this.visual, this.options.accessibilityOptions);
+    }
+});
+
+setDefaultOptions(ShapeElement$1, {
+    type: CIRCLE,
+    align: CENTER,
+    vAlign: CENTER
+});
+
+var MarkerLineArea = ShapeElement$1.extend({
+    getElement: function() {
+        var group = new Group();
+        var element = new MultiPath(this.visualStyle());
+        var ref = this;
+        var box = ref.paddingBox;
+        var halfHeight = box.height() / 2;
+
+        element
+            .moveTo(box.x1, box.y1 + halfHeight)
+            .lineTo(box.x1, box.y2)
+            .lineTo(box.x2, box.y2);
+
+        group.append(element);
+
+        return group;
+    }
+});
+
+setDefaultOptions(MarkerLineArea, {
+    width: 15,
+    height: 15,
+    align: RIGHT,
+    vAlign: BOTTOM,
+    margin: {
+        right: -2,
+        bottom: 2
+    }
+});
+
+var LegendItemLine = ShapeElement$1.extend({
+    getElement: function() {
+        var group = new Group();
+        var element = new MultiPath({
+            stroke: {
+                color: this.options.border.color,
+                opacity: this.options.opacity,
+                width: this.options.height,
+                dashType: this.options.dashType
+            }
+        });
+        var box = this.paddingBox;
+        var centerY = box.center().y;
+
+        element
+            .moveTo(box.x1, centerY)
+            .lineTo(box.x2, centerY);
+
+        group.append(element);
+
+        return group;
+    },
+
+    createHighlight: function() {
+        this.highlight = [ this.createHighlightLine(), this.createHighlightMarker() ];
+        return this.highlight;
+    },
+
+    createHighlightLine: function() {
+        var options = deepExtend({}, {
+            border: {
+                color: this.options.border.color,
+                opacity: this.options.border.opacity,
+                dashType: this.options.border.dashType
+            }
+        }, this.options.highlight);
+        var highlightLine = new MarkerLineArea(options);
+        highlightLine.reflow(this.parent.paddingBox.clone());
+
+        this.highlightLine = highlightLine.getElement();
+
+        return this.highlightLine;
+    },
+
+    createHighlightMarker: function() {
+        var options = deepExtend({}, {
+            background: this.options.background,
+        }, this.options.highlight.markers);
+        var highlightMarker = new ShapeElement$1(options);
+        var paddingBox = this.parent.paddingBox;
+        var borderWidth = options.border.width;
+        var box = this.parent.box.clone();
+
+        box.pad({
+            left: borderWidth - paddingBox.x1,
+            top: borderWidth - paddingBox.y1
+        });
+
+        highlightMarker.reflow(box);
+        this.highlightMarker = highlightMarker.getElement();
+
+        return this.highlightMarker;
+    }
+});
+
+setDefaultOptions(LegendItemLine, {
+    border: {
+        width: 0
+    },
+    type: datavizConstants.RECT,
+    align: LEFT,
+    vAlign: CENTER,
+    highlight: {
+        border: {
+            width: DEFAULT_MARKER_BORDER_WIDTH
+        },
+        markers: {
+            type: CIRCLE,
+            width: DEFAULT_MARKER_SIZE,
+            height: DEFAULT_MARKER_SIZE,
+            border: {
+                width: DEFAULT_MARKER_BORDER_WIDTH,
+                color: WHITE
+            },
+            align: LEFT,
+            vAlign: TOP
+        }
+    }
+});
+
+var LegendItemSquare = ShapeElement$1.extend({
+    createHighlight: function() {
+        var options = deepExtend({}, {
+            background: this.options.background,
+        }, this.options.highlight.markers);
+        var highlight = new ShapeElement$1(options);
+
+        var box = this.paddingBox.clone();
+        var targetBox = this.parent.box.clone();
+        box.align(targetBox, X, LEFT);
+        box.align(targetBox, Y, TOP);
+        highlight.reflow(box);
+
+        this.highlight = [ highlight.getElement() ];
+
+        return this.highlight;
+    }
+});
+
+setDefaultOptions(LegendItemSquare, {
+    highlight: {
+        markers: {
+            type: CIRCLE,
+            width: DEFAULT_MARKER_SIZE,
+            height: DEFAULT_MARKER_SIZE,
+            border: {
+                width: DEFAULT_MARKER_BORDER_WIDTH,
+                color: WHITE
+            },
+            margin: {
+                top: -3,
+                left: -3
+            }
+        }
+    }
+});
+
 var LegendItem = BoxElement.extend({
     init: function(options) {
         BoxElement.fn.init.call(this, options);
@@ -9235,6 +11034,9 @@ var LegendItem = BoxElement.extend({
             this.createLabel();
             this.createMarker();
         }
+
+        this._id = guid();
+        this.options.accessibility.ariaChecked = options.active;
     },
 
     createContainer: function() {
@@ -9243,18 +11045,132 @@ var LegendItem = BoxElement.extend({
     },
 
     createMarker: function() {
-        this.container.append(new ShapeElement(this.markerOptions()));
+        this.markerWrap = new BoxElement({ vertical: false, shrinkToFit: true, wrap: false, margin: 1, width: 22, height: 22 });
+        this.container.append(this.markerWrap);
+
+        this.createMarkerArea();
+
+        if (this.options.markers.visible) {
+            this._marker = this._createMarker();
+            this.markerWrap.append(this._marker);
+        }
+    },
+
+    createMarkerArea: function() {
+        var options = this.options;
+        var markerColor = options.markerColor;
+        var line = options.line; if (line === void 0) { line = {}; }
+        var lineOptions = {
+            border: {
+                color: line.color || markerColor,
+                opacity: line.opacity,
+                dashType: line.dashType
+            }
+        };
+        return this._createLine(lineOptions) ||
+            this._createMarkerLine(lineOptions, line) ||
+            this._createSquare();
     },
 
     markerOptions: function() {
         var options = this.options;
+        var markers = options.markers; if (markers === void 0) { markers = {}; }
         var markerColor = options.markerColor;
-        return deepExtend({}, options.markers, {
-            background: markerColor,
-            border: {
-                color: markerColor
-            }
+        var border = markers.border; if (border === void 0) { border = {}; }
+
+        return deepExtend({}, markers, {
+            border: { color: border.color || markerColor },
+            highlight: options.highlight.markers
         });
+    },
+
+    _highlightOptions: function() {
+        var options = this.options;
+        return deepExtend(
+            { markers: { type: options.markers.type } },
+            options.highlight
+        );
+    },
+
+    _createLine: function(lineOptions) {
+        var options = this.options;
+        if (options.type === LINE && !options.markers.visible) {
+            this._line = new LegendItemLine(deepExtend({}, {
+                background: options.markerColor,
+                highlight: this._highlightOptions(),
+            }, lineOptions, options.line));
+
+            this.markerWrap.append(this._line);
+        }
+        return this._line;
+    },
+
+    _createMarkerLine: function(lineOptions, line) {
+        var options = this.options;
+        if (options.type === LINE) {
+            this._markerLineArea = new MarkerLineArea(deepExtend({}, {
+                border: {
+                    width: line.height
+                }
+            }, lineOptions));
+
+            this.markerWrap.append(this._markerLineArea);
+        }
+
+        return this._markerLineArea;
+    },
+
+    _createSquare: function() {
+        var options = this.options;
+        if (options.type === AREA) {
+            this._square = new LegendItemSquare($.extend({}, {border: options.border,
+                vAlign: options.markers.visible ? BOTTOM : CENTER,
+                highlight: this._highlightOptions(),
+                visual: options.visual},
+                options.area,
+                {background: options.area.background || options.markerColor}));
+            this.markerWrap.append(this._square);
+        }
+        return this._square;
+    },
+
+    _createMarker: function() {
+        return new LegendItemMarker(this.markerOptions());
+    },
+
+    _highlightMarkers: function() {
+        if (this.options.active) {
+            this._toggleHighlight(true);
+        }
+    },
+
+    _restoreMarkers: function() {
+        this._toggleHighlight(false);
+    },
+
+    _toggleHighlight: function(show) {
+        var this$1 = this;
+
+        if (!this.options.highlight.visible) {
+            return;
+        }
+
+        var element = this._marker || this._square || this._line;
+
+        if (element && element === this._line) {
+            this._line.visual.visible(!show);
+        }
+
+        if (element) {
+            var highlight = element.highlight;
+
+            if (!highlight) {
+                highlight = element.createHighlight();
+                highlight.forEach(function (h) { return h && this$1.markerWrap.appendVisual(h); });
+            }
+
+            highlight.forEach(function (h) { return h && h.visible(show); });
+        }
     },
 
     createLabel: function() {
@@ -9262,6 +11178,22 @@ var LegendItem = BoxElement.extend({
         var labelOptions = deepExtend({}, options.labels);
 
         this.container.append(new TextBox(options.text, labelOptions));
+    },
+
+    getAriaLabelText: function() {
+        return this.options.text;
+    },
+
+    focusVisual: function() {
+        this.visual.options.set("id", this._id);
+        this.toggleFocusHighlight(true);
+        this._highlightMarkers();
+    },
+
+    clearFocusFromVisual: function() {
+        this.visual.options.set("id", "");
+        this.toggleFocusHighlight(false);
+        this._restoreMarkers();
     },
 
     renderComplete: function() {
@@ -9293,6 +11225,7 @@ var LegendItem = BoxElement.extend({
 
         if (!widget.trigger(LEGEND_ITEM_HOVER, args)) {
             widget._legendItemHover(args.seriesIndex, args.pointIndex);
+            this._highlightMarkers();
         }
 
         // Don't trigger point hover for legend items
@@ -9301,6 +11234,7 @@ var LegendItem = BoxElement.extend({
 
     out: function(widget, e) {
         widget._unsetActivePoint();
+        this._restoreMarkers();
 
         widget.trigger(LEGEND_ITEM_LEAVE, this.eventArgs(e));
     },
@@ -9317,6 +11251,19 @@ var LegendItem = BoxElement.extend({
         };
     },
 
+    createVisual: function() {
+        BoxElement.fn.createVisual.call(this);
+        var options = this.options;
+
+        if (this.options.visible) {
+            var accessibilityOptions = deepExtend({
+                ariaLabel: options.text
+            }, options.accessibility);
+
+            addAccessibilityAttributesToVisual(this.visual, accessibilityOptions);
+        }
+    },
+
     renderVisual: function() {
         var this$1 = this;
 
@@ -9330,7 +11277,10 @@ var LegendItem = BoxElement.extend({
                 sender: this.getSender(),
                 pointIndex: options.pointIndex,
                 options: {
-                    markers: this.markerOptions(),
+                    type: options.type,
+                    // Passing the markerColor as a background option for backwards compatibility.
+                    // Example in jq docs - https://docs.telerik.com/kendo-ui/api/javascript/dataviz/ui/chart/configuration/legend.item#legenditemvisual
+                    markers: deepExtend({ background: this.options.markerColor }, this.markerOptions()),
                     labels: options.labels
                 },
                 createVisual: function () {
@@ -9345,15 +11295,32 @@ var LegendItem = BoxElement.extend({
                     return defaultVisual;
                 }
             });
+            this._marker = this._markerLineArea = this._square = this._line = null;
             this.addVisual();
         } else {
             BoxElement.fn.renderVisual.call(this);
         }
+    },
+
+    createFocusHighlight: function(style) {
+        var borderWidth = style.stroke.width;
+        return Path.fromRect(this.container.box.pad(borderWidth / 2).toRect(), style);
     }
 });
 
-var HORIZONTAL = "horizontal";
-var POINTER = "pointer";
+setDefaultOptions(LegendItem, {
+    accessibility: {
+        role: LEGEND_ITEM_ROLE,
+        className: LEGEND_ITEM_CLASSNAME,
+        ariaRoleDescription: LEGEND_ITEM_ARIA_ROLE_DESCRIPTION
+    },
+    markers: {},
+    highlight: {
+        visible: true,
+        markers: {}
+    }
+});
+
 var CUSTOM = "custom";
 
 var Legend = ChartElement.extend({
@@ -9385,18 +11352,18 @@ var Legend = ChartElement.extend({
         if (position === CUSTOM) {
             align = LEFT;
         } else if (inArray(position, [ TOP, BOTTOM ])) {
-            if (userAlign === "start") {
+            if (userAlign === START) {
                 align = LEFT;
-            } else if (userAlign === "end") {
+            } else if (userAlign === END) {
                 align = RIGHT;
             } else {
                 align = CENTER;
             }
             vAlign = position;
         } else if (userAlign) {
-            if (userAlign === "start") {
+            if (userAlign === START) {
                 vAlign = TOP;
-            } else if (userAlign === "end") {
+            } else if (userAlign === END) {
                 vAlign = BOTTOM;
             }
         }
@@ -9435,22 +11402,43 @@ var Legend = ChartElement.extend({
             spacing: options.spacing,
             rtl: chartService.rtl
         }, chartService);
-        var items = options.items;
+        var data = options.data;
 
         if (options.reverse) {
-            items = items.slice(0).reverse();
+            data = data.slice(0).reverse();
         }
 
-        var count = items.length;
+        var count = data.length;
 
         for (var i = 0; i < count; i++) {
-            var item = items[i];
+            var dataItem = data[i];
+            var ref = dataItem.series || {};
+            var markers = ref.markers; if (markers === void 0) { markers = {}; }
+            var dashType = ref.dashType;
+            var legendItem = ref.legendItem;
+            var opacity = ref.opacity;
+            var markersOptions = deepExtend({ visible: markers.visible !== false, type: CIRCLE }, markers);
+            delete markersOptions.size;
 
-            innerElement.append(new LegendItem(deepExtend({}, {
-                markers: options.markers,
-                labels: options.labels,
-                rtl: chartService.rtl
-            }, options.item, item)));
+            var itemOptions = deepExtend({},
+                {
+                    markers: markersOptions,
+                    labels: options.labels,
+                    rtl: chartService.rtl,
+                    line: $.extend({}, {dashType: dashType},
+                        options.line),
+                    area: $.extend({}, {opacity: opacity},
+                        options.area),
+                    opacity: opacity,
+                    accessibility: options.accessibility
+                },
+                options.item,
+                legendItem,
+                dataItem,
+                { markers: options.markers }
+            );
+
+            innerElement.append(new LegendItem(itemOptions));
         }
 
         innerElement.render();
@@ -9461,14 +11449,18 @@ var Legend = ChartElement.extend({
         var ref = this.options;
         var orientation = ref.orientation;
         var position = ref.position;
-        var vertical = (position === CUSTOM && orientation !== HORIZONTAL) ||
-               (defined(orientation) ? orientation !== HORIZONTAL : inArray(position, [ LEFT, RIGHT ]));
+        var vertical = (position === CUSTOM && orientation !== datavizConstants.HORIZONTAL) ||
+               (defined(orientation) ? orientation !== datavizConstants.HORIZONTAL : inArray(position, [ LEFT, RIGHT ]));
 
         return vertical;
     },
 
     hasItems: function() {
         return this.container.children[0].children.length > 0;
+    },
+
+    getItems: function() {
+        return this.itemsContainer.children[0].children;
     },
 
     reflow: function(targetBox) {
@@ -9571,7 +11563,7 @@ var Legend = ChartElement.extend({
         }, title);
         var text = titleOptions.text;
 
-        if (!title || title.visible === false) {
+        if (!title || title.visible === false || !title.text) {
             return;
         }
 
@@ -9601,7 +11593,7 @@ var Legend = ChartElement.extend({
     },
 
     hasTitle: function() {
-        return Boolean(this.options.title && this.options.title.visible !== false);
+        return Boolean(this.options.title && this.options.title.visible !== false && this.options.title.text);
     },
 
     appendTitleLayoutContent: function() {
@@ -9619,31 +11611,34 @@ var Legend = ChartElement.extend({
 
 setDefaultOptions(Legend, {
     position: RIGHT,
-    items: [],
+    data: [],
     offsetX: 0,
     offsetY: 0,
-    margin: getSpacing(5),
+    margin: getSpacing(2),
     padding: getSpacing(5),
     border: {
         color: BLACK,
         width: 0
     },
     item: {
-        cursor: POINTER,
+        cursor: datavizConstants.POINTER,
         spacing: 6
     },
     spacing: 6,
     background: "",
     zIndex: 1,
-    markers: {
-        border: {
-            width: 0
-        },
+    markers: {},
+    line: {
+        width: 20,
+        height: 2,
+        cursor: datavizConstants.POINTER,
+        opacity: 1
+    },
+    area: {
+        type: datavizConstants.SQUARE,
+        align: RIGHT,
         width: 15,
-        height: 3,
-        type: "rect",
-        align: LEFT,
-        vAlign: CENTER
+        height: 15,
     }
 });
 
@@ -10596,17 +12591,43 @@ function autoMajorUnit(min, max) {
     return round(scale * scaleMultiplier, DEFAULT_PRECISION);
 }
 
-var scatterValueGetter = function (fieldName) { return function (ref) {
-        var valueFields = ref.valueFields;
+function getScatterTrendlineData(valueMapper, range, options) {
+    var data = [];
+    var xMin = range.xMin;
+    var xMax = range.xMax;
 
-        return ({ xValue: valueFields.x, yValue: valueFields[fieldName] });
- }    };
+    var forecast = (options || {}).forecast;
+    if (forecast) {
+        if (forecast.before > 0) {
+            xMin -= forecast.before;
+        }
 
-function scatterLinearTrendLine(context) {
+        if (forecast.after > 0) {
+            xMax += forecast.after;
+        }
+    }
+
+    var samplingInterval = (options || {}).samplingInterval;
+    var delta = valueOrDefault(samplingInterval,  autoMajorUnit(xMin, xMax) / 10);
+    if (samplingInterval <= 0) {
+        delta = xMax - xMin;
+    }
+
+    for (var x = xMin; x <= xMax; x += delta) {
+        data.push([
+            x,
+            valueMapper(x)
+        ]);
+    }
+
+    return data;
+}
+
+function scatterExponentialTrendline(context) {
     var options = context.options;
     var seriesValues = context.seriesValues;
 
-    var data = getData$2({ seriesValues: seriesValues, options: options });
+    var data = getData$6({ seriesValues: seriesValues, options: options });
     if (data) {
         return $.extend({}, options,
 
@@ -10617,7 +12638,63 @@ function scatterLinearTrendLine(context) {
     return null;
 }
 
-function getData$2(ref) {
+var valueGetter$6 = function (fieldName) { return function (ref) {
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: valueFields.x, yValue: Math.log(valueFields[fieldName]) });
+ }    };
+
+function getData$6(ref) {
+    var seriesValues = ref.seriesValues;
+    var options = ref.options;
+
+    var sourceValues = seriesValues();
+    if (!checkAllPositive(sourceValues, options.field)) {
+        return null;
+    }
+
+    var ref$1 = calculateSlope(sourceValues, valueGetter$6(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+    var xMin = ref$1.xMin;
+    var xMax = ref$1.xMax;
+    var range = { xMin: xMin, xMax: xMax };
+
+    if (count > 0) {
+        // Exponential trendline equation:
+        // y = a * e ^ (b * x)
+        var a = Math.exp(intercept);
+        var b = slope;
+
+        return getScatterTrendlineData(function (x) { return a * Math.exp(b * x); }, range, options.trendline);
+    }
+
+    return null;
+}
+
+var scatterValueGetter = function (fieldName) { return function (ref) {
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: valueFields.x, yValue: valueFields[fieldName] });
+ }    };
+
+function scatterLinearTrendline(context) {
+    var options = context.options;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$7({ seriesValues: seriesValues, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'scatterLine',
+            data: data});
+    }
+
+    return null;
+}
+
+function getData$7(ref) {
     var seriesValues = ref.seriesValues;
     var options = ref.options;
 
@@ -10627,42 +12704,39 @@ function getData$2(ref) {
     var count = ref$1.count;
     var xMin = ref$1.xMin;
     var xMax = ref$1.xMax;
+    var range = { xMin: xMin, xMax: xMax };
 
     if (count > 0) {
-        var data = [];
-        var forecast = (options.trendline || {}).forecast;
-        if (forecast) {
-            if (forecast.before > 0) {
-                xMin -= forecast.before;
-            }
-
-            if (forecast.after > 0) {
-                xMax += forecast.after;
-            }
-        }
-
-        var samplingInterval = (options.trendline || {}).samplingInterval;
-        var delta = valueOrDefault(samplingInterval,  autoMajorUnit(xMin, xMax) / 10);
-        if (samplingInterval <= 0) {
-            delta = xMax - xMin;
-        }
-
-        for (var x = xMin; x <= xMax; x += delta) {
-            data.push([ x,
-                slope * x + intercept
-            ]);
-        }
-
-        return data;
+        return getScatterTrendlineData(function (x) { return slope * x + intercept; }, range, options.trendline);
     }
 
     return null;
 }
 
-function scatterMovingAverageTrendline(context) {
-    var options = context.options;
+function xValueLimits(sourceValues, valueGetter) {
+    var xMin = Number.MAX_VALUE;
+    var xMax = Number.MIN_VALUE;
 
-    var data = getData$3(context);
+    for (var i = 0; i < sourceValues.length; i++) {
+        var value = sourceValues[i];
+        var ref = valueGetter(value);
+        var xValue = ref.xValue;
+        var yValue = ref.yValue;
+
+        if (isFinite(xValue) && xValue !== null && isFinite(yValue) && yValue !== null) {
+            xMin = Math.min(xValue, xMin);
+            xMax = Math.max(xValue, xMax);
+        }
+    }
+
+    return { xMin: xMin, xMax: xMax };
+}
+
+function scatterLogarithmicTrendline(context) {
+    var options = context.options;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$8({ seriesValues: seriesValues, options: options });
     if (data) {
         return $.extend({}, options,
 
@@ -10673,7 +12747,60 @@ function scatterMovingAverageTrendline(context) {
     return null;
 }
 
-function getData$3(ref) {
+var valueGetter$7 = function (fieldName) { return function (ref) {
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: valueFields.x, yValue: valueFields[fieldName] });
+ }    };
+
+var logValueGetter = function (fieldName) { return function (ref) {
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: Math.log(valueFields.x), yValue: valueFields[fieldName] });
+ }    };
+
+function getData$8(ref) {
+    var seriesValues = ref.seriesValues;
+    var options = ref.options;
+
+    var sourceValues = seriesValues();
+    if (!checkAllPositive(sourceValues, 'x')) {
+        return null;
+    }
+
+    var ref$1 = calculateSlope(sourceValues, logValueGetter(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+    var range = xValueLimits(sourceValues, valueGetter$7(options.field));
+
+    if (count > 0) {
+        // Logarithmic trendline equation:
+        // y = a * ln (x) + b
+        var a = slope;
+        var b = intercept;
+
+        return getScatterTrendlineData(function (x) { return a * Math.log(x) + b; }, range, options.trendline);
+    }
+
+    return null;
+}
+
+function scatterMovingAverageTrendline(context) {
+    var options = context.options;
+
+    var data = getData$9(context);
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'scatterLine',
+            data: data});
+    }
+
+    return null;
+}
+
+function getData$9(ref) {
     var options = ref.options;
     var seriesValues = ref.seriesValues;
 
@@ -10688,9 +12815,97 @@ function getData$3(ref) {
     return null;
 }
 
+function scatterPolynomialTrendline(context) {
+    var options = context.options;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$10({ seriesValues: seriesValues, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'scatterLine',
+            data: data});
+    }
+
+    return null;
+}
+
+function getData$10(ref) {
+    var seriesValues = ref.seriesValues;
+    var options = ref.options;
+
+    var order = (options.trendline || {}).order;
+    var valueGetter = scatterValueGetter(options.field);
+    var ref$1 = calculatePolynomial(seriesValues(), valueGetter, order);
+    var count = ref$1.count;
+    var valueMapper = ref$1.valueMapper;
+    var xMin = ref$1.xMin;
+    var xMax = ref$1.xMax;
+    var range = { xMin: xMin, xMax: xMax };
+
+    if (count > 0) {
+        // Polynomial trendline equation:
+        // y = aN * x^N + ... + a2 * x^2 + a1 * x + a0
+        return getScatterTrendlineData(valueMapper, range, options.trendline);
+    }
+
+    return null;
+}
+
+function scatterPowerTrendline(context) {
+    var options = context.options;
+    var seriesValues = context.seriesValues;
+
+    var data = getData$11({ seriesValues: seriesValues, options: options });
+    if (data) {
+        return $.extend({}, options,
+
+            {type: 'scatterLine',
+            data: data});
+    }
+
+    return null;
+}
+
+var valueGetter$8 = function (fieldName) { return function (ref) {
+        var valueFields = ref.valueFields;
+
+        return ({ xValue: Math.log(valueFields.x), yValue: Math.log(valueFields[fieldName]) });
+ }    };
+
+function getData$11(ref) {
+    var seriesValues = ref.seriesValues;
+    var options = ref.options;
+
+    var sourceValues = seriesValues();
+    if (!checkAllPositive(sourceValues, 'x')) {
+        return null;
+    }
+
+    var ref$1 = calculateSlope(sourceValues, valueGetter$8(options.field));
+    var slope = ref$1.slope;
+    var intercept = ref$1.intercept;
+    var count = ref$1.count;
+    var range = xValueLimits(sourceValues, scatterValueGetter(options.field));
+
+    if (count > 0) {
+        // Power trendline equation:
+        // y = a * x ^ b
+        var a = Math.exp(intercept);
+        var b = slope;
+        return getScatterTrendlineData(function (x) { return a * Math.pow(x, b); }, range, options.trendline);
+    }
+
+    return null;
+}
+
 var scatterRegistry = {};
-scatterRegistry[TRENDLINE_LINEAR] = scatterLinearTrendLine;
+scatterRegistry[TRENDLINE_EXPONENTIAL] = scatterExponentialTrendline;
+scatterRegistry[TRENDLINE_LINEAR] = scatterLinearTrendline;
+scatterRegistry[TRENDLINE_LOGARITHMIC] = scatterLogarithmicTrendline;
 scatterRegistry[TRENDLINE_MOVING_AVERAGE] = scatterMovingAverageTrendline;
+scatterRegistry[TRENDLINE_POLYNOMIAL] = scatterPolynomialTrendline;
+scatterRegistry[TRENDLINE_POWER] = scatterPowerTrendline;
 
 var XYPlotArea = PlotAreaBase.extend({
     initFields: function() {
@@ -10986,28 +13201,23 @@ var PieSegment = ChartElement.extend({
     },
 
     render: function() {
-        var labels = this.options.labels;
-        var chartService = this.owner.chartService;
-        var labelText = this.value;
-
         if (this._rendered || this.visible === false) {
             return;
         }
         this._rendered = true;
 
-        var labelTemplate = getTemplate(labels);
-        var pointData = this.pointData();
+        this.createLabel();
+    },
 
-        if (labelTemplate) {
-            labelText = labelTemplate(pointData);
-        } else if (labels.format) {
-            labelText = chartService.format.auto(labels.format, labelText);
-        }
+    createLabel: function() {
+        var labels = this.options.labels;
+        var chartService = this.owner.chartService;
+        var labelText = this.getLabelText(labels);
 
         if (labels.visible && (labelText || labelText === 0)) {
             if (labels.position === CENTER || labels.position === INSIDE_END) {
                 if (!labels.color) {
-                    labels.color = dataviz.autoTextColor(this.options.color);
+                    labels.color = autoTextColor(this.options.color);
                 }
                 if (!labels.background) {
                     labels.background = this.options.color;
@@ -11025,10 +13235,20 @@ var PieSegment = ChartElement.extend({
                     type: FADEIN,
                     delay: this.animationDelay
                 }
-            }), pointData);
+            }), this.pointData());
 
             this.append(this.label);
         }
+    },
+
+    getLabelText: function(options) {
+        var labelTemplate = getTemplate(options);
+
+        if (labelTemplate) {
+            return labelTemplate(this.pointData());
+        }
+
+        return this.owner.chartService.format.auto(options.format, this.value);
     },
 
     reflow: function(targetBox) {
@@ -11081,6 +13301,8 @@ var PieSegment = ChartElement.extend({
         var options = ref.options;
 
         ChartElement.fn.createVisual.call(this);
+
+        this.addAccessibilityAttributesToVisual();
 
         if (this.value) {
             if (options.visual) {
@@ -11158,7 +13380,7 @@ var PieSegment = ChartElement.extend({
 
     createSegment: function(sector, options) {
         if (options.singleSegment) {
-            return new drawing.Circle(new geometry.Circle(new GeometryPoint(sector.center.x, sector.center.y), sector.radius), options);
+            return new Circle(new GeometryCircle(new GeometryPoint(sector.center.x, sector.center.y), sector.radius), options);
         }
 
         return dataviz.ShapeBuilder.current.createRing(sector, options);
@@ -11214,6 +13436,24 @@ var PieSegment = ChartElement.extend({
         };
     },
 
+    createFocusHighlight: function(style) {
+        var borderWidth = this.options.accessibility.highlight.border.width;
+        var result = this.createSegment(this.sector, deepExtend({}, style, {
+            stroke: {
+                width: borderWidth * 2
+            }
+        }));
+
+        var clipPath = new MultiPath();
+
+        clipPath.paths.push(Path.fromRect(result.bbox()));
+        clipPath.paths.push(this.createSegment(this.sector, {}));
+
+        result.clip(clipPath);
+
+        return result;
+    },
+
     tooltipAnchor: function() {
         var sector = this.sector.clone().expand(TOOLTIP_OFFSET);
         var midAndle = sector.middle();
@@ -11237,14 +13477,18 @@ var PieSegment = ChartElement.extend({
             series: this.series,
             percentage: this.percentage
         };
+    },
+
+    getIndex: function() {
+        return this.index;
     }
 });
 
-var RAD_30 = round(dataviz.rad(30), DEFAULT_PRECISION);
-var RAD_60 = round(dataviz.rad(60), DEFAULT_PRECISION);
+var RAD_30 = round(rad(30), DEFAULT_PRECISION);
+var RAD_60 = round(rad(60), DEFAULT_PRECISION);
 
 function tooltipAlignment(angle) {
-    var radians = dataviz.rad(angle);
+    var radians = rad(angle);
     var sine = round(Math.sin(radians), DEFAULT_PRECISION);
     var cosine = round(Math.cos(radians), DEFAULT_PRECISION);
 
@@ -11298,10 +13542,16 @@ setDefaultOptions(PieSegment, {
             width: 1
         }
     },
-    visible: true
+    visible: true,
+    accessibility: {
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
+    }
 });
 
 deepExtend(PieSegment.prototype, PointEventsMixin);
+deepExtend(PieSegment.prototype, AccessibilityAttributesMixin);
 
 var PieChartMixin = {
     createLegendItem: function(value, point, options) {
@@ -11452,7 +13702,10 @@ var PieChart = ChartElement.extend({
             dataItem: fields.dataItem,
             category: fields.category,
             percentage: fields.percentage
-        }, { defaults: series._defaults, excluded: [ "data", "content", "template", "visual", "toggle" ] });
+        }, { defaults: series._defaults, excluded: [
+            "data", "content", "template", "visual", "toggle",
+            "ariaTemplate", "ariaContent"
+        ] });
     },
 
     addValue: function(value, sector, fields) {
@@ -11876,7 +14129,7 @@ var PiePlotArea = PlotAreaBase.extend({
 
     appendChart: function(chart, pane) {
         PlotAreaBase.fn.appendChart.call(this, chart, pane);
-        append(this.options.legend.items, chart.legendItems);
+        append(this.options.legend.data, chart.legendItems);
     }
 });
 
@@ -12492,6 +14745,10 @@ var RadarAreaChart = RadarLineChart.extend({
 var RadarSegment = DonutSegment.extend({
     init: function(value, options) {
         DonutSegment.fn.init.call(this, value, null, options);
+    },
+
+    getIndex: function() {
+        return this.categoryIx;
     }
 });
 
@@ -12726,8 +14983,14 @@ var RadarPlotArea = PolarPlotAreaBase.extend({
 
         var firstSeries = series[0];
         var options = this.chartOptions(series);
+        var filteredSeries = this.filterVisibleSeries(series);
+        var anyStackedSeries = filteredSeries.some(function (s) { return s.stack; });
+        var isStacked100 = filteredSeries.some(function (s) { return s.stack && s.stack.type === "100%"; });
         options.gap = firstSeries.gap;
         options.spacing = firstSeries.spacing;
+        options.defaultStack = firstSeries.stack && filteredSeries.length > 1;
+        options.isStacked = anyStackedSeries && filteredSeries.length > 1;
+        options.isStacked100 = isStacked100 && filteredSeries.length > 1;
 
         var barChart = new RadarBarChart(this, options);
         this.appendChart(barChart, pane);
@@ -12754,7 +15017,15 @@ var RadarPlotArea = PolarPlotAreaBase.extend({
         }
     },
 
-    createCrosshairs: function() {}
+    createCrosshairs: function() {},
+
+    _pointsByVertical: function(basePoint) {
+        return PolarPlotAreaBase.fn._pointsByVertical.call(this, basePoint).sort(this._getSeriesCompareFn());
+    },
+
+    _getSeriesCompareFn: function() {
+        return function (a, b) { return b.value - a.value; };
+    }
 });
 
 deepExtend(RadarPlotArea.prototype, PlotAreaEventsMixin, {
@@ -12779,11 +15050,25 @@ var FunnelSegment = ChartElement.extend({
         this.options.index = segmentOptions.index;
     },
 
+    getLabelText: function(options) {
+        var labelTemplate = getTemplate(options);
+
+        if (labelTemplate) {
+            return labelTemplate(this.pointData());
+        } else if (options.format) {
+            return this.formatValue(options.format);
+        }
+
+        return this.value;
+    },
+
     reflow: function(chartBox) {
         var points = this.points;
         var label = this.children[0];
+        var x1 = Math.min(points[0].x, points[3].x);
+        var x2 = Math.max(points[1].x, points[2].x);
 
-        this.box = new Box(points[0].x, points[0].y, points[1].x, points[2].y);
+        this.box = new Box(x1, points[0].y, x2, points[2].y);
 
         if (label) {
             label.reflow(new Box(chartBox.x1, points[0].y, chartBox.x2, points[2].y));
@@ -12797,6 +15082,8 @@ var FunnelSegment = ChartElement.extend({
         var visual;
 
         ChartElement.fn.createVisual.call(this);
+
+        this.addAccessibilityAttributesToVisual();
 
         if (options.visual) {
             visual = options.visual({
@@ -12854,6 +15141,24 @@ var FunnelSegment = ChartElement.extend({
         };
     },
 
+    createFocusHighlight: function(style) {
+        var borderWidth = this.options.accessibility.highlight.border.width;
+        var result = Path.fromPoints(this.points, deepExtend({}, style, {
+            stroke: {
+                width: borderWidth * 2
+            }
+        })).close();
+
+        var clipPath = new MultiPath();
+
+        clipPath.paths.push(Path.fromRect(this.box.clone().pad(borderWidth).toRect()));
+        clipPath.paths.push(Path.fromPoints(this.points));
+
+        result.clip(clipPath);
+
+        return result;
+    },
+
     tooltipAnchor: function() {
         var box = this.box;
         return {
@@ -12868,6 +15173,20 @@ var FunnelSegment = ChartElement.extend({
     formatValue: function(format) {
         var point = this;
         return point.owner.formatPointValue(point, format);
+    },
+
+    pointData: function() {
+        return {
+            dataItem: this.dataItem,
+            category: this.category,
+            value: this.value,
+            series: this.series,
+            percentage: this.percentage
+        };
+    },
+
+    getIndex: function() {
+        return this.index;
     }
 });
 
@@ -12875,16 +15194,26 @@ setDefaultOptions(FunnelSegment, {
     color: WHITE,
     border: {
         width: 1
+    },
+    labels: {
+        format: ""
+    },
+    accessibility: {
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
     }
 });
 
 deepExtend(FunnelSegment.prototype, PointEventsMixin);
+deepExtend(FunnelSegment.prototype, AccessibilityAttributesMixin);
 
 var FunnelChart = ChartElement.extend({
     init: function(plotArea, options) {
         ChartElement.fn.init.call(this, options);
 
         this.plotArea = plotArea;
+        this.chartService = plotArea.chartService;
         this.points = [];
         this.labels = [];
         this.legendItems = [];
@@ -12892,16 +15221,17 @@ var FunnelChart = ChartElement.extend({
     },
 
     formatPointValue: function(point, format) {
-        return this.chartService.format.auto(format,point.value);
+        return this.plotArea.chartService.format.auto(format,point.value);
     },
 
     render: function() {
         var this$1 = this;
 
+        var seriesIx = 0;
         var ref = this;
         var options = ref.options;
         var seriesColors = ref.plotArea.options.seriesColors; if (seriesColors === void 0) { seriesColors = []; }
-        var series = options.series[0];
+        var series = options.series[seriesIx];
         var data = series.data;
 
         if (!data) {
@@ -12929,6 +15259,7 @@ var FunnelChart = ChartElement.extend({
                 index: i,
                 owner: this$1,
                 series: series,
+                seriesIx: seriesIx,
                 dataItem: data[i],
                 percentage: pointData.value / total
             }, fields, { visible: pointData.visible });
@@ -12951,7 +15282,10 @@ var FunnelChart = ChartElement.extend({
             series: series,
             dataItem: fields.dataItem,
             index: fields.index
-        }, { defaults: series._defaults, excluded: [ "data", "content", "template", "toggle", "visual" ] });
+        }, { defaults: series._defaults, excluded: [
+            "data", "content", "template", "toggle", "visual",
+            "ariaTemplate", "ariaContent"
+        ] });
     },
 
     createSegment: function(value, fields) {
@@ -12990,11 +15324,11 @@ var FunnelChart = ChartElement.extend({
             if (labelTemplate) {
                 text = labelTemplate(data);
             } else if (labels.format) {
-                text = this.plotArea.chartService.format.auto(labels.format, text);
+                text = this.chartService.format.auto(labels.format, text);
             }
 
             if (!labels.color) {
-                labels.color = dataviz.autoTextColor(series.color);
+                labels.color = autoTextColor(series.color);
                 if (!labels.background) {
                     labels.background = series.color;
                 }
@@ -13183,7 +15517,15 @@ var FunnelPlotArea = PlotAreaBase.extend({
 
     appendChart: function(chart, pane) {
         PlotAreaBase.fn.appendChart.call(this, chart, pane);
-        append(this.options.legend.items, chart.legendItems);
+        append(this.options.legend.data, chart.legendItems);
+    },
+
+    _pointsByVertical: function(basePoint) {
+        return this.pointsBySeriesIndex(basePoint.series.index);
+    },
+
+    _pointsByHorizontal: function(basePoint) {
+        return [basePoint];
     }
 });
 
@@ -13230,38 +15572,43 @@ var HeatmapPoint = ChartElement.extend({
         var labels = options.labels;
 
         if (labels.visible) {
-            var pointData = this.pointData();
-            var labelTemplate = getTemplate(labels);
-            var labelText;
-            var labelColor = labels.color;
-
-            if (labelTemplate) {
-                labelText = labelTemplate(pointData);
-            } else {
-                labelText = this.formatValue(labels.format);
-            }
-
-            if (!labelColor) {
-                labelColor = dataviz.autoTextColor(this.color);
-            }
-
-            this.label = new TextBox(labelText,
-                deepExtend({
-                    align: CENTER,
-                    vAlign: CENTER,
-                    margin: {
-                        left: 5,
-                        right: 5
-                    },
-                    zIndex: valueOrDefault(labels.zIndex, this.series.zIndex)
-                },
-                labels, {
-                    color: labelColor
-                }),
-                pointData
-            );
+            this.label = this.createLabelElement(labels);
             this.append(this.label);
         }
+    },
+
+    createLabelElement: function(options) {
+        var labelColor = options.color;
+
+        if (!labelColor) {
+            labelColor = autoTextColor(this.color);
+        }
+
+        return new TextBox(this.getLabelText(options),
+            deepExtend({
+                align: CENTER,
+                vAlign: CENTER,
+                margin: {
+                    left: 5,
+                    right: 5
+                },
+                zIndex: valueOrDefault(options.zIndex, this.series.zIndex)
+            },
+            options, {
+                color: labelColor
+            }),
+            this.pointData()
+        );
+    },
+
+    getLabelText: function(options) {
+        var labelTemplate = getTemplate(options);
+
+        if (labelTemplate) {
+            return labelTemplate(this.pointData());
+        }
+
+        return this.formatValue(options.format);
     },
 
     formatValue: function(format) {
@@ -13284,6 +15631,12 @@ var HeatmapPoint = ChartElement.extend({
         }
 
         this.marker.reflow(this.markerBox());
+    },
+
+    createVisual: function() {
+        ChartElement.fn.createVisual.call(this);
+
+        this.addAccessibilityAttributesToVisual();
     },
 
     markerBox: function() {
@@ -13388,6 +15741,27 @@ var HeatmapPoint = ChartElement.extend({
         };
     },
 
+    createFocusHighlight: function() {
+        var markerOptions = this.options.markers;
+        var highlightOptions = this.options.accessibility.highlight;
+
+        var highlight = new ShapeElement({
+            type: valueOrDefault(markerOptions.type, 'rect'),
+            width: markerOptions.size,
+            height: markerOptions.size,
+            rotation: markerOptions.rotation,
+            background: highlightOptions.color,
+            border: highlightOptions.border,
+            borderRadius: markerOptions.borderRadius,
+            padding: highlightOptions.border.width / 2,
+            zIndex: highlightOptions.zIndex
+        });
+
+        highlight.reflow(this.markerBox());
+
+        return highlight.getElement();
+    },
+
     tooltipAnchor: function() {
         var left = this.box.center().x;
         var top = this.box.y1 - TOOLTIP_OFFSET;
@@ -13422,6 +15796,7 @@ var HeatmapPoint = ChartElement.extend({
 
 deepExtend(HeatmapPoint.prototype, PointEventsMixin);
 deepExtend(HeatmapPoint.prototype, NoteMixin);
+deepExtend(HeatmapPoint.prototype, AccessibilityAttributesMixin);
 
 HeatmapPoint.prototype.defaults = {
     markers: {
@@ -13439,6 +15814,11 @@ HeatmapPoint.prototype.defaults = {
     opacity: 1,
     notes: {
         label: {}
+    },
+    accessibility: {
+        role: CHART_POINT_ROLE,
+        className: CHART_POINT_CLASSNAME,
+        ariaRoleDescription: CHART_POINT_ROLE_DESCRIPTION
     }
 };
 
@@ -13504,7 +15884,8 @@ var HeatmapChart = ChartElement.extend({
             defaults: series._defaults,
             excluded: [
                 "data", "tooltip", "content", "template",
-                "visual", "toggle", "drilldownSeriesFactory"
+                "visual", "toggle", "drilldownSeriesFactory",
+                "ariaTemplate", "ariaContent"
             ]
         };
 
@@ -13873,7 +16254,7 @@ var HeatmapPlotArea = PlotAreaBase.extend({
         }
 
         this.appendAxis(axis);
-        axis.mapCategories();
+        axis.indexCategories();
 
         return axis;
     },
@@ -13961,8 +16342,72 @@ var HeatmapPlotArea = PlotAreaBase.extend({
     crosshairOptions: function(axis) {
         // Stack the crosshair above the series points.
         return $.extend({}, axis.options.crosshair, { zIndex: 0 });
+    },
+
+    _pointsByVertical: function(basePoint, offset) {
+        var this$1 = this;
+        if (offset === void 0) { offset = 0; }
+
+        var normalizedOffset = this.axisX.options.reverse ? offset * -1 : offset;
+        var axisXItems = this.axisX.children;
+        var xIndex = this._getPointAxisXIndex(basePoint) + normalizedOffset;
+
+        xIndex = cycleIndex(xIndex, axisXItems.length);
+        var targetXValue = axisXItems[xIndex].value;
+
+        var points = this
+            .filterPoints(function (point) { return compareValues(point.pointData().x, targetXValue); })
+            .sort(function (a, b) { return this$1._getPointAxisYIndex(a) - this$1._getPointAxisYIndex(b); });
+
+        if (this.axisY.options.reverse) {
+            return points.reverse();
+        }
+
+        return points;
+    },
+
+    _pointsByHorizontal: function(basePoint, offset) {
+        var this$1 = this;
+        if (offset === void 0) { offset = 0; }
+
+        var normalizedOffset = this.axisY.options.reverse ? offset * -1 : offset;
+        var axisYItems = this.axisY.children;
+        var yIndex = this._getPointAxisYIndex(basePoint) + normalizedOffset;
+
+        yIndex = cycleIndex(yIndex, axisYItems.length);
+        var targetYValue = axisYItems[yIndex].value;
+
+        var points = this
+            .filterPoints(function (point) { return compareValues(point.pointData().y, targetYValue); })
+            .sort(function (a, b) { return this$1._getPointAxisXIndex(a) - this$1._getPointAxisXIndex(b); });
+
+        if (this.axisX.options.reverse) {
+            return points.reverse();
+        }
+
+        return points;
+    },
+
+    _getPointAxisXIndex: function(point) {
+        return this._getPointAxisIndex(this.axisX, point.pointData().x);
+    },
+
+    _getPointAxisYIndex: function(point) {
+        return this._getPointAxisIndex(this.axisY, point.pointData().y);
+    },
+
+    _getPointAxisIndex: function(axis, pointValue) {
+        return axis.children.findIndex(function (axisItem) { return compareValues(pointValue, axisItem.value); });
     }
 });
+
+function compareValues(a, b) {
+    if (a instanceof Date && b instanceof Date) {
+        return dataviz.dateEquals(a, b);
+    }
+
+    return a === b;
+}
 
 function updateAxisOptions$2(targetOptions, axisIndex, vertical, options) {
     var axisOptions = ([].concat(vertical ? targetOptions.yAxis : targetOptions.xAxis))[axisIndex];
@@ -14025,7 +16470,7 @@ SeriesBinder.current.register(
 );
 
 SeriesBinder.current.register([ POLAR_AREA, POLAR_LINE, POLAR_SCATTER ], [ X, Y ], [ COLOR, DRILLDOWN_FIELD ]);
-SeriesBinder.current.register([ RADAR_AREA, RADAR_COLUMN, RADAR_LINE ], [ VALUE ], [ COLOR, DRILLDOWN_FIELD ]);
+SeriesBinder.current.register([ RADAR_AREA, RADAR_COLUMN, RADAR_LINE ], [ VALUE ], [ CATEGORY, COLOR, DRILLDOWN_FIELD ]);
 
 SeriesBinder.current.register(
     [ FUNNEL, PYRAMID ],
@@ -14069,7 +16514,7 @@ SeriesBinder.current.register(
 DefaultAggregates.current.register(
     [ CANDLESTICK, OHLC ],
     { open: MAX, high: MAX, low: MIN, close: MAX,
-      color: FIRST, downColor: FIRST, noteText: FIRST }
+        color: FIRST, downColor: FIRST, noteText: FIRST }
 );
 
 SeriesBinder.current.register(
@@ -14080,7 +16525,7 @@ SeriesBinder.current.register(
 DefaultAggregates.current.register(
     [ BOX_PLOT, VERTICAL_BOX_PLOT ],
     { lower: MAX, q1: MAX, median: MAX, q3: MAX, upper: MAX, mean: MAX, outliers: FIRST,
-      color: FIRST, noteText: FIRST }
+        color: FIRST, noteText: FIRST }
 );
 
 SeriesBinder.current.register(
@@ -14100,9 +16545,13 @@ SeriesBinder.current.register(
 
 var AXIS_NAMES = [ CATEGORY, VALUE, X, Y ];
 
+var MOUSEDOWN = "mousedown";
 var MOUSEMOVE = "mousemove";
 var CONTEXTMENU = "contextmenu";
 var MOUSELEAVE = "mouseleave";
+var KEYDOWN = "keydown";
+var FOCUS = "focus";
+var BLUR = "blur";
 var MOUSEMOVE_DELAY = 20;
 
 var Chart = Class.extend({
@@ -14121,6 +16570,7 @@ var Chart = Class.extend({
         this._originalOptions = deepExtend({}, options);
         this._theme = themeOptions;
         this._initTheme(options, themeOptions);
+        this._focusState = {};
 
         this._initHandlers();
         this._initSurface();
@@ -14139,6 +16589,9 @@ var Chart = Class.extend({
     _initElement: function(element) {
         this._setElementClass(element);
         element.style.position = "relative";
+        element.tabIndex = element.getAttribute("tabindex") ? element.getAttribute("tabindex") : 0;
+        // To support user agents and assistive technologies based on the ARIA 1.0 specification, authors may wish to include the document role as a fallback value, in the form role="graphics-document document".
+        element.setAttribute("role", "graphics-document document");
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
@@ -14164,6 +16617,10 @@ var Chart = Class.extend({
         // Clean up default if not overriden by data attributes
         if (options.seriesColors === null) {
             delete options.seriesColors;
+        }
+
+        if (isString(options.title)) {
+            options.title = { text: options.title };
         }
 
         this.options = deepExtend({}, themeOptions, options);
@@ -14350,8 +16807,11 @@ var Chart = Class.extend({
 
         this._destroyView();
 
+        this._setElementAccessibilityAttributes();
+
         this._model = model;
         this._plotArea = model._plotArea;
+        this._legend = model._legend;
 
         model.renderVisual();
 
@@ -14386,6 +16846,15 @@ var Chart = Class.extend({
 
         if (!this._navState) {
             this._cancelDomEvents();
+        }
+    },
+
+    _setElementAccessibilityAttributes: function() {
+        var titleOptions = this.options.title;
+        var title = isString(titleOptions) ? titleOptions : (titleOptions.description || titleOptions.text);
+
+        if (title) {
+            this.element.setAttribute("aria-roledescription", title);
         }
     },
 
@@ -14538,7 +17007,9 @@ var Chart = Class.extend({
         model.append.apply(model, Title.orderTitles([title, subtitle]));
 
         if (options.legend && options.legend.visible) {
-            model.append(new Legend(plotArea.options.legend, this.chartService));
+            var legend = new Legend(plotArea.options.legend, this.chartService);
+            model.append(legend);
+            model._legend = legend;
         }
         model.append(plotArea);
         model.reflow();
@@ -14601,6 +17072,10 @@ var Chart = Class.extend({
 
     _initHandlers: function() {
         this._clickHandler = this._click.bind(this);
+        this._keydownHandler = this._keydown.bind(this);
+        this._focusHandler = this._focus.bind(this);
+        this._blurHandler = this._blur.bind(this);
+        this._mousedownHandler = this._mousedown.bind(this);
         this._mousewheelHandler = this._mousewheel.bind(this);
         this._mouseleaveHandler = this._mouseleave.bind(this);
         this._surfaceMouseenterHandler = this._mouseover.bind(this);
@@ -14646,7 +17121,10 @@ var Chart = Class.extend({
         } else if (name === SERIES_LEAVE) {
             this._resetDrilldownPoint();
         } else if (name === SERIES_CLICK) {
+            this._focusPoint(args.point);
             this._startDrilldown(args.point);
+        } else if (name === LEGEND_ITEM_CLICK) {
+            this._focusLegendItem(args);
         }
 
         var observers = this.observers;
@@ -14666,7 +17144,7 @@ var Chart = Class.extend({
         this._touchAction = element.style.touchAction;
 
         var obj;
-        bindEvents(element, ( obj = {}, obj[ CONTEXTMENU ] = this._clickHandler, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj[ MOUSELEAVE ] = this._mouseleaveHandler, obj ));
+        bindEvents(element, ( obj = {}, obj[ CONTEXTMENU ] = this._clickHandler, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj[ MOUSELEAVE ] = this._mouseleaveHandler, obj[ KEYDOWN ] = this._keydownHandler, obj[ MOUSEDOWN ] = this._mousedownHandler, obj[ FOCUS ] = this._focusHandler, obj[ BLUR] = this._blurHandler, obj ));
 
         if (this._shouldAttachMouseMove()) {
             var obj$1;
@@ -14713,6 +17191,7 @@ var Chart = Class.extend({
         if (this._mousewheelZoom && !this._stopChartHandlers(e)) {
             this._gestureDistance = e.distance;
             this._unsetActivePoint();
+            this._clearFocusedElement();
             this.surface.suspendTracking();
         }
     },
@@ -14780,6 +17259,7 @@ var Chart = Class.extend({
         if (this._pannable && this._pannable.start(e)) {
             this.surface.suspendTracking();
             this._unsetActivePoint();
+            this._clearFocusedElement();
             this._suppressHover = true;
             this.chartService.panning = true;
         }
@@ -14903,6 +17383,7 @@ var Chart = Class.extend({
 
                 if (!this._zooming) {
                     this._unsetActivePoint();
+                    this._clearFocusedElement();
                     this.surface.suspendTracking();
                     this._zooming = true;
                 }
@@ -14986,6 +17467,7 @@ var Chart = Class.extend({
         } else {
             this._suppressHover = true;
             this._unsetActivePoint();
+            this._clearFocusedElement();
             this._navState = {
                 axisRanges: ranges,
                 pane: pane,
@@ -15120,6 +17602,277 @@ var Chart = Class.extend({
         }
     },
 
+    _isLegendBeforeChart: function() {
+        var ref = this;
+        var legendPosition = ref.options.legend.position;
+        var legend = ref._legend;
+
+        return legend && legend.hasItems() && (legendPosition === TOP || legendPosition === LEFT);
+    },
+
+    _focus: function() {
+        if (!this._preventInitialPointFocus) {
+            if (this._isLegendBeforeChart()) {
+                this._focusFirstLegendItem();
+            } else {
+                this._focusFirstPoint();
+            }
+        }
+
+        this._preventInitialPointFocus = false;
+    },
+
+    _keydown: function(e) {
+        var ref = this;
+        var legendInFocus = ref._focusState.legendInFocus;
+        var legend = ref._legend;
+
+        if (e.key === datavizConstants.TAB) {
+            this._clearFocusedElement();
+            var isLegendBeforeChart = this._isLegendBeforeChart();
+
+            if (legendInFocus && isLegendBeforeChart !== e.shiftKey) {
+                this._navigatePoints(e);
+            } else if (!legendInFocus && isLegendBeforeChart === e.shiftKey && legend.hasItems()) {
+                this._navigateLegend(e);
+            }
+        } else if (!legendInFocus) {
+            this._navigatePoints(e);
+        } else {
+            this._navigateLegend(e);
+        }
+    },
+
+    _navigatePoints: function(e) {
+        var this$1 = this;
+
+        var ref = this;
+        var focusState = ref._focusState;
+        var plotArea = ref._plotArea;
+
+        focusState.legendInFocus = false;
+
+        if (!focusState.focusedElement) {
+            this._focusFirstPoint();
+            e.preventDefault();
+            return;
+        }
+
+        var moveFocus = function (point) {
+            focusState.focusedPoint = point;
+
+            this$1._focusElement(focusState.focusedPoint);
+            e.preventDefault();
+        };
+
+        switch (e.key) {
+            case datavizConstants.ARROW_RIGHT:
+                moveFocus(plotArea.getPointToTheRight(focusState.focusedPoint));
+                break;
+            case datavizConstants.ARROW_LEFT:
+                moveFocus(plotArea.getPointToTheLeft(focusState.focusedPoint));
+                break;
+            case datavizConstants.ARROW_DOWN:
+                moveFocus(plotArea.getPointBelow(focusState.focusedPoint));
+                break;
+            case datavizConstants.ARROW_UP:
+                moveFocus(plotArea.getPointAbove(focusState.focusedPoint));
+                break;
+            default:
+                break;
+        }
+    },
+
+    _navigateLegend: function(e) {
+        var this$1 = this;
+
+        var ref = this;
+        var focusState = ref._focusState;
+        var legend = ref._legend;
+        var rtl = ref.chartService.rtl;
+
+        focusState.legendInFocus = true;
+
+        if (!focusState.focusedElement) {
+            this._focusFirstLegendItem();
+            e.preventDefault();
+            return;
+        }
+
+        var itemsLength = legend.getItems().length;
+        var moveFocus = function (cycleFunc) {
+            focusState.focusedLegendItemIndex = cycleFunc(
+                focusState.focusedLegendItemIndex,
+                itemsLength
+            );
+            this$1._focusElement(this$1._getFocusedLegendItem());
+            e.preventDefault();
+        };
+
+        switch (e.key) {
+            case datavizConstants.ARROW_UP:
+            case datavizConstants.ARROW_LEFT:
+                moveFocus(rtl ? dataviz.cycleUp : dataviz.cycleDown);
+                break;
+            case datavizConstants.ARROW_DOWN:
+            case datavizConstants.ARROW_RIGHT:
+                moveFocus(rtl ? dataviz.cycleDown : dataviz.cycleUp);
+                break;
+            default:
+                break;
+        }
+    },
+
+    _focusFirstPoint: function() {
+        var point = this._focusState.focusedPoint = this._plotArea.getFirstPoint();
+
+        if (point) {
+            this._focusElement(point);
+        }
+    },
+
+    _hasFocus: function() {
+        return this.element.ownerDocument.activeElement === this.element;
+    },
+
+    _mousedown: function() {
+        if (!this._hasFocus()) {
+            this._preventInitialPointFocus = true;
+        }
+    },
+
+    _focusChart: function() {
+        if (!this._hasFocus()) {
+            this._preventInitialPointFocus = true;
+            this.element.focus();
+        }
+    },
+
+    _focusPoint: function(point) {
+        this._focusState.focusedPoint = point;
+
+        this._focusChart();
+
+        this._focusElement(point, true);
+    },
+
+    _focusFirstLegendItem: function() {
+        var ref = this;
+        var focusState = ref._focusState;
+
+        focusState.focusedLegendItemIndex = 0;
+        this._focusElement(this._getFocusedLegendItem());
+        focusState.legendInFocus = true;
+    },
+
+    _focusLegendItem: function(args) {
+        var ref = this;
+        var focusState = ref._focusState;
+
+        focusState.focusedLegendItemIndex = this._legend
+            .getItems()
+            .findIndex(function (x) { return x.options.series.index === args.seriesIndex
+                && x.options.pointIndex === args.pointIndex; });
+
+        focusState.legendInFocus = true;
+
+        this._focusChart();
+
+        this._focusElement(this._getFocusedLegendItem(), true);
+    },
+
+    _getFocusedLegendItem: function() {
+        var ref = this;
+        var focusState = ref._focusState;
+        var legend = ref._legend;
+
+        return legend.getItems()[focusState.focusedLegendItemIndex];
+    },
+
+    _focusElement: function(element, omitHighlight) {
+        var ref = this;
+        var focusState = ref._focusState;
+
+        this._clearFocusedElement();
+
+        if (!element) {
+            return;
+        }
+
+        focusState.focusedElement = element;
+
+        this._setElementActiveDescendant(element);
+
+        if (!omitHighlight) {
+            element.focusVisual();
+
+            if (focusState.legendInFocus) {
+                var options = element.options;
+
+                this._showSeriesInactiveOpacity(options.series.index, options.pointIndex);
+            } else {
+                this._showInactiveOpacity(element);
+            }
+        }
+    },
+
+    _clearFocusedElement: function() {
+        var ref = this;
+        var focusState = ref._focusState;
+
+        if (!focusState) {
+            return;
+        }
+
+        if (focusState.focusedElement) {
+            focusState.focusedElement.clearFocusFromVisual();
+            this._clearElementActiveDescendant();
+        }
+
+        focusState.focusedElement = null;
+    },
+
+    _setElementActiveDescendant: function(element) {
+        if (this.options.renderAs === "canvas") {
+            this._pseudoFocusedElement = this._createPseudoFocusedElement(element);
+            this.element.append(this._pseudoFocusedElement);
+        }
+
+        this.element.setAttribute(datavizConstants.ARIA_ACTIVE_DESCENDANT, element._id);
+    },
+
+    _clearElementActiveDescendant: function() {
+        if (this._pseudoFocusedElement) {
+            this._pseudoFocusedElement.remove();
+            this._pseudoFocusedElement = null;
+        }
+
+        this.element.removeAttribute(datavizConstants.ARIA_ACTIVE_DESCENDANT);
+    },
+
+    _createPseudoFocusedElement: function(element) {
+        var pseudoElement = document.createElement("div");
+        var accessibilityOptions = element.options.accessibility;
+
+        pseudoElement.id = element._id;
+        pseudoElement.setAttribute("aria-label", element.getAriaLabelText());
+        pseudoElement.setAttribute("role", accessibilityOptions.role);
+        pseudoElement.setAttribute("aria-roledescription", accessibilityOptions.ariaRoleDescription);
+
+        var checked = accessibilityOptions.ariaChecked;
+        if (defined(checked)) {
+            pseudoElement.setAttribute("aria-checked", checked);
+        }
+
+        return pseudoElement;
+    },
+
+    _blur: function() {
+        this._focusState.legendInFocus = false;
+        this._clearFocusedElement();
+        this._hideInactiveOpacity();
+    },
+
     _startHover: function(element, e) {
         if (this._suppressHover) {
             return false;
@@ -15129,7 +17882,19 @@ var Chart = Class.extend({
             return (element.hover || element.over) && !(element instanceof PlotAreaBase);
         });
 
-        this._showInactiveOpacity(point, e);
+        var activePoint = this._activePoint;
+
+        this._updateHoveredPoint(point, e);
+
+        if (point && activePoint !== point && point.hover) {
+            this._activePoint = point;
+
+            if (!this._sharedTooltip() && !point.hover(this, e)) {
+                this._displayTooltip(point);
+
+                this._showInactiveOpacity(point);
+            }
+        }
 
         return point;
     },
@@ -15300,28 +18065,15 @@ var Chart = Class.extend({
         return chartInstance;
     },
 
-    _showInactiveOpacity: function(point, e) {
-        var activePoint = this._activePoint;
+    _showInactiveOpacity: function(point) {
         var multipleSeries = this._plotArea.series.length > 1;
         var hasInactiveOpacity = this._hasInactiveOpacity();
 
-        this._updateHoveredPoint(point, e);
-
-        if (point && activePoint !== point && point.hover) {
-            this._activePoint = point;
-
-            if (!this._sharedTooltip() && !point.hover(this, e)) {
-                this._displayTooltip(point);
-
-                if (hasInactiveOpacity) {
-                    this._displayInactiveOpacity(point, multipleSeries);
-                } else {
-                    this._highlight.show(point);
-                }
-            }
+        if (hasInactiveOpacity) {
+            this._displayInactiveOpacity(point, multipleSeries);
+        } else {
+            this._highlight.show(point);
         }
-
-        return point;
     },
 
     _hideInactiveOpacity: function(point) {
@@ -15392,6 +18144,7 @@ var Chart = Class.extend({
             var obj;
             unbindEvents(document, ( obj = {}, obj[ MOUSEMOVE ] = this._mouseMoveTrackHandler, obj ));
             this._unsetActivePoint();
+            this._clearFocusedElement();
             this._mouseMoveTrackHandler = null;
 
             this._hideInactiveOpacity(point);
@@ -15539,51 +18292,32 @@ var Chart = Class.extend({
     bindCategoryAxisFromSeries: function(axis, axisIx) {
         var this$1 = this;
 
-        var series = this.options.series;
-        var seriesLength = series.length;
-        var uniqueCategories = new dataviz.HashMap();//perf improvement in case type category with dates
-        var items = [];
-        var bindable = false;
-        var dateAxis;
+        var uniqueCategories = new Set();
+        var seriesOnAxis = this.options.series.filter(function (series) { return series.categoryAxis === axis.name || (!series.categoryAxis && axisIx === 0); });
+        var hasCategoryBinding = seriesOnAxis.some(function (series) { return Boolean(series.categoryField); });
+        var seriesWithData = seriesOnAxis.filter(function (series) { return series.data && series.data.length > 0; });
+        var categorySamples = seriesWithData.map(function (series) { return SeriesBinder.current.bindPoint(series, 0).fields.category; });
+        var dateAxis = categorySamples.reduce(function (result, firstCategory) { return result || isDateAxis(axis, firstCategory); }, false);
+        var seriesWithBinding = seriesWithData.filter(function (series, seriesIx) { return series.categoryField || defined(categorySamples[seriesIx]); });
 
-        for (var seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
-            var s = series[seriesIx];
-            var onAxis = s.categoryAxis === axis.name || (!s.categoryAxis && axisIx === 0);
-            var data = s.data;
-            var dataLength = data.length;
-            var bind = s.categoryField && onAxis;
-            bindable = bind || bindable;
-
-            if (bind && dataLength > 0) {
-                dateAxis = isDateAxis(axis, getField(s.categoryField, data[0]));
-
-                var getFn = dateAxis ? getDateField : getField;
-
-                for (var dataIx = 0; dataIx < dataLength; dataIx++) {
-                    var dataRow = data[dataIx];
-                    var category = getFn(s.categoryField, dataRow, this$1.chartService.intl);
-
-                    if (dateAxis || !uniqueCategories.get(category)) {
-                        items.push([ category, dataRow ]);
-
-                        if (!dateAxis) {
-                            uniqueCategories.set(category, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (items.length > 0) {
+        seriesWithBinding.forEach(function (series) { return series.data.forEach(function (row, index) {
+            var category = SeriesBinder.current.bindPoint(series, index).fields.category;
             if (dateAxis) {
-                items = uniqueDates(items, function(a, b) {
-                    return dataviz.dateComparer(a[0], b[0]);
-                });
+                var date = parseDateCategory(category, row, this$1.chartService.intl);
+                category = date ? date.getTime() : undefined;
             }
 
-            var result = transpose(items);
-            axis.categories = result[0];
-        } else if (bindable) {
+            uniqueCategories.add(category);
+        }); });
+
+        if (uniqueCategories.size > 0) {
+            var categories = Array.from(uniqueCategories.values());
+            if (dateAxis) {
+                categories = categories.sort().map(function (time) { return time && new Date(time); });
+            }
+
+            axis.categories = categories;
+        } else if (hasCategoryBinding) {
             axis.categories = [];
         }
     },
@@ -15626,6 +18360,10 @@ var Chart = Class.extend({
     },
 
     _legendItemHover: function(seriesIndex, pointIndex) {
+        this._showSeriesInactiveOpacity(seriesIndex, pointIndex);
+    },
+
+    _showSeriesInactiveOpacity: function(seriesIndex, pointIndex) {
         var ref = this;
         var plotArea = ref._plotArea;
         var highlight = ref._highlight;
@@ -15704,7 +18442,7 @@ var Chart = Class.extend({
         this._destroyed = true;
 
         var obj;
-        unbindEvents(this.element, ( obj = {}, obj[ CONTEXTMENU ] = this._clickHandler, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj[ MOUSEMOVE ] = this._mousemove, obj[ MOUSELEAVE ] = this._mouseleaveHandler, obj ));
+        unbindEvents(this.element, ( obj = {}, obj[ CONTEXTMENU ] = this._clickHandler, obj[ MOUSEWHEEL ] = this._mousewheelHandler, obj[ MOUSEMOVE ] = this._mousemove, obj[ MOUSELEAVE ] = this._mouseleaveHandler, obj[ KEYDOWN ] = this._keydownHandler, obj[ FOCUS ] = this._focusHandler, obj[ BLUR] = this._blurHandler, obj ));
 
         if (this.domEvents) {
             this.domEvents.destroy();
@@ -15715,6 +18453,8 @@ var Chart = Class.extend({
             var obj$1;
             unbindEvents(document, ( obj$1 = {}, obj$1[ MOUSEMOVE ] = this._mouseMoveTrackHandler, obj$1 ));
         }
+
+        this._focusState = null;
 
         this._destroyView();
 
@@ -15753,6 +18493,7 @@ var Chart = Class.extend({
         }
 
         this._unsetActivePoint();
+        this._clearFocusedElement();
         this._resetDrilldownPoint();
         this._destroySelections();
 
@@ -15905,57 +18646,11 @@ function axisRanges(axes) {
     return ranges;
 }
 
-function sortDates(dates, comparer) {
-    if (comparer === void 0) { comparer = dataviz.dateComparer; }
-
-    for (var i = 1, length = dates.length; i < length; i++) {
-        if (comparer(dates[i], dates[i - 1]) < 0) {
-            dates.sort(comparer);
-            break;
-        }
-    }
-
-    return dates;
-}
-
-function uniqueDates(srcDates, comparer) {
-    if (comparer === void 0) { comparer = dataviz.dateComparer; }
-
-    var dates = sortDates(srcDates, comparer);
-    var length = dates.length;
-    var result = length > 0 ? [ dates[0] ] : [];
-
-    for (var i = 1; i < length; i++) {
-        if (comparer(dates[i], last(result)) !== 0) {
-            result.push(dates[i]);
-        }
-    }
-
-    return result;
-}
-
-function transpose(rows) {
-    var rowCount = rows.length;
-    var result = [];
-
-    for (var rowIx = 0; rowIx < rowCount; rowIx++) {
-        var row = rows[rowIx];
-        var colCount = row.length;
-
-        for (var colIx = 0; colIx < colCount; colIx++) {
-            result[colIx] = result[colIx] || [];
-            result[colIx].push(row[colIx]);
-        }
-    }
-
-    return result;
-}
-
 var DATA_FIELDS = [ 'data', 'categories' ];
 
 function clearMissingValues(originalOptions, options) {
     for (var field in options) {
-        if (!inArray(field, DATA_FIELDS) && options.hasOwnProperty(field)) {
+        if (!inArray(field, DATA_FIELDS) && dataviz.hasOwnProperty(options, field)) {
             var fieldValue = options[field];
             var originalValue = originalOptions[field];
             if (defined(originalValue)) {
@@ -15986,7 +18681,16 @@ setDefaultOptions(Chart, {
     chartArea: {},
     legend: {
         visible: true,
-        labels: {}
+        labels: {},
+        accessibility: {
+            highlight: {
+                border: {
+                    opacity: 1,
+                    color: BLACK,
+                    width: 2
+                }
+            }
+        }
     },
     categoryAxis: {},
     seriesDefaults: {
@@ -15998,6 +18702,15 @@ setDefaultOptions(Chart, {
         labels: {},
         negativeValues: {
             visible: false
+        },
+        accessibility: {
+            highlight: {
+                border: {
+                    opacity: 1,
+                    width: 2
+                },
+                zIndex: 200
+            }
         }
     },
     series: [],
@@ -16100,7 +18813,7 @@ kendo.deepExtend(kendo.dataviz, {
     equalsIgnoreCase: equalsIgnoreCase,
     evalOptions: evalOptions,
     filterSeriesByType: filterSeriesByType,
-    getDateField: getDateField,
+    parseDateCategory: parseDateCategory,
     getField: getField,
     hasGradientOverlay: hasGradientOverlay,
     hasValue: hasValue,

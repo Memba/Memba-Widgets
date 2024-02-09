@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -320,6 +320,33 @@ var __meta__ = {
         }
 
         return scrollbar;
+    }
+
+    function loadLocalData(data, params, deferred) {
+        var that = this;
+        var originalData = (that.reader.data(data) || []).slice(0);
+        if (originalData && !that._pristineData) {
+            that._pristineData = originalData;
+        }
+        var columnSettings = that._createSettings(params.columnAxes);
+        var rowSettings = that._createSettings(params.rowAxes);
+        var measures = that.measures();
+        var dataTree = createDataTree(originalData, rowSettings, columnSettings, measures, { dataField: "aggregate", columnsData: "columns" }, that.filter() || []);
+
+        var stateArgs = {
+            dataTree: dataTree,
+            columnSettings: columnSettings,
+            rowSettings: rowSettings,
+            columnAxes: params.columnAxes,
+            rowAxes: params.rowAxes,
+            measures: measures.map(function(item) { return item; }).reverse(),
+            fields: { dataField: "aggregate", columnsData: "columns" },
+            sort: flattenSortDescriptors(params.sort || [])
+        };
+
+        that._saveState(createLocalDataState(stateArgs));
+        that.trigger(CHANGE);
+        deferred.resolve();
     }
 
     function flattenSortDescriptors(descriptors) {
@@ -1246,6 +1273,8 @@ var __meta__ = {
             if ((this.options.type || "xmla").toLowerCase() === "xmla") {
                 this._online = true;
                 this.transport = new XmlaTransportV2(transportOptions);
+            } else {
+                this.transport = new PivotTransport(this.options.transport || {}, this.transport);
             }
 
             this._columns = normalizeMembers(this.options.columns);
@@ -1441,31 +1470,8 @@ var __meta__ = {
                 that.trigger(PROGRESS);
 
                 if (that.options.data) {
-
-                    var originalData = (this.reader.data(this.options.data) || []).slice(0);
-                    if (originalData && !this._pristineData) {
-                        this._pristineData = originalData;
-                    }
-                    var columnSettings = that._createSettings(params.columnAxes);
-                    var rowSettings = that._createSettings(params.rowAxes);
-                    var measures = that.measures();
-                    var dataTree = createDataTree(that.options.data, rowSettings, columnSettings, measures, { dataField: "aggregate", columnsData: "columns" }, that.filter() || []);
-
-                    var stateArgs = {
-                        dataTree: dataTree,
-                        columnSettings: columnSettings,
-                        rowSettings: rowSettings,
-                        columnAxes: params.columnAxes,
-                        rowAxes: params.rowAxes,
-                        measures: measures.map(function(item) { return item; }).reverse(),
-                        fields: { dataField: "aggregate", columnsData: "columns" },
-                        sort: flattenSortDescriptors(params.sort || [])
-                    };
-
-                    that._saveState(createLocalDataState(stateArgs));
-                    that.trigger(CHANGE);
-                    deferred.resolve();
-                } else {
+                    loadLocalData.call(that, that.options.data, params, deferred);
+                } else if ((this.options.type || "xmla").toLowerCase() === "xmla") {
                     that.transport.read({
                         data: params,
                         success: function(newDataState) {
@@ -1476,6 +1482,15 @@ var __meta__ = {
                                 that._preventRefresh = false;
                             }
                             deferred.resolve();
+                        },
+                        error: function(err) {
+                            that.trigger(ERROR, { error: err });
+                        }
+                    });
+                } else {
+                    that.transport.read({
+                        success: function(data) {
+                            loadLocalData.call(that, data, params, deferred);
                         },
                         error: function(err) {
                             that.trigger(ERROR, { error: err });
@@ -4398,15 +4413,14 @@ var __meta__ = {
                 });
             }
 
-            if (options.filterable || options.sortable) {
-                that.fieldMenu = new ui.PivotFieldMenuV2(that.element, {
-                    messages: that.options.messages.fieldMenu,
-                    filterable: options.filterable,
-                    filter: ".k-i-more-vertical,.k-svg-i-more-vertical",
-                    sortable: options.sortable,
-                    dataSource: that.dataSource
-                });
-            }
+            that.fieldMenu = new ui.PivotFieldMenuV2(that.element, {
+                messages: that.options.messages.fieldMenu,
+                filterable: options.filterable,
+                filter: ".k-i-more-vertical,.k-svg-i-more-vertical",
+                sortable: options.sortable,
+                dataSource: that.dataSource,
+                setting: options.setting
+            });
 
             that.refresh();
         },
@@ -4580,12 +4594,7 @@ var __meta__ = {
             var item;
             var html = "";
             var idx = 0;
-            var options = this.options;
-            var enabled = false;
-
-            if (this.options.setting != "measures") {
-                enabled = options.filterable || options.sortable;
-            }
+            var enabled = true;
 
             if (items.length) {
                 for (; idx < items.length; idx++) {

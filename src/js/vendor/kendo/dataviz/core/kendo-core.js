@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -16,7 +16,7 @@
  import "../../kendo.drawing.js";
 
 (function($) {
-/* eslint-disable space-before-blocks, space-before-function-paren, curly */
+/* eslint-disable space-before-blocks, space-before-function-paren, curly, object-curly-spacing */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var drawing = kendo.drawing;
@@ -37,6 +37,12 @@ var isFunction = kendo.isFunction;
 var __common_getter_js = kendo.getter;
 
 var ARC = "arc";
+var ARROW_UP = "ArrowUp";
+var ARROW_DOWN = "ArrowDown";
+var ARROW_LEFT = "ArrowLeft";
+var ARROW_RIGHT = "ArrowRight";
+var TAB = "Tab";
+var ARIA_ACTIVE_DESCENDANT = "aria-activedescendant";
 var AXIS_LABEL_CLICK = "axisLabelClick";
 var BLACK = "#000";
 var BOTTOM = "bottom";
@@ -70,15 +76,26 @@ var START = "start";
 var STRING = "string";
 var TOP = "top";
 var TRIANGLE = "triangle";
+var SQUARE = "square";
+var RECT = "rect";
 var VALUE = "value";
 var WHITE = "#fff";
 var WIDTH = "width";
 var X = "x";
 var Y = "y";
 var DEFAULT_SERIES_OPACITY = 1;
+var POINTER = "pointer";
+var HORIZONTAL = "horizontal";
+var VERTICAL = "vertical";
 
 var constants = {
 	ARC: ARC,
+	ARROW_UP: ARROW_UP,
+	ARROW_DOWN: ARROW_DOWN,
+	ARROW_LEFT: ARROW_LEFT,
+	ARROW_RIGHT: ARROW_RIGHT,
+	TAB: TAB,
+	ARIA_ACTIVE_DESCENDANT: ARIA_ACTIVE_DESCENDANT,
 	AXIS_LABEL_CLICK: AXIS_LABEL_CLICK,
 	BLACK: BLACK,
 	BOTTOM: BOTTOM,
@@ -112,12 +129,17 @@ var constants = {
 	STRING: STRING,
 	TOP: TOP,
 	TRIANGLE: TRIANGLE,
+	SQUARE: SQUARE,
+	RECT: RECT,
 	VALUE: VALUE,
 	WHITE: WHITE,
 	WIDTH: WIDTH,
 	X: X,
 	Y: Y,
-	DEFAULT_SERIES_OPACITY: DEFAULT_SERIES_OPACITY
+	DEFAULT_SERIES_OPACITY: DEFAULT_SERIES_OPACITY,
+	POINTER: POINTER,
+	HORIZONTAL: HORIZONTAL,
+	VERTICAL: VERTICAL
 };
 
 function isArray(value) {
@@ -175,6 +197,30 @@ function isString(value) {
 
 function convertableToNumber(value) {
     return isNumber(value) || (isString(value) && isFinite(value));
+}
+
+function cycleUp(index, count) {
+    return (index + 1) % count;
+}
+
+function cycleDown(index, count) {
+    var result = index - 1;
+
+    return result < 0 ? count - 1 : result;
+}
+
+function cycleIndex(index, length) {
+    if (length === 1 || (index % length) === 0) {
+        return 0;
+    }
+
+    if (index < 0) {
+        return length + (index % length);
+    } else if (index >= length) {
+        return index % length;
+    }
+
+    return index;
 }
 
 function isObject(value) {
@@ -260,6 +306,19 @@ function getTemplate(options) {
     }
 
     return template;
+}
+
+function getTemplate$1(options) {
+    if (options === void 0) { options = {}; }
+
+    var ariaTemplate;
+    if (options.ariaTemplate) {
+        options.ariaTemplate = ariaTemplate = TemplateService.compile(options.ariaTemplate);
+    } else if (isFunction(options.ariaContent)) {
+        ariaTemplate = options.ariaContent;
+    }
+
+    return ariaTemplate;
 }
 
 function grep(array, callback) {
@@ -836,6 +895,199 @@ var keys = {
     NUMPAD_DOT: 110
 };
 
+function hasOwnProperty(obj, property) {
+    return Object.prototype.hasOwnProperty.call(obj, property);
+}
+
+// Based on the implementation from kendo-spreadsheet-common/src/calc.js
+var Matrix$1 = Class.extend({
+    init: function() {
+        this.height = 0;
+        this.width = 0;
+        this.data = [];
+    },
+
+    clone: function() {
+        var m = new Matrix$1();
+        m.height = this.height;
+        m.width = this.width;
+        m.data = this.data.map(function (row) { return row.slice(); });
+        return m;
+    },
+
+    get: function(row, col) {
+        var line = this.data[row];
+        var val = line ? line[col] : null;
+        return val;
+    },
+
+    set: function(row, col, data) {
+        var line = this.data[row];
+        if (line == null) {
+            line = this.data[row] = [];
+        }
+        line[col] = data;
+        if (row >= this.height) {
+            this.height = row + 1;
+        }
+        if (col >= this.width) {
+            this.width = col + 1;
+        }
+    },
+
+    each: function(f, includeEmpty) {
+        var this$1 = this;
+
+        for (var row = 0; row < this.height; ++row) {
+            for (var col = 0; col < this.width; ++col) {
+                var val = this$1.get(row, col);
+                if (includeEmpty || val != null) {
+                    val = f(val, row, col);
+                    if (val !== undefined) {
+                        return val;
+                    }
+                }
+            }
+        }
+    },
+
+    map: function(f, includeEmpty) {
+        var m = new Matrix$1();
+        this.each(function(el, row, col) {
+            m.set(row, col, f(el, row, col));
+        }, includeEmpty);
+        return m;
+    },
+
+    transpose: function() {
+        var m = new Matrix$1();
+        this.each(function(el, row, col) {
+            m.set(col, row, el);
+        });
+        return m;
+    },
+
+    unit: function(n) {
+        this.width = this.height = n;
+        var a = this.data = new Array(n);
+        for (var i = n; --i >= 0;) {
+            var row = a[i] = new Array(n);
+            for (var j = n; --j >= 0;) {
+                row[j] = i === j ? 1 : 0;
+            }
+        }
+        return this;
+    },
+
+    multiply: function(b) {
+        var a = this;
+        var m = new Matrix$1();
+        for (var row = 0; row < a.height; ++row) {
+            for (var col = 0; col < b.width; ++col) {
+                var s = 0;
+                for (var i = 0; i < a.width; ++i) {
+                    var va = a.get(row, i);
+                    var vb = b.get(i, col);
+                    if (typeof va === "number" && typeof vb === "number") {
+                        s += va * vb;
+                    }
+                }
+                m.set(row, col, s);
+            }
+        }
+        return m;
+    },
+
+    inverse: function() {
+        var n = this.width;
+        var m = this.augment(new Matrix$1().unit(n));
+        var a = m.data;
+
+        // Gaussian elimination
+        // https://en.wikipedia.org/wiki/Gaussian_elimination#Finding_the_inverse_of_a_matrix
+
+        // 1. Get zeros below main diagonal
+        var loop = function ( k ) {
+            var imax = argmax(k, n, function(i) { return a[i][k]; });
+            if (!a[imax][k]) {
+                return { v: null }; // singular matrix
+            }
+            if (k !== imax) {
+                var tmp = a[k];
+                a[k] = a[imax];
+                a[imax] = tmp;
+            }
+            for (var i = k + 1; i < n; ++i) {
+                for (var j = k + 1; j < 2 * n; ++j) {
+                    a[i][j] -= a[k][j] * a[i][k] / a[k][k];
+                }
+                a[i][k] = 0;
+            }
+        };
+
+        for (var k = 0; k < n; ++k) {
+            var returned = loop( k );
+
+            if ( returned ) return returned.v;
+        }
+
+        // 2. Get 1-s on main diagonal, dividing by pivot
+        for (var i$1 = 0; i$1 < n; ++i$1) {
+            for (var f = a[i$1][i$1], j$1 = 0; j$1 < 2 * n; ++j$1) {
+                a[i$1][j$1] /= f;
+            }
+        }
+
+        // 3. Get zeros above main diagonal.  Actually, we only care to compute the right side
+        // here (that will be the inverse), so in the inner loop below we go while j >= n,
+        // instead of j >= k.
+        for (var k$1 = n; --k$1 >= 0;) {
+            for (var i$2 = k$1; --i$2 >= 0;) {
+                if (a[i$2][k$1]) {
+                    for (var j$2 = 2 * n; --j$2 >= n;) {
+                        a[i$2][j$2] -= a[k$1][j$2] * a[i$2][k$1];
+                    }
+                }
+            }
+        }
+
+        return m.slice(0, n, n, n);
+    },
+
+    augment: function(m) {
+        var ret = this.clone();
+        var n = ret.width;
+        m.each(function(val, row, col) {
+            ret.set(row, col + n, val);
+        });
+        return ret;
+    },
+
+    slice: function(row, col, height, width) {
+        var this$1 = this;
+
+        var m = new Matrix$1();
+        for (var i = 0; i < height; ++i) {
+            for (var j = 0; j < width; ++j) {
+                m.set(i, j, this$1.get(row + i, col + j));
+            }
+        }
+        return m;
+    }
+});
+
+function argmax(start, end, f) {
+    var max = f(start), pos = start;
+    for (var i = start + 1; i < end; i++) {
+        var v = f(start);
+        if (v > max) {
+            max = v;
+            pos = start;
+        }
+    }
+    return pos;
+}
+
 function autoMajorUnit(min, max) {
     var diff = round(max - min, DEFAULT_PRECISION - 1);
 
@@ -1315,7 +1567,7 @@ var ShapeBuilder = Class.extend({
         var endAngle = sector.angle + startAngle;
 
         //required in order to avoid reversing the arc direction in cases like 0.000000000000001 + 100 === 100
-        if (sector.angle > 0 && startAngle === endAngle) {
+        if (sector.angle === 0 || sector.angle > 0 && startAngle === endAngle) {
             endAngle += DIRECTION_ANGLE;
         }
 
@@ -1597,8 +1849,8 @@ var ChartElement = Class.extend({
                         percentage: this.percentage,
                         runningTotal: this.runningTotal,
                         total: this.total
-                    }
-                ));
+                    })
+                );
 
                 if (!highlight) {
                     return;
@@ -1615,6 +1867,34 @@ var ChartElement = Class.extend({
         }
 
         highlight.visible(show);
+    },
+
+    toggleFocusHighlight: function(show) {
+        var options = ((this.options || {}).accessibility || {}).highlight || {};
+        var focusHighlight = this._focusHighlight;
+
+        if (!show && !focusHighlight) {
+            return;
+        }
+
+        if (!focusHighlight) {
+            var rootBackground = this.getRoot().options.background;
+            var highlightColor = autoTextColor(rootBackground);
+            var focusHighlightOptions = {
+                fill: {
+                    opacity: options.opacity,
+                    color: options.color
+                },
+                stroke: $.extend({}, {color: highlightColor}, options.border),
+                zIndex: options.zIndex
+            };
+
+            focusHighlight = this._focusHighlight = this.createFocusHighlight(focusHighlightOptions);
+
+            this.appendVisual(focusHighlight);
+        }
+
+        focusHighlight.visible(show);
     },
 
     createGradientOverlay: function(element, options, gradientOptions) {
@@ -1767,6 +2047,16 @@ setDefaultOptions(BoxElement, {
     visible: true
 });
 
+function addAccessibilityAttributesToVisual(visual, accessibilityOptions) {
+    if (accessibilityOptions) {
+        visual.options.className = accessibilityOptions.className;
+        visual.options.role = accessibilityOptions.role;
+        visual.options.ariaLabel = accessibilityOptions.ariaLabel;
+        visual.options.ariaRoleDescription = accessibilityOptions.ariaRoleDescription;
+        visual.options.ariaChecked = accessibilityOptions.ariaChecked;
+    }
+}
+
 var ShapeElement = BoxElement.extend({
     init: function(options, pointData) {
         BoxElement.fn.init.call(this, options);
@@ -1871,6 +2161,8 @@ var ShapeElement = BoxElement.extend({
 
     createVisual: function() {
         this.visual = this.createElement();
+
+        addAccessibilityAttributesToVisual(this.visual, this.options.accessibilityOptions);
     }
 });
 
@@ -2338,7 +2630,7 @@ var Text = ChartElement.extend({
         this.baseline = size.baseline;
 
         this.box = new Box(targetBox.x1, targetBox.y1,
-                targetBox.x1 + size.width, targetBox.y1 + size.height);
+            targetBox.x1 + size.width, targetBox.y1 + size.height);
     },
 
     createVisual: function() {
@@ -2521,8 +2813,8 @@ var TextBox = BoxElement.extend({
         var boxCenter = this.rotatedBox.center();
 
         return geometryTransform()
-                   .translate(boxCenter.x - cx, boxCenter.y - cy)
-                   .rotate(rotation, [ cx, cy ]);
+            .translate(boxCenter.x - cx, boxCenter.y - cy)
+            .rotate(rotation, [ cx, cy ]);
     }
 });
 
@@ -2997,6 +3289,7 @@ if (Object.defineProperties) {
     });
 }
 
+// eslint-disable-next-line no-useless-escape
 var FORMAT_REPLACE_REGEX = /\{(\d+)(:[^\}]+)?\}/g;
 
 var FormatService = Class.extend({
@@ -5037,7 +5330,7 @@ var CategoryAxis = Axis.extend({
         };
     },
 
-    mapCategories: function() {
+    indexCategories: function() {
         if (!this._categoriesMap) {
             var map$$1 = this._categoriesMap = new HashMap();
             var srcCategories = this.options.srcCategories;
@@ -5343,8 +5636,9 @@ function defaultBaseUnit(options) {
         var category = categories[categoryIx];
 
         if (category && lastCategory) {
-            var diff = absoluteDateDiff(category, lastCategory);
-            if (diff > 0) {
+            var diff = Math.abs(absoluteDateDiff(category, lastCategory));
+
+            if (diff !== 0) {
                 minDiff = Math.min(minDiff, diff);
 
                 if (minDiff >= TIME_PER_YEAR) {
@@ -6665,9 +6959,9 @@ function applyDefaults(seriesMin, seriesMax, options) {
     var autoMax = ceilDate(toTime(max) + 1, baseUnit, weekStartDay);
     var userMajorUnit = options.majorUnit ? options.majorUnit : undefined;
     var majorUnit = userMajorUnit || ceil(
-                        autoMajorUnit(autoMin.getTime(), autoMax.getTime()),
-                        baseUnitTime
-                    ) / baseUnitTime;
+        autoMajorUnit(autoMin.getTime(), autoMax.getTime()),
+        baseUnitTime
+    ) / baseUnitTime;
     var actualUnits = duration(autoMin, autoMax, baseUnit);
     var totalUnits = ceil(actualUnits, majorUnit);
     var unitsToAdd = totalUnits - actualUnits;
@@ -8170,10 +8464,14 @@ kendo.deepExtend(kendo.dataviz, {
     alignPathToPixel: alignPathToPixel,
     clockwise: clockwise,
     convertableToNumber: convertableToNumber,
+    cycleUp: cycleUp,
+    cycleDown: cycleDown,
+    cycleIndex: cycleIndex,
     deepExtend: deepExtend,
     elementStyles: elementStyles,
     getSpacing: getSpacing,
     getTemplate: getTemplate,
+    getAriaTemplate: getTemplate$1,
     getter: __common_getter_js,
     grep: grep,
     hasClasses: hasClasses,
@@ -8200,6 +8498,8 @@ kendo.deepExtend(kendo.dataviz, {
     createHashSet: createHashSet,
     defaultErrorHandler: defaultErrorHandler,
     keys: keys,
+    hasOwnProperty: hasOwnProperty,
+    Matrix: Matrix$1,
     append: append,
     bindEvents: bindEvents,
     Class: Class,

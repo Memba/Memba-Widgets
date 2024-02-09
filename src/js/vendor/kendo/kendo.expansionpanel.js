@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -102,6 +102,7 @@ var __meta__ = {
             },
             height: null,
             toggleable: true,
+            hideExpanderIndicator: false,
             expandIconClass: "chevron-down",
             collapseIconClass: "chevron-up",
             title: '',
@@ -136,6 +137,11 @@ var __meta__ = {
             that.header = $(header);
             wrapper.prepend(that.header);
             that._indicator = wrapper.find(INDICATOR + " span");
+
+            if (that.options.hideExpanderIndicator) {
+                wrapper.find(INDICATOR).hide();
+            }
+
             wrapper[0].style.cssText = DOMElement.style.cssText;
             DOMElement.style.width = "100%";
 

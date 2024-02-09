@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -25,6 +25,7 @@ var Clipboard = Class.extend({
     init: function(editor) {
         this.editor = editor;
         var pasteCleanup = editor.options.pasteCleanup;
+        this.nonSplittableTagsOnPaste = editor.options.nonSplittableTagsOnPaste || [];
         this.cleaners = [
             new ScriptCleaner(pasteCleanup),
             new TabCleaner(pasteCleanup),
@@ -423,7 +424,10 @@ var Clipboard = Class.extend({
 
     paste: function(html, options) {
         var editor = this.editor,
-            i, l, childNodes;
+            nonSplittableTagsOnPaste = this.nonSplittableTagsOnPaste,
+            preventSplit = false,
+            unwrapPasted = false,
+            i, l, childNodes, isList;
 
         this.expandImmutablesIn();
 
@@ -464,7 +468,19 @@ var Clipboard = Class.extend({
 
         var parent = this.splittableParent(block, caret);
         var unwrap = false;
-        var splittable = parent != editor.body && !dom.is(parent, "td");
+
+        for (i = 0; i < nonSplittableTagsOnPaste.length; i++) {
+            const splitter = nonSplittableTagsOnPaste[i],
+                tag = splitter.tag || splitter;
+
+            if (dom.is(parent, tag)) {
+                preventSplit = true;
+                unwrapPasted = splitter.unwrap !== false;
+                break;
+            }
+        }
+
+        var splittable = parent != editor.body && !dom.is(parent, "td") && !preventSplit;
 
         if (options.split && splittable && (block || dom.isInline(parent))) {
             range.selectNode(caret);
@@ -484,6 +500,15 @@ var Clipboard = Class.extend({
         }
 
         childNodes = fragment.childNodes;
+
+        if (unwrapPasted) {
+            isList = dom.list(childNodes[0]);
+            dom.unwrap(childNodes[0]);
+
+            if (isList) {
+                range.selectNode(caret.parentNode);
+            }
+        }
 
         $(childNodes)
             .filter("table").addClass("k-table").end()

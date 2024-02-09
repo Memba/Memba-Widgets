@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -313,7 +313,8 @@ var BackspaceHandler = Class.extend({
         // unwrap block
         if ((block && previousSibling && editorNS.RangeUtils.isStartOf(range, block)) || startAtNonFirstLi) {
             var caretPlaceholder = dom.significantChildNodes(block)[0];
-            caretPlaceholder = (caretPlaceholder && dom.isInline(caretPlaceholder)) ? caretPlaceholder : block;
+            caretPlaceholder = (caretPlaceholder && dom.isInline(caretPlaceholder) && !dom.isImg(caretPlaceholder)) ? caretPlaceholder : block;
+
             var caret = this._addCaret(caretPlaceholder);
             this._merge(previousSibling, block);
             this._restoreCaret(caret);

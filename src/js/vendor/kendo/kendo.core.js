@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -20,7 +20,7 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'UIASPCORE', 'KENDOMVC', 'KENDOUIMVC'],
     publishDate: 0,
-    version: '2023.3.1114'.replace(/^\s+|\s+$/g, ''),
+    version: '2024.1.130'.replace(/^\s+|\s+$/g, ''),
     licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code?utm_medium=product&utm_source=kendojquery&utm_campaign=kendo-ui-jquery-purchase-license-keys-warning'
 };
 
@@ -191,7 +191,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2023.3.1114".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2024.1.130".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -720,6 +720,17 @@ function pad(number, digits, end) {
         return culture || kendo.cultures.current;
     }
 
+    function appendDesignatorsToCultures(calendars) {
+        // Don't ask. It's temporary.
+        if ((calendars.standard.AM && calendars.standard.AM.length)
+        && (calendars.standard.PM && calendars.standard.PM.length)
+        && (calendars.standard.AM.indexOf("PMA0") < 0)
+        && (calendars.standard.AM.indexOf("AM") > -1 || calendars.standard.PM.indexOf("PM") > -1)) {
+            calendars.standard.AM.push("a", "A", "PMa", "PMA", "PMa0", "PMA0");
+            calendars.standard.PM.push("p", "P", "AMp", "AMP", "AMp0", "AMP0");
+        }
+    }
+
     kendo.culture = function(cultureName) {
         var cultures = kendo.cultures, culture;
 
@@ -728,6 +739,7 @@ function pad(number, digits, end) {
             culture.calendar = culture.calendars.standard;
             cultures.current = culture;
         } else {
+            appendDesignatorsToCultures(cultures.current.calendars);
             return cultures.current;
         }
     };
@@ -1255,8 +1267,22 @@ function pad(number, digits, end) {
     };
 
     kendo._round = round;
-    kendo._outerWidth = function(element, includeMargin) { return $(element).outerWidth(includeMargin || false) || 0; };
-    kendo._outerHeight = function(element, includeMargin) { return $(element).outerHeight(includeMargin || false) || 0; };
+    kendo._outerWidth = function(element, includeMargin, calculateFromHidden) {
+        element = $(element);
+        if (calculateFromHidden) {
+            return getHiddenDimensions(element, includeMargin).width;
+        }
+
+        return $(element).outerWidth(includeMargin || false) || 0;
+    };
+    kendo._outerHeight = function(element, includeMargin, calculateFromHidden) {
+        element = $(element);
+        if (calculateFromHidden) {
+            return getHiddenDimensions(element, includeMargin).height;
+        }
+
+        return $(element).outerHeight(includeMargin || false) || 0;
+    };
     kendo.toString = toString;
 })();
 
@@ -1297,7 +1323,8 @@ function pad(number, digits, end) {
         numberRegExp = {
             2: /^\d{1,2}/,
             3: /^\d{1,3}/,
-            4: /^\d{4}/
+            4: /^\d{4}/,
+            exact3: /^\d{3}/
         },
         objectToString = {}.toString;
 
@@ -1362,6 +1389,7 @@ function pad(number, digits, end) {
                 }
                 return i;
             },
+            longestDesignatorLength = (designators) => Array.from(designators).sort((a, b) => b.length - a.length)[0].length,
             getNumber = function(size) {
                 var rg, match, part = "";
                 if (size === 2) {
@@ -1371,7 +1399,7 @@ function pad(number, digits, end) {
                 }
 
                 // If the value comes in the form of 021, 022, 023 we must trim the leading zero otherwise the result will be 02 in all three cases instead of 21/22/23.
-                if (shouldUnpadZeros && part.length === 3 && Number.isInteger(Number(part)) && Number(part) > 0) {
+                if (shouldUnpadZeros && part.match(numberRegExp.exact3) && Number.isInteger(Number(part)) && Number(part) > 0) {
                     part = unpadZero(part);
                 } else {
                     part = value.substr(valueIdx, size);
@@ -1387,7 +1415,7 @@ function pad(number, digits, end) {
                 }
                 return null;
             },
-            getIndexByName = function(names, lower) {
+            getIndexByName = function(names, lower, subLength) {
                 var i = 0,
                     length = names.length,
                     name, nameLength,
@@ -1398,7 +1426,7 @@ function pad(number, digits, end) {
                 for (; i < length; i++) {
                     name = names[i];
                     nameLength = name.length;
-                    subValue = value.substr(valueIdx, nameLength);
+                    subValue = value.substr(valueIdx, subLength || nameLength); // The `subLength` is part of the appendDesignatorsToCultures logic.
 
                     if (lower) {
                         subValue = subValue.toLowerCase();
@@ -1565,8 +1593,8 @@ function pad(number, digits, end) {
                         pmDesignators = mapDesignators(pmDesignators);
                     }
 
-                    pmHour = getIndexByName(pmDesignators);
-                    if (!pmHour && !getIndexByName(amDesignators)) {
+                    pmHour = getIndexByName(pmDesignators, false, longestDesignatorLength(pmDesignators));
+                    if (!pmHour && !getIndexByName(amDesignators, false, longestDesignatorLength(amDesignators))) {
                         return null;
                     }
                 }
@@ -1843,7 +1871,26 @@ function pad(number, digits, end) {
         };
     }
 
-    function wrap(element, autosize, resize, shouldCorrectWidth = true) {
+    function getHiddenDimensions(element, includeMargin) {
+        var clone, width, height;
+
+        clone = element.clone();
+        clone.css("display", "");
+        clone.css("visibility", "hidden");
+        clone.appendTo($("body"));
+
+        width = clone.outerWidth(includeMargin || false);
+        height = clone.outerHeight(includeMargin || false);
+
+        clone.remove();
+
+        return {
+            width: width || 0,
+            height: height || 0
+        };
+    }
+
+    function wrap(element, autosize, resize, shouldCorrectWidth = true, autowidth) {
         var percentage,
             outerWidth = kendo._outerWidth,
             outerHeight = kendo._outerHeight,
@@ -1857,18 +1904,19 @@ function pad(number, digits, end) {
                 height = element[0].style.height,
                 percentWidth = percentRegExp.test(width),
                 percentHeight = percentRegExp.test(height),
-                forceWidth = element.hasClass("k-tooltip") || element.is(".k-menu-horizontal.k-context-menu");
+                forceDimensions = element.hasClass("k-tooltip") || element.is(".k-menu-horizontal.k-context-menu"),
+                calculateFromHidden = element.hasClass("k-tooltip");
 
             percentage = percentWidth || percentHeight;
 
-            if (!percentWidth && (!autosize || (autosize && width) || forceWidth)) { width = autosize ? outerWidth(element) + 1 : outerWidth(element); }
-            if (!percentHeight && (!autosize || (autosize && height)) || element.is(".k-menu-horizontal.k-context-menu")) { height = outerHeight(element); }
+            if (!percentWidth && (!autosize || (autosize && width) || forceDimensions)) { width = autosize ? outerWidth(element, false, calculateFromHidden) + 1 : outerWidth(element, false, calculateFromHidden); }
+            if (!percentHeight && (!autosize || (autosize && height)) || forceDimensions) { height = outerHeight(element, false, calculateFromHidden); }
 
             element.wrap(
                 $("<div/>")
                 .addClass("k-child-animation-container")
                 .css({
-                    width: width,
+                    width: autowidth ? "auto" : width,
                     height: height
                 }));
             parent = element.parent();
@@ -1909,6 +1957,7 @@ function pad(number, digits, end) {
             outerHeight = kendo._outerHeight,
             parent = element.parent(),
             wrapper = element.closest(".k-animation-container"),
+            calculateFromHidden = element.hasClass("k-tooltip"),
             visible = element.is(":visible"),
             wrapperStyle = parent[0].style,
             elementHeight = element[0].style.height;
@@ -1930,7 +1979,7 @@ function pad(number, digits, end) {
                 parent.css("width", ""); // Needed to get correct width dimensions
             }
             parent.css({
-                width: autosize ? outerWidth(element) + 1 : outerWidth(element),
+                width: autosize ? outerWidth(element, false, calculateFromHidden) + 1 : outerWidth(element, false, calculateFromHidden),
             });
 
             if (elementHeight === "auto") {
@@ -5086,6 +5135,7 @@ function pad(number, digits, end) {
     var positionModeValues = [ 'fixed', 'static', 'sticky', 'absolute' ];
     var resizeValues = [ ['both', 'resize'], ['horizontal', 'resize-x'], ['vertical', 'resize-y'] ];
     var overflowValues = [ 'auto', 'hidden', 'visible', 'scroll', 'clip' ];
+    var layoutFlowValues = [ ['vertical', '!k-flex-col'], ['horizontal', '!k-flex-row'] ];
 
     kendo.cssProperties = (function() {
         var defaultValues = {},
@@ -5174,6 +5224,8 @@ function pad(number, digits, end) {
                     prefix = "k-";
                 } else if (propName === "overflow") {
                     prefix = "k-overflow-";
+                } else if (propName === "layoutFlow") {
+                    prefix = "";
                 } else {
                     prefix = widgetProperties[PREFIX];
                 }
@@ -5194,6 +5246,7 @@ function pad(number, digits, end) {
         registerCssClasses("rounded", roundedValues);
         registerCssClasses("resize", resizeValues);
         registerCssClasses("overflow", overflowValues);
+        registerCssClasses("layoutFlow", layoutFlowValues);
 
         return {
             positionModeValues: positionModeValues,

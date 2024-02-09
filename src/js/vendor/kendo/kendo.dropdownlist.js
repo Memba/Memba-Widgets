@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -162,6 +162,7 @@ var __meta__ = {
             name: "DropDownList",
             enabled: true,
             autoBind: true,
+            _allowFilterPaste: true, // Related to the paste functionality in the Grid. In certain cases the focus remains on the dropdownlist and the paste action is executed on it instead of the Grid.
             index: 0,
             text: null,
             value: null,
@@ -614,7 +615,9 @@ var __meta__ = {
         },
 
         _filterPaste: function() {
-            this._search();
+            if (this.options._allowFilterPaste) {
+                this._search();
+            }
         },
 
         _attachFocusHandlers: function() {

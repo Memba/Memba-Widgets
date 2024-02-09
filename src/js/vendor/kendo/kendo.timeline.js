@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -54,12 +54,12 @@ var __meta__ = {
                     '<div class="k-card-description">' +
                         (data[descriptionField] ? `<p>${encode(data[descriptionField])}</p>` : '') +
                         (data[imagesField] && data[imagesField].length > 0 ?
-                        `<img src="${encode(data[imagesField][0].src)}" ${data[altField] ? `alt="${encode(data[altField])}"` : ''} class="k-card-image" />`
+                        `<img src="${encode(data[imagesField][0].src)}" ${data[altField] ? `alt="${encode(data[altField])}"` : ''} class="k-card-media" />`
                         : '' ) +
                     '</div>' +
                 '</div>' +
                 (data[actionsField] && data[actionsField].length > 0 ?
-                '<div class="k-card-actions">' +
+                '<div class="k-actions k-card-actions">' +
                     data[actionsField].map(action =>
                         `<a class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary" href="${action.url ? encode(action.url) : "#"}">` +
                             `<span class="k-button-text">${encode(action.text)}</span>` +
@@ -75,9 +75,12 @@ var __meta__ = {
                 '<div class="k-card-header">' +
                     '<div class="k-card-title">' +
                         (data[titleField] ? `<span class="k-event-title">${encode(data[titleField])}</span>` : '') +
-                        '<span class="k-event-collapse k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
-                            kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" }) +
-                        '</span>' +
+                        (collapsibleEvents ?
+                            '<span class="k-event-collapse k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
+                                kendo.ui.icon({ icon: "chevron-right", iconClass: "k-button-icon" }) +
+                            '</span>'
+                            : ''
+                        ) +
                     '</div>' +
                     (data[subtitleField] ? `<div class="k-card-subtitle">${encode(data[subtitleField])}</div>` : '') +
                 '</div>' +
@@ -85,12 +88,12 @@ var __meta__ = {
                     '<div class="k-card-description">' +
                         (data[descriptionField] ? `<p>${encode(data[descriptionField])}</p>` : '') +
                         (data[imagesField] && data[imagesField].length > 0 ?
-                            `<img src="${encode(data[imagesField][0].src)}" ${data[altField] ? `alt="${encode(data[altField])}"` : ''} class="k-card-image" />`
+                            `<img src="${encode(data[imagesField][0].src)}" ${data[altField] ? `alt="${encode(data[altField])}"` : ''} class="k-card-media" />`
                         : '') +
                     '</div>' +
                 '</div>' +
                 (data[actionsField] && data[actionsField].length > 0 ?
-                '<div class="k-card-actions">' +
+                '<div class="k-actions k-card-actions">' +
                     data[actionsField].map(action =>
                         `<a class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-primary" href="${action.url ? encode(action.url) : "#"}">` +
                             `<span class="k-button-text">${encode(action.text)}</span>` +
@@ -154,7 +157,7 @@ var __meta__ = {
                     '</div>' +
                     '<span class="k-timeline-circle"></span>' +
                     `<div class="${collapsibleEvents ? 'k-timeline-card k-collapsed' : 'k-timeline-card'}">` +
-                        `<div aria-expanded="false" class="k-card" ${navigatable ? `aria-describedby="${encode(data[i].uid)}-date" tabindex="0" role="button" aria-live="polite" aria-atomic="true"` : ''} >` +
+                        `<div aria-expanded="false" class="k-card k-card-vertical k-card-with-callout" ${navigatable ? `aria-describedby="${encode(data[i].uid)}-date" tabindex="0" role="button" aria-live="polite" aria-atomic="true"` : ''} >` +
                             `<span class="${reverse ? 'k-timeline-card-callout k-card-callout k-callout-e' : 'k-timeline-card-callout k-card-callout k-callout-w'}"></span>` +
                             `${itemTemplate({ titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i], altField: altField, navigatable: navigatable, collapsibleEvents: collapsibleEvents })}` +
                         '</div>' +
@@ -166,12 +169,12 @@ var __meta__ = {
             return result;
         },
         ARROWSHTML =
-        '<a aria-hidden="true" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-left k-disabled" title="previous">' +
+        '<button disabled tabindex="-1" aria-hidden="true" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-left k-disabled" title="previous">' +
             kendo.ui.icon({ icon: "caret-alt-left", iconClass: "k-button-icon" }) +
-        '</a>' +
-        '<a aria-hidden="true" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-right k-disabled" title="next">' +
+        '</button>' +
+        '<button disabled tabindex="-1" aria-hidden="true" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-timeline-arrow k-timeline-arrow-right k-disabled" title="next">' +
             kendo.ui.icon({ icon: "caret-alt-right", iconClass: "k-button-icon" }) +
-        '</a>';
+        '</button>';
 
         function className(name) {
             return "k-" + name;
@@ -201,7 +204,7 @@ var __meta__ = {
 
         var Page = kendo.Class.extend({
             init: function(container) {
-                this.cardContainer = $("<div class='k-card' role='tabpanel'/>");
+                this.cardContainer = $("<div class='k-card k-card-vertical k-card-with-callout' role='tabpanel'/>");
                 var cardWrapper = $("<div class='k-timeline-card'></div>").append(this.cardContainer);
 
                 this.element = $("<li class='" + className(VIRTUAL_PAGE_CLASS) + "'></li>").append(cardWrapper);
@@ -211,7 +214,7 @@ var __meta__ = {
             content: function(htmlContent, uid, label) {
                 var callOut = $("<span class='k-timeline-card-callout k-card-callout k-callout-n'></span>");
                 this.cardContainer.html(htmlContent);
-                this.cardContainer.append(callOut);
+                this.cardContainer.prepend(callOut);
                 this.element.attr("data-uid", uid);
                 this.element.find(".k-card").attr({
                     role: "tabpanel",
@@ -359,7 +362,7 @@ var __meta__ = {
 
                 Widget.fn.init.call(this, element, options);
 
-                this.element.addClass(orientation === VERTICAL ? "k-timeline k-widget k-timeline-vertical" : "k-timeline k-widget k-timeline-horizontal");
+                this.element.addClass(orientation === VERTICAL ? "k-timeline k-timeline-vertical" : "k-timeline k-timeline-horizontal");
 
                 if (orientation != VERTICAL) {
                     that._horizontal();
@@ -661,23 +664,26 @@ var __meta__ = {
                 }
             },
 
+            _enableDisableArrow: function(arrow, enable) {
+                if (enable) {
+                    arrow.removeClass("k-disabled");
+                    arrow.removeAttr("disabled");
+                    arrow.attr("aria-hidden", false);
+                } else {
+                    arrow.addClass("k-disabled");
+                    arrow.attr("disabled", "disabled");
+                    arrow.attr("aria-hidden", true);
+                }
+            },
+
             _updateArrows: function() {
                 var that = this;
                 var arrows = that.element.find(".k-timeline-arrow");
                 var leftArrow = arrows.filter(".k-timeline-arrow-left");
                 var rightArrow = arrows.filter(".k-timeline-arrow-right");
 
-                if (that._validateNavigation(false)) {
-                    leftArrow.addClass("k-disabled");
-                } else {
-                    leftArrow.removeClass("k-disabled");
-                }
-
-                if (that._validateNavigation(true)) {
-                    rightArrow.addClass("k-disabled");
-                } else {
-                    rightArrow.removeClass("k-disabled");
-                }
+                this._enableDisableArrow(leftArrow, !that._validateNavigation(false));
+                this._enableDisableArrow(rightArrow, !that._validateNavigation(true));
             },
 
             _validateNavigation: function(next) {

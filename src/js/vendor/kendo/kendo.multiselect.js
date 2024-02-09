@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -12,6 +12,7 @@ import "./kendo.virtuallist.js";
 import "./kendo.html.chip.js";
 import "./kendo.html.chiplist.js";
 import "./kendo.html.button.js";
+import { addInputPrefixSuffixContainers } from "./utils/prefix-suffix-containers.js";
 
 var __meta__ = {
     id: "multiselect",
@@ -159,6 +160,11 @@ var __meta__ = {
             that._toggleCloseVisibility();
             that._applyCssClasses();
 
+            addInputPrefixSuffixContainers({ widget: that, wrapper: that.wrapper, options: that.options, prefixInsertBefore: that._inputValuesContainer, suffixInsertAfter: that._loading });
+            if (that.floatingLabel) {
+                that.floatingLabel.refresh();
+            }
+
             kendo.notify(that);
         },
 
@@ -193,6 +199,12 @@ var __meta__ = {
             tagTemplate: "",
             groupTemplate: (data) => encode(data),
             fixedGroupTemplate: (data) => encode(data),
+            prefixOptions: {
+                separator: true
+            },
+            suffixOptions: {
+                separator: true
+            },
             clearButton: true,
             autoWidth: false,
             popup: null,
@@ -536,7 +548,7 @@ var __meta__ = {
             }
 
             that.input.val("");
-            that._search();
+            that._search(true);
             that._change();
             that.focus();
             that._hideClear();
@@ -654,7 +666,7 @@ var __meta__ = {
             var that = this,
                 filterValue = that.input.val().toLowerCase(),
                 listViewFilter = that.listView.dataSource.filter(),
-                listViewFilterValue;
+                listViewFilterValue = "";
 
             if (listViewFilter && listViewFilter.filters.length > 0) {
                 listViewFilterValue = (listViewFilter.filters[0].value || "").toString().toLowerCase();
@@ -1307,19 +1319,30 @@ var __meta__ = {
             return -1;
         },
 
-        _search: function() {
+        _search: function(noDelay) {
             var that = this;
+
+            if (noDelay) {
+                that._performSearch();
+                return;
+            }
 
             clearTimeout(that._typingTimeout);
 
             that._typingTimeout = setTimeout(function() {
-                var value = that._inputValue();
-                if (that._prev !== value) {
-                    that._prev = value;
-                    that.search(value);
-                    that._toggleCloseVisibility();
-                }
+                that._performSearch();
             }, that.options.delay);
+        },
+
+        _performSearch: function() {
+            var that = this,
+                value = that._inputValue();
+
+            if (that._prev !== value) {
+                that._prev = value;
+                that.search(value);
+                that._toggleCloseVisibility();
+            }
         },
 
         _toggleCloseVisibility: function() {
@@ -1544,6 +1567,7 @@ var __meta__ = {
             }
 
             element.removeAttr("accesskey");
+            input.attr("data-validate", false);
 
             that._focused = that.input = input.attr({
                 "autocomplete": AUTOCOMPLETEVALUE,

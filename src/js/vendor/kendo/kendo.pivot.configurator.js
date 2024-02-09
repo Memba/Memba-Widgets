@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -317,7 +317,8 @@ var __meta__ = {
                 template: targetItemTemplate,
                 connectWith: rows,
                 messages: {
-                    empty: options.messages.columns
+                    empty: options.messages.columns,
+                    fieldMenu: this.options.messages.fieldMenu
                 },
                 configuratorNavigation: that.configuratorNavigation
             });
@@ -331,7 +332,8 @@ var __meta__ = {
                 setting: "rows",
                 connectWith: columns,
                 messages: {
-                    empty: this.options.messages.rows
+                    empty: this.options.messages.rows,
+                    fieldMenu: this.options.messages.fieldMenu
                 },
                 configuratorNavigation: that.configuratorNavigation
             });
@@ -339,10 +341,13 @@ var __meta__ = {
 
             this.measures = this._createTarget(measures, {
                 navigatable: options.navigatable,
+                filterable: false,
+                sortable: false,
                 setting: "measures",
                 template: targetItemTemplate,
                 messages: {
-                    empty: options.messages.measures
+                    empty: options.messages.measures,
+                    fieldMenu: this.options.messages.fieldMenu
                 },
                 configuratorNavigation: that.configuratorNavigation
             });

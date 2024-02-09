@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -8,6 +8,7 @@
  */
 import "./kendo.core.js";
 import "./kendo.floatinglabel.js";
+import { addInputPrefixSuffixContainers } from "./utils/prefix-suffix-containers.js";
 
 var __meta__ = {
     id: "textarea",
@@ -62,8 +63,12 @@ var __meta__ = {
             that._applyCssClasses();
             that.element
                 .addClass(INPUT)
-                .css("resize", that.options.resizable)
                 .attr("autocomplete", "off");
+
+            addInputPrefixSuffixContainers({ widget: that, wrapper: that.wrapper, options: that.options });
+            if (that.floatingLabel) {
+                that.floatingLabel.refresh();
+            }
 
             kendo.notify(that);
         },
@@ -93,7 +98,14 @@ var __meta__ = {
             size: "medium",
             fillMode: "solid",
             resize: "none",
-            overflow: "auto"
+            overflow: "auto",
+            layoutFlow: "vertical",
+            prefixOptions: {
+                separator: true
+            },
+            suffixOptions: {
+                separator: true
+            }
         },
 
         _applyCssClasses: function(action) {
@@ -108,6 +120,11 @@ var __meta__ = {
                     widget: options.name,
                     propName: "overflow",
                     value: options.overflow
+                }),
+                layoutFlow = kendo.cssProperties.getValidClass({
+                    widget: options.name,
+                    propName: "layoutFlow",
+                    value: options.layoutFlow
                 });
 
             Widget.fn._applyCssClasses.call(that);
@@ -122,8 +139,12 @@ var __meta__ = {
 
             action = action || "addClass";
 
-            that.wrapper[action](resize);
+            that.element[action](resize);
             that.element[action](overflow);
+            that.wrapper[action](layoutFlow);
+            if (options.layoutFlow == "vertical") {
+                that.element[action]("!k-flex-none");
+            }
         },
 
         _applyAttributes: function() {
@@ -294,7 +315,7 @@ var __meta__ = {
 
             wrapper = element.wrap("<span class='k-input k-textarea'></span>").parent();
             wrapper[0].style.cssText = DOMElement.style.cssText;
-            DOMElement.style.width = "100%";
+            DOMElement.style.width = "";
 
             that.wrapper = wrapper.addClass(DOMElement.className).removeClass('input-validation-error');
         }

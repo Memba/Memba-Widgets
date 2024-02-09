@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -9,6 +9,7 @@
 import "./kendo.core.js";
 import "./kendo.floatinglabel.js";
 import "./kendo.icons.js";
+import { addInputPrefixSuffixContainers } from "./utils/prefix-suffix-containers.js";
 
 var __meta__ = {
     id: "textbox",
@@ -64,8 +65,13 @@ var __meta__ = {
                 that._icon();
             }
 
+            addInputPrefixSuffixContainers({ widget: that, wrapper: that.wrapper, options: that.options });
+
             kendo.notify(that);
             that._applyCssClasses();
+            if (that.floatingLabel) {
+                that.floatingLabel.refresh();
+            }
         },
 
         events: [
@@ -83,7 +89,13 @@ var __meta__ = {
             rounded: "medium",
             size: "medium",
             fillMode: "solid",
-            icon: null
+            icon: null,
+            prefixOptions: {
+                separator: true
+            },
+            suffixOptions: {
+                separator: true
+            }
         },
 
         value: function(value) {

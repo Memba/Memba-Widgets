@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -99,7 +99,7 @@ var __meta__ = {
     var FilterCell = Widget.extend({
         init: function(element, options) {
             element = $(element).addClass("k-filtercell");
-            var wrapper = this.wrapper = $("<span/>").appendTo(element);
+            var wrapper = this.wrapper = $("<div />").addClass("k-filtercell-wrapper").appendTo(element);
             var that = this,
                 dataSource,
                 viewModel,

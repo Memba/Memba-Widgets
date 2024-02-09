@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -574,13 +574,6 @@ var __meta__ = {
             if (this.contentHeight === "100%") {
                 var containerHeight = this.element.parent().height();
 
-                if (this.enablePager === true) {
-                    var pager = this.element.parent().find("div.k-scrollview-nav");
-                    if (!this.pagerOverlay && pager.length) {
-                        containerHeight -= kendo._outerHeight(pager, true);
-                    }
-                }
-
                 this.element.css("height", containerHeight);
                 this.pageElements.css("height", containerHeight);
             }
@@ -709,13 +702,6 @@ var __meta__ = {
 
             else if (this.options.contentHeight === "100%") {
                 var containerHeight = this.element.parent().height();
-
-                if (this.options.enablePager === true) {
-                    var pager = this.element.parent().find("div.k-scrollview-nav");
-                    if (!this.options.pagerOverlay && pager.length) {
-                        containerHeight -= kendo._outerHeight(pager, true);
-                    }
-                }
 
                 this.element.css("height", containerHeight);
                 pages[0].element.css("height", containerHeight);
@@ -1025,8 +1011,10 @@ var __meta__ = {
             if (this.options.pageable || this.options.enablePager) {
                 this.pager = new Pager(this);
 
-                if (this.options.pagerOverlay) {
-                    element.addClass(className("scrollview-overlay"));
+                if (this.options.pagerOverlay === "dark") {
+                    element.addClass(className("scrollview-dark"));
+                } else if (this.options.pagerOverlay === "light") {
+                    element.addClass(className("scrollview-light"));
                 }
             } else {
                 this._changeProxy = that._toggleNavigation.bind(that);
@@ -1098,7 +1086,7 @@ var __meta__ = {
             bounceVelocityThreshold: 1.6,
             enablePager: true,
             enableNavigationButtons: true,
-            pagerOverlay: true,
+            pagerOverlay: "none",
             navigatable: false,
             autoBind: true,
             pageable: false,

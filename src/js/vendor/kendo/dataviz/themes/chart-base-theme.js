@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -15,15 +15,12 @@
  import "../../kendo.dataviz.core.js";
 
 (function($) {
-/* eslint-disable space-before-blocks, space-before-function-paren */
+/* eslint-disable space-before-blocks, space-before-function-paren, object-curly-spacing */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 
-var TRENDLINE_LINEAR = 'linearTrendline';
-var TRENDLINE_MOVING_AVERAGE = 'movingAverageTrendline';
-var TRENDLINE_SERIES = [
-    TRENDLINE_LINEAR, TRENDLINE_MOVING_AVERAGE
-];
+var AREA = "area";
+var LINE = "line";
 
 var INHERIT = "inherit";
 
@@ -36,6 +33,22 @@ var SANS12 = '12px ' + SANS;
 var SANS16 = '16px ' + SANS;
 var TRANSPARENT = 'transparent';
 var WHITE$$1 = '#fff';
+
+var lineSeriesLegendItem = {
+    type: LINE
+};
+
+var areaSeriesLegendItem = {
+    type: AREA
+};
+
+var areaNoMarkersSeriesLegendItem = $.extend({}, areaSeriesLegendItem,
+    {markers: {
+        visible: false
+    },
+    highlight: {
+        visible: false
+    }});
 
 var notes = function () { return ({
     icon: {
@@ -51,6 +64,7 @@ var notes = function () { return ({
         length: 10,
         width: 2
     },
+    legendItem: areaNoMarkersSeriesLegendItem,
     visible: true
 }); };
 
@@ -79,6 +93,7 @@ var areaSeries = function () { return ({
         size: 6,
         visible: false
     },
+    legendItem: areaSeriesLegendItem,
     opacity: 0.4
 }); };
 
@@ -96,12 +111,14 @@ var rangeAreaSeries = function () { return ({
         size: 6,
         visible: false
     },
+    legendItem: areaSeriesLegendItem,
     opacity: 0.4
 }); };
 
 var barSeries = function () { return ({
     gap: BAR_GAP,
-    spacing: BAR_SPACING
+    spacing: BAR_SPACING,
+    legendItem: areaNoMarkersSeriesLegendItem,
 }); };
 
 var boxPlotSeries = function () { return ({
@@ -137,7 +154,8 @@ var boxPlotSeries = function () { return ({
     spacing: 0.3,
     whiskers: {
         width: 2
-    }
+    },
+    legendItem: areaNoMarkersSeriesLegendItem,
 }); };
 
 var bubbleSeries = function () { return ({
@@ -147,6 +165,7 @@ var bubbleSeries = function () { return ({
     labels: {
         background: TRANSPARENT
     },
+    legendItem: areaNoMarkersSeriesLegendItem,
     opacity: 0.6
 }); };
 
@@ -155,7 +174,8 @@ var bulletSeries = function () { return ({
     spacing: BAR_SPACING,
     target: {
         color: "#ff0000"
-    }
+    },
+    legendItem: areaNoMarkersSeriesLegendItem
 }); };
 
 var candlestickSeries = function () { return ({
@@ -178,20 +198,36 @@ var candlestickSeries = function () { return ({
         color: BLACK$$1,
         width: 1
     },
+    legendItem: areaNoMarkersSeriesLegendItem,
     spacing: 0.3
 }); };
 
 var columnSeries = function () { return ({
     gap: BAR_GAP,
-    spacing: BAR_SPACING
+    spacing: BAR_SPACING,
+    legendItem: areaNoMarkersSeriesLegendItem
+}); };
+
+var radarColumnSeries = function () { return ({
+    legendItem: areaNoMarkersSeriesLegendItem
+}); };
+
+var polarScatterSeries = function () { return ({
+    legendItem: lineSeriesLegendItem
+}); };
+
+var scatterSeries = function () { return ({
+    legendItem: lineSeriesLegendItem
 }); };
 
 var donutSeries = function () { return ({
-    margin: 1
+    margin: 1,
+    legendItem: areaNoMarkersSeriesLegendItem
 }); };
 
 var lineSeries = function () { return ({
-    width: 2
+    width: 2,
+    legendItem: lineSeriesLegendItem
 }); };
 
 var ohlcSeries = function () { return ({
@@ -205,6 +241,7 @@ var ohlcSeries = function () { return ({
     line: {
         width: 1
     },
+    legendItem: areaNoMarkersSeriesLegendItem,
     spacing: 0.3
 }); };
 
@@ -217,6 +254,7 @@ var radarAreaSeries = function () { return ({
         size: 6,
         visible: false
     },
+    legendItem: areaSeriesLegendItem,
     opacity: 0.5
 }); };
 
@@ -224,21 +262,25 @@ var radarLineSeries = function () { return ({
     markers: {
         visible: false
     },
+    legendItem: lineSeriesLegendItem,
     width: 2
 }); };
 
 var rangeBarSeries = function () { return ({
     gap: BAR_GAP,
-    spacing: BAR_SPACING
+    spacing: BAR_SPACING,
+    legendItem: areaNoMarkersSeriesLegendItem
 }); };
 
 var rangeColumnSeries = function () { return ({
     gap: BAR_GAP,
-    spacing: BAR_SPACING
+    spacing: BAR_SPACING,
+    legendItem: areaNoMarkersSeriesLegendItem
 }); };
 
 var scatterLineSeries = function () { return ({
-    width: 1
+    width: 1,
+    legendItem: lineSeriesLegendItem
 }); };
 
 var waterfallSeries = function () { return ({
@@ -247,6 +289,7 @@ var waterfallSeries = function () { return ({
         color: BLACK$$1,
         width: 1
     },
+    legendItem: areaNoMarkersSeriesLegendItem,
     spacing: BAR_SPACING
 }); };
 
@@ -260,7 +303,8 @@ var pieSeries = function () { return ({
             left: 7,
             right: 7
         }
-    }
+    },
+    legendItem: areaNoMarkersSeriesLegendItem
 }); };
 
 var funnelSeries = function () { return ({
@@ -273,7 +317,8 @@ var funnelSeries = function () { return ({
             left: 7,
             right: 7
         }
-    }
+    },
+    legendItem: areaNoMarkersSeriesLegendItem
 }); };
 
 var pyramidSeries = funnelSeries;
@@ -288,25 +333,22 @@ var heatmapSeries = function () { return ({
         border: {
             width: 0
         }
-    }
+    },
+    legendItem: areaNoMarkersSeriesLegendItem
 }); };
 
-var trendlineSeriesDefaults = function () { return TRENDLINE_SERIES.reduce(
-    function (options, type) {
-        options[type] = {
-            color: INHERIT,
-            trendline: {},
-            markers: {
-                visible: false
-            },
-            width: 1,
-            dashType: 'longDash'
-        };
+var trendlineSeriesDefaults = function (options) { return $.extend({
+    color: INHERIT,
+    trendline: {},
+    markers: {
+        visible: false
+    },
+    width: 1,
+    dashType: 'longDash',
+    legendItem: lineSeriesLegendItem
+}, options); };
 
-        return options;
-    }, {}); };
-
-var seriesDefaults = function (options) { return ($.extend({
+var seriesDefaults = function (options) { return ({
     visible: true,
     labels: {
         font: SANS11
@@ -334,19 +376,26 @@ var seriesDefaults = function (options) { return ($.extend({
     ohlc: ohlcSeries(),
     radarArea: radarAreaSeries(),
     radarLine: radarLineSeries(),
+    radarColumn: radarColumnSeries(),
     polarArea: radarAreaSeries(),
     polarLine: radarLineSeries(),
+    polarScatter: polarScatterSeries(),
     rangeBar: rangeBarSeries(),
     rangeColumn: rangeColumnSeries(),
+    scatter: scatterSeries(),
     scatterLine: scatterLineSeries(),
     verticalArea: areaSeries(),
     verticalBoxPlot: boxPlotSeries(),
     verticalBullet: bulletSeries(),
     verticalLine: lineSeries(),
-    waterfall: waterfallSeries()
-},
-    trendlineSeriesDefaults()
-)); };
+    waterfall: waterfallSeries(),
+    linearTrendline: trendlineSeriesDefaults(),
+    exponentialTrendline: trendlineSeriesDefaults({ style: 'smooth' }),
+    logarithmicTrendline: trendlineSeriesDefaults({ style: 'smooth' }),
+    polynomialTrendline: trendlineSeriesDefaults({ style: 'smooth' }),
+    powerTrendline: trendlineSeriesDefaults({ style: 'smooth' }),
+    movingAverageTrendline: trendlineSeriesDefaults()
+}); };
 
 var title = function () { return ({
     font: SANS16

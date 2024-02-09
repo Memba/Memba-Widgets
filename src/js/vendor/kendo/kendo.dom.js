@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -260,7 +260,7 @@ var __meta__ = {
        render: function(parent, cached) {
         var lastChild, replacedNode;
            if (cached.nodeName !== this.nodeName || cached.html !== this.html || this.replace) {
-               if (this.replace && cached.nodes && cached.nodes.length) {
+               if (this.replace && cached.replace && cached.nodes && cached.nodes.length && cached.nodes[0].outerHTML) {
                 // This could be changed to a for loop that replaces several nodes instead of the first one. Presently, there is no use-case scenario for that.
                 replacedNode = replaceNode(parent, cached.nodes[0], this.html);
                 lastChild = parent.lastChild;

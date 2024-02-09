@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -48,6 +48,7 @@ import "../util/main.js";
 
     kendo.spreadsheet.messages.view = {
         nameBox: "Name Box",
+        formulaInput: "Formula Input",
         errors: {
             openUnsupported: "Unsupported format. Please select an .xlsx file.",
             shiftingNonblankCells: "Cannot insert cells due to data loss possibility. Select another insert location or delete the data from the end of your worksheet.",
@@ -666,7 +667,7 @@ import "../util/main.js";
             this.nameEditor = new kendo.spreadsheet.NameEditor(nameEditor, this.options);
 
             var formulaBar = $("<div />").appendTo(wrapper);
-            this.formulaBar = new kendo.spreadsheet.FormulaBar(formulaBar);
+            this.formulaBar = new kendo.spreadsheet.FormulaBar(formulaBar, this.options);
 
             if (this.options.toolbar) {
                 this._tabstrip();
@@ -822,6 +823,7 @@ import "../util/main.js";
                 // XXX: hard-coded button width (20)
 
                 if (y >= r.top && y <= r.bottom) {
+                    this._editorInLastColumn = pane._editorInLastColumn;
                     return pane._editorInLastColumn ? x < r.left && x >= r.left - EDIT_BUTTON_WIDTH
                         : x > r.right && x <= r.right + EDIT_BUTTON_WIDTH;
                 }
@@ -1069,6 +1071,7 @@ import "../util/main.js";
                 rect       : self.activeCellRectangle(),
                 view       : this,
                 validation : this._sheet.validation(cell),
+                alignLeft  : this._editorInLastColumn,
                 callback   : function(value, parse){
                     self._executeCommand({
                         command: "EditCommand",
@@ -1963,7 +1966,7 @@ import "../util/main.js";
                     var btn = kendo.dom.element("div", {
                         className: btnClass,
                         style: {
-                            left   : (cell.left + (isLastColumn ? 0 : cell.width)) + "px",
+                            left   : (cell.left + (isLastColumn ? -EDIT_BUTTON_WIDTH : cell.width)) + "px",
                             top    : cell.top + "px",
                             height : cell.height + "px"
                         }

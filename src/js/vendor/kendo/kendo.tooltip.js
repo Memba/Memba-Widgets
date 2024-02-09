@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -43,9 +43,9 @@ var __meta__ = {
         REQUESTSTART = "requestStart",
         KCONTENTFRAME = "k-content-frame",
         TEMPLATE = ({ autoHide, callout, dir }) =>
-            `<div role="tooltip" class="k-widget k-tooltip${!autoHide ? ' k-tooltip-closable' : ''}">` +
+            `<div role="tooltip" class="k-tooltip${!autoHide ? ' k-tooltip-closable' : ''}">` +
                 '<div class="k-tooltip-content"></div>' +
-                (!autoHide ? `<div class="k-tooltip-button">${kendo.ui.icon($('<a href="#" title="Close"></a>'), { icon: "x" })}</div>` : '') +
+                (!autoHide ? `<div class="k-tooltip-button">${kendo.ui.icon($('<span title="Close"></span>'), { icon: "x" })}</div>` : '') +
                 (callout ? `<div class="k-callout k-callout-${dir}"></div>` : '') +
             '</div>',
         IFRAMETEMPLATE = kendo.template(({ content }) =>
@@ -250,6 +250,14 @@ var __meta__ = {
             return this.options.showOn && this.options.showOn.match(/click/);
         },
 
+        _recalculatePopupDimensions: function() {
+            var that = this;
+            that.popup.wrapper.css("height", kendo._outerHeight(that.popup.element) + "px");
+            that.popup.wrapper.css("width", kendo._outerWidth(that.popup.element) + "px");
+            that.popup.position();
+            that._positionCallout();
+        },
+
         _positionCallout: function() {
             var that = this,
                 position = that.options.position,
@@ -447,6 +455,27 @@ var __meta__ = {
             }
         },
 
+        _verifyContentLoaded() {
+            var that = this,
+                content = that.content,
+                resources = content.find('[src]'),
+                length = resources.length,
+                loaded = 0;
+
+                if (length === 0) {
+                    that._recalculatePopupDimensions();
+                    return;
+                }
+
+                resources.on('load', function() {
+                    loaded++;
+
+                  if (length === loaded) {
+                    that._recalculatePopupDimensions();
+                  }
+                });
+        },
+
         _ajaxRequest: function(options) {
             var that = this,
                 successFn = function(data) {
@@ -454,11 +483,7 @@ var __meta__ = {
 
                     that.content.html(data);
 
-                    if (kendo._outerHeight(that.popup.element) > kendo._outerHeight(that.popup.wrapper)) {
-                        that.popup.wrapper.css("height", kendo._outerHeight(that.popup.element) + "px");
-                        that.popup.position();
-                        that._positionCallout();
-                    }
+                    that._verifyContentLoaded();
 
                     that.trigger(CONTENTLOAD);
                 };
@@ -469,6 +494,8 @@ var __meta__ = {
                 cache: false,
                 error: function(xhr, status) {
                     kendo.ui.progress(that.content, false);
+
+                    that._recalculatePopupDimensions();
 
                     that.trigger(ERROR, { status: status, xhr: xhr });
                 },

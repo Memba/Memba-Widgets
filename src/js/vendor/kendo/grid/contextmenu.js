@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -46,6 +46,7 @@ import "../kendo.menu.js";
             ] },
             "copySelection": { name: "copySelection", text: "Copy selection", icon: "page-header-section", rules: "isSelectable", softRules: "hasSelection", command: "CopySelectionCommand", options: "withHeaders" },
             "copySelectionNoHeaders": { name: "copySelectionNoHeaders", text: "Copy selection (No Headers)", icon: "file-txt", rules: "isSelectable", softRules: "hasSelection", command: "CopySelectionCommand" },
+            "paste": { name: "paste", text: "Paste (use CTRL/⌘ + V)", rules: "allowPaste", softRules: "alwaysDisabled", icon: "clipboard" },
             "reorderRow": { name: "reorderRow", text: "Reorder row", icon: "caret-alt-expand", rules: "isRowReorderable", softRules: "isSorted", items: [
                 { name: "reorderRowUp", text: "Up", icon: "caret-alt-up", command: "ReorderRowCommand", options: "dir:up" },
                 { name: "reorderRowDown", text: "Down", icon: "caret-alt-down", command: "ReorderRowCommand", options: "dir:down" },

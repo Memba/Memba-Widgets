@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -298,6 +298,7 @@ var Gauge = dataviz.Class.extend({
             stroke: {
                 color: border.width ? border.color : "",
                 width: border.width,
+                opacity: border.opacity,
                 dashType: border.dashType,
                 lineJoin: "round",
                 lineCap: "round"
@@ -670,8 +671,8 @@ var LinearPointer = Pointer.extend({
         var pointerHalfSize = options.size / 2;
         var margin = getSpacing(options.margin);
         var space = vertical ?
-                 margin[mirror ? "left" : "right"] :
-                 margin[mirror ? "bottom" : "top"];
+            margin[mirror ? "left" : "right"] :
+            margin[mirror ? "bottom" : "top"];
         var pointerBox, pointerRangeBox, trackBox;
 
         space = mirror ? -space : space;
@@ -1586,7 +1587,7 @@ var RadialScale = NumericAxis.extend({
         if (options.labels.position === OUTSIDE) {
             var radius = tickArc.getRadiusX();
             tickArc.setRadiusX(radius - majorTickSize + minorTickSize)
-                   .setRadiusY(radius - majorTickSize + minorTickSize);
+                .setRadiusY(radius - majorTickSize + minorTickSize);
         }
 
         this.minorTickAngles = this.normalizeTickAngles(this.tickAngles(arc, options.minorUnit));
@@ -1780,7 +1781,7 @@ var RadialPointer = Pointer.extend({
         var capSize = this.capSize = Math.round(radius * this.options.cap.size);
 
         this.bbox = Rect.fromPoints(new GeometryPoint(center.x - capSize, center.y - capSize),
-                                    new GeometryPoint(center.x + capSize, center.y + capSize));
+            new GeometryPoint(center.x + capSize, center.y + capSize));
     },
 
     _renderNeedle: function() {
@@ -1794,9 +1795,9 @@ var RadialPointer = Pointer.extend({
         });
 
         needlePath.moveTo(center.x + this.radius - minorTickSize, center.y)
-                  .lineTo(center.x, center.y - (this.capSize / 2))
-                  .lineTo(center.x, center.y + (this.capSize / 2))
-                  .close();
+            .lineTo(center.x, center.y - (this.capSize / 2))
+            .lineTo(center.x, center.y + (this.capSize / 2))
+            .close();
 
         return needlePath;
     },

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -110,15 +110,17 @@ var FormattingTool = DelayedExecutionTool.extend({
             component.list.css("background-color", dom.getEffectiveBackground($(body)));
         }
 
-        for (i = 0; i < items.length; i++) {
-            tag = items[i].tag || "span";
-            className = items[i].className;
+        if (this.component && this.component.options && this.component.options.unsafeInline !== false) {
+            for (i = 0; i < items.length; i++) {
+                tag = items[i].tag || "span";
+                className = items[i].className;
 
-            style = dom.inlineStyle(body, tag, { className: className });
+                style = dom.inlineStyle(body, tag, { className: className });
 
-            style = style.replace(/"/g, "'");
+                style = style.replace(/"/g, "'");
 
-            items[i].style = style + ";display:inline-block";
+                items[i].style = style + ";display:inline-block";
+            }
         }
 
         dataSource.trigger("change");
@@ -320,7 +322,7 @@ registerTool("formatting", new FormattingTool({
             highlightFirst: false,
             autoWidth: true,
             template: kendo.template(
-                (data) => `<span unselectable="on" style="display:block;${data.style || ""}">${kendo.htmlEncode(data.text)}</span>`
+                (data) => `<span unselectable="on" ${data.style ? `class="k-d-block" style="display:block;${data.style || ""}` : ""}">${kendo.htmlEncode(data.text)}</span>`
             )
         },
         overflow: "never"

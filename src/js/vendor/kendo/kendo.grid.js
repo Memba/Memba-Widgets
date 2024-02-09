@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -115,6 +115,7 @@ var __meta__ = {
         outerWidth = kendo._outerWidth,
         outerHeight = kendo._outerHeight,
         keys = kendo.keys,
+        getType = kendo.type,
 
         isPlainObject = $.isPlainObject,
         extend = $.extend,
@@ -171,6 +172,7 @@ var __meta__ = {
         ITEM_CHANGE = "itemchange",
         PAGE = "page",
         PAGING = "paging",
+        PASTE = "paste",
         SCROLL = "scroll",
         SYNC = "sync",
         LOAD_START = "loadStart",
@@ -189,11 +191,12 @@ var __meta__ = {
         SVG_ICON_CLASS = "k-svg-icon",
         ORDER_CLASS = "k-sort-order",
         SORTED_CLASS = "k-sorted",
+        HEADER_CLASS = "k-header",
         HEADER_COLUMN_MENU_CLASS = "k-grid-column-menu",
         FILTER_MENU_CLASS = "k-grid-filter-menu",
-        STICKY_CELL_CLASS = "k-grid-content-sticky k-table-td",
-        STICKY_HEADER_CLASS = "k-grid-header-sticky k-header",
-        STICKY_FOOTER_CLASS = "k-grid-footer-sticky k-table-td",
+        STICKY_CELL_CLASS = "k-grid-content-sticky",
+        STICKY_HEADER_CLASS = "k-grid-header-sticky",
+        STICKY_FOOTER_CLASS = "k-grid-footer-sticky",
         STICKY_HEADER_NO_BORDER_CLASS = "k-grid-no-left-border",
         ROW_RESIZER = "k-row-resizer",
         ROW_RESIZER_WRAP = "k-resizer-wrap",
@@ -221,6 +224,7 @@ var __meta__ = {
         TABINDEX = "tabIndex",
         FUNCTION = "function",
         STRING = "string",
+        NUMBER = "number",
         BOTTOM = "bottom",
         CONTAINER_FOR = "container-for",
         FIELD = "field",
@@ -243,6 +247,7 @@ var __meta__ = {
         ID = "id",
         PX = "px",
         TR = "tr",
+        TD = "td",
         DIV = "div",
 
         ARIA_LABEL = "aria-label",
@@ -270,8 +275,9 @@ var __meta__ = {
         nonDataCellsRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-group-cell|k-hierarchy-cell)" + "(" + whitespaceRegExp + "|$)"),
         filterRowRegExp = new RegExp("(^|" + whitespaceRegExp + ")" + "(k-filter-row)" + "(" + whitespaceRegExp + "|$)"),
         COMMANDBUTTONTMPL = ({ className, attr, text }) => `<button type="button" class="${className}" ${attr}>${text}</button>`,
-        SELECTCOLUMNTMPL = ({ size }) => `<input tabindex="-1" class="k-select-checkbox ` + CHECKBOX + ` ${size} k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">`,
-        SELECTCOLUMNHEADERTMPL = ({ size }) => `<input tabindex="-1" class="k-select-checkbox ` + CHECKBOX + ` ${size} k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">`,
+        DEFAULTSELECTCOLUMNTMPL = (size, ariaLabel) => `<span class="k-checkbox-wrap"><input tabindex="-1" class="k-select-checkbox ${CHECKBOX} ${size} k-rounded-md" data-role="checkbox" aria-label="${ariaLabel}" aria-checked="false" type="checkbox"></span>`,
+        SELECTCOLUMNTMPL = ({ size }) => DEFAULTSELECTCOLUMNTMPL(size, "Select row"),
+        SELECTCOLUMNHEADERTMPL = ({ size }) => DEFAULTSELECTCOLUMNTMPL(size, "Select all rows"),
         DRAGHANDLECOLUMNTMPL = () => kendo.ui.icon("reorder"),
         DEFAULTHEADERTEMPLATE = ({ text }) => `<span class="k-cell-inner"><span class="k-link"><span class="k-column-title">${text}</span></span></span>`,
         isRtl = false,
@@ -289,6 +295,7 @@ var __meta__ = {
     var defaultBodyContextMenu = [
         "copySelection",
         "copySelectionNoHeaders",
+        "paste",
         "separator",
         "create",
         "edit",
@@ -790,6 +797,15 @@ var __meta__ = {
         return new Array(count + 1).join('<td class="k-table-td k-group-cell">&nbsp;</td>');
     }
 
+    function cellsExcludingSpecialColumns(cells) {
+        return cells.filter((i,cell) => {
+            const $cell = $(cell);
+            const hasCheckbox = $cell.children(".k-select-checkbox").length > 0;
+            const hasWrappedCheckbox = $cell.find("> .k-checkbox-wrap > .k-select-checkbox").length > 0;
+            return !$cell.hasClass("k-drag-cell") && !$cell.hasClass("k-command-cell") && !hasCheckbox && !hasWrappedCheckbox;
+        });
+    }
+
     function stringifyAttributes(attributes) {
         var attr,
             result = " ";
@@ -859,6 +875,17 @@ var __meta__ = {
         search: {
             text: "Search...",
             className: "k-grid-search"
+        },
+        columns: {
+            text: "Columns",
+            type: "button",
+            icon: "columns",
+            fillMode: "flat",
+            overflow: "never",
+            className: "k-grid-column-menu",
+            attr: {
+                "aria-haspopup": "menu"
+            }
         }
     };
 
@@ -1113,7 +1140,7 @@ var __meta__ = {
 
             if (!cells[position.row]) {
                 cells[position.row] = rows.eq(position.row)
-                    .find(".k-header")
+                    .find(DOT + HEADER_CLASS)
                     .filter(filter);
             }
 
@@ -1143,7 +1170,7 @@ var __meta__ = {
     function moveCells(leafs, columns, container, destination, action) {
         var sourcePosition = columnVisiblePosition(leafs[0], columns);
 
-        var ths = container.find(">tr:not(.k-filter-row)").eq(sourcePosition.row).children("th.k-header");
+        var ths = container.find(">tr:not(.k-filter-row)").eq(sourcePosition.row).children("th.k-header:not(.k-group-cell)");
 
         var t = $();
         var sourceIndex = sourcePosition.cell;
@@ -1745,12 +1772,21 @@ var __meta__ = {
         return attr;
     }
 
-    function normalizeCols(table, visibleColumns, hasDetails, groups) {
+    function normalizeCols(table, visibleColumns, hasDetails, groups, resizable) {
         var colgroup = table.find(">colgroup"),
+            tableWidth = table.width(),
             width,
-            cols = map(visibleColumns, function(column) {
+            minWidth,
+            parsedWidth,
+            totalWidth = visibleColumns.reduce((total, col) => total += parseInt(col.width, 10), 0),
+            cols = map(visibleColumns, function(column, i) {
                     width = column.width;
                     if (width && parseInt(width, 10) !== 0) {
+                        parsedWidth = parseInt(width, 10);
+                        if (tableWidth > totalWidth && (typeof width === NUMBER || width.indexOf(PX) > -1) && resizable && !colgroup.length) {
+                            minWidth = tableWidth / visibleColumns.length;
+                            return kendo.format(`<col ${kendo.attr('style-width')}="{0}"/>`, minWidth + PX);
+                        }
                         return kendo.format(`<col ${kendo.attr('style-width')}="{0}"/>`, typeof width === STRING ? width : width + PX);
                     }
 
@@ -1819,6 +1855,10 @@ var __meta__ = {
 
         while (cell) {
             state = visible ? true : cell.style.display !== NONE;
+
+            if (visible && cell.classList.contains("k-hidden")) {
+                cell.classList.remove("k-hidden");
+            }
 
             if (state && !nonDataCellsRegExp.test(cell.className) && --index < 0) {
                 cell.style.display = visible ? "" : NONE;
@@ -1987,6 +2027,11 @@ var __meta__ = {
 
             that._toolbar();
 
+            let columnsToolbarButton = that.wrapper.find(".k-grid-toolbar .k-toolbar-button.k-grid-column-menu.k-toolbar-tool");
+            if (columnsToolbarButton.length > 0) {
+                that._globalColumnsMenu(columnsToolbarButton);
+            }
+
             that._pageable();
 
             that._setContentHeight();
@@ -1995,9 +2040,15 @@ var __meta__ = {
 
             that._navigatable();
 
+            that._initSelectableAggregates();
+
             that._selectable();
 
+            that._statusBar();
+
             that._clipboard();
+
+            that._paste();
 
             that._details();
 
@@ -2065,6 +2116,7 @@ var __meta__ = {
            COLUMNUNSTICK,
            ROWREORDER,
            NAVIGATE,
+           PASTE,
            "page",
            "sort",
            "filter",
@@ -2132,6 +2184,7 @@ var __meta__ = {
             sortable: false,
             selectable: false,
             allowCopy: false,
+            allowPaste: false,
             navigatable: false,
             pageable: false,
             persistSelection: false,
@@ -2140,6 +2193,7 @@ var __meta__ = {
             groupable: false,
             rowTemplate: "",
             altRowTemplate: "",
+            statusBarTemplate: null,
             search: false,
             noRecords: false,
             dataSource: {},
@@ -2170,12 +2224,14 @@ var __meta__ = {
                     excel: defaultCommands.excel.text,
                     pdf: defaultCommands.pdf.text,
                     search: defaultCommands.search.text,
+                    columns: defaultCommands.columns.text,
                     select: "Select",
                     selectRow: "Select Row",
                     selectAllRows: "All rows",
                     clearSelection: "Clear selection",
                     copySelection: "Copy selection",
                     copySelectionNoHeaders: "Copy selection (No Headers)",
+                    paste: "Paste (use CTRL/⌘ + V)",
                     reorderRow: "Reorder row",
                     reorderRowUp: "Up",
                     reorderRowDown: "Down",
@@ -2257,6 +2313,16 @@ var __meta__ = {
                 reorderableInstance.destroy();
             }
 
+            if (that.allowPaste) {
+                that.wrapper.off("paste", that.pasteHandler);
+                that.unbind(that.pasteHandler);
+            }
+
+            if (that.pasteActionsDropDownList) {
+                that.pasteActionsDropDownList.destroy();
+                that.pasteActionsDropDownList = null;
+            }
+
             if (that.selectable && that.selectable.element) {
                 that.selectable.destroy();
 
@@ -2277,6 +2343,7 @@ var __meta__ = {
             }
 
             that.selectable = null;
+            that._selectableAggregatesOptions = null;
 
             if (that.resizable) {
                 that.resizable.destroy();
@@ -2326,6 +2393,10 @@ var __meta__ = {
                 element = element
                         .add(that.content)
                         .add(that.content.find(">.k-virtual-scrollable-wrap"));
+            }
+
+            if (that.scrollables && that.scrollables.first()) {
+                element = element.add(that.scrollables.first());
             }
 
             if (that.lockedHeader) {
@@ -2387,6 +2458,7 @@ var __meta__ = {
             that.element =
             that.table =
             that.content =
+            that.statusBar =
             that.footer =
             that.wrapper =
             that.lockedTable =
@@ -2544,7 +2616,7 @@ var __meta__ = {
                 table = this.table,
                 toolbar = wrapper.find(".k-grid-toolbar"),
                 groupingHeader = wrapper.find(".k-grouping-header"),
-                gridId = table.attr(ID),
+                gridId = this._ariaGridId(),
                 tableTabindex = table.attr(TABINDEX),
                 tbodyId, headerGroupId, footerGroupId, tableOwned,
                 numberOfFixedRows = this.thead.find(TR).length + this.wrapper.find(".k-grid-footer-wrap table tr").length,
@@ -2594,11 +2666,6 @@ var __meta__ = {
                     wrapper.find(".k-grid-content-locked td:not([group-header-spanned-hidden]):hidden").length > 0))) {
                         table.attr(ARIA_COLCOUNT, trailingColumns + leafColumns(this.columns).length);
                         this._ariaColumnIndex();
-            }
-
-            if (!gridId) {
-                gridId = kendo.guid();
-                table.attr(ID, gridId);
             }
 
             if (this.pager) {
@@ -2775,6 +2842,18 @@ var __meta__ = {
             }
         },
 
+        _ariaGridId: function() {
+            var table = this.table,
+                gridId = table.attr(ID);
+
+            if (!gridId) {
+                gridId = kendo.guid();
+                table.attr(ID, gridId);
+            }
+
+            return gridId;
+        },
+
         _ariaLocked: function(type, group, el, role) {
             var that = this,
                 wrapper = that.wrapper,
@@ -2895,10 +2974,11 @@ var __meta__ = {
         },
 
         _cellsIds: function(elements, prefix, i) {
-            var ownedCells = [];
+            var ownedCells = [],
+            gridId = this._ariaGridId();
 
             elements.each(function(j, cell) {
-                var id = cell.getAttribute(ID) || prefix + "_" + i + "_" + j;
+                var id = cell.getAttribute(ID) || gridId + "_" + prefix + "_" + i + "_" + j;
 
                 cell.setAttribute(ID, id);
 
@@ -4886,6 +4966,10 @@ var __meta__ = {
             cell.removeClass("k-edit-cell");
             column = leafColumns(that.columns)[that._calculateColumnIndex(cell)];
 
+            if (isCancel && model.dirtyFields && model.dirtyFields[column.field]) {
+                delete model.dirtyFields[column.field];
+            }
+
             tr = cell.parent().removeClass("k-grid-edit-row");
 
             if (that.lockedContent) {
@@ -5256,7 +5340,7 @@ var __meta__ = {
             } else {
                 that.editable = that._editContainer
                 .kendoEditable({
-                    fields: that._isMobile ? that._editFields(columns, model) : null,
+                    fields: (that._isMobile && !template) ? that._editFields(columns, model) : null,
                     model: model,
                     clearContainer: false,
                     target: that,
@@ -5390,6 +5474,8 @@ var __meta__ = {
                 } else {
                     that._displayRow(that.tbody.find("[" + kendo.attr("uid") + "=" + model.uid + "]"));
                 }
+
+                that._aria();
             }
         },
 
@@ -5827,6 +5913,21 @@ var __meta__ = {
             }, 300);
         },
 
+        _pasteToolbarDropDown: function() {
+            var that = this;
+
+            if (that.wrapper.find(".k-grid-paste-action").length) {
+                that.pasteActionsDropDownList = that.wrapper
+                    .find(".k-grid-paste-action")
+                    .kendoDropDownList({
+                        dataSource: [{ value: "insert", text: "Paste (Insert)" }, { value: "replace", text: "Paste (Replace)" }],
+                        dataTextField: "text",
+                        dataValueField: "value",
+                        _allowFilterPaste: false,
+                    }).data("kendoDropDownList");
+            }
+        },
+
         _pushExpression: function(filters, field, value) {
             var that = this,
                 isServerFiltering = that.dataSource.options.serverFiltering,
@@ -5923,8 +6024,10 @@ var __meta__ = {
 
         _processItems: function(tools) {
             var that = this,
+                options = that.options,
                 items = [],
-                messages = this.options.messages.commands;
+                messages = this.options.messages.commands,
+                itemsCollectionHasSpacer = false;
 
             tools.map(t => {
                 var command, searchText, icon, className, inputSize, template = "";
@@ -5938,11 +6041,14 @@ var __meta__ = {
                     t.text = t.text || messages[command] || command;
                 }
 
-                if (command === "search") {
+                if (!itemsCollectionHasSpacer && (command === "search" || command === "columns")) {
+                    itemsCollectionHasSpacer = true;
                     items.push({
                         type: "spacer"
                     });
+                }
 
+                if (command === "search") {
                     searchText = t.text || messages.search;
                     icon = t.icon || t.iconClass || "search";
 
@@ -5956,6 +6062,10 @@ var __meta__ = {
                         name: "search",
                         overflow: "never",
                         template: template
+                    });
+                } else if (command === "paste" && options.allowPaste) {
+                    items.push({
+                        template: "<input class='k-grid-paste-action' />"
                     });
                 } else {
                     if (!command && !(isPlainObject(t) && t.template)) {
@@ -6285,7 +6395,7 @@ var __meta__ = {
                 isLocked = that._isLocked(),
                 selectable = that.options.selectable;
 
-            if (selectable) {
+            if (selectable && !selectable.checkboxSelection) {
 
                 if (that.selectable) {
                     that.selectable.destroy();
@@ -6346,8 +6456,10 @@ var __meta__ = {
                             }
                         }
 
+                        that._calculateAggregatesForSelected();
+
                         if (e.event) {
-                            that.trigger(CHANGE);
+                            that.trigger(CHANGE, { cellAggregates: that._cellAggregates });
                         }
                     },
                     useAllItems: isLocked && multi && cell,
@@ -6409,7 +6521,8 @@ var __meta__ = {
                                     } else {
                                         if (current.hasClass(SELECTED)) {
                                             that._deselectCheckRows(current);
-                                            that.trigger(CHANGE);
+                                            that._calculateAggregatesForSelected();
+                                            that.trigger(CHANGE, { cellAggregates: that._cellAggregates });
                                             return;
                                         }
                                     }
@@ -6421,7 +6534,8 @@ var __meta__ = {
                                 }
                                 that.selectable.value(current);
                                 if (triggerChange) {
-                                    that.trigger(CHANGE);
+                                    that._calculateAggregatesForSelected();
+                                    that.trigger(CHANGE, { cellAggregates: that._cellAggregates });
                                 }
                         } else if (!cell &&
                             ($(target).is("td") || ($(target).is("table") && inArray(target, this._navigatableTables))) &&
@@ -6456,10 +6570,189 @@ var __meta__ = {
                             } else if (!current.hasClass(SELECTED)) {
                                 that.selectable.clear();
                                 that.selectable.value(current);
-                                that.trigger(CHANGE);
+                                that._calculateAggregatesForSelected();
+                                that.trigger(CHANGE, { cellAggregates: that._cellAggregates });
                             }
                         }
                     });
+                }
+            }
+        },
+
+        _pasteReplaceHandler: function(plain) {
+            var that = this,
+                rows,
+                current,
+                currentRow,
+                currentRowUid,
+                currentField,
+                uids = [];
+
+            current = that.select().first();
+
+            if (!current.length) {
+                return;
+            }
+
+            if (current.is(TR)) {
+                current = current.children(TD).first();
+            }
+
+            rows = plain.split("\n").filter(f => f);
+            currentRow = current.closest("tr");
+            currentField = that.thead.find("th:eq(" + current.index() + ")").data("field");
+            currentRowUid = currentRow.data("uid");
+
+            uids.push(currentRowUid);
+
+            currentRow.nextAll(ITEMROW).slice(0, rows.length - 1).each((i, item) => {
+                uids.push($(item).data("uid"));
+            });
+
+            that._executePaste(rows, uids, null, currentField);
+        },
+
+        _pasteInsertHandler: function(plain) {
+            var that = this,
+                dataSource = that.dataSource,
+                rows,
+                current,
+                currentRow,
+                dataItemIndex,
+                dataItem;
+
+            current = that.select().first();
+
+            if (!current.length) {
+                return;
+            }
+
+            if (current.is(TR)) {
+                current = current.children(TD).first();
+            }
+
+            rows = plain.split("\n").filter(f => f);
+            currentRow = current.closest("tr");
+            dataItem = that.dataItem(currentRow);
+            dataItemIndex = dataSource.indexOf(dataItem) + 1;
+
+            that._executePaste(rows, null, dataItemIndex, null);
+        },
+
+        _executePaste: function(rows, uids, index, currentField) {
+            var that = this,
+                dataSource = that.dataSource,
+                update = uids || false,
+                dataItem,
+                row,
+                cells,
+                cell,
+                column,
+                field,
+                selectedUids = that._getSelectedRowUids(),
+                selectedColumnFields = that._getSelectedColumnFields(),
+                changedItems = [],
+                visibleColumns = visibleLeafColumns(that.columns).filter(col => !col.selectable && !col.draggable & !col.command),
+                startingIndex = currentField && visibleColumns.map(c => c.field).indexOf(currentField);
+
+            // If only one value is copied and multiple cells are selected, replace all values in all selected cells with the copied value.
+            if (rows.length === 1 && rows[0].split("\t").length === 1 && update) {
+                for (let j = 0; j < selectedUids.length; j++) {
+                    const uid = selectedUids[j];
+                    dataItem = dataSource.getByUid(uid);
+                    cell = rows[0].split("\t")[0];
+
+                    for (let j = 0; j < selectedColumnFields.length; j++) {
+                        field = selectedColumnFields[j];
+                        if (dataItem && cell) {
+                            dataItem.set(field, cell);
+                        }
+                    }
+
+                    if (dataItem && dataItem.dirty) {
+                        changedItems.push(dataItem);
+                    }
+                }
+            } else {
+                // If more than one value is copied, proceed with the standard replace.
+                for (let i = 0; i < rows.length; i++) {
+                    row = rows[i];
+                    cells = row.split("\t");
+                    dataItem = update ? dataSource.getByUid(uids[i]) : dataSource.insert(index + i, {});
+
+                    for (let j = 0; j < cells.length; j++) {
+                        cell = cells[j].replace(/\r/, "");
+                        column = visibleColumns[j + startingIndex || 0];
+
+                        if (column && dataItem && cell) {
+                            field = column.field;
+                            dataItem.set(field, cell);
+                        }
+                    }
+
+                    if (dataItem && dataItem.dirty) {
+                        changedItems.push(dataItem);
+                    }
+                }
+            }
+            that.trigger(PASTE, { items: changedItems, type: update ? "replace" : "insert" });
+        },
+
+        _pasteKeyboardHandler: function(e) {
+            var that = this,
+                current = that.current(),
+                clipBoardData = e.originalEvent.clipboardData,
+                operation = (that.pasteActionsDropDownList && that.pasteActionsDropDownList.value()) || "insert",
+                rowUid,
+                cellIndex,
+                plain;
+
+            if ($(e.target).is(".k-edit-cell input:visible")) {
+                return;
+            }
+
+            if (clipBoardData) {
+                e.preventDefault();
+                plain = clipBoardData.getData("text").trimEnd();
+
+                // If the copied value consists only of white spaces or new lines, reduce it to a single white space.
+                if (isEmptyString(plain)) {
+                    plain = " ";
+                }
+
+                if (current && current.length) {
+                    cellIndex = current.index();
+                    rowUid = current.closest(TR).data("uid");
+                }
+
+                if (operation === "replace") {
+                    that._pasteReplaceHandler(plain);
+                }
+
+                if (operation === "insert") {
+                    that._pasteInsertHandler(plain);
+                }
+
+                // Restore the focus to the last focused cell.
+                if (cellIndex && rowUid) {
+                    that._currentRowIndex = that.wrapper.find(TR + "[data-uid='" + rowUid + "']").index();
+                    that._restoreCurrent(cellIndex);
+                }
+            }
+        },
+
+        _paste: function() {
+            var that = this,
+                options = that.options,
+                selectable = options.selectable,
+                allowPaste = options.allowPaste;
+
+            if (allowPaste && selectable) {
+                that.pasteHandler = that._pasteKeyboardHandler.bind(that);
+                that.wrapper.on("paste", that.pasteHandler);
+
+                if (that.options.toolbar) {
+                    that._pasteToolbarDropDown();
                 }
             }
         },
@@ -6502,6 +6795,7 @@ var __meta__ = {
 
         copySelection: function(e) {
             if ((e instanceof jQuery.Event && !(e.ctrlKey || e.metaKey)) ||
+                !(e.keyCode === 67 && (e.ctrlKey || e.metaKey)) ||
                 $(e.target).is("input:visible,textarea:visible") ||
                 (window.getSelection && window.getSelection().toString()) ||
                 (document.selection && document.selection.createRange().text) ) {
@@ -6510,7 +6804,6 @@ var __meta__ = {
 
             this._createAreaClipBoard();
             this.areaClipBoard.val(this.getTSV()).trigger("focus").select();
-
         },
 
         _createAreaClipBoard: function() {
@@ -7187,14 +7480,48 @@ var __meta__ = {
             var visibleColumns = visibleLeafColumns(that.columns);
 
             for (var idx = 0; idx < selectedRangeNames.length; idx++) {
-                result = result.concat(that._mapSelectionToData(selectedRanges[selectedRangeNames[idx]], visibleColumns));
+                result = result.concat(that._mapSelectionToData(selectedRanges[selectedRangeNames[idx]], visibleColumns, null, true));
             }
 
             if (selectedSingleItems.length) {
-                result = result.concat(that._mapSelectionToData(selectedSingleItems, visibleColumns));
+                result = result.concat(that._mapSelectionToData(selectedSingleItems, visibleColumns, null, true));
             }
 
             return result;
+        },
+
+        getSelectedDataByKeys: function() {
+            var that = this,
+                dataSource = that.dataSource,
+                keys = that.selectedKeyNames(),
+                visibleColumns = visibleLeafColumns(that.columns),
+                key,
+                dataItem,
+                result = {};
+
+            var columnMapHandler = function(col) {
+                var result = {};
+
+                if (!col.field) {
+                    return;
+                }
+
+                result[col.field] = dataItem[col.field];
+                return result;
+            };
+
+            for (let i = 0; i < keys.length; i++) {
+                key = keys[i];
+                dataItem = dataSource.get(key);
+
+                if (dataItem) {
+                    result[dataItem.uid] = $.extend.apply(null, visibleColumns.map(columnMapHandler));
+                }
+            }
+
+            return Object.keys(result).map(function(id) {
+                return result[id];
+            });
         },
 
         exportSelectedToExcel: function(includeHeaders) {
@@ -7290,7 +7617,7 @@ var __meta__ = {
             }), exporter._prepareColumn);
         },
 
-        _mapSelectionToData: function(elements, visibleColumns, columnsFilter) {
+        _mapSelectionToData: function(elements, visibleColumns, columnsFilter, ignoreOffset) {
             var that = this;
             var elementType = elements[0][0].nodeName;
             var isRowSelection = elementType === 'TR';
@@ -7319,7 +7646,7 @@ var __meta__ = {
                 if (isRowSelection) {
                     result[dataItem.uid] = $.extend.apply(null, visibleColumns.map(columnMapHandler));
                 } else {
-                    field = that._getCellField(element, hasLockedCols);
+                    field = that._getCellField(element, hasLockedCols, ignoreOffset);
 
                     if (!field) {
                         continue;
@@ -7347,16 +7674,21 @@ var __meta__ = {
             });
         },
 
-        _getCellField: function(cell, hasLockedCols) {
+        _getCellField: function(cell, hasLockedCols, ignoreOffset) {
             var grid = this;
             var inLockedArea = hasLockedCols && $.contains(grid.lockedTable[0], cell[0]);
             var fieldAttr = kendo.attr('field');
             var index = kendo.attr('index');
+            var indexOffset = 0;
+
+            if (ignoreOffset) {
+                indexOffset = grid._trailingColumns();
+            }
 
             if (hasLockedCols) {
                 return grid.element.find(".k-grid-header-" + (inLockedArea ? "locked" : "wrap") + " th[" + index + "='" + cell.index() + "']").attr(fieldAttr);
             } else {
-                return grid.thead.find("th[" + index + "='" + cell.index() + "']").attr(fieldAttr);
+                return grid.thead.find("th[" + index + "='" + (cell.index() - indexOffset) + "']").attr(fieldAttr);
             }
         },
 
@@ -7453,6 +7785,139 @@ var __meta__ = {
             }
 
             return selectable ? selectable.value() : that.items().filter("." + SELECTED);
+        },
+
+        _initSelectableAggregates: function() {
+            var that = this;
+
+            if (!that.options.selectable) {
+                return;
+            }
+
+            if (!that._selectableAggregatesOptions) {
+                that._selectableAggregatesOptions = that._parseSelectableAggregatesOptions();
+            }
+
+            if (that._selectableAggregatesOptions.count) {
+                that._cellAggregates = {
+                    count: 0
+                };
+            }
+        },
+
+        _calculateAggregatesForSelected: function() {
+            var that = this,
+                options = that.options,
+                selectedData = that.getSelectedDataByKeys(),
+                selectable = that.options.selectable,
+                cellAggregates = selectable.cellAggregates,
+                cellsLength = visibleLeafColumns(that.columns).filter(col => !col.selectable && !col.draggable & !col.command).length,
+                columnFields = getColumnsFields(options.columns),
+                isCellSelection = kendo.ui.Selectable.parseOptions(selectable).cell,
+                dataItem,
+                type,
+                value,
+                numberAggregates = [],
+                dateAggregates = [],
+                booleanAggregates = [],
+                count, min, max, sum, average, earliest, latest, isTrue, isFalse;
+
+            if (!cellAggregates) {
+                return;
+            }
+
+            // getSelectedDataByKeys won't work for cell selection.
+            if (isCellSelection) {
+                selectedData = that.getSelectedData();
+            }
+
+            cellAggregates = that._selectableAggregatesOptions;
+
+            for (let i = 0; i < selectedData.length; i++) {
+                dataItem = selectedData[i];
+
+                for (let j = 0; j < columnFields.length; j++) {
+                    value = dataItem[columnFields[j]];
+                    type = getType(value);
+
+                    switch (type) {
+                        case "number":
+                            numberAggregates.push(value);
+                            break;
+                        case "date":
+                            dateAggregates.push(value);
+                            break;
+                        case "boolean":
+                            booleanAggregates.push(value);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (cellAggregates.count) {
+                count = isCellSelection ? cellsExcludingSpecialColumns(that.select()).length : selectedData.length * cellsLength;
+            }
+
+            if (numberAggregates.length) {
+                max = cellAggregates.max ? numberAggregates.reduce((acc, current) => Math.max(acc, current)) : null;
+                min = cellAggregates.min ? numberAggregates.reduce((acc, current) => Math.min(acc, current)) : null;
+                sum = cellAggregates.sum ? numberAggregates.reduce((acc, current) => acc + current) : null;
+                average = cellAggregates.average ? numberAggregates.reduce((acc, current) => (acc + current)) / numberAggregates.length : null;
+            }
+
+            if (dateAggregates.length) {
+                earliest = cellAggregates.earliest ? dateAggregates.reduce((acc, current) => new Date(Math.min(acc, current))) : null;
+                latest = cellAggregates.latest ? dateAggregates.reduce((acc, current) => new Date(Math.max(acc, current))) : null;
+            }
+
+            if (booleanAggregates.length) {
+                isTrue = cellAggregates.isTrue ? booleanAggregates.filter(b => b === true).length : null;
+                isFalse = cellAggregates.isFalse ? booleanAggregates.filter(b => b === false).length : null;
+            }
+
+            that._cellAggregates = {
+                count: count,
+                max: max,
+                min: min,
+                sum: sum,
+                average: average,
+                earliest: earliest,
+                latest: latest,
+                isTrue: isTrue,
+                isFalse: isFalse
+            };
+
+            if (that.statusBar) {
+                that._statusBar();
+            }
+        },
+
+        _parseSelectableAggregatesOptions: function() {
+            var that = this,
+                cellAggregates = that.options.selectable.cellAggregates,
+                result = {};
+
+            if (isArray(cellAggregates)) {
+                for (let i = 0; i < cellAggregates.length; i++) {
+                    result[cellAggregates[i]] = true;
+                }
+                return result;
+            }
+
+            // If the value of cellAggregates is 'true' -> all aggregates must be enabled.
+            return {
+                count: true,
+                min: true,
+                max: true,
+                sum: true,
+                average: true,
+                earliest: true,
+                latest: true,
+                isTrue: true,
+                isFalse: true
+            };
         },
 
         _toggleHeaderCheckState: function(checked) {
@@ -7996,7 +8461,7 @@ var __meta__ = {
                 } else {
                     this.collapseRow(row);
                 }
-            } else if (ctrlKey && current.is(".k-header") && this.options.reorderable) {
+            } else if (ctrlKey && current.is(DOT + HEADER_CLASS) && this.options.reorderable) {
                this._moveColumn(current, true);
             } else {
                 index = container.find(NAVROW).index(row);
@@ -8042,7 +8507,7 @@ var __meta__ = {
                 } else {
                     this.expandRow(row);
                 }
-             } else if (ctrlKey && current.is(".k-header") && this.options.reorderable) {
+             } else if (ctrlKey && current.is(DOT + HEADER_CLASS) && this.options.reorderable) {
                 this._moveColumn(current, false);
             } else {
                 index = container.find(NAVROW).index(row);
@@ -8365,7 +8830,7 @@ var __meta__ = {
         _handleSpaceKey: function(current, ctrlKey) {
             var that = this;
 
-            if (!ctrlKey || !that.groupable || !current.hasClass("k-header")) {
+            if (!ctrlKey || !that.groupable || !current.hasClass(HEADER_CLASS)) {
                 return;
             }
 
@@ -8452,7 +8917,7 @@ var __meta__ = {
 
                 //no sibling cells are found and we've changed the table
                 if (rowIndex == -1) {
-                    if (current.hasClass("k-header")) {
+                    if (current.hasClass(HEADER_CLASS)) {
                         var headerRows = [];
                         mapColumnToCellRows([lockedColumns(this.columns)[0]], childColumnsCells(rows.eq(0).children(":visible").first()), headerRows, 0, 0);
 
@@ -8485,7 +8950,7 @@ var __meta__ = {
 
                 //no sibling cells are found and we've changed the table
                 if (rowIndex == -1) {
-                    if (current.hasClass("k-header")) {
+                    if (current.hasClass(HEADER_CLASS)) {
                         var headerRows = [];
                         var columns = lockedColumns(this.columns);
                         mapColumnToCellRows([columns[columns.length - 1]], childColumnsCells(rows.eq(0).children().last()), headerRows, 0, 0);
@@ -8569,7 +9034,7 @@ var __meta__ = {
             var index = this._currentDataIndex(container, current);
 
             //current is in the header, but not at the last level of multi-level columns
-            if (index || current.hasClass("k-header")) {
+            if (index || current.hasClass(HEADER_CLASS)) {
                 cells = parentColumnsCells(current);
                 return cells.eq(cells.length - 2);
             }
@@ -8638,7 +9103,7 @@ var __meta__ = {
             var colspan;
             //current is in the header, but not at the last level of multi-level columns
             //and we are not changing the table
-            if (rowIndex != -1 && index === undefined && current.hasClass("k-header")) {
+            if (rowIndex != -1 && index === undefined && current.hasClass(HEADER_CLASS)) {
                 return childColumnsCells(current).eq(1);
             }
 
@@ -8900,6 +9365,8 @@ var __meta__ = {
                 isSortable: that.options.sortable,
                 isRowReorderable: isPlainObject(that.options.reorderable) ? that.options.reorderable.rows : that.options.reorderable,
                 isGroupable: that.options.groupable,
+                allowPaste: that.options.allowPaste,
+                alwaysDisabled: false,
                 hasSelection: () => (this.select() ? this.select().length > 0 : false),
                 isSorted: () => !(this.dataSource.sort() ? this.dataSource.sort().length > 0 : false),
                 canMoveGroupPrev: (target) =>{
@@ -9519,6 +9986,10 @@ var __meta__ = {
                     height -= outerHeight(that.wrapper.children(".k-grid-footer"));
                 }
 
+                if (that.statusBar) {
+                    height -= outerHeight(that.wrapper.children(".k-selection-aggregates"));
+                }
+
                 var isGridHeightSet = function(el) {
                     var initialHeight, newHeight;
                     if (el[0].style.height) {
@@ -9673,7 +10144,9 @@ var __meta__ = {
 
                 tmp = (isAlt ? that.altRowTemplate : that.rowTemplate)(model);
 
-                row.replaceWith(tmp);
+                let tmpResult = $(tmp);
+                kendo.applyStylesFromKendoAttributes(tmpResult, ["display"]);
+                row.replaceWith(tmpResult);
 
                 tmp = that._items(tbody).eq(idx);
 
@@ -9751,6 +10224,32 @@ var __meta__ = {
             }
         },
 
+        _statusBar: function() {
+            var that = this,
+                options = that.options,
+                wrapper = that.wrapper,
+                statusBarTemplate = options.statusBarTemplate,
+                content = "";
+
+            if (statusBarTemplate) {
+                if (!that.statusBar) {
+                    content += '<div class="k-selection-aggregates k-grid-selection-aggregates">';
+
+                    content += statusBarTemplate({ aggregates: that._cellAggregates });
+
+                    content += '</div>';
+
+                    if (options.scrollable) {
+                        that.statusBar = $(content).insertAfter(wrapper.find(DOT + "k-grid-container"));
+                    } else {
+                        that.statusBar = $(content).insertAfter(wrapper.find(DOT + "k-grid-table"));
+                    }
+                } else {
+                    that.statusBar.html(statusBarTemplate({ aggregates: that._cellAggregates }));
+                }
+            }
+        },
+
         _footer: function() {
             var that = this,
                 aggregates = that.dataSource.aggregates(),
@@ -9771,7 +10270,14 @@ var __meta__ = {
                     footer = that.footer = tmp;
                 } else {
                     if (options.scrollable) {
-                        footer = that.footer = options.pageable && options.pageable.position !== "top" ? html.insertBefore(that.wrapper.children("div.k-grid-pager")) : html.appendTo(that.wrapper);
+                        if (that.statusBar) {
+                            that.footer = html.insertBefore(that.statusBar);
+                        } else if (options.pageable && options.pageable.position !== "top") {
+                            that.footer = html.insertBefore(that.wrapper.children("div.k-grid-pager"));
+                        } else {
+                            that.footer = html.appendTo(that.wrapper);
+                        }
+                        footer = that.footer;
                     } else {
                         footer = that.footer = html.insertAfter(that.tbody);
                     }
@@ -9829,6 +10335,67 @@ var __meta__ = {
             }
 
             return '<tfoot class="k-grid-footer k-table-tfoot">' + footerRow + '</tfoot>';
+        },
+
+        _globalColumnsMenu: function(cell) {
+            var that = this,
+                menu,
+                columns = leafColumns(that.columns),
+                options = that.options,
+                columnMenu = options.columnMenu,
+                menuOptions,
+                initCallback = function(e) {
+                    that.trigger(COLUMNMENUINIT, { field: e.field, container: e.container });
+                },
+                openCallback = function(e) {
+                    that.trigger(COLUMNMENUOPEN, { field: e.field, container: e.container });
+                },
+                closeCallback = function() {
+                    cell.trigger("focus");
+                };
+
+            if (columnMenu) {
+                if (typeof columnMenu == "boolean") {
+                    columnMenu = {};
+                }
+
+                that._setColumnsMediaVisibility(columns);
+
+                let toggleable = !!(columnMenu.autoSize || columnMenu.clearAllFilters);
+
+                menu = cell.data("kendoColumnMenu");
+                if (menu) {
+                    menu.destroy();
+                }
+
+                let columnsExpanderOptions = {
+                    toggleable: toggleable,
+                    expanded: columnMenu.expanded || true,
+                    animation: false,
+                    hideExpanderIndicator: !toggleable
+                };
+
+                menuOptions = {
+                    dataSource: that.dataSource,
+                    columns: columnMenu.columns,
+                    sortable: false,
+                    filterable: false,
+                    clearAllFilters: columnMenu.clearAllFilters,
+                    messages: columnMenu.messages,
+                    hideAutoSizeColumn: true,
+                    owner: that,
+                    closeCallback: closeCallback,
+                    init: initCallback,
+                    open: openCallback,
+                    pane: that.pane,
+                    autoSize: columnMenu.autoSize,
+                    encodeTitles: that.options.encodeTitles,
+                    componentType: "modern",
+                    columnsExpanderOptions: columnsExpanderOptions
+                };
+
+                cell.kendoColumnMenu(menuOptions);
+            }
         },
 
         _columnMenu: function() {
@@ -10353,7 +10920,8 @@ var __meta__ = {
                 that.clearSelection();
             }
 
-            that.trigger(CHANGE);
+            that._calculateAggregatesForSelected();
+            that.trigger(CHANGE, { cellAggregates: that._cellAggregates });
         },
 
         _checkboxClick: function(e) {
@@ -10375,7 +10943,8 @@ var __meta__ = {
             } else {
                 that._deselectCheckRows(row);
             }
-            that.trigger(CHANGE);
+            that._calculateAggregatesForSelected();
+            that.trigger(CHANGE, { cellAggregates: that._cellAggregates });
         },
 
         _groups: function() {
@@ -10423,19 +10992,16 @@ var __meta__ = {
                         field = column.field;
                         compiledAttributes = {};
 
-                        if (that._editMode() === INCELL && field) {
+                        let dirtyCellTemplate;
+
+                        if (that._editMode() && field) {
                             column.attributes = column.attributes || {};
 
                             if (that.virtualScroll) {
                                 column.attributes[fieldAttr] = field;
                             }
 
-                            let dirtyCellTemplate = that._dirtyCellTemplate(field)(data);
-                            column.attributes["class"] = (column.attributes["class"] || "");
-
-                            if (column.attributes["class"].indexOf(dirtyCellTemplate) < 0) {
-                                column.attributes["class"] += dirtyCellTemplate;
-                            }
+                            dirtyCellTemplate = that._dirtyCellTemplate(field)(data);
                         }
 
                         if (column.colSpan && column.colSpan > 0 && hasHiddenStyle(column.attributes)) { //virtual cell should be visible at all times
@@ -10485,6 +11051,10 @@ var __meta__ = {
                         }
 
                         let attributes = extend({}, column.attributes, compiledAttributes);
+                        if (dirtyCellTemplate) {
+                            attributes["class"] = (attributes["class"] || "");
+                            attributes["class"] += dirtyCellTemplate;
+                        }
                         let columnAttributes = stringifyAttributes(attributes);
                         let colSpanAttributes = '';
 
@@ -10871,7 +11441,7 @@ var __meta__ = {
                 return;
             }
             var groupHeaderTemplFunc = (data) => {
-                var resultHtml = '<tr class="' + rowClass + '">';
+                var resultHtml = '<tr data-group-uid="' + data.uid + '" class="' + rowClass + '">';
 
                 if (!skipGroupCells) {
                     for (var i = 0; i < data.groupCells; i++) {
@@ -11177,7 +11747,7 @@ var __meta__ = {
                         currentTh += kendo.attr("index") + "='" + index + "'";
                     }
 
-                    currentTh += ">" + text + "</th>";
+                    currentTh += ">" + ((!text || text === "&nbsp;") ? text : kendo.template(DEFAULTHEADERTEMPLATE)({ text: text })) + "</th>";
                 } else {
                     if (th.field) {
                         field = kendo.attr("field") + "='" + th.field + "' ";
@@ -11508,7 +12078,7 @@ var __meta__ = {
                 tr.prepend('<th class="k-hierarchy-cell k-table-th" scope="col">' + (headerContent ? headerContent : '&nbsp;') + '</th>');
             }
 
-            tr.find("th").addClass("k-header");
+            tr.find("th").addClass(HEADER_CLASS);
 
             if (!that.options.scrollable) {
                 thead.addClass("k-grid-header");
@@ -11577,10 +12147,6 @@ var __meta__ = {
                 }
 
                 that._applyLockedContainersWidth();
-            }
-
-            if (that.groupable) {
-                that._attachGroupable();
             }
         },
 
@@ -11752,9 +12318,9 @@ var __meta__ = {
 
         _appendCols: function(table, locked) {
             if (locked) {
-                normalizeCols(table, visibleLeafColumns(visibleNonLockedColumns(this.columns)), this._hasDetails(), 0);
+                normalizeCols(table, visibleLeafColumns(visibleNonLockedColumns(this.columns)), this._hasDetails(), 0, this.options.resizable);
             } else {
-                normalizeCols(table, visibleLeafColumns(visibleColumns(this.columns)), this._hasDetails(), this._groups());
+                normalizeCols(table, visibleLeafColumns(visibleColumns(this.columns)), this._hasDetails(), this._groups(), this.options.resizable);
             }
         },
 
@@ -12458,6 +13024,7 @@ var __meta__ = {
 
             cell = leafDataCells(container).eq(headerCellIndex);
             cell[0].style.display = "";
+            cell[0].classList.remove("k-hidden");
 
             setCellVisibility(elements($(">table>thead", that.lockedHeader), that.thead, ">tr.k-filter-row>td"), columnLeafIndex, true);
             if (footer[0]) {
@@ -12805,6 +13372,10 @@ var __meta__ = {
                 that._reorderableRows();
             }
 
+            if (that.options.selectable && that.options.selectable.cellAggregates) {
+                that._calculateAggregatesForSelected();
+            }
+
             that._aria();
 
             that.trigger(DATABOUND);
@@ -12818,7 +13389,7 @@ var __meta__ = {
             this._removeCurrent();
 
             if (isCurrentInHeader) {
-                this._setCurrent(this.thead.find("th:not(.k-group-cell)").eq(currentIndex));
+                this._setCurrent(this.thead.find("th:not(.k-group-cell)").eq(currentIndex), false, this._hasVirtualColumns());
             } else {
                 var rowIndex = 0;
                 var virtualScroll = this.virtualScroll || {};
@@ -12883,6 +13454,56 @@ var __meta__ = {
             });
 
             that.select(selectedRows);
+        },
+
+        _getSelectedRowUids: function() {
+            var that = this,
+                selected = that.select(),
+                row,
+                uid,
+                result = [];
+
+            for (let i = 0; i < selected.length; i++) {
+                row = $(selected[i]);
+
+                if (kendo.ui.Selectable.parseOptions(that.options.selectable).cell) {
+                    row = row.closest(TR);
+                }
+
+                uid = row.data("uid");
+
+                if (result.indexOf(uid) === -1) {
+                    result.push(uid);
+                }
+            }
+
+            return result;
+        },
+
+        _getSelectedColumnFields: function() {
+            var that = this,
+                selected = that.select(),
+                field,
+                index,
+                visibleColumns = visibleLeafColumns(that.columns).filter(col => !col.selectable && !col.draggable & !col.command),
+                result = [];
+
+            // If the mode is in row selection, then return all of the visible columns.
+            if (!kendo.ui.Selectable.parseOptions(that.options.selectable).cell) {
+                return visibleColumns.map(vc => vc.field);
+            }
+
+            for (let i = 0; i < selected.length; i++) {
+                index = $(selected[i]).index();
+
+                field = that.thead.find("th:eq(" + index + ")").data("field");
+
+                if (result.indexOf(field) === -1) {
+                    result.push(field);
+                }
+            }
+
+            return result;
         },
 
        _cleanupDetailItems: function() {
@@ -13614,7 +14235,10 @@ var __meta__ = {
             html = groupHeaderColumnTemplate(extend({}, groupData, {
                 groupCells: level,
                 colspan: templateColspan,
-                text: text
+                text: text,
+                expanded: expanded,
+                isRtl: isRtl,
+                uid: group.uid
             }));
         } else {
             html = groupHeaderBuilder(colspan, level, text, expanded, group.uid, isGroupPaged);
@@ -13624,9 +14248,9 @@ var __meta__ = {
     }
 
    function groupCellBuilder(headerTemplateIndex) {
-    return ({ colspan, text }) => `<td class="k-table-td" colspan="${colspan + headerTemplateIndex}">` +
+    return ({ colspan, text, expanded, isRtl }) => `<td class="k-table-td" colspan="${colspan + headerTemplateIndex}">` +
     '<p class="k-reset">' +
-        kendo.ui.icon($(`<a href="\\#" tabindex="-1" ${ARIA_LABEL}="${COLLAPSE}"></a>`), { icon: "caret-alt-down" }) + text +
+        kendo.ui.icon($(`<a href="\\#" tabindex="-1" ${ARIA_LABEL}="${(expanded ? COLLAPSE : EXPAND)}"></a>`), { icon: (expanded ? 'caret-alt-down' : `caret-alt-${isRtl ? 'left' : 'right'}`) }) + text +
     `</p></td>${new Array(colspan + headerTemplateIndex).join("<td hidden group-header-spanned-hidden></td>")}`;
    }
 
@@ -13676,6 +14300,10 @@ var __meta__ = {
                return "&quot;";
            })
            .replace(aposRegExp, "&#39;");
+   }
+
+   function isEmptyString(value) {
+        return !/\S/.test(value);
    }
 
    function getTitle(field, columns) {

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -47,11 +47,15 @@ import "../kendo.core.js";
     var FormulaInput = Widget.extend({
         init: function(element, options) {
             Widget.call(this, element, options);
+            var formulaInputTitle = ((options || {}).messages || {}).formulaInput || "Formula Input";
 
             element = this.element;
 
             element.addClass(FormulaInput.classNames.wrapper)
                 .attr('aria-haspopup', 'menu')
+                .attr('role', 'combobox')
+                .attr('title', formulaInputTitle)
+                .attr('aria-expanded', false)
                 .attr("contenteditable", true)
                 .attr("spellcheck", false)
                 .css("white-space", "pre");
@@ -222,7 +226,9 @@ import "../kendo.core.js";
         },
 
         _formulaList: function() {
-            this.list = new kendo.ui.StaticList($('<ul />')
+            var listId = kendo.guid();
+            this.element.attr("aria-controls", listId);
+            this.list = new kendo.ui.StaticList($(`<ul id="${listId}" />`)
                 .addClass(FormulaInput.classNames.listWrapper)
                 .insertAfter(this.element), {
                     aria: {
@@ -266,8 +272,11 @@ import "../kendo.core.js";
         },
 
         _popup: function() {
+            var formulaInputEl = this.element;
             this.popup = new kendo.ui.Popup(this.list.element, {
-                anchor: this.element
+                anchor: this.element,
+                open: function(ev) { formulaInputEl.attr("aria-expanded", true); },
+                close: function(ev) { formulaInputEl.attr("aria-expanded", false); }
             });
         },
 

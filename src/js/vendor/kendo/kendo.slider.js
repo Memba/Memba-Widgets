@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -542,7 +542,7 @@ var __meta__ = {
 
         style = style ? " style='" + style + "'" : "";
 
-        return "<div class='k-widget k-slider" + orientationCssClass + cssClasses + "'" + style + ">" +
+        return "<div class='k-slider" + orientationCssClass + cssClasses + "'" + style + ">" +
                "<div class='k-slider-track-wrap" + tickPlacementCssClass +
                "'></div></div>";
     }
@@ -564,11 +564,11 @@ var __meta__ = {
             }
         }
 
-        return "<a role='button' class='k-button k-button-md k-rounded-full k-button-solid k-button-solid-base k-icon-button k-button-" + type + "' " +
+        return "<button class='k-button k-button-md k-rounded-full k-button-solid k-button-solid-base k-icon-button k-button-" + type + "' " +
                 "title='" + options[type + "ButtonTitle"] + "' " +
                 "aria-label='" + options[type + "ButtonTitle"] + "'>" +
                     kendo.ui.icon({ icon: buttonIconName, iconClass: "k-button-icon" }) +
-                "</a>";
+                "</button>";
     }
 
     function createSliderItems(options, distance) {

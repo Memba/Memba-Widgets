@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -1243,6 +1243,7 @@ var __meta__ = {
                 animation: list.options.animation,
                 isRtl: support.isRtl(list.wrapper),
                 autosize: list.options.autoWidth,
+                autowidth: list.options.autoWidth,
                 activate: () => {
                     this._refreshFloatingLabel();
                 },
@@ -1563,6 +1564,7 @@ var __meta__ = {
             var that = this;
             clearTimeout(that._busy);
             that._arrowIcon.removeClass(LOADING);
+            that._arrowIcon.find("svg").show();
             that._focused.attr(ARIA_BUSY, false);
             that._busy = null;
             that._showClear();
@@ -1585,6 +1587,7 @@ var __meta__ = {
                 if (that._arrowIcon) { //destroyed after request start
                     that._focused.attr(ARIA_BUSY, true);
                     that._arrowIcon.addClass(LOADING);
+                    that._arrowIcon.find("svg").hide();
                     that._hideClear();
                 }
             }, 100);
@@ -2819,6 +2822,11 @@ var __meta__ = {
             var scrollTop = content.scrollTop;
             var itemHeight = $(element.children[0]).height();
             var itemIndex = Math.floor(scrollTop / itemHeight) || 0;
+
+            if (element.childElementCount == 0) {
+                return null;
+            }
+
             var item = element.children[itemIndex] || element.lastChild;
             var forward = item.offsetTop < scrollTop;
 

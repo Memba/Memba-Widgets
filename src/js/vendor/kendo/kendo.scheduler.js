@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -2242,8 +2242,9 @@ var __meta__ = {
             that._ariaId = kendo.guid();
 
             that._createEditor();
-            that.mediaQueryList = window.matchMedia(MIN_SCREEN);
-            that.mediaQueryList.addEventListener("change", that._onMediaChange.bind(that));
+
+            that.mediaQueryList = kendo.mediaQuery(MIN_SCREEN);
+            that.mediaQueryList.onChange(that._onMediaChange.bind(that));
 
             if (that._showWatermarkOverlay) {
                 that._showWatermarkOverlay(that.element[0]);
@@ -3371,6 +3372,10 @@ var __meta__ = {
 
             if (this._resizeDraggable) {
                 this._resizeDraggable.destroy();
+            }
+
+            if (that.mediaQueryList) {
+                that.mediaQueryList.destroy();
             }
 
             element = that.element

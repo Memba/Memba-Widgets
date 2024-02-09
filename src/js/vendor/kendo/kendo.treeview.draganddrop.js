@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -25,7 +25,7 @@ var __meta__ = {
     var DRAG_STATUS = "k-drag-status";
     var DRAG_STATUS_ELEMENT = `<span class="${DRAG_STATUS}"></span>`;
     var KSTATEHOVER = "k-hover";
-    var INPUTSELECTOR = "input,a:not(.k-in),textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-toggle-icon,a.k-button>.k-svg-icon,button.k-button>.k-svg-icon";
+    var INPUTSELECTOR = "input,a:not(.k-in),textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,.k-button>.k-button-text,button.k-button>.k-icon,span.k-toggle-icon,a.k-button>.k-svg-icon,button.k-button>.k-svg-icon,.k-button>.k-svg-icon>svg,.k-button>.k-svg-icon>svg>path";
     var DROPHINTTEMPLATE = "<div class='k-drop-hint k-drop-hint-h'>" +
                                 "<div class='k-drop-hint-start'></div>" +
                                 "<div class='k-drop-hint-line'></div>" +

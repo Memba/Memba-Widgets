@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -583,7 +583,9 @@ Navigator.setup = function(options, themeOptions) {
         panes.unshift(paneOptions);
     }
 
-    panes.forEach(function (pane) { return pane.name = pane.name || DEFAULT_PANE; });
+    panes.forEach(function (pane) {
+        pane.name = pane.name || DEFAULT_PANE;
+    });
 
     Navigator.attachAxes(options, naviOptions);
     Navigator.attachSeries(options, naviOptions, themeOptions);
@@ -594,7 +596,9 @@ Navigator.attachAxes = function(options, naviOptions) {
     var categoryAxes = options.categoryAxis = [].concat(options.categoryAxis);
     var valueAxes = options.valueAxis = [].concat(options.valueAxis);
     var allAxes = categoryAxes.concat(valueAxes);
-    allAxes.forEach(function (axis) { return axis.pane = axis.pane || DEFAULT_PANE; });
+    allAxes.forEach(function (axis) {
+        axis.pane = axis.pane || DEFAULT_PANE;
+    });
 
     var equallySpacedSeries = dataviz.filterSeriesByType(series, datavizConstants.EQUALLY_SPACED_SERIES);
     var justifyAxis = equallySpacedSeries.length === 0;

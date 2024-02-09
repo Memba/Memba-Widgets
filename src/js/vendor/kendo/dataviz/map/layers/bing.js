@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -66,18 +66,19 @@ import "./tile.js";
         },
 
         _onMetadata: function(data) {
+            var that = this;
             if (data && data.resourceSets.length) {
-                var resource = this.resource = data.resourceSets[0].resources[0];
+                var resource = that.resource = data.resourceSets[0].resources[0];
 
-                deepExtend(this._view.options, {
-                    urlTemplate: ({ subdomain, quadkey, culture }) => resource.imageUrl
+                deepExtend(that._view.options, {
+                    urlTemplate: ({ subdomain, quadkey, culture }) => that.resource.imageUrl
                         .replace("{subdomain}", subdomain)
                         .replace("{quadkey}", quadkey)
                         .replace("{culture}", culture),
                     subdomains: resource.imageUrlSubdomains
                 });
 
-                var options = this.options;
+                var options = that.options;
                 if (!defined(options.minZoom)) {
                     options.minZoom = resource.zoomMin;
                 }
@@ -85,10 +86,10 @@ import "./tile.js";
                     options.maxZoom = resource.zoomMax;
                 }
 
-                this._addAttribution();
+                that._addAttribution();
 
-                if (this.element.css("display") !== "none") {
-                    this._reset();
+                if (that.element.css("display") !== "none") {
+                    that._reset();
                 }
             }
         },

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -201,6 +201,8 @@ var __meta__ = {
 
             that._sizeColumns();
 
+            that._clearAllFilters();
+
             that._groupColumn();
 
             that.trigger(INIT, { field: that.field, container: that.wrapper });
@@ -214,6 +216,7 @@ var __meta__ = {
                 sortAscending: "Sort Ascending",
                 sortDescending: "Sort Descending",
                 filter: "Filter",
+                clearAllFilters: "Clear All Filters",
                 column: "Column",
                 columns: "Columns",
                 columnVisibility: "Column Visibility",
@@ -240,7 +243,9 @@ var __meta__ = {
             columns: true,
             sortable: true,
             filterable: true,
+            clearAllFilters: false,
             autoSize: false,
+            hideAutoSizeColumn: false,
             animations: {
                 left: "slide"
             },
@@ -258,7 +263,7 @@ var __meta__ = {
                 wrapper.addClass("k-column-menu-tabbed");
             }
 
-            wrapper.addClass("k-column-menu");
+            wrapper.addClass("k-column-menu k-column-menu-popup");
         },
 
         _createMenu: function() {
@@ -299,7 +304,9 @@ var __meta__ = {
                 omitWrapAttribute: kendo.attr("omit-wrap"),
                 reorderable: options.reorderable,
                 groupable: options.groupable,
-                autoSize: options.autoSize
+                autoSize: options.autoSize,
+                hideAutoSizeColumn: options.hideAutoSizeColumn,
+                clearAllFilters: options.clearAllFilters
             }));
 
             kendo.applyStylesFromKendoAttributes(menuElement, ["display"]);
@@ -352,7 +359,7 @@ var __meta__ = {
             var that = this,
                 element = that.element,
                 appendTarget = that.appendTo.length ? element.find(that.appendTo) : element,
-                link = element.find(".k-grid-column-menu"),
+                link = element.is(".k-grid-column-menu") ? element : element.find(".k-grid-column-menu"),
                 title = encode(kendo.format(that.options.messages.buttonTitle, that.title || that.field));
 
             if (!link[0]) {
@@ -373,6 +380,7 @@ var __meta__ = {
         _createExpanders: function() {
             var that = this;
             var options = that.options;
+            var columnsExpanderOptions = that.options.columnsExpanderOptions || {};
             var expanderOptions = {
                 expanded: false,
                 headerClass: "k-columnmenu-item",
@@ -380,8 +388,8 @@ var __meta__ = {
             };
 
             if (that._isModernComponentType()) {
-                that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                    title: kendo.ui.icon("columns") + '<span>' + encode(options.messages.columns) + '</span>'
+                that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions, columnsExpanderOptions, {
+                    title: kendo.ui.icon("columns") + '<span>' + encode(options.messages.columnVisibility) + '</span>'
                 }));
                 that.wrapper.find(".k-column-menu-filter")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
                     title: kendo.ui.icon("filter") + '<span>' + encode(options.messages.filter) + '</span>'
@@ -1059,8 +1067,29 @@ var __meta__ = {
         _sizeColumns: function() {
             var that = this;
 
-            if (that._isTabbedComponentType()) {
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
                 that.wrapper.on("click" + NS, ".k-auto-size-column, .k-auto-size-all", that._autoSizeHandler.bind(that));
+            } else {
+                that.menu.bind(SELECT, that._autoSizeHandler.bind(that));
+            }
+        },
+
+        _clearAllFilters: function() {
+            var that = this;
+
+            if (that._isModernComponentType() || that._isTabbedComponentType()) {
+                that.wrapper.on("click" + NS, ".k-clear-all-filters", that._clearAllFiltersHandler.bind(that));
+            } else {
+                that.menu.bind(SELECT, that._clearAllFiltersHandler.bind(that));
+            }
+        },
+
+        _clearAllFiltersHandler: function(e) {
+            var that = this,
+                item = e.item ? $(e.item) : $(e.target);
+
+            if (item.hasClass("k-clear-all-filters") && that.owner && that.owner.dataSource) {
+                that.owner.dataSource.filter({});
             }
         },
 
@@ -1496,29 +1525,28 @@ var __meta__ = {
         }).join("");
     }
 
-const SIZING_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
-<div>\
-<div class="k-columnmenu-item k-auto-size-column" tabindex="0">\
+const SIZING_PARTIAL_MODERN = ({ messages, hideAutoSizeColumn }) => `<div class="k-columnmenu-item-wrapper">\
+${!hideAutoSizeColumn ? `<div class="k-columnmenu-item k-auto-size-column" tabindex="0">\
 ${kendo.ui.icon("max-width")}${encode(messages.autoSizeColumn)}\
-</div>\
-</div>\
-<div>\
+</div>` : ''}
 <div class="k-columnmenu-item k-auto-size-all" tabindex="0">\
 ${kendo.ui.icon("display-inline-flex")}${encode(messages.autoSizeAllColumns)}\
 </div>\
+</div>`;
+
+const CLEARALLFILTERS_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
+<div class="k-columnmenu-item k-clear-all-filters" tabindex="0">\
+${kendo.ui.icon("filter-clear")}${encode(messages.clearAllFilters)}\
 </div>\
 </div>`;
 
+
 const SORTABLE_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
-<div>\
 <div class="k-columnmenu-item k-sort-asc" tabindex="0">\
 ${kendo.ui.icon("sort-asc-small")}${encode(messages.sortAscending)}\
 </div>\
-</div>\
-<div>\
 <div class="k-columnmenu-item k-sort-desc" tabindex="0">\
 ${kendo.ui.icon("sort-desc-small")}${encode(messages.sortDescending)}\
-</div>\
 </div>\
 </div>`;
 
@@ -1539,17 +1567,13 @@ kendo.html.renderButton(`<button>${encode(messages.reset)}</button>`, { icon: "u
 </div>`;
 
     const GROUPABLE_PARTIAL_MODERN = ({ messages }) => `<div class="k-columnmenu-item-wrapper">\
-<div>\
 <div class="k-columnmenu-item k-group" tabindex="0">\
 ${kendo.ui.icon("group")}${encode(messages.groupColumn)}\
 </div>\
-</div>\
 </div>
 <div class="k-columnmenu-item-wrapper">\
-<div>\
 <div class="k-columnmenu-item k-ungroup" tabindex="0">\
 ${kendo.ui.icon("ungroup")}${encode(messages.ungroupColumn)}\
-</div>\
 </div>\
 </div>`;
 
@@ -1582,17 +1606,19 @@ ${reorderable ? REORDERABLE_COLUMNS_PARTIAL_MODERN({ messages }) : ''}\
 </div>\
 </div>`;
 
-    var modernTemplate = ({ sortable, filterable, showColumns, messages, columns, hasLockableColumns, hasStickableColumns, encodeTitles, ns, reorderable, groupable }) => `\
+    var modernTemplate = ({ autoSize, hideAutoSizeColumn, sortable, filterable, clearAllFilters, showColumns, messages, columns, hasLockableColumns, hasStickableColumns, encodeTitles, ns, reorderable, groupable }) => `\
 ${sortable ? SORTABLE_PARTIAL_MODERN({ messages }) : ''}\
 ${showColumns ? COLUMNS_PARTIAL_MODERN({ columns, messages, encodeTitles, ns }) : ''}\
 ${filterable ? '<div class="k-columnmenu-item-wrapper"><div class="k-columnmenu-item-content k-column-menu-filter"><div class="k-filterable"></div></div></div>' : ''}\
 ${groupable ? GROUPABLE_PARTIAL_MODERN({ messages }) : ''}\
+${autoSize ? SIZING_PARTIAL_MODERN({ messages, hideAutoSizeColumn }) : ''}\
+${clearAllFilters ? CLEARALLFILTERS_PARTIAL_MODERN({ messages }) : ''}\
 ${hasLockableColumns || hasStickableColumns || reorderable ? LOCK_STICK_COLUMNS_PARTIAL_MODERN({ hasLockableColumns, hasStickableColumns, messages, reorderable }) : ''}`;
 
     /* ------------------------- TABBED TEMPLATE ------------------------- */
 
-    function tabbedTemplateGeneralSettings(sortable, hasLockableColumns, hasStickableColumns, reorderable, groupable, autoSize, messages) {
-        var result = "<div>";
+    function tabbedTemplateGeneralSettings(sortable, hasLockableColumns, hasStickableColumns, reorderable, groupable, autoSize, messages, hideAutoSizeColumn, clearAllFilters) {
+        var result = "";
 
         if (sortable) {
             result += SORTABLE_PARTIAL_MODERN({ messages });
@@ -1607,22 +1633,25 @@ ${hasLockableColumns || hasStickableColumns || reorderable ? LOCK_STICK_COLUMNS_
         }
 
         if (autoSize) {
-            result += SIZING_PARTIAL_MODERN({ messages });
+            result += SIZING_PARTIAL_MODERN({ messages, hideAutoSizeColumn });
         }
 
-        result += "</div>";
+        if (clearAllFilters) {
+            result += CLEARALLFILTERS_PARTIAL_MODERN({ messages });
+        }
+
         return result;
     }
 
-    var tabbedTemplate = ({ sortable, filterable, showColumns, messages, columns, hasLockableColumns, hasStickableColumns, encodeTitles, ns, reorderable, groupable, autoSize }) => `<div>
+    var tabbedTemplate = ({ sortable, filterable, clearAllFilters, showColumns, messages, columns, hasLockableColumns, hasStickableColumns, encodeTitles, ns, reorderable, groupable, autoSize, hideAutoSizeColumn }) => `<div>
                             <ul>
                                 ${ filterable ? `<li>${kendo.ui.icon("filter")}</li>` : ''}
                                 ${ sortable || hasLockableColumns || hasStickableColumns || reorderable || groupable || autoSize ? `<li>${kendo.ui.icon("sliders")}</li>` : ''}
                                 ${ showColumns ? `<li>${kendo.ui.icon("columns")}</li>` : ''}
                             </ul>
-                            ${filterable ? '<div><div class="k-columnmenu-item-wrapper"><div class="k-columnmenu-item-content k-column-menu-filter"><div class="k-filterable"></div></div></div></div>' : ''}
-                            ${ sortable || hasLockableColumns || hasStickableColumns || reorderable || groupable || autoSize ? tabbedTemplateGeneralSettings(sortable, hasLockableColumns, hasStickableColumns, reorderable, groupable, autoSize, messages) : '' }
-                            ${ showColumns ? `<div>${ COLUMNS_PARTIAL_MODERN({ columns, messages, encodeTitles, ns }) }</div>` : '' }
+                            ${filterable ? '<div class="k-columnmenu-item-wrapper"><div class="k-columnmenu-item-content k-column-menu-filter"><div class="k-filterable"></div></div></div>' : ''}
+                            ${ sortable || hasLockableColumns || hasStickableColumns || reorderable || groupable || autoSize ? tabbedTemplateGeneralSettings(sortable, hasLockableColumns, hasStickableColumns, reorderable, groupable, autoSize, messages, hideAutoSizeColumn, clearAllFilters) : '' }
+                            ${ showColumns ? `${ COLUMNS_PARTIAL_MODERN({ columns, messages, encodeTitles, ns }) }` : '' }
                         </div>`;
 
     /* ------------------------- CLASSIC TEMPLATE ------------------------- */

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -59,11 +59,11 @@ import "../kendo.icons.js";
         ${ suggestedActions.map(action => SUGGESTED_ACTION_TEMPLATE({ styles, action })).join('') }
     </div>`;
 
-    var HERO_IMG_TEMPLATE = ({ images, styles }) => `<img src="${encode(images[0].url)}" alt="${images[0].alt}" class="${styles.cardImage}" />`;
+    var HERO_IMG_TEMPLATE = ({ images, styles }) => `<img src="${encode(images[0].url)}" alt="${images[0].alt}" class="${styles.cardMedia}" />`;
 
-    var CARD_ACTION_BUTTON_TEMPLATE = ({ button, styles }) => `<span class="${styles.cardAction}"><span class="${styles.button} ${styles.buttonPrimary}" data-value="${encode(button.value)}">${encode(button.title)}</span></span>`;
+    var CARD_ACTION_BUTTON_TEMPLATE = ({ button, styles }) => `<span class="${styles.cardAction}"><button class="${styles.button} ${styles.buttonPrimary}" data-value="${encode(button.value)}"><span class="k-button-text">${encode(button.title)}</span></button></span>`;
 
-    var CARD_ACTIONS_TEMPLATE = ({ styles, buttons }) => `<div class="${styles.cardActions} ${styles.cardActionsVertical}">
+    var CARD_ACTIONS_TEMPLATE = ({ styles, buttons }) => `<div class="k-actions ${styles.cardActions} ${styles.cardActionsVertical}">
         ${ buttons.map((button) => CARD_ACTION_BUTTON_TEMPLATE({ styles, button })).join('') }
     </div>`;
 
@@ -167,11 +167,16 @@ import "../kendo.icons.js";
         card: "k-card",
         cardRich: "k-card-type-rich",
         cardBody: "k-card-body",
-        cardImage: "k-card-image",
+        cardMedia: "k-card-media",
         cardTitle: "k-card-title",
         cardSubtitle: "k-card-subtitle",
         cardActions: "k-card-actions",
-        cardActionsVertical: "k-card-actions-vertical",
+        cardActionsVertical: "k-actions-vertical",
+        cardActionsHorizontal: "k-actions-horizontal",
+        cardActionsStart: "k-actions-start",
+        cardActionsCenter: "k-actions-center",
+        cardActionsEnd: "k-actions-end",
+        cardActionsStretched: "k-actions-stretched",
         cardAction: "k-card-action",
         selected: "k-selected"
     };

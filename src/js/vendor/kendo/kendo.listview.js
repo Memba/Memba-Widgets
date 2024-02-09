@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -194,6 +194,8 @@ var __meta__ = {
             this.options.dataSource = dataSource;
             this._dataSource();
 
+            this._pageable();
+
             if (this.options.autoBind) {
                 dataSource.fetch();
             }
@@ -214,7 +216,7 @@ var __meta__ = {
         _dataSource: function() {
             var that = this,
                 pageable = that.options.pageable,
-                dataSource = that.options.dataSource;
+                dataSource = that.options.dataSource || {};
 
             if ($.isPlainObject(pageable) && pageable.pageSize !== undefined) {
                 dataSource.pageSize = pageable.pageSize;

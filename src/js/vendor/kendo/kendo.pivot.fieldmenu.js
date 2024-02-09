@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -33,7 +33,12 @@ var __meta__ = {
     var MENU = "kendoContextMenu";
     var NS = ".kendoPivotFieldMenu";
     var KEYBOARD_NS = ".kendoPivotFieldMenuKeyboard";
+    var PIVOT_SETTING_TARGET_V2 = "kendoPivotSettingTargetV2";
     var Widget = ui.Widget;
+    var DOT = ".";
+    var CHIP_LIST = "k-chip-list";
+    var ROW_FIELDS = "k-row-fields";
+    var COLUMN_FIELDS = "k-column-fields";
     var FILTER_ITEM = "k-filter-item";
     var ARIA_LABEL = "aria-label",
     EXPANSIONPANEL = "kendoExpansionPanel";
@@ -77,6 +82,10 @@ var __meta__ = {
                 include: "Include Fields...",
                 clear: "Clear",
                 reset: "Reset",
+                moveToColumns: "Move to Columns",
+                moveToRows: "Move to Rows",
+                movePrevious: "Move previous",
+                moveNext: "Move next",
                 filterOperatorsDropDownLabel: "Region Filter Operators",
                 filterValueTextBoxLabel: "Region Filter Value",
                 operators: {
@@ -138,6 +147,12 @@ var __meta__ = {
             }));
         },
 
+        _getSettingTargets: function() {
+            this.columnsSettingTarget = this.element.parent().find(DOT + COLUMN_FIELDS).eq(0).data(PIVOT_SETTING_TARGET_V2);
+            this.measuresSettingTarget = this.element.parent().find(DOT + COLUMN_FIELDS).eq(1).data(PIVOT_SETTING_TARGET_V2);
+            this.rowsSettingTarget = this.element.parent().find(DOT + ROW_FIELDS).data(PIVOT_SETTING_TARGET_V2);
+        },
+
         _createTreeView: function(element) {
             var that = this;
 
@@ -175,7 +190,8 @@ var __meta__ = {
                 ns: kendo.ns,
                 filterable: options.filterable,
                 sortable: options.sortable,
-                messages: options.messages
+                messages: options.messages,
+                renderAll: options.setting !== "measures"
             }));
 
             kendo.applyStylesFromKendoAttributes(that.wrapper, ["overflow"]);
@@ -264,14 +280,26 @@ var __meta__ = {
         },
 
         _deactivateMenu: function(e) {
-            var that = this;
+            var that = this,
+                chip = that.menu.target.find("[tabindex=0]"),
+                configuratorElement = that.element.parent();
+
+            if (!chip.length) {
+                chip = configuratorElement.find(`.k-chip:contains("${that.currentMember}")`);
+                chip.attr("tabindex", 0);
+            }
+
             // focus the chip instead of the chiplist
-            that.menu.target.find("[tabindex=0]").trigger("focus");
+            chip.trigger("focus");
         },
 
         _closeMenu: function(e) {
             var that = this;
             var activeElement = $(kendo._activeElement());
+
+            if (!that.options.filterable) {
+                return;
+            }
 
             if (activeElement[0] === this._filterOperator.wrapper[0] || activeElement.closest(".k-treeview")[0] === that.treeView.wrapper[0] ||
                 activeElement.hasClass("k-button-includes-reset")) {
@@ -386,8 +414,26 @@ var __meta__ = {
 
             if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-asc-small,.k-svg-i-sort-asc-small").length) {
                 this._sort("asc");
-            } else if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-desc-small,.k-svg-i-sort-desc-small").length) {
+            }
+
+            if (item.hasClass("k-columnmenu-item") && item.find(".k-i-sort-desc-small,.k-svg-i-sort-desc-small").length) {
                 this._sort("desc");
+            }
+
+            if (item.hasClass("k-columnmenu-item") && item.find(".k-i-columns,.k-svg-i-columns").length) {
+                this._move("columns");
+            }
+
+            if (item.hasClass("k-columnmenu-item") && item.find(".k-i-rows,.k-svg-i-rows").length) {
+                this._move("rows");
+            }
+
+            if (item.hasClass("k-columnmenu-item") && item.find(".k-i-arrow-left,.k-svg-i-arrow-left").length) {
+                this._move("previous");
+            }
+
+            if (item.hasClass("k-columnmenu-item") && item.find(".k-i-arrow-right,.k-svg-i-arrow-right").length) {
+                this._move("next");
             }
         },
 
@@ -551,6 +597,76 @@ var __meta__ = {
             this.menu.close();
         },
 
+        _move: function(action) {
+            var that = this,
+                index = that.currentMemberIndex;
+
+            switch (action) {
+                case "columns":
+                    that._moveToColumns();
+                    break;
+                case "rows":
+                    that._moveToRows();
+                    break;
+                case "previous":
+                    that._changeOrder(--index);
+                    break;
+                case "next":
+                    that._changeOrder(++index);
+                    break;
+            }
+
+            that.menu.close();
+        },
+
+        _updateDisabledState: function() {
+            var that = this,
+                menu = that.menu.element,
+                target = that.currentSettingTarget.element,
+                targetLabel = target.prev().text();
+
+            menu.find(".k-columnmenu-item.k-disabled").removeClass("k-disabled");
+
+            if (that.currentMemberIndex === 0) {
+                menu.find('[data-move="previous"]').closest(".k-columnmenu-item").addClass("k-disabled");
+            }
+
+            if (that.currentMemberIndex === target.children().length - 1) {
+                menu.find('[data-move="next"]').closest(".k-columnmenu-item").addClass("k-disabled");
+            }
+
+            if (targetLabel === "Columns") {
+                menu.find('[data-move="columns"]').closest(".k-columnmenu-item").addClass("k-disabled");
+            }
+
+            if (targetLabel === "Rows") {
+                menu.find('[data-move="rows"]').closest(".k-columnmenu-item").addClass("k-disabled");
+            }
+        },
+
+        _moveToColumns: function() {
+            var that = this,
+                currentMember = that.currentMember;
+
+            that.rowsSettingTarget.remove(currentMember);
+            that.columnsSettingTarget.add(currentMember);
+        },
+
+        _moveToRows: function() {
+            var that = this,
+                currentMember = that.currentMember;
+
+            that.columnsSettingTarget.remove(currentMember);
+            that.rowsSettingTarget.add(currentMember);
+        },
+
+        _changeOrder: function(index) {
+            var that = this,
+                currentMember = that.currentMember;
+
+            this.currentSettingTarget.move(currentMember, index);
+        },
+
         _menuOpen: function(e) {
             if (!e.event) {
                 return;
@@ -559,8 +675,14 @@ var __meta__ = {
             var that = this;
             var schemaCube = that.dataSource.cubeSchema;
             var filterBox;
-            that.currentMember = $(e.event.target).closest(".k-chip-actions").prev().text();
+            var member = $(e.event.target).closest(".k-chip");
+            that.currentMember = member.text();
+            that.currentMemberIndex = member.index();
+            that.currentSettingTarget = member.closest(DOT + CHIP_LIST).data(PIVOT_SETTING_TARGET_V2);
             that.menu.popup._hovered = true;
+
+            that._getSettingTargets();
+            that._updateDisabledState();
 
             if (that.options.filterable) {
                 that._setFilterForm(that._getFilterStorage(that.currentMember));
@@ -1170,19 +1292,19 @@ var __meta__ = {
             '</form>' +
         '</div>';
 
-    var MENUTEMPLATEV2 = ({ messages }) =>
+    var MENUTEMPLATEV2 = ({ messages, sortable, filterable, renderAll }) =>
         '<div class="k-pivotgrid-column-menu k-column-menu k-popup k-child-animation-container">' +
             '<div class="k-pivotgrid-column-menu-popup k-grid-columnmenu-popup">' +
                 '<div>' +
-                    '<div class="k-columnmenu-item-wrapper">' +
+                    (sortable && renderAll ? '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-columnmenu-item k-item">' +
                             `${kendo.ui.icon("sort-asc-small")}${encode(messages.sortAscending)}` +
                         '</div>' +
                         '<div class="k-columnmenu-item k-item">' +
                             `${kendo.ui.icon("sort-desc-small")}${encode(messages.sortDescending)}` +
                         '</div>' +
-                    '</div>' +
-                    '<div class="k-columnmenu-item-wrapper">' +
+                    '</div>' : '') +
+                    (filterable && renderAll ? '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-columnmenu-item-content k-columns-item">' +
                             '<div class="k-column-list-wrapper">' +
                                 '<div class="k-column-list">' +
@@ -1195,8 +1317,8 @@ var __meta__ = {
                                 kendo.html.renderButton(`<button class="k-button-includes-apply">${encode(messages.apply)}</button>`, { themeColor: "primary" }) +
                             '</div>' +
                         '</div>' +
-                    '</div>' +
-                    '<div class="k-columnmenu-item-wrapper">' +
+                    '</div>' : '') +
+                    (filterable && renderAll ? '<div class="k-columnmenu-item-wrapper">' +
                         '<div class="k-columnmenu-item-content k-column-menu-filter">' +
                             '<div class="kendo-grid-filter-menu-container">' +
                                 '<form class="k-filter-menu k-group k-reset">' +
@@ -1213,10 +1335,26 @@ var __meta__ = {
                                 '</form>' +
                             '</div>' +
                         '</div>' +
-                    '</div>' +
+                    '</div>' : '') +
+                    MOVE_OPERATIONS_TEMPLATE(renderAll, messages) +
                 '</div>' +
             '</div>' +
         '</div>';
+
+    var MOVE_OPERATIONS_TEMPLATE = (renderAll, messages) => '<div class="k-columnmenu-item-wrapper">' +
+                        (renderAll ? '<div class="k-columnmenu-item k-item" data-move="columns">' +
+                            `${kendo.ui.icon("columns")}${encode(messages.moveToColumns)}` +
+                        '</div>' : '') +
+                        (renderAll ? '<div class="k-columnmenu-item k-item" data-move="rows">' +
+                            `${kendo.ui.icon("rows")}${encode(messages.moveToRows)}` +
+                        '</div>' : '') +
+                        '<div class="k-columnmenu-item k-item" data-move="previous">' +
+                            `${kendo.ui.icon("arrow-left")}${encode(messages.movePrevious)}` +
+                        '</div>' +
+                        '<div class="k-columnmenu-item k-item" data-move="next">' +
+                            `${kendo.ui.icon("arrow-right")}${encode(messages.moveNext)}` +
+                        '</div>' +
+                    '</div>';
 
     var MENU_TEMPLATE_SORTABLE_PARTIAL = (messages, sortable, filterable) => {
         var result = '';

@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -34,11 +34,10 @@ import "./calc.js";
 
     function readExcel(file, workbook, deferred) {
         var reader = new FileReader();
-        reader.onload = function(e) {
-            var zip = new JSZip(e.target.result);
-            readWorkbook(zip, workbook, deferred);
+        reader.onload = async function(e) {
+            JSZip.loadAsync(e.target.result)
+                .then(async zip => await readWorkbook(zip, workbook, deferred));
         };
-
         reader.readAsArrayBuffer(file);
     }
 
@@ -58,6 +57,7 @@ import "./calc.js";
     var SEL_VIEW = ["bookViews", "workbookView"];
     var SEL_SHEET_VIEW = ["sheetViews", "sheetView"];
     var SEL_HYPERLINK = ["hyperlinks", "hyperlink"];
+    var SEL_PROTECTION = ["sheetProtection"];
 
     /* A validation section looks like this:
      *
@@ -119,23 +119,23 @@ import "./calc.js";
         return file;
     }
 
-    function readWorkbook(zip, workbook, progress) {
+    async function readWorkbook(zip, workbook, progress) {
         ERROR_LOG = workbook.excelImportErrors = [];
 
-        var strings = readStrings(zip);
-        var relationships = readRelationships(zip, "_rels/workbook.xml");
-        var theme = readTheme(zip, relationships.byType.theme[0]);
-        var styles = readStyles(zip, theme);
+        var strings = await readStrings(zip);
+        var relationships = await readRelationships(zip, "_rels/workbook.xml");
+        var theme = await readTheme(zip, relationships.byType.theme[0]);
+        var styles = await readStyles(zip, theme);
         var items = [];
         var activeSheet = 0;
 
-        parse(zip, "xl/workbook.xml", {
+        await parse(zip, "xl/workbook.xml", {
             enter: function(tag, attrs) {
                 if (this.is(SEL_SHEET)) {
                     var relId = attrs["r:id"];
                     var file = relationships.byId[relId];
                     var name = attrs.name;
-                    var dim = sheetDimensions(zip, file);
+                    var dim = sheetDimensions(relationships.bytes[file]);
 
                     workbook.options.columnWidth = dim.columnWidth || workbook.options.columnWidth;
                     workbook.options.rowHeight = dim.rowHeight || workbook.options.rowHeight;
@@ -204,7 +204,6 @@ import "./calc.js";
     function loadSheets(items, workbook, progress) {
         var ready = (new $.Deferred()).resolve();
         for (var i = 0; i < items.length; i++) {
-
             (function(entry, i) {
                 ready = ready.then(function() {
                     var sheet = workbook.insertSheet(entry.options);
@@ -233,8 +232,8 @@ import "./calc.js";
     function queueSheet(sheet, ctx) {
         var deferred = new $.Deferred();
 
-        setTimeout(function() {
-            readSheet(ctx.zip, ctx.file, sheet, ctx.strings, ctx.styles);
+        setTimeout(async function() {
+            await readSheet(ctx.zip, ctx.file, sheet, ctx.strings, ctx.styles);
             deferred.resolve();
         }, 0);
 
@@ -249,13 +248,13 @@ import "./calc.js";
         }
     }
 
-    function sheetDimensions(zip, file) {
+    function sheetDimensions(bytes) {
         var ref, dim = {
             rows: 0,
             cols: 0
         };
 
-        parse(zip, xl(file), {
+        parseXML(bytes, {
             enter: function(tag, attrs) {
                 if (tag == "dimension") {
                     ref = parseReference(attrs.ref);
@@ -297,13 +296,13 @@ import "./calc.js";
         return pts * (4 / 3);
     }
 
-    function readSheet(zip, file, sheet, strings, styles) {
+    async function readSheet(zip, file, sheet, strings, styles) {
         var sharedFormulas = {};
         var ref, type, value, formula, formulaRange, isArrayFormula;
         var nCols = sheet._columns._count;
         var prevCellRef = null;
         var relsFile = file.replace(/worksheets\//, "worksheets/_rels/");
-        var relationships = readRelationships(zip, relsFile);
+        var relationships = await readRelationships(zip, relsFile);
         var formula1, formula2;
 
         var filterRef;
@@ -313,12 +312,13 @@ import "./calc.js";
         var valueFilterBlanks;
         var valueFilterValues;
         var filters = [];
+        var deferredStyles = [];
 
         ERROR_LOG = sheet._workbook.excelImportErrors;
 
         file = xl(file);
 
-        parse(zip, file, {
+        await parse(zip, file, {
             enter: function(tag, attrs, closed) {
                 var tmp;
                 if (this.is(SEL_FORMULA)) {
@@ -358,7 +358,7 @@ import "./calc.js";
 
                     var styleIndex = attrs.s;
                     if (styleIndex != null) {
-                        applyStyle(sheet, ref, styles, styleIndex);
+                        deferredStyles.push({ ref: ref,  sty: +styleIndex });
                     }
                 }
                 else if (this.is(SEL_MERGE)) {
@@ -381,10 +381,13 @@ import "./calc.js";
                     }
                     if (attrs.style != null) {
                         // apply style on a whole range of columns
-                        applyStyle(sheet, new kendo.spreadsheet.RangeRef(
-                            new kendo.spreadsheet.CellRef(-Infinity, start),
-                            new kendo.spreadsheet.CellRef(+Infinity, stop)
-                        ), styles, attrs.style);
+                        deferredStyles.unshift({
+                            ref: new kendo.spreadsheet.RangeRef(
+                                new kendo.spreadsheet.CellRef(-Infinity, start),
+                                new kendo.spreadsheet.CellRef(+Infinity, stop)
+                            ),
+                            sty: +attrs.style
+                        });
                     }
                 }
                 else if (this.is(SEL_ROW)) {
@@ -425,6 +428,11 @@ import "./calc.js";
                     var target = relationships.byId[relId];
                     if (target) {
                         sheet.range(attrs.ref).link(target);
+                    }
+                }
+                else if (this.is(SEL_PROTECTION)) {
+                    if (attrs.sheet) {
+                        sheet.range(kendo.spreadsheet.SHEETREF).enable(false);
                     }
                 }
                 else if (this.is(["autoFilter"])) {
@@ -601,14 +609,16 @@ import "./calc.js";
             }
         });
 
+        deferredStyles.forEach(({ ref, sty }) => applyStyle(sheet, ref, styles, sty));
+
         if (relationships.byType.comments) {
             var commentFile = relative_file(file, relationships.byType.comments[0]);
-            readComments(zip, commentFile, sheet);
+            await readComments(zip, commentFile, sheet);
         }
 
         if (relationships.byType.drawing) {
             var drawingFile = relative_file(file, relationships.byType.drawing[0]);
-            readDrawings(zip, drawingFile, sheet);
+            await readDrawings(zip, drawingFile, sheet);
         }
 
         function addAutoFilter() {
@@ -635,7 +645,7 @@ import "./calc.js";
         return m && m[0];
     }
 
-    function readDrawings(zip, file, sheet) {
+    async function readDrawings(zip, file, sheet) {
         var sel_two_cell_anchor = [ "xdr:twoCellAnchor" ];
         var sel_ext = [ "xdr:ext" ];
         var sel_one_cell_anchor = [ "xdr:oneCellAnchor" ];
@@ -648,27 +658,27 @@ import "./calc.js";
         var sel_blip = [ "xdr:blipFill", "a:blip" ];
 
         var relsFile = file.replace(/drawings\//, "drawings/_rels/");
-        var relationships = readRelationships(zip, relsFile);
+        var relationships = await readRelationships(zip, relsFile);
 
         if (relationships.byType.image) {
-            Object.keys(relationships.byId).forEach(function(id){
-                var img = relative_file(file, relationships.byId[id]);
-                var type = getContentType(img);
-
+            let relkeys = Object.keys(relationships.byId);
+            for (let i = 0; i < relkeys.length; ++i) {
+                let id = relkeys[i];
+                let img = relative_file(file, relationships.byId[id]);
+                let type = getContentType(img);
                 if (type) {
-                    // XXX: file.asArrayBuffer() is deprecated in JSZip 3
-                    var data = zip.files[img].asArrayBuffer();
+                    var data = await zip.file(img).async("arraybuffer");
                     var name = getFileName(img);
                     var blob = name && !(kendo.support.browser.msie || kendo.support.browser.edge)
                         ? new window.File([ data ], name, { type: type })
                         : new window.Blob([ data ], { type: type });
                     relationships.byId[id] = sheet._workbook.addImage(blob);
                 }
-            });
+            }
         }
 
         var cdr, ref, width, height;
-        parse(zip, file, {
+        await parse(zip, file, {
             enter: function(tag, attrs) {
                 if (this.is(sel_two_cell_anchor) || this.is(sel_one_cell_anchor)) {
                     cdr = {};
@@ -743,11 +753,11 @@ import "./calc.js";
         });
     }
 
-    function readComments(zip, file, sheet) {
+    async function readComments(zip, file, sheet) {
         var authors = [];
         var author;
         var comment;
-        parse(zip, file, {
+        await parse(zip, file, {
             enter: function(tag, attrs) {
                 if (this.is(SEL_COMMENT)) {
                     comment = {
@@ -931,6 +941,9 @@ import "./calc.js";
         if (shouldSet("applyNumberFormat", "numFmtId")) {
             setFormat(styles.numFmts[value] || DEFAULT_FORMATS[value]);
         }
+        if (shouldSet("applyProtection", "protection")) {
+            range.enable(!xf.protection.locked);
+        }
 
         function setFormat(f) {
             var format = typeof f == "string" ? f : f.formatCode;
@@ -1020,16 +1033,23 @@ import "./calc.js";
     }
 
     function parse(zip, file, callbacks) {
-        var part = zip.files[file];
-        if (part) {
-            parseXML(part.asUint8Array(), callbacks);
-        }
+        return new Promise(resolve => {
+            let obj = zip.file(file);
+            if (obj) {
+                obj.async("uint8array").then(bytes => {
+                    parseXML(bytes, callbacks);
+                    resolve();
+                });
+            } else {
+                resolve();
+            }
+        });
     }
 
-    function readStrings(zip) {
+    async function readStrings(zip) {
         var strings = [];
         var current = null;
-        parse(zip, "xl/sharedStrings.xml", {
+        await parse(zip, "xl/sharedStrings.xml", {
             leave: function() {
                 if (this.is(SEL_SHARED_STRING)) {
                     strings.push(current);
@@ -1048,9 +1068,9 @@ import "./calc.js";
         return strings;
     }
 
-    function readRelationships(zip, file) {
-        var map = { byId: {}, byType: { theme: [] } };
-        parse(zip, xl(file) + ".rels", {
+    async function readRelationships(zip, file) {
+        var map = { byId: {}, byType: { theme: [] }, bytes: {} };
+        await parse(zip, xl(file) + ".rels", {
             enter: function(tag, attrs) {
                 if (tag == "Relationship") {
                     map.byId[attrs.Id] = attrs.Target;
@@ -1062,6 +1082,18 @@ import "./calc.js";
                 }
             }
         });
+        let names = [];
+        let promises = [];
+        Object.keys(map.byId).forEach(id => {
+            let filename = map.byId[id];
+            let obj = zip.file(xl(filename));
+            if (obj) {
+                names.push(filename);
+                promises.push(obj.async("uint8array"));
+            }
+        });
+        let data = await Promise.all(promises);
+        names.forEach((name, i) => map.bytes[name] = data[i]);
         return map;
     }
 
@@ -1099,7 +1131,7 @@ import "./calc.js";
         toCSSColor("FFFFFFFF")  // System Background
     ];
 
-    function readStyles(zip, theme) {
+    async function readStyles(zip, theme) {
         var styles = {
             fonts        : [],
             numFmts      : {},
@@ -1112,7 +1144,7 @@ import "./calc.js";
         var fill = null;
         var border = null;
         var xf = null;
-        parse(zip, "xl/styles.xml", {
+        await parse(zip, "xl/styles.xml", {
             enter: function(tag, attrs, closed) {
                 if (this.is(SEL_NUM_FMT)) {
                     styles.numFmts[attrs.numFmtId] = attrs;
@@ -1203,6 +1235,10 @@ import "./calc.js";
                         if (attrs.indent != null) {
                             xf.indent = integer(attrs.indent);
                         }
+                    } else if (tag == "protection") {
+                        xf.protection = {
+                            locked: bool(attrs.locked)
+                        };
                     }
                 }
             },
@@ -1234,10 +1270,12 @@ import "./calc.js";
             addBool("applyFill");
             addBool("applyFont");
             addBool("applyNumberFormat");
-            addBool("applyProtection");
+            if (addBool("applyProtection")) {
+                xf.protection = { locked: true };
+            }
             function addBool(name) {
                 if (attrs[name] != null) {
-                    xf[name] = bool(attrs[name]);
+                    return xf[name] = bool(attrs[name]);
                 }
             }
             return xf;
@@ -1279,15 +1317,15 @@ import "./calc.js";
 
     var SEL_SCHEME_RGBCLR = ["a:clrScheme", "*", "a:srgbClr"];
     var SEL_SCHEME_SYSCLR = ["a:clrScheme", "*", "a:sysClr"];
-    function readTheme(zip, rel) {
+    async function readTheme(zip, rel) {
         var scheme = [];
         var theme = {
             colorScheme: scheme
         };
 
         var file = xl(rel);
-        if (zip.files[file]) {
-            parse(zip, file, {
+        if (zip.file(file)) {
+            await parse(zip, file, {
                 enter: function(tag, attrs) {
                     if (this.is(SEL_SCHEME_SYSCLR)) {
                         scheme.push(toCSSColor(

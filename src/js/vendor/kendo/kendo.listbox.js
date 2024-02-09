@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -1046,7 +1046,9 @@ var __meta__ = {
             }
             that._getList().html(html);
             that._setItemIds();
-            that._createToolbar();
+            if (!that.toolbar) {
+                that._createToolbar();
+            }
             that._syncElement();
             that._updateToolbar();
             that._updateAllToolbars();
@@ -1148,7 +1150,6 @@ var __meta__ = {
             var that = this;
             var toolbarOptions = that.options.toolbar;
             var position = toolbarOptions.position || RIGHT;
-            var toolbarInsertion = position === BOTTOM ? "insertAfter" : "insertBefore";
             var tools = toolbarOptions.tools || [];
             var messages = that.options.messages;
 
@@ -1156,7 +1157,7 @@ var __meta__ = {
             that.wrapper.removeClass(TOOLBAR_POSITION_CLASS_NAMES.join(SPACE));
 
             if (tools.length && tools.length > 0) {
-                var toolbarElement = $(that.templates.toolbar)[toolbarInsertion](that._innerWrapper);
+                var toolbarElement = $(that.templates.toolbar).insertBefore(that._innerWrapper);
                 that.toolbar = new ToolBar(toolbarElement, extend({}, toolbarOptions, { listBox: that, messages: messages }));
                 that.wrapper.addClass(TOOLBAR_CLASS + DASH + position);
             }
@@ -1632,7 +1633,9 @@ var __meta__ = {
         _onToolClick: function(e) {
             e.preventDefault();
 
-            this._executeToolCommand($(e.currentTarget).data(COMMAND));
+            var tool = $(e.currentTarget);
+            this._tabindex(tool);
+            this._executeToolCommand(tool.data(COMMAND));
             this._focusTool();
         },
 

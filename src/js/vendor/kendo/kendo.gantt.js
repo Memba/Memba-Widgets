@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -75,9 +75,10 @@ var __meta__ = {
         content: "k-gantt-content",
         listWrapper: "k-gantt-treelist",
         list: "k-gantt-treelist",
-        timelineWrapper: "k-gantt-timeline",
-        timeline: "k-gantt-timeline",
+        timelineWrapper: "k-gantt-timeline-pane",
+        timeline: "k-gantt-timeline-pane",
         splitBar: "k-splitbar",
+        splitter: "k-splitter",
         popupWrapper: "k-list-container",
         popupList: "k-list k-reset",
         resizeHandle: "k-resize-handle",
@@ -2389,7 +2390,7 @@ var __meta__ = {
                         that.toolbar,
                         that.layout.find(".k-splitbar"),
                         that.layout.find(".k-gantt-treelist"),
-                        that.layout.find(".k-gantt-timeline")
+                        that.layout.find(".k-gantt-timeline-pane")
                     ];
 
                     that._tabPressed = false;
@@ -2527,10 +2528,19 @@ var __meta__ = {
 
         Gantt.fn._drawPDF = function() {
             var ganttStyles = Gantt.styles;
+            // Get the width of the treelist portion.
             var listTableWidth = this.wrapper.find(DOT + ganttStyles.list + " " + DOT + ganttStyles.gridContent + ">table").width();
+            // Get the height of the treelist portion.
+            var listTableHeight = this.wrapper.find(DOT + ganttStyles.list + " " + DOT + ganttStyles.gridContent + ">table").height();
+            // Get the combined height of all toolbars.
+            var toolbarsHeight = this.wrapper.find(DOT + ganttStyles.toolbar.toolbar).outerHeight() * this.wrapper.find(DOT + ganttStyles.toolbar.toolbar).length;
+            // Get the width of the timeline portion.
+            var timelineTableWidth = this.wrapper.find(DOT + ganttStyles.timeline + " " + DOT + ganttStyles.gridContent + " table").width();
             var content = this.wrapper.clone();
 
-            content.find(DOT + ganttStyles.list).css("width", listTableWidth);
+            content.find(DOT + ganttStyles.list).css("height", listTableHeight + toolbarsHeight);
+            content.find(DOT + ganttStyles.splitter).css("width", timelineTableWidth + listTableWidth);
+            content.find(DOT + ganttStyles.splitter).css("height", listTableHeight + toolbarsHeight);
 
             return this._drawPDFShadow({
                 content: content

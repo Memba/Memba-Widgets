@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -23,6 +23,8 @@ import "./kendo.form.js";
 import "./kendo.toolbar.js";
 import "./kendo.icons.js";
 import "./kendo.reorderable.js";
+import "./kendo.excel.js";
+import "./kendo.pdf.js";
 
 var __meta__ = {
     id: "treelist",
@@ -293,12 +295,12 @@ var __meta__ = {
             methodName: "saveChanges"
         },
         excel: {
-            icon: "excel",
+            icon: "file-excel",
             className: "k-grid-excel",
             methodName: "saveAsExcel"
         },
         pdf: {
-            icon: "pdf",
+            icon: "file-pdf",
             className: "k-grid-pdf",
             methodName: "saveAsPDF"
         },
@@ -4505,7 +4507,7 @@ var __meta__ = {
         _tableClick: function(e) {
             var that = this,
                 currentTarget = $(e.currentTarget),
-                isHeader = currentTarget.is("th"),
+                isHeader = currentTarget.is("tr:not('.k-filter-row')>th"),
                 target = $(e.target),
                 table = this.table.add(this.lockedTable),
                 headerTable = this.thead.parent().add($(">table", this.lockedHeader)),
@@ -4520,7 +4522,7 @@ var __meta__ = {
                 return;
             }
 
-            if (this.options.navigatable) {
+            if (this.options.navigatable && !isInput) {
                 this._setCurrent(currentTarget);
             }
 
@@ -4563,7 +4565,7 @@ var __meta__ = {
             var retryButton = DOT + classNames.retry;
 
             that._userEvents = new kendo.UserEvents(that.element, {
-                press: that._onPress.bind(that),
+                tap: that._onPress.bind(that),
                 allowSelection: true
             });
 
@@ -7742,6 +7744,7 @@ var __meta__ = {
             this._draggableInstance = new ui.Draggable(this.wrapper, {
                 group: kendo.guid(),
                 filter: selector,
+                ignore: ".k-filter-row *",
                 hint: function(target) {
                     return $('<div class="k-reorder-clue k-drag-clue" />')
                     .html(target.attr(kendo.attr("title")) || target.attr(kendo.attr("field")) || target.text())

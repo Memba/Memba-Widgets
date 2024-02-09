@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -30,6 +30,8 @@ var __meta__ = {
 
             element = that.wrapper = that.element;
 
+            element.addClass("k-ripple-container");
+
             that.options = extend({}, that.options, options);
 
             that.registerListeners();
@@ -39,17 +41,12 @@ var __meta__ = {
             name: "RippleContainer",
             elements: [
                 { selector: ".k-button:not(li)" },
-                { selector: ".k-list > .k-item", options: { global: true } },
+                { selector: ".k-list-ul > .k-list-item", options: { global: true } },
                 { selector: ".k-checkbox-label, .k-radio-label" },
                 {
                     selector: ".k-checkbox, .k-radio",
                     options: {
-                        events: ["focusin"],
-                        container: function(el) {
-                            if (/\b(k-checkbox|k-radio)\b/.test(el.className)) {
-                                return el.nextElementSibling;
-                            }
-                        }
+                        events: [ "focusin", "animationend", "click"]
                     }
                 }
             ]

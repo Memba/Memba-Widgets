@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -8,6 +8,8 @@
  */
 import "../kendo.core.js";
 import "./kendo-ooxml.js";
+// import * as ooxml from "/kendo-ooxml/src/main.js";
+// kendo.ooxml = ooxml;
 
 (function ($) {
 
@@ -17,9 +19,11 @@ kendo.ooxml.IntlService.register({
     toString: kendo.toString
 });
 
-kendo.ooxml.Workbook = Workbook.extend({
+var toDataURL = Workbook.prototype.toDataURL;
+
+Object.assign(Workbook.prototype, {
     toDataURL: function() {
-        var result = Workbook.fn.toDataURL.call(this);
+        var result = toDataURL.call(this);
         if (typeof result !== 'string') {
             throw new Error('The toDataURL method can be used only with jsZip 2. Either include jsZip 2 or use the toDataURLAsync method.');
         }
@@ -29,7 +33,7 @@ kendo.ooxml.Workbook = Workbook.extend({
 
     toDataURLAsync: function() {
         var deferred = $.Deferred();
-        var result = Workbook.fn.toDataURL.call(this);
+        var result = toDataURL.call(this);
         if (typeof result === 'string') {
             result = deferred.resolve(result);
         } else if (result && result.then){

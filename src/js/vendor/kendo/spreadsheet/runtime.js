@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -1086,13 +1086,13 @@ import "./references.js";
         }
     }
 
-    function limitPrecision(num) {
-        return num === parseInt(num, 10) ? num : +num.toPrecision(16);
+    function limitPrecision(num, digits) {
+        return num === parseInt(num, 10) ? num : +num.toPrecision(digits || 16);
     }
 
-    function maybeRoundFloatErrors(num) {
+    function maybeRoundFloatErrors(num, digits) {
         if (typeof num == "number") {
-            return limitPrecision(num);
+            return limitPrecision(num, digits);
         } else {
             return num;
         }
@@ -1677,6 +1677,11 @@ import "./references.js";
                 right = right.toLowerCase();
             }
             if (typeof right == typeof left) {
+                // for issue https://github.com/telerik/kendo-ui-core/issues/6879, limitPrecision
+                // digits got bumped to 16, but it's too much for the case 9.302 - 0.002 (issue
+                // https://github.com/telerik/kendo-ui-core/issues/7170).
+                left = maybeRoundFloatErrors(left, 15);
+                right = maybeRoundFloatErrors(right, 15);
                 return func(left, right);
             } else {
                 return new CalcError("VALUE");

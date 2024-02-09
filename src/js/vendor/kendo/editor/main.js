@@ -1,6 +1,6 @@
 /**
- * Kendo UI v2023.3.1114 (http://www.telerik.com/kendo-ui)
- * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ * Kendo UI v2024.1.130 (http://www.telerik.com/kendo-ui)
+ * Copyright 2024 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
@@ -365,7 +365,7 @@ import "../kendo.icons.js";
             kendo.notify(that);
 
             if (that._showWatermarkOverlay) {
-                that._showWatermarkOverlay(that.wrapper[0]);
+                that._showWatermarkOverlay((that.wrapper && that.wrapper[0]) || that.element[0]);
             }
         },
 
@@ -383,6 +383,8 @@ import "../kendo.icons.js";
             name: "Editor",
             messages: messages,
             placeholder: "",
+            nonce: "",
+            unsafeInline: true,
             formats: {},
             encoded: true,
             domain: null,
@@ -804,7 +806,7 @@ import "../kendo.icons.js";
             // or forcefully relax if options.domain is specified (for document.domain = document.domain scenario)
             if (specifiedDomain || domain != location.hostname) {
                 // relax same-origin policy
-                domainScript = "<script>document.domain=\"" + domain + "\"</script>";
+                domainScript = `<script ${editor.options.nonce ? `nonce="${editor.options.nonce}"` : "" }>document.domain="${domain}"</script>`;
                 src = "javascript:document.write('" + domainScript + "')";
                 iframe.src = src;
             }
@@ -827,7 +829,7 @@ import "../kendo.icons.js";
                 "<!DOCTYPE html><html lang='" + lang + "'><head>" +
                 "<meta charset='utf-8' />" +
                 "<title>Kendo UI Editor content</title>" +
-                "<style>" +
+                `<style ${editor.options.nonce ? `nonce="${editor.options.nonce}"` : "" }>` +
                     "html{padding:0;margin:0;height:100%;min-height:100%;cursor:text;}" +
                     "body{padding:0;margin:0;}" +
                     "body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;" +
@@ -871,7 +873,7 @@ import "../kendo.icons.js";
                 "</style>" +
                 domainScript +
                 $.map(stylesheets, function(href) {
-                    return "<link rel='stylesheet' href='" + href + "'>";
+                    return `<link rel='stylesheet' href='${href}' ${editor.options.nonce ? `nonce="${editor.options.nonce}"` : "" }>`;
                 }).join("") +
                 "</head><body autocorrect='off' contenteditable='true'></body></html>"
             );
@@ -903,14 +905,17 @@ import "../kendo.icons.js";
                     component.list.css("background-color", dom.getEffectiveBackground($(body)));
                 }
 
-                for (i = 0; i < items.length; i++) {
-                    tag = items[i].tag || "span";
-                    className = items[i].className;
+                if (this.options.unsafeInline !== false) {
 
-                    style = dom.inlineStyle(body, tag, { className: className });
-                    style = style.replace(/"/g, "'");
+                    for (i = 0; i < items.length; i++) {
+                        tag = items[i].tag || "span";
+                        className = items[i].className;
 
-                    items[i].style = style + ";display:inline-block";
+                        style = dom.inlineStyle(body, tag, { className: className });
+                        style = style.replace(/"/g, "'");
+
+                        items[i].style = style + ";display:inline-block";
+                    }
                 }
 
                 dataSource.trigger("change");
@@ -1253,7 +1258,7 @@ import "../kendo.icons.js";
                 return;
             }
 
-            style = "<style id='" + PLACEHOLDER_TAG_ID + "'>." +
+            style = `<style id='${PLACEHOLDER_TAG_ID}' ${that.options.nonce ? `nonce="${that.options.nonce}"` : "" } >.` +
                         PLACEHOLDER_CLASS + ":before { content: '" + placeholder + "'; }" +
                     "</style>";
 
@@ -1289,7 +1294,9 @@ import "../kendo.icons.js";
             that.bind("select", that._refreshTools.bind(that));
 
             toolbarContainer.on("mousedown" + NS, ".k-toolbar-tool", function(e) {
-                e.preventDefault();
+                if (!$(e.target).is("input")) {
+                    e.preventDefault();
+                }
             });
 
             if (!that.textarea) {
